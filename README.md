@@ -1,2 +1,2 @@
-userdomain_common
+userdomain-common
 =================
