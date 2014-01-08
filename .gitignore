@@ -19,5 +19,4 @@ project/plugins/project/
 *.swp
 .history
 target
-ops-puppet
 .DS_Store
