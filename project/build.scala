@@ -14,7 +14,7 @@ import ReleaseStateTransformations._
 object BuildSettings {
   import ChangelogReleaseStep._
 
-  val org = "com.paypal"
+  val org = "com.paypal.stingray"
   val scalaVsn = "2.10.3"
 
   val propFileDir = System.getenv.get("STINGRAY_PROP_FILE_DIR")
@@ -44,14 +44,16 @@ object BuildSettings {
     testOptions in Test += Tests.Argument("html", "console"),
     fork := true,
     publishTo <<= version { version: String =>
-      val stingrayNexus = "http://nexus/nexus/content/repositories/"
+      val stingrayNexus = "http://stingray-nexus-145194.phx-os1.stratus.dev.ebay.com:8081/nexus/content/repositories/"
       if (version.trim.endsWith("SNAPSHOT")) {
         Some("snapshots" at stingrayNexus + "snapshots/")
       } else {
         Some("releases" at stingrayNexus + "releases/")
       }
     },
-    resolvers += "StackMob Nexus" at "http://nexus/nexus/content/groups/public",
+    resolvers ++= Seq(
+      "Stingray Nexus" at "http://stingray-nexus-145194.phx-os1.stratus.dev.ebay.com:8081/nexus/content/groups/public/",
+      "PayPal Nexus" at "http://nexus.paypal.com/nexus/content/groups/public/"),
     conflictManager := ConflictManager.strict,
     dependencyOverrides <+= scalaVersion { vsn => "org.scala-lang" % "scala-library" % vsn },
     releaseProcess := Seq[ReleaseStep](

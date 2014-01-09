@@ -1,4 +1,4 @@
-resolvers += "StackMob Nexus" at "http://nexus/nexus/content/groups/public"
+resolvers ++= Seq("Stingray Nexus" at "http://stingray-nexus-145194.phx-os1.stratus.dev.ebay.com:8081/nexus/content/groups/public/", "PayPal Nexus" at "http://nexus.paypal.com/nexus/content/groups/public/")
 
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.2")
 
