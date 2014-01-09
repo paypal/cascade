@@ -214,7 +214,6 @@ object CommonBuild extends Build {
 }
 
 object ChangelogReleaseStep {
-  //TODO: make this a setting so it can be configured
   val changelog = "CHANGELOG.md"
 
   private def getReleasedVersion(st: State) = st.get(versions).getOrElse(sys.error("No versions are set! Was this release part executed before inquireVersions?"))._1
