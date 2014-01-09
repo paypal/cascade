@@ -45,14 +45,14 @@ object BuildSettings {
     testOptions in Test += Tests.Argument("html", "console"),
     fork := true,
     publishTo <<= version { version: String =>
-      val stingrayNexus = s"$http://stingrayNexusHost/nexus/content/repositories/"
+      val stingrayNexus = s"http://$stingrayNexusHost/nexus/content/repositories/"
       if (version.trim.endsWith("SNAPSHOT")) {
         Some("snapshots" at stingrayNexus + "snapshots/")
       } else {
         Some("releases" at stingrayNexus + "releases/")
       }
     },
-    resolvers += "Stingray Nexus" at s"$http://stingrayNexusHost/nexus/content/groups/public/",
+    resolvers += "Stingray Nexus" at s"http://$stingrayNexusHost/nexus/content/groups/public/",
     conflictManager := ConflictManager.strict,
     dependencyOverrides <+= scalaVersion { vsn => "org.scala-lang" % "scala-library" % vsn },
     releaseProcess := Seq[ReleaseStep](
