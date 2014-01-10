@@ -175,18 +175,18 @@ object CommonBuild extends Build {
     aggregate = Seq(common, services, http, concurrent)
   )
 
-  lazy val common = Project("stringray-common", file("common"),
+  lazy val common = Project("stingray-common", file("common"),
     settings = standardSettings ++ Seq(
-      name := "stringray-common",
+      name := "stingray-common",
       libraryDependencies ++= commonDependencies ++ testDependencies,
       publishArtifact in Test := true
     )
   )
 
-  lazy val http = Project("stringray-http", file("http"),
+  lazy val http = Project("stingray-http", file("http"),
     dependencies = Seq(common % "compile->compile;test->test", concurrent % "compile->compile;test->test"),
     settings = standardSettings ++ Seq(
-      name := "stringray-http",
+      name := "stingray-http",
       libraryDependencies ++= httpDependencies ++ testDependencies,
       publishArtifact in Test := true
     )
@@ -195,17 +195,17 @@ object CommonBuild extends Build {
   lazy val services = Project("stingray-services", file("services"),
     dependencies = Seq(common % "compile->compile;test->test", concurrent % "compile->compile;test->test"),
     settings = standardSettings ++ Seq(
-      name := "stringray-services",
+      name := "stingray-services",
       libraryDependencies ++= serviceDependencies ++ testDependencies,
       publishArtifact in Test := true
     )
   )
 
 
-  lazy val concurrent = Project("stringray-concurrent", file("concurrent"),
+  lazy val concurrent = Project("stingray-concurrent", file("concurrent"),
     dependencies = Seq(common % "compile->compile;test->test"),
     settings = standardSettings ++ Seq(
-      name := "stringray-concurrent",
+      name := "stingray-concurrent",
       libraryDependencies ++= concurrentDependencies ++ testDependencies,
       publishArtifact in Test := true
     )
