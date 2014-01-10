@@ -98,6 +98,8 @@ object Dependencies {
   lazy val jodaConvert         = "org.joda"                  % "joda-convert"                % "1.2" //marked as optional in joda-time
   lazy val mail                = "javax.mail"                % "mail"                        % "1.4"
 
+  lazy val scribe              = "org.scribe"                % "scribe"                      % "1.3.5" exclude("commons-codec", "commons-codec")
+
   lazy val slf4jJul            = "org.slf4j"                 % "jul-to-slf4j"                % slf4jVersion
   lazy val slf4jJcl            = "org.slf4j"                 % "jcl-over-slf4j"              % slf4jVersion      % "runtime"
   lazy val slf4jLog4j          = "org.slf4j"                 % "log4j-over-slf4j"            % slf4jVersion      % "runtime"
@@ -145,7 +147,8 @@ object Dependencies {
     akka,
     logback,
     jodaTime,
-    jodaConvert
+    jodaConvert,
+    scribe
   )
 
   lazy val concurrentDependencies = Seq()
