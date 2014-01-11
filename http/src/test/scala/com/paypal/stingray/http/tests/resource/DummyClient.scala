@@ -8,7 +8,7 @@ import scalaz._
 import Scalaz._
 import com.paypal.stingray.http.client._
 import com.paypal.stingray.common.stats.StatsD
-import com.stackmob.tests.common.stats.DummyStatsD
+import com.paypal.stingray.common.tests.stats.DummyStatsD
 import scala.concurrent.{ExecutionContext, Await}
 import scala.concurrent.duration._
 import com.paypal.stingray.concurrent.future.sequentialExecutionContext

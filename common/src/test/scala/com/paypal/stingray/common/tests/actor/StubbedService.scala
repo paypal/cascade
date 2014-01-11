@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.actor
+package com.paypal.stingray.common.tests.actor
 
 import akka.actor.{ActorSystem, ActorRef}
 import akka.pattern.pipe

@@ -1,7 +1,5 @@
 package com.paypal.stingray.common.stats
 
-import com.paypal.stingray.common.values.StaticValues
-import com.paypal.stingray.common.constants.ValueConstants
 import com.paypal.stingray.common.env.EnvironmentCommon
 import concurrent.{ExecutionContext, Future}
 

@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.stats
+package com.paypal.stingray.common.tests.stats
 
 import com.paypal.stingray.common.values.StaticValuesComponent
 import com.paypal.stingray.common.stats.{StatsDComponent, StatsD}

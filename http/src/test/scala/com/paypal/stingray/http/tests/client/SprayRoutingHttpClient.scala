@@ -17,7 +17,7 @@ import spray.http.HttpResponse
 import akka.testkit.TestActorRef
 import java.util.concurrent.{TimeUnit, CountDownLatch}
 import com.paypal.stingray.common.option._
-import com.stackmob.tests.common.actor.StubbedService
+import com.paypal.stingray.common.tests.actor.StubbedService
 import spray.routing.RequestContext
 import com.paypal.stingray.http.tests.TestServiceNameComponent
 import com.paypal.stingray.common.values.StaticValuesFromServiceNameComponent

@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.enumeration
+package com.paypal.stingray.common.tests.enumeration
 
 import com.paypal.stingray.common.enumeration._
 import com.paypal.stingray.common.validation._

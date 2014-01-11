@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.validation
+package com.paypal.stingray.common.tests.validation
 
 import org.specs2.Specification
 

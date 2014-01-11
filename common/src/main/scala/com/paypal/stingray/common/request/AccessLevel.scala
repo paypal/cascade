@@ -1,7 +1,5 @@
 package com.paypal.stingray.common.request
 
-import scalaz._
-import Scalaz._
 import com.paypal.stingray.common.option._
 
 
@@ -100,7 +98,7 @@ object AccessLevel {
   }
 
   def readString(str: String): Option[AccessLevel] = {
-    str.some collect {
+    Some(str).collect {
       case Open.strVal => Open
       case AllUsers.strVal => AllUsers
       case Owner.strVal => Owner
@@ -113,15 +111,17 @@ object AccessLevel {
 
   }
 
-  def fromType(accessLevelType: AccessLevelType, params: List[String]): Option[AccessLevel] = (accessLevelType, params).some collect {
-    case (AccessLevelType.Open, Nil) => AccessLevel.Open
-    case (AccessLevelType.AllUsers, Nil) => AccessLevel.AllUsers
-    case (AccessLevelType.Owner, Nil) => AccessLevel.Owner
-    case (AccessLevelType.StaticAccessList, aclSchema :: instance :: field :: Nil) => AccessLevel.StaticAccessList(aclSchema, instance, field)
-    case (AccessLevelType.FieldAccessList, field :: Nil) => AccessLevel.FieldAccessList(field)
-    case (AccessLevelType.OwnerAccessList, userSchema :: field :: Nil) => AccessLevel.OwnerAccessList(userSchema, field)
-    case (AccessLevelType.PrivateKey, Nil) => AccessLevel.PrivateKey
-    case (AccessLevelType.NotAllowed, Nil) => AccessLevel.NotAllowed
+  def fromType(accessLevelType: AccessLevelType, params: List[String]): Option[AccessLevel] = {
+    Some(accessLevelType, params).collect {
+      case (AccessLevelType.Open, Nil) => AccessLevel.Open
+      case (AccessLevelType.AllUsers, Nil) => AccessLevel.AllUsers
+      case (AccessLevelType.Owner, Nil) => AccessLevel.Owner
+      case (AccessLevelType.StaticAccessList, aclSchema :: instance :: field :: Nil) => AccessLevel.StaticAccessList(aclSchema, instance, field)
+      case (AccessLevelType.FieldAccessList, field :: Nil) => AccessLevel.FieldAccessList(field)
+      case (AccessLevelType.OwnerAccessList, userSchema :: field :: Nil) => AccessLevel.OwnerAccessList(userSchema, field)
+      case (AccessLevelType.PrivateKey, Nil) => AccessLevel.PrivateKey
+      case (AccessLevelType.NotAllowed, Nil) => AccessLevel.NotAllowed
+    }
   }
 
 }

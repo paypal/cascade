@@ -1,8 +1,6 @@
 package com.paypal.stingray.common.enumeration
 
 import com.paypal.stingray.common.enumeration._
-import scalaz.Equal
-import scalaz.Equal._
 import com.paypal.stingray.common.request.AccessLevel
 
 
@@ -39,7 +37,5 @@ object SchemaAction extends EnumUnapply[SchemaAction] {
       case _ => None
     }
   }
-
-  implicit val environmentTypeEqual: Equal[AccessLevel] = equalA
 
 }

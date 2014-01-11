@@ -1,8 +1,6 @@
 package com.paypal.stingray.common.env
 
 import com.paypal.stingray.common.enumeration._
-import scalaz._
-import scalaz.Equal._
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,7 +32,5 @@ object EnvironmentType extends EnumUnapply[EnvironmentType] {
       case _ => None
     }
   }
-
-  implicit val environmentTypeEqual: Equal[EnvironmentType] = equalA
 
 }

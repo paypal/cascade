@@ -3,7 +3,7 @@ package com.paypal.stingray.concurrent.tests
 import org.specs2.Specification
 import org.specs2.ScalaCheck
 import org.scalacheck._
-import Prop._
+import org.scalacheck.Prop._
 import com.paypal.stingray.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 

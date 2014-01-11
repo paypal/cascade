@@ -1,9 +1,9 @@
-package com.stackmob.tests.common.crypto
+package com.paypal.stingray.common.tests.crypto
 
 import org.specs2._
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Prop._
-import com.stackmob.tests.common.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.common.crypto._
 
 /**

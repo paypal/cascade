@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.util
+package com.paypal.stingray.common.tests.util
 
 import org.specs2._
 import com.paypal.stingray.common.util.casts._
@@ -6,8 +6,8 @@ import scalaz._
 import Scalaz._
 import org.scalacheck._
 import Gen._
-import Prop._
-import Arbitrary.arbitrary
+import org.scalacheck.Prop._
+import org.scalacheck.Arbitrary.arbitrary
 
 /**
  * Created by IntelliJ IDEA.

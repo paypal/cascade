@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.callable
+package com.paypal.stingray.common.tests.callable
 
 import org.specs2.Specification
 import org.specs2.execute.{Result => SpecsResult}
@@ -16,7 +16,7 @@ import java.util.concurrent.Callable
 
 class CallableSpecs extends Specification { def is =
   "CallableSpecs".title                                                                                                 ^
-  "the callable package in stackmob-common is used to make creating and manipulating Callables easier"                  ^
+  "the callable package in stingray-common is used to make creating and manipulating Callables easier"                  ^
   "the callable function should"                                                                                        ^
     "create the appropriate callable"                                                                                   ! callableFunctionSucceeds ^
                                                                                                                         end ^

@@ -1,8 +1,5 @@
 package com.paypal.stingray.common
 
-import scalaz._
-import Scalaz._
-import net.liftweb.json.scalaz.JsonScalaz._
 import net.liftweb.json.JsonAST._
 import com.paypal.stingray.common.validation._
 
@@ -45,7 +42,7 @@ package object enumeration {
    */
   def lowerEnumReader[T <: Enumeration](values: T*): EnumReader[T] = enumReader { s: String =>
     values.find { t: T =>
-      t.stringVal.toLowerCase === s.toLowerCase
+      t.stringVal.toLowerCase == s.toLowerCase
     }
   }
 
@@ -58,7 +55,7 @@ package object enumeration {
    */
   def upperEnumReader[T <: Enumeration](values: T*): EnumReader[T] = enumReader { s: String =>
     values.find { t: T =>
-      t.stringVal.toUpperCase === s.toUpperCase
+      t.stringVal.toUpperCase == s.toUpperCase
     }
   }
 

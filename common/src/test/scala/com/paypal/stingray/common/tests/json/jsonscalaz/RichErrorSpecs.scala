@@ -1,10 +1,10 @@
-package com.stackmob.tests.common.json.jsonscalaz
+package com.paypal.stingray.common.tests.json.jsonscalaz
 
 import org.specs2.Specification
 import org.specs2.execute.{Result => SpecsResult}
 import net.liftweb.json._
 import net.liftweb.json.scalaz.JsonScalaz._
-import com.stackmob.tests.common.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
  * Created by IntelliJ IDEA.

@@ -1,7 +1,7 @@
-package com.stackmob.tests.common.json
+package com.paypal.stingray.common.tests.json
 
 import org.specs2.Specification
-import com.stackmob.tests.common.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json._
 import com.paypal.stingray.common.json.JSONUtil

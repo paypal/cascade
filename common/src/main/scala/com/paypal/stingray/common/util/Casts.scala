@@ -1,13 +1,9 @@
 package com.paypal.stingray.common.util
 
-import scalaz._
-import Scalaz._
-import casts._
-
   /*
    * Contains utility classes for class casting. Examples:
    *
-   * import com.stackmob.util.casts._
+   * import com.paypal.stingray.util.casts._
    * import scalaz._
    * import Scalaz._
    * ...
@@ -52,11 +48,15 @@ object casts {
           case _: Double => manifest[Double]
           case _ => Manifest.classType(any.getClass)
         }
-        (target.runtimeClass.isAssignableFrom(source.runtimeClass)).option(any.asInstanceOf[T])
+        if (target.runtimeClass.isAssignableFrom(source.runtimeClass)) {
+          Some(any.asInstanceOf[T])
+        } else {
+          None
+        }
       }
     }
     def castIf[T](pred: T => Boolean)(implicit m: Manifest[T]): Option[T] = {
-      cast[T].flatMap(c => pred(c).option(c))
+      cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
   }
 
@@ -65,7 +65,7 @@ object casts {
       opt.flatMap(_.cast[T])
     }
     def castIf[T : Manifest](pred: T => Boolean): Option[T] = {
-      cast[T].flatMap(c => pred(c).option(c))
+      cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
   }
 
@@ -74,7 +74,7 @@ object casts {
       traversable.flatMap(_.cast[T])
     }
     def castIf[T : Manifest](pred: T => Boolean): Traversable[T] = {
-      cast[T].flatMap(c => pred(c).option(c))
+      cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
   }
 
@@ -83,7 +83,7 @@ object casts {
       list.flatMap(_.cast[T])
     }
     def castIf[T : Manifest](pred: T => Boolean): List[T] = {
-      cast[T].flatMap(c => pred(c).option(c))
+      cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
   }
 
@@ -92,7 +92,7 @@ object casts {
       array.flatMap(_.cast[T])
     }
     def castIf[T : Manifest](pred: T => Boolean): Array[T] = {
-      cast[T].flatMap(c => pred(c).option(c))
+      cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
   }
 

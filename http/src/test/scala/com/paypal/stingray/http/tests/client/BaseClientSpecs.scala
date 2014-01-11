@@ -11,7 +11,7 @@ import dsl._
 import com.stackmob.newman.test.DummyHttpClient
 import com.stackmob.newman.{Headers, RawBody}
 import language.reflectiveCalls
-import com.stackmob.tests.common.stats.DummyStatsD
+import com.paypal.stingray.common.tests.stats.DummyStatsD
 import com.paypal.stingray.common.stats.StatsD
 import com.paypal.stingray.common.validation.ThrowableValidation
 import scala.concurrent.Future

@@ -1,7 +1,6 @@
 package com.paypal.stingray.common
 
 import concurrent.{ExecutionContext, Future}
-import com.paypal.stingray.common.validation._
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,13 +9,6 @@ import com.paypal.stingray.common.validation._
  * Time: 5:13 PM
  */
 package object future {
-
-  /**
-   * wraps the computation in a synchronous future, like validating.
-   */
-  def wrapInFuture[T](t: => T): Future[T] = {
-    validating(t).toFuture
-  }
 
   implicit class RichFutureHelpers[T](v: Future[T]) {
 

@@ -1,9 +1,5 @@
 package com.paypal.stingray.common.enumeration
 
-import scalaz._
-import scalaz.Equal._
-import Scalaz._
-
 /**
  * User: will
  * Date: 7/9/13
@@ -15,10 +11,8 @@ object RelationType extends EnumUnapply[RelationType] {
   object Many2One extends RelationType { val stringVal = "many2one" }
   object Many2Many extends RelationType { val stringVal = "many2many" }
 
-  implicit val relationEqual: Equal[RelationType] = equalA
-
   implicit val relationTypeRead: EnumReader[RelationType] = new EnumReader[RelationType] {
-    override def read(s: String): Option[RelationType] = s.toLowerCase.some.collect {
+    override def read(s: String): Option[RelationType] = Some(s.toLowerCase).collect {
       case One2One.stringVal => One2One
       case One2Many.stringVal => One2Many
       case Many2One.stringVal => Many2One

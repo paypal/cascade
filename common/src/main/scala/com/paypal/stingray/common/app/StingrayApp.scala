@@ -10,7 +10,7 @@ import org.slf4j.MDC
  * Time: 12:25 PM
  */
 
-trait StackMobApp extends App {
+trait StingrayApp extends App {
 
   def serviceName: String
 

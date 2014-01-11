@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.actor
+package com.paypal.stingray.common.tests.actor
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import org.specs2.specification.{SpecificationStructure, Step, Fragments}

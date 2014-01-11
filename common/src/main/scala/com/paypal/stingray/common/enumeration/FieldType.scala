@@ -1,8 +1,5 @@
 package com.paypal.stingray.common.enumeration
 
-import scalaz._
-import scalaz.Equal._
-import Scalaz._
 import com.paypal.stingray.common.enumeration.FieldType.NoneType
 
 /**
@@ -13,7 +10,7 @@ import com.paypal.stingray.common.enumeration.FieldType.NoneType
 sealed abstract class FieldType extends Enumeration {
   def toOption: Option[FieldType] = this match {
     case NoneType => None
-    case _ => this.some
+    case _ => Some(this)
   }
 }
 
@@ -40,10 +37,8 @@ object FieldType extends EnumUnapply[FieldType] {
   //invalid type
   object NoneType                        extends FieldType { val stringVal = "_none" }
 
-  implicit val fieldEqual: Equal[FieldType] = equalA
-
   implicit val fieldTypeRead: EnumReader[FieldType] = new EnumReader[FieldType] {
-    override def read(s: String): Option[FieldType] = s.toLowerCase.some.collect {
+    override def read(s: String): Option[FieldType] = Some(s.toLowerCase).collect {
       case SubObjectType.stringVal             => SubObjectType
       case StringType.stringVal                => StringType
       case NumberType.stringVal                => NumberType

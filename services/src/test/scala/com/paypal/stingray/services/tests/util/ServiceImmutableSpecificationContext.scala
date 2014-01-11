@@ -1,6 +1,6 @@
 package com.paypal.stingray.services.tests.util
 
-import com.stackmob.tests.common.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
  * Created by IntelliJ IDEA.

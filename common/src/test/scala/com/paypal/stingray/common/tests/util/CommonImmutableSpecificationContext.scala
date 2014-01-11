@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.util
+package com.paypal.stingray.common.tests.util
 
 /**
  * Created by IntelliJ IDEA.

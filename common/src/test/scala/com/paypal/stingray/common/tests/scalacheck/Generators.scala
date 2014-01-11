@@ -1,8 +1,8 @@
-package com.stackmob.tests.common.scalacheck
+package com.paypal.stingray.common.tests.scalacheck
 
 import com.paypal.stingray.common.primitives._
 import com.paypal.stingray.common.enumeration._
-import com.paypal.stingray.common.env.{StackMobEnvironmentType, EnvironmentType}
+import com.paypal.stingray.common.env.{StingrayEnvironmentType, EnvironmentType}
 import org.scalacheck.{Gen, Arbitrary}
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Gen._
@@ -198,8 +198,8 @@ trait Generators {
 
   lazy val genAuthorization: Gen[Authorization] = Gen.oneOf(Unauthorized(), ApplicationPrivateKey())
 
-  lazy val genStackMobEnvironmentType: Gen[StackMobEnvironmentType] = {
-    Gen.oneOf(StackMobEnvironmentType.DEVELOPMENT, StackMobEnvironmentType.STAGING, StackMobEnvironmentType.PRODUCTION)
+  lazy val genStackMobEnvironmentType: Gen[StingrayEnvironmentType] = {
+    Gen.oneOf(StingrayEnvironmentType.DEVELOPMENT, StingrayEnvironmentType.STAGING, StingrayEnvironmentType.PRODUCTION)
   }
 
   lazy val genAlphaLowerNumChar: Gen[Char] = Gen.frequency((9, Gen.alphaLowerChar), (1, Gen.numChar))

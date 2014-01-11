@@ -1,7 +1,5 @@
 package com.paypal.stingray.common.util
 
-import scalaz._
-import Scalaz._
 import java.net.URLDecoder
 
 object HttpUtil {
@@ -15,7 +13,7 @@ object HttpUtil {
    * @return a list of (String, String), representing each key-value pair in the query string
    */
   def parseQueryStringToPairs(queryString: String): List[StrPair] = {
-    val queryStringPieces: List[String] = (~Option(queryString)).split("&").toList
+    val queryStringPieces: List[String] = Option(queryString).map(_.split("&").toList).getOrElse(List())
     queryStringPieces.flatMap { piece: String =>
       piece.split("=").toList match {
         case key :: value :: Nil if(key.length > 0 && value.length > 0) => List(URLDecoder.decode(key, UTF_8) -> URLDecoder.decode(value, UTF_8))
@@ -38,7 +36,7 @@ object HttpUtil {
       if(curKey.length > 0 && curVal.length > 0) {
         val newList = running.get(curKey).map { existingList =>
           existingList ++ List(curVal)
-        } | List(curVal)
+        }.getOrElse(List(curVal))
         running ++ Map(curKey -> newList)
       } else {
         running
@@ -60,7 +58,7 @@ object HttpUtil {
    */
   def parseQueryStringAndBody(queryString: String, body: String, headers: Map[String, String]): Map[String, List[String]] = {
     val params: Map[String, List[String]] = parseQueryStringToMap(queryString)
-    (Option(headers) map (_.get("content-type"))).join match {
+    Option(headers).map(_.get("content-type")).flatten match {
       case Some(contentType) if(contentType.startsWith(FormURLEncodedContentType)) => {
         mergeParameters(params, parseQueryStringToMap(body))
       }
@@ -76,7 +74,7 @@ object HttpUtil {
       val (currentKey, currentList) = currentElt
       val newList = runningMap.get(currentKey).map { existingList =>
         existingList ++ currentList
-      } | currentList
+      }.getOrElse(currentList)
       runningMap ++ Map(currentKey -> newList)
     }
   }

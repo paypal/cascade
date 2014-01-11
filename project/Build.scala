@@ -97,6 +97,7 @@ object Dependencies {
   lazy val jodaTime            = "joda-time"                 % "joda-time"                   % "2.1"
   lazy val jodaConvert         = "org.joda"                  % "joda-convert"                % "1.2" //marked as optional in joda-time
   lazy val mail                = "javax.mail"                % "mail"                        % "1.4"
+  lazy val liftJson            = "net.liftweb"               %% "lift-json"                  % "2.5.1"
 
   lazy val scribe              = "org.scribe"                % "scribe"                      % "1.3.5" exclude("commons-codec", "commons-codec")
 
@@ -132,12 +133,14 @@ object Dependencies {
     slf4jJul,
     slf4jJcl,
     slf4jLog4j,
-    logback
+    logback,
+    liftJson
   )
 
   lazy val serviceDependencies = Seq(
     newman,
-    rabbitmq
+    rabbitmq,
+    liftJson
   )
 
   lazy val httpDependencies = Seq(
@@ -148,7 +151,8 @@ object Dependencies {
     logback,
     jodaTime,
     jodaConvert,
-    scribe
+    scribe,
+    liftJson
   )
 
   lazy val concurrentDependencies = Seq()

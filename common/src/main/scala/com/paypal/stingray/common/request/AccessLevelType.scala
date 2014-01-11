@@ -1,8 +1,6 @@
 package com.paypal.stingray.common.request
 
 import com.paypal.stingray.common.enumeration._
-import scalaz.Equal
-import scalaz.Equal._
 
 
 /**
@@ -58,7 +56,5 @@ object AccessLevelType extends EnumUnapply[AccessLevelType] {
       case _ => None
     }
   }
-
-  implicit val environmentTypeEqual: Equal[AccessLevelType] = equalA
 
 }

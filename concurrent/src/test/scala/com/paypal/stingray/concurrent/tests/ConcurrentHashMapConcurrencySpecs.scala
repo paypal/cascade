@@ -3,11 +3,11 @@ package com.paypal.stingray.concurrent.tests
 import org.specs2.Specification
 import org.specs2.ScalaCheck
 import org.scalacheck._
-import Prop._
+import org.scalacheck.Prop._
 import com.paypal.stingray.concurrent.ConcurrentHashMap
 import com.paypal.stingray.common.logging.LoggingSugar
 import java.util.concurrent.CopyOnWriteArrayList
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 
 /**
  * Created by IntelliJ IDEA.

@@ -1,17 +1,13 @@
 package com.paypal.stingray.common
 
-import com.paypal.stingray.common.validation._
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.env.EnvironmentType
-import scalaz._
-import scalaz.Equal._
-import Scalaz._
 import java.util.UUID
 import scala.util.matching.Regex
-import net.liftweb.json.scalaz.JsonScalaz._
 import net.liftweb.json.JsonAST._
 import org.apache.commons.validator.routines.EmailValidator
 import language.implicitConversions
+import scala.util.Try
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,7 +38,7 @@ package object primitives {
   class UserId(override val value: Long) extends AnyVal with LongValue
   class APIVersionNumber(override val value: Long) extends AnyVal with LongValue {
     def toEnvType: EnvironmentType = {
-      if(0L === value) EnvironmentType.DEV else EnvironmentType.PROD
+      if(0L == value) EnvironmentType.DEV else EnvironmentType.PROD
     }
   }
   class ModuleId(override val value: Long) extends AnyVal with LongValue
@@ -90,12 +86,11 @@ package object primitives {
   implicit def schemaNameToSafe(schemaName: SchemaName): SchemaSafeName = SchemaSafeName(schemaName.value.toLowerCase)
 
   sealed trait TypedLong[A <: AnyVal] {
-    implicit val equal: Equal[A] = equalA
     protected def newInstance(arg: Long): A
-    def fromString(s: String): Option[A] = validating(apply(s)).toOption
-    def fromLong(l: Long): Option[A] = validating(apply(l)).toOption
-    def apply(s: String): A = validating(apply(s.toLong)).getOrThrow {
-      case e: NumberFormatException => new PrimitiveException("Invalid %s: %s".format(getClass.getSimpleName, s))
+    def fromString(s: String): Option[A] = Try { apply(s) }.toOption
+    def fromLong(l: Long): Option[A] = Try { apply(l) }.toOption
+    def apply(s: String): A = Try { apply(s.toLong) }.getOrElse {
+      throw new PrimitiveException("Invalid %s: %s".format(getClass.getSimpleName, s))
     }
     def apply(l: Long): A = {
       if (l >= 0) newInstance(l) else throw new PrimitiveException("Invalid %s: %s".format(getClass.getSimpleName, l))
@@ -106,11 +101,10 @@ package object primitives {
   }
 
   sealed trait TypedString[A <: AnyVal] {
-    implicit val equal: Equal[A] = equalA
     protected def newInstance(arg: String): A
     def isValid(s: String): Boolean
     def fromString(s: String): Option[A] = {
-      if (isValid(s)) some(newInstance(s)) else none[A]
+      if (isValid(s)) Some(newInstance(s)) else None
     }
     def apply(s: String): A = {
       if (isValid(s)) newInstance(s) else throw new PrimitiveException("Invalid %s: %s".format(getClass.getSimpleName, s))
@@ -137,9 +131,8 @@ package object primitives {
   }
 
   sealed trait TypedUniqueString[A <: AnyVal] {
-    implicit val equal: Equal[A] = equalA
     protected def newInstance(arg: String): A
-    def fromString(s: String): Option[A] = validating(UUID.fromString(s)).map(apply(_)).toOption
+    def fromString(s: String): Option[A] = Try { UUID.fromString(s) }.map(apply(_)).toOption
     def apply(s: String): A = fromString(s).orThrow(new PrimitiveException("Invalid %s: %s".format(getClass.getSimpleName, s)))
     def apply(u: UUID): A = newInstance(u.toString)
     def unapply(s: String): Option[A] = fromString(s)

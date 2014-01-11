@@ -33,12 +33,9 @@ object AbstractString extends AbstractStringCommon
 
 trait AbstractStringCommon {
 
-  import scalaz._
-  import Scalaz._
-
   @throws(classOf[InvalidStringException])
   def assertValid(input: String, regex: String, regexDesc: String, minlength: Int, maxlength: Int) {
-    Option(input) ifNone {
+    if(Option(input).isEmpty) {
       throw new InvalidStringException("cannot be null")
     }
 

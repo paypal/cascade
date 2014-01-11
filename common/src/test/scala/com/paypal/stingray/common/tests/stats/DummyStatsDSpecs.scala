@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.stats
+package com.paypal.stingray.common.tests.stats
 
 import org.specs2.{ScalaCheck, Specification}
 import org.specs2.mock.Mockito
@@ -6,7 +6,7 @@ import org.scalacheck._
 import org.scalacheck.Prop._
 import scala.concurrent.{ExecutionContext, Future}
 import java.util.concurrent.Executors
-import com.stackmob.tests.common.scalacheck.Generators
+import com.paypal.stingray.common.tests.scalacheck.Generators
 
 /**
  * Created by Andrew Harris

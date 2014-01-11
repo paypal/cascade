@@ -1,7 +1,5 @@
 package com.paypal.stingray.common.values
 
-import scalaz._
-import Scalaz._
 import com.paypal.stingray.common.logging.LoggingSugar
 import scala.concurrent._
 
@@ -13,12 +11,11 @@ import scala.concurrent._
  */
 abstract class DynamicValues(svs: Option[StaticValues], ttl: Int = DynamicValues.DefaultTTL) extends Values[Future] with LoggingSugar {
 
-  def this(svs: StaticValues) = this(svs.some)
-  def this(name: String) = this(new StaticValues(name).some)
+  def this(svs: StaticValues) = this(Some(svs))
+  def this(name: String) = this(Some(new StaticValues(name)))
 
   private val logger = getLogger[DynamicValues]
   protected implicit def seqCtx: ExecutionContext
-  protected implicit def monad: Monad[Future]
 
   protected def attempt(key: String): Future[Option[String]]
 

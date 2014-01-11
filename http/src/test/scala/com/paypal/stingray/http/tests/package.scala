@@ -3,7 +3,7 @@ package com.paypal.stingray.http
 import org.scalacheck.Gen
 import org.scalacheck.Arbitrary._
 import java.util.UUID
-import com.stackmob.tests.common.scalacheck.Generators
+import com.paypal.stingray.common.tests.scalacheck.Generators
 import server.exception.ServiceException
 
 /**

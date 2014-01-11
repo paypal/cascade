@@ -1,8 +1,5 @@
 package com.paypal.stingray.common
 
-import scalaz._
-import Scalaz._
-
 /**
  * Created by IntelliJ IDEA.
  *
@@ -18,9 +15,9 @@ package object seq {
   implicit class RichSeq[T](seq: Seq[T]) {
     def get(i: Int): Option[T] = {
       if(i >= 0 && i < seq.length) {
-        seq.apply(i).some
+        Some(seq.apply(i))
       } else {
-        none
+        None
       }
     }
   }

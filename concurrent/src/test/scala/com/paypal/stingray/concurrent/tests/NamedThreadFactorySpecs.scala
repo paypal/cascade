@@ -2,7 +2,7 @@ package com.paypal.stingray.concurrent.tests
 
 import org.specs2.Specification
 import com.paypal.stingray.concurrent.NamedThreadFactory
-import com.stackmob.tests.common.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
  * Copyright 2012 StackMob Inc.

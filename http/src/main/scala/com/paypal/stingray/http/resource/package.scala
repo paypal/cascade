@@ -129,7 +129,7 @@ package object resource {
   }
 
   implicit class RichIdentity[T](v: => T) {
-    def continue = wrapInFuture(v)
+    def continue = Future { v }
   }
 
   implicit class RichThrowableHalt(t: Throwable) {

@@ -1,11 +1,11 @@
-package com.stackmob.tests.common.stats
+package com.paypal.stingray.common.tests.stats
 
 import scalaz._
 import Scalaz._
 import org.specs2.{Specification, SpecificationLike, ScalaCheck}
 import org.scalacheck._
 import org.scalacheck.Prop._
-import com.stackmob.tests.common.scalacheck.Generators
+import com.paypal.stingray.common.tests.scalacheck.Generators
 import com.paypal.stingray.common.values.{StaticValues, StaticValuesFromServiceNameComponent}
 import org.specs2.mock.Mockito
 import com.paypal.stingray.common.stats.{StatsDCommon, StatsdClient}

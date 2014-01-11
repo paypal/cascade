@@ -1,7 +1,7 @@
 package com.paypal.stingray.http.resource
 
 import net.liftweb.json._
-import JsonDSL._
+import net.liftweb.json.JsonDSL._
 import scalaz.JsonScalaz._
 import spray.http.{HttpResponse, HttpRequest}
 import com.paypal.stingray.common.logging.LoggingSugar

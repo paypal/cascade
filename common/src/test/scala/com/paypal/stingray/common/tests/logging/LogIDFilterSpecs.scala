@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.logging
+package com.paypal.stingray.common.tests.logging
 
 import org.specs2._
 import scala.collection.JavaConverters._

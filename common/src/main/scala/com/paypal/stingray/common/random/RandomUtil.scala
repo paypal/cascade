@@ -3,9 +3,7 @@ package com.paypal.stingray.common.random
 import com.paypal.stingray.common.json.{JSONUtil, JSONException, JSONSerialization}
 import net.liftweb.json.JsonParser.ParseException
 import org.slf4j.LoggerFactory
-import util.Random
-import scalaz._
-import Scalaz._
+import scala.util.Random
 
 /**
  * Created by IntelliJ IDEA.

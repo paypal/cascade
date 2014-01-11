@@ -1,7 +1,7 @@
 package com.paypal.stingray.http.tests.resource
 
 import org.specs2.Specification
-import com.stackmob.tests.common.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import org.specs2.mock.Mockito
 import spray.http._
 import spray.http.HttpEntity._

@@ -3,14 +3,14 @@ package com.paypal.stingray.common.translatable.primitives
 import org.codehaus.jackson.annotate.JsonCreator
 import com.paypal.stingray.common.annotate.AnnotationHelpers._
 import scala.beans.BeanProperty
-import util.control.Exception._
-import scalaz._
-import scalaz.Validation._
-import Scalaz._
+import scala.util.control.Exception._
 
 class Domain @JsonCreator() (@ScalaJsonProperty("domain") @BeanProperty val domain: String)
   extends AbstractString(domain) {
-  override def hashCode: Int = Option(value) some { _.hashCode } none { 0 }
+  override def hashCode: Int = Option(value) match {
+    case Some(hc) => hc.hashCode
+    case None => 0
+  }
 }
 
 object Domain extends AbstractStringCommon {
@@ -23,10 +23,7 @@ object Domain extends AbstractStringCommon {
    * See: http://stackoverflow.com/questions/106179/regular-expression-to-match-hostname-or-ip-address
    */
   def isValid(input: String): Boolean = {
-    fromEither(catching(classOf[InvalidDomainException]) either assertValid(input)) match {
-      case Success(_) => true
-      case Failure(_) => false
-    }
+    catching(classOf[InvalidDomainException]).withTry(assertValid(input)).isSuccess
   }
 
   private def assertValid(input: String) {

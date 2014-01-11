@@ -1,9 +1,9 @@
-package com.stackmob.tests.common.json
+package com.paypal.stingray.common.tests.json
 
 import org.specs2._
 import org.scalacheck._
-import Prop._
-import Arbitrary._
+import org.scalacheck.Prop._
+import org.scalacheck.Arbitrary._
 import com.paypal.stingray.common.json.JSONSerialization
 import com.paypal.stingray.common.annotate.AnnotationHelpers._
 import scala.collection.JavaConverters._
@@ -11,7 +11,7 @@ import org.codehaus.jackson.`type`.TypeReference
 import scala.reflect.BeanProperty
 import java.util.{Map => JMap, List => JList}
 import org.codehaus.jackson.annotate.JsonCreator
-import com.stackmob.tests.common.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
  * Created by IntelliJ IDEA.

@@ -1,4 +1,4 @@
-package com.stackmob.tests.common.util
+package com.paypal.stingray.common.tests.util
 
 import org.specs2.{ScalaCheck, Specification}
 import org.specs2.execute.{Result => SpecsResult}

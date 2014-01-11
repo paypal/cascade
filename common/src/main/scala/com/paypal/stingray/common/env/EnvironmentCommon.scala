@@ -1,20 +1,8 @@
 package com.paypal.stingray.common.env
 
-import java.io.File
 import java.net._
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.{Date, Properties}
-import collection.mutable.ListBuffer
-import com.paypal.stingray.common.enumeration._
+import scala.collection.mutable.ListBuffer
 import com.paypal.stingray.common.logging.LoggingSugar
-import scalaz._
-import Scalaz._
-import com.paypal.stingray.common.validation._
-import com.paypal.stingray.common.constants.{ValueConstants, CommonConstants, PortConstants}
-import scala.collection.JavaConverters._
-import com.mchange.v2.c3p0.impl.C3P0Defaults
-import ValueConstants._
 
 /**
  * Created by IntelliJ IDEA.
@@ -50,8 +38,8 @@ trait EnvironmentCommon extends LoggingSugar {
   lazy val getSubdomain: String = {
     val subdomain = for {
       hostname <- Option(getFullHostname)
-      noDots <- Option(hostname.takeWhile(_ /== '.'))
-      noPunc <- Option(noDots.filter(c => (c /== '-') && (c /== '\'')))
+      noDots <- Option(hostname.takeWhile(_ != '.'))
+      noPunc <- Option(noDots.filter(c => (c != '-') && (c != '\'')))
       lower <- Option(noPunc.toLowerCase)
     } yield lower
     subdomain.orNull

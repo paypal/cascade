@@ -1,14 +1,10 @@
 package com.paypal.stingray.common.request
 
-import com.paypal.stingray.common.json.JSONUtil._
-import scalaz._
-import Scalaz._
-import net.liftweb.json.JsonParser.ParseException
+import com.paypal.stingray.common.json._
 import net.liftweb.json._
-import JsonDSL._
-import scalaz.JsonScalaz._
+import net.liftweb.json.JsonDSL._
 import com.paypal.stingray.common.json.JSONUtil
-import com.paypal.stingray.common.json.jsonscalaz._
+import scala.util.{Success, Try}
 
 /**
  * Represents the authenticated knowledge we have about the origin of an incoming request
@@ -41,7 +37,7 @@ object Authorization {
   implicit val unauthorizedJSON: JSON[Unauthorized] = new JSON[Unauthorized] {
     def write(p: Unauthorized): JValue = (errorJsonKey -> toJSON(p.e))
 
-    def read(json: JValue): Result[Unauthorized] =
+    def read(json: JValue): Try[Unauthorized] =
       field[Option[String]](errorJsonKey)(json).map(Unauthorized(_))
   }
 
@@ -61,8 +57,10 @@ object Authorization {
   implicit val userAuthJSON: JSON[UserAuthorization] = new JSON[UserAuthorization] {
     def write(p: UserAuthorization): JValue = (userJsonKey -> toJSON(p.user)) ~ (schemaJsonKey -> toJSON(p.schema))
 
-    def read(json: JValue): Result[UserAuthorization] =
-      (field[String](userJsonKey)(json) |@| field[String](schemaJsonKey)(json)).apply(UserAuthorization(_, _))
+    def read(json: JValue): Try[UserAuthorization] = for {
+      user <- field[String](userJsonKey)(json)
+      schema <- field[String](schemaJsonKey)(json)
+    } yield UserAuthorization(user, schema)
   }
 
   // The user was authenticated via oauth1 private key
@@ -75,17 +73,19 @@ object Authorization {
   }
   val PRIVATE_KEY_STR = classOf[ApplicationPrivateKey].getSimpleName
 
-  def readString(in: String): Authorization = {
+  def readString(in: String): Try[Authorization] = {
     in match {
-      case readPattern(clazz, args) =>  {
+      case readPattern(clazz, args) => {
         val result = clazz match {
           case UNAUTHORIZED_STR => fromJSON[Unauthorized](parse(args))
           case USER_AUTH_STR    => fromJSON[UserAuthorization](parse(args))
-          case PRIVATE_KEY_STR  => ApplicationPrivateKey().success
+          case PRIVATE_KEY_STR  => Success(ApplicationPrivateKey())
         }
-        result.valueOr { e => Unauthorized(Some(JSONUtil.prepare(toJSON(e.list)))) }
+        result.recover {
+          case e => Unauthorized(Some(JSONUtil.prepare(toJSON(e))))
+        }
       }
-      case _ => Unauthorized(Some("Could not read Authorization: " + in))
+      case _ => Success(Unauthorized(Some("Could not read Authorization: " + in)))
     }
   }
 

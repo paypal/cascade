@@ -1,11 +1,11 @@
-package com.stackmob.tests.common.io
+package com.paypal.stingray.common.tests.io
 
 import scalaz._
 import Scalaz._
 import scalaz.effect._
 import org.specs2.Specification
 import org.specs2.execute.{Failure => SpecsFailure, Result => SpecsResult}
-import com.stackmob.tests.common.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.common.io._
 import com.paypal.stingray.common.logging.LoggingSugar
 

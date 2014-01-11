@@ -1,6 +1,6 @@
 package com.paypal.stingray.concurrent
 
-import collection.mutable.{HashMap => MutableHashMap}
+import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.collection.concurrent.{Map => ScalaConcurrentMap}
 import com.paypal.stingray.common.option._
 

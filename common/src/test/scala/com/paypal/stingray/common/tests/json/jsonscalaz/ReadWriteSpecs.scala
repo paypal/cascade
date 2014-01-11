@@ -1,9 +1,9 @@
-package com.stackmob.tests.common.json.jsonscalaz
+package com.paypal.stingray.common.tests.json.jsonscalaz
 
 import org.specs2.{ScalaCheck, Specification}
 import org.scalacheck._
 import Gen._
-import Prop._
+import org.scalacheck.Prop._
 import java.net.URL
 import java.util.{GregorianCalendar, Date, UUID}
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -11,7 +11,7 @@ import net.liftweb.json.JValue
 import com.paypal.stingray.common.json.jsonscalaz._
 import com.paypal.stingray.common.billing._
 import com.paypal.stingray.common.deploymentapi.metadata.DeploymentHistory
-import com.stackmob.tests.common.scalacheck._
+import com.paypal.stingray.common.tests.scalacheck._
 
 /**
  * Created by IntelliJ IDEA.

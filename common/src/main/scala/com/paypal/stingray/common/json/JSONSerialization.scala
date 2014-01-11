@@ -14,9 +14,6 @@ import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.io.StringWriter
 import java.util.{List => JList}
-import scalaz._
-import scalaz.Validation._
-import Scalaz._
 
 /**
  * Created by IntelliJ IDEA.
@@ -91,10 +88,10 @@ object JSONSerialization {
 
   @throws(classOf[JSONException])
   def deserializeToJsonArray(jsonList: JList[String]): ArrayNode = {
-    Option(jsonList) ifNone { throw new JSONException("null") }
+    if (Option(jsonList).isEmpty) { throw new JSONException("null") }
 
     jsonList.asScala.foldLeft(JsonNodeFactory.instance.arrayNode)((r, s) => {
-      Option(s).ifNone { throw new JSONException("null") }
+      if (Option(s).isEmpty) { throw new JSONException("null") }
       r.add(JSONSerialization.deserializeToJsonTree(s))
       r
     })
@@ -144,10 +141,7 @@ object JSONSerialization {
   }
 
   def isValidJson(json: String): Boolean = {
-    fromEither(catching(classOf[JSONException]) either deserializeToJsonTree(json, true)) match {
-      case Success(_) => true
-      case Failure(_) => false
-    }
+    catching(classOf[JSONException]).withTry { deserializeToJsonTree(json, true) }.isSuccess
   }
 
   private def failed(inner: Throwable, suppressErrors: Boolean = false, message: String = ""): JSONException = {

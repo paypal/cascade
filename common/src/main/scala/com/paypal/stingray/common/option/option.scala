@@ -1,8 +1,5 @@
 package com.paypal.stingray.common
 
-import scalaz.syntax.std.option._
-import scalaz.std.list._
-import scalaz.NonEmptyList
 import concurrent.Future
 
 /**
@@ -24,7 +21,7 @@ package object option {
     }
 
     def sideEffectNone(fn: => Unit): Option[T] = {
-      option.ifNone {
+      if(option.isEmpty) {
         fn
       }
       option
@@ -37,10 +34,10 @@ package object option {
       option
     }
 
-    def orThrow(t: => Throwable): T = option | (throw t)
+    def orThrow(t: => Throwable): T = option.getOrElse(throw t)
 
     def toFuture(t: => Throwable): Future[T] = {
-      option.map(Future.successful(_)) | Future.failed(t)
+      option.map(Future.successful(_)).getOrElse(Future.failed(t))
     }
 
   }
@@ -58,12 +55,8 @@ package object option {
   }
 
   implicit class RichOptionBoolean(optionBoolean: Option[Boolean]) {
-    def orFalse: Boolean = optionBoolean | false
-    def orTrue: Boolean = optionBoolean | true
-  }
-
-  implicit class RichOptionNel[A](optionNel: Option[NonEmptyList[A]]) {
-    def list: List[A] = ~optionNel.map(_.list)
+    def orFalse: Boolean = optionBoolean.getOrElse(false)
+    def orTrue: Boolean = optionBoolean.getOrElse(true)
   }
 
 }
