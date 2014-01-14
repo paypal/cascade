@@ -1,9 +1,10 @@
 package com.paypal.stingray.common.values
 
 import com.paypal.stingray.common.enumeration._
+import com.paypal.stingray.common.json._
 import net.liftweb.json._
 import scala.language.higherKinds
-import scala.concurrent.Future
+import scala.util.Try
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,52 +20,47 @@ import scala.concurrent.Future
  */
 trait Values {
 
-  def get(key: String): Future[Option[String]]
+  def get(key: String): Option[String]
 
   /**
    * non-json comma separate list, because people are lazy
    */
-  def getSimpleList(key: String): Future[Option[List[String]]] = {
-    monad.map(get(key)) { mbValue =>
-      mbValue.map(_.split(",").toList)
+  def getSimpleList(key: String): Option[List[String]] = {
+    get(key).map { value =>
+      value.split(",").toList
     }
   }
 
-  def getInt(key: String): Future[Option[Int]] = {
-    monad.map(get(key)) { mbValue =>
-      mbValue.flatMap(s => validating(s.toInt).toOption)
+  def getInt(key: String): Option[Int] = {
+    get(key).flatMap { value =>
+      Try(value.toInt).toOption
     }
   }
 
-  def getLong(key: String): Future[Option[Long]] = {
-    monad.map(get(key)) { mbValue =>
-      mbValue.flatMap(s => validating(s.toLong).toOption)
+  def getLong(key: String): Option[Long] = {
+    get(key).flatMap { value =>
+      Try(value.toLong).toOption
     }
   }
 
-  def getEnum[T <: Enumeration : EnumReader](key: String): Future[Option[T]] = {
-    monad.map(get(key)) { mbValue =>
-      mbValue.flatMap { enumString: String =>
-        enumString.readEnum[T]
-      }
+  def getEnum[T <: Enumeration : EnumReader](key: String): Option[T] = {
+    get(key).flatMap { value =>
+      value.readEnum[T]
     }
   }
 
-  def getJSON[T: JSONR](key: String): Future[Option[T]] = {
-    monad.map(get(key)) { mbValue =>
+  def getJSON[T: JSONR](key: String): Option[T] = {
+    get(key).flatMap { value =>
       for {
-        s <- mbValue
-        json <- validating(parse(s)).toOption
+        json <- Try(parse(value)).toOption
         t <- fromJSON[T](json).toOption
       } yield t
     }
   }
 
-  def getBool(key: String): Future[Option[Boolean]] = {
-    monad.map(get(key)) { mbValue =>
-      mbValue.flatMap { boolString: String =>
-        validating(boolString.toBoolean).toOption
-      }
+  def getBool(key: String): Option[Boolean] = {
+    get(key).flatMap { value =>
+      Try(value.toBoolean).toOption
     }
   }
 }

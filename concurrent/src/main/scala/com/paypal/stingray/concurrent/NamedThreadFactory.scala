@@ -2,7 +2,6 @@ package com.paypal.stingray.concurrent
 
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
-import annotation.tailrec
 
 /**
  * Copyright 2012 StackMob Inc.
@@ -44,7 +43,10 @@ trait NamedThreadFactory {
 
   }
 
-  private def defaultThreadGroup(): ThreadGroup = Option(System.getSecurityManager) some {_.getThreadGroup } none { Thread.currentThread.getThreadGroup }
+  private def defaultThreadGroup(): ThreadGroup = Option(System.getSecurityManager) match {
+    case Some(sm) => sm.getThreadGroup
+    case None => Thread.currentThread.getThreadGroup
+  }
 
   /**
    * Spawned threads have the same thread group as the root group.
@@ -63,7 +65,7 @@ trait NamedThreadFactory {
    */
   private def rootThreadGroup(): ThreadGroup = {
     def getRootThreadGroup(node: ThreadGroup): ThreadGroup = {
-      Option(node.getParent).map(getRootThreadGroup(_)) | node
+      Option(node.getParent).map(getRootThreadGroup(_)).getOrElse(node)
     }
 
     getRootThreadGroup(Thread.currentThread.getThreadGroup)

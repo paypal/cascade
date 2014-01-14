@@ -1,6 +1,6 @@
 package com.paypal.stingray.common.random
 
-import com.paypal.stingray.common.json.{JSONUtil, JSONException, JSONSerialization}
+import com.paypal.stingray.common.json._
 import net.liftweb.json.JsonParser.ParseException
 import org.slf4j.LoggerFactory
 import scala.util.Random
@@ -35,7 +35,7 @@ object RandomUtil {
       try {
         Option(JSONSerialization.deserialize(s, klass))
       } catch {
-        case e: JSONException => {
+        case e: JSONUtilException => {
           logger.error("Can't deserialize %s into %s".format(s,  klass.getName, e))
           None
         }

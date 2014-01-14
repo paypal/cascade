@@ -7,9 +7,7 @@ import com.paypal.stingray.common.logging.LoggingSugar
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.env.StingrayEnvironmentType
 import com.paypal.stingray.common.constants.ValueConstants._
-import StaticValues.Identity
 import scala.util.Try
-import scala.concurrent.Future
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,21 +15,15 @@ import scala.concurrent.Future
  * Date: 3/13/13
  * Time: 5:50 PM
  */
-class StaticValues(mbUrl: Option[URL]) extends Values[Identity] with LoggingSugar {
+class StaticValues(mbUrl: Option[URL])
+  extends Values
+  with LoggingSugar {
 
   def this(url: URL) = this(Option(url))
-  def this(serviceName: String) = this(StaticValues.getServiceUrl(Some(serviceName))
+  def this(serviceName: String) = this(StaticValues.getServiceUrl(Some(serviceName)))
   def this() = this(StaticValues.getServiceUrl(None))
 
   val logger = getLogger[StaticValues]
-
-  override protected implicit lazy val monad: Monad[Identity] = new Monad[Identity] {
-    def point[A](a: => A): Identity[A] = a
-
-    def bind[A, B](fa: Identity[A])(f: (A) => Identity[B]): Identity[B] = {
-      f(fa)
-    }
-  }
 
   private lazy val props: Option[Properties] = {
     lazy val p = new Properties
@@ -44,7 +36,8 @@ class StaticValues(mbUrl: Option[URL]) extends Values[Identity] with LoggingSuga
     }
   }
 
-  lazy val stingrayEnvType = getEnum[StingrayEnvironmentType](StingrayEnvironment).orThrow(lookupFailed(StingrayEnvironment))
+  lazy val stingrayEnvType = getEnum[StingrayEnvironmentType](StingrayEnvironment)
+    .orThrow(lookupFailed(StingrayEnvironment))
   lazy val isDev: Boolean = stingrayEnvType == StingrayEnvironmentType.DEVELOPMENT
   lazy val isStaging: Boolean = stingrayEnvType == StingrayEnvironmentType.STAGING
   lazy val isProd: Boolean = stingrayEnvType == StingrayEnvironmentType.PRODUCTION
@@ -74,7 +67,7 @@ class StaticValues(mbUrl: Option[URL]) extends Values[Identity] with LoggingSuga
     new IllegalStateException(msg)
   }
 
-  def get(key: String): Future[Option[String]] = Future.successful(props.flatMap(p => Option(p.getProperty(key))))
+  def get(key: String): Option[String] = props.flatMap(p => Option(p.getProperty(key)))
 }
 
 object StaticValues {

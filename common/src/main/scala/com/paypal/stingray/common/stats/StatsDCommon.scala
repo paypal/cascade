@@ -2,7 +2,7 @@ package com.paypal.stingray.common.stats
 
 import com.paypal.stingray.common.values.StaticValues
 import com.paypal.stingray.common.constants.ValueConstants
-import concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +16,7 @@ class StatsDCommon(client: StatsdClient, svs: StaticValues) extends StatsD {
     this(new StatsdClient(host, port), svs)
   }
 
-  private val clusterName = svs.get(ValueConstants.ClusterName).getOrElse("dev")
+  private lazy val clusterName = svs.get(ValueConstants.ClusterName).getOrElse("dev")
 
   private def qualifiedKey(key: String): String = {
     val prefix = s"$clusterName.$getFullHostname"

@@ -2,6 +2,7 @@ package com.paypal.stingray.common.values
 
 import com.paypal.stingray.common.logging.LoggingSugar
 import scala.concurrent._
+import scala.concurrent.duration._
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,7 +10,10 @@ import scala.concurrent._
  * Date: 3/13/13
  * Time: 6:05 PM
  */
-abstract class DynamicValues(svs: Option[StaticValues], ttl: Int = DynamicValues.DefaultTTL) extends Values[Future] with LoggingSugar {
+abstract class DynamicValues(svs: Option[StaticValues],
+                             ttl: Int = DynamicValues.DefaultTTL)
+  extends Values
+  with LoggingSugar {
 
   def this(svs: StaticValues) = this(Some(svs))
   def this(name: String) = this(Some(new StaticValues(name)))
@@ -19,6 +23,7 @@ abstract class DynamicValues(svs: Option[StaticValues], ttl: Int = DynamicValues
 
   protected def attempt(key: String): Future[Option[String]]
 
+  // override to an async pattern
   override def get(key: String): Future[Option[String]] = {
     val dvFuture = attempt(key)
     val svOption = svs.flatMap(_.get(key))

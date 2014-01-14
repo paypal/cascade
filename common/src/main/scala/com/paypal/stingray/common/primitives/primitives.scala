@@ -2,12 +2,13 @@ package com.paypal.stingray.common
 
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.env.EnvironmentType
+import com.paypal.stingray.common.json._
 import java.util.UUID
 import scala.util.matching.Regex
 import net.liftweb.json.JsonAST._
 import org.apache.commons.validator.routines.EmailValidator
 import language.implicitConversions
-import scala.util.Try
+import scala.util.{Success, Failure, Try}
 
 /**
  * Created by IntelliJ IDEA.
@@ -345,24 +346,24 @@ package object primitives {
   sealed trait TaggedLongJSON[A <: AnyVal] extends JSON[A] {
     protected def fromLong(l: Long): Option[A]
     protected def targetClassName: String
-    override def read(json: JValue): Result[A] = json match {
-      case JInt(i) => (validating {
+    override def read(json: JValue): Try[A] = json match {
+      case JInt(i) => Try {
         fromLong(i.toLong).orThrow(new PrimitiveException("Invalid %s: %s".format(targetClassName, i)))
-      } leftMap { e =>
-        UncategorizedError(i.toString(), e.getMessage, Nil)
-      }).toValidationNel
-      case j => UnexpectedJSONError(j, classOf[JInt]).failNel
+      }.recover { case e =>
+        throw UncategorizedError(i.toString(), e.getMessage, Nil)
+      }
+      case j => Failure(UnexpectedJSONError(j, classOf[JInt]))
     }
   }
 
   sealed trait TaggedStringJSON[A <: AnyVal] extends JSON[A] {
     protected def fromString(s: String): Option[A]
     protected def targetClassName: String
-    override def read(json: JValue): Result[A] = json match {
-      case JString(s) => fromString(s).map(_.successNel[Error]) | {
-        UncategorizedError(s, "Invalid %s: %s".format(targetClassName, s), Nil).failNel
+    override def read(json: JValue): Try[A] = json match {
+      case JString(s) => Try {
+        fromString(s).orThrow(UncategorizedError(s, "Invalid %s: %s".format(targetClassName, s), Nil))
       }
-      case j => UnexpectedJSONError(j, classOf[JString]).failNel
+      case j => Failure(UnexpectedJSONError(j, classOf[JString]))
     }
   }
 

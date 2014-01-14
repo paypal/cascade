@@ -1,7 +1,8 @@
 package com.paypal.stingray.common
 
 import net.liftweb.json.JsonAST._
-import com.paypal.stingray.common.validation._
+import com.paypal.stingray.common.json._
+import scala.util.{Failure, Try}
 
 /**
  * Created by IntelliJ IDEA.
@@ -66,11 +67,11 @@ package object enumeration {
 
   implicit def enumerationJSON[T <: Enumeration](implicit reader: EnumReader[T], m: Manifest[T]) = new JSON[T] {
     override def write(value: T): JValue = JString(value.stringVal)
-    override def read(json: JValue): Result[T] = json match {
-      case JString(s) => (validating(reader.withName(s)).mapFailure { _ =>
-        UncategorizedError(s, "Invalid %s: %s".format(m.runtimeClass.getSimpleName, s), Nil)
-      }).toValidationNel
-      case j => UnexpectedJSONError(j, classOf[JString]).failNel
+    override def read(json: JValue): Try[T] = json match {
+      case JString(s) => Try(reader.withName(s)).recover { case _ =>
+        throw UncategorizedError(s, "Invalid %s: %s".format(m.runtimeClass.getSimpleName, s), Nil)
+      }
+      case j => Failure(UnexpectedJSONError(j, classOf[JString]))
     }
   }
 

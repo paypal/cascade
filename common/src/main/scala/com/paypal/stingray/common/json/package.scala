@@ -11,10 +11,10 @@ import scala.util.{Failure, Try}
  */
 package object json {
 
-  sealed trait JSONException extends Exception
-  case class UnexpectedJSONError(was: JValue, expected: Class[_ <: JValue]) extends JSONException
-  case class NoSuchFieldError(name: String, json: JValue) extends JSONException
-  case class UncategorizedError(key: String, desc: String, args: List[Any]) extends JSONException
+  sealed trait JSONUtilException extends Exception
+  case class UnexpectedJSONError(was: JValue, expected: Class[_ <: JValue]) extends JSONUtilException
+  case class NoSuchFieldError(name: String, json: JValue) extends JSONUtilException
+  case class UncategorizedError(key: String, desc: String, args: List[Any]) extends JSONUtilException
 
   trait JSONR[A] {
     def read(json: JValue): Try[A]

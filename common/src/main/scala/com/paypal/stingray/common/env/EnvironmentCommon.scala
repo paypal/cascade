@@ -51,6 +51,7 @@ trait EnvironmentCommon extends LoggingSugar {
    */
   lazy val getInternalIPAddress: String = {
     val addrList = ListBuffer[InetAddress]()
+    // TODO: scalaify
     var failed = true
     var tries = 0
 
@@ -70,6 +71,7 @@ trait EnvironmentCommon extends LoggingSugar {
         failed = false
       } catch {
         case e: SocketException => {
+          // TODO: max retries value
           if (tries >= 3) {
             envLogger.error("getInternalIPAddress failed: SocketException.  Even tried " + tries + " times")
             throw e
@@ -78,10 +80,13 @@ trait EnvironmentCommon extends LoggingSugar {
       }
     }
 
-    val addrStrs = addrList.map(_.toString.trim.replace("/",""))
+    val addrStrs = for {
+      addr <- addrList
+    } yield addr.toString.trim.replace("/","")
+
     //dev and staging internal IPs will not exist in prod as per Jay Aras, so this algorithm works fine
-    addrStrs.find(_.startsWith("172.")) | {
-      addrStrs.find(_.startsWith("10.")) | {
+    addrStrs.find(_.startsWith("172.")).getOrElse {
+      addrStrs.find(_.startsWith("10.")).getOrElse {
         envLogger.error("getInternalIPAddress failed: found " + addrList.size + " addresses but none started with 172. or 10.")
         throw new SocketException("No internal IP address")
       }

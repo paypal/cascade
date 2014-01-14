@@ -1,36 +1,38 @@
 package com.paypal.stingray.common.util
 
-  /*
-   * Contains utility classes for class casting. Examples:
-   *
-   * import com.paypal.stingray.util.casts._
-   * import scalaz._
-   * import Scalaz._
-   * ...
-   * // `.cast[T]` casts an object to type T, returning an Option[T] which is some iff the object may be cast, none otherwise
-   * def castToString(obj: Obj): String =
-   *   obj.cast[String] | (throw new ClassCastException("not a String")
-   *
-   * // `.cast[T]` on an Option[A] returns an Option[T] which is Some[T] containing the casted contents of the original
-   * // option iff those contents may be cast to a T, None otherwise.
-   * def castOptionToString(opt: Option[_]): String =
-   *   opt.cast[String] | (throw new ClassCastException("not a String"))
-   *
-   * // `.cast[T]` on an Array[A] returns a Array[T] containing only the elements of the original array
-   * // which may be cast to a T
-   * def findStringsInArray(arr: Array[_]): Array[String] =
-   *   arr.cast[String]
-   *
-   * // `.cast[T]` on a Traversable[A] returns a Traversable[T] containing only the elements of the original traverable
-   * // which may be cast to a T
-   * def findStringsInTraversable(tr: Traversable[_]): Traversable[String] =
-   *   tr.cast[String]
-   *
-   * // `.cast[T]` on a List[A] returns a List[T] containing only the elements of the original list
-   * // which may be cast to a T
-   * def findStringsInList(li: List[_]): List[String] =
-   *   li.cast[String]
-   */
+import scala.collection.mutable.ListBuffer
+
+/*
+ * Contains utility classes for class casting. Examples:
+ *
+ * import com.paypal.stingray.util.casts._
+ * import scalaz._
+ * import Scalaz._
+ * ...
+ * // `.cast[T]` casts an object to type T, returning an Option[T] which is some iff the object may be cast, none otherwise
+ * def castToString(obj: Obj): String =
+ *   obj.cast[String] | (throw new ClassCastException("not a String")
+ *
+ * // `.cast[T]` on an Option[A] returns an Option[T] which is Some[T] containing the casted contents of the original
+ * // option iff those contents may be cast to a T, None otherwise.
+ * def castOptionToString(opt: Option[_]): String =
+ *   opt.cast[String] | (throw new ClassCastException("not a String"))
+ *
+ * // `.cast[T]` on an Array[A] returns a Array[T] containing only the elements of the original array
+ * // which may be cast to a T
+ * def findStringsInArray(arr: Array[_]): Array[String] =
+ *   arr.cast[String]
+ *
+ * // `.cast[T]` on a Traversable[A] returns a Traversable[T] containing only the elements of the original traverable
+ * // which may be cast to a T
+ * def findStringsInTraversable(tr: Traversable[_]): Traversable[String] =
+ *   tr.cast[String]
+ *
+ * // `.cast[T]` on a List[A] returns a List[T] containing only the elements of the original list
+ * // which may be cast to a T
+ * def findStringsInList(li: List[_]): List[String] =
+ *   li.cast[String]
+ */
 
 object casts {
 
