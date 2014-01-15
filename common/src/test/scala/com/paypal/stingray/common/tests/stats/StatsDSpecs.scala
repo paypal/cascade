@@ -1,12 +1,11 @@
 package com.paypal.stingray.common.tests.stats
 
-import scalaz._
-import Scalaz._
 import org.specs2.{Specification, SpecificationLike, ScalaCheck}
 import org.scalacheck._
 import org.scalacheck.Prop._
 import com.paypal.stingray.common.tests.scalacheck.Generators
 import com.paypal.stingray.common.values.{StaticValues, StaticValuesFromServiceNameComponent}
+import com.paypal.stingray.common.option._
 import org.specs2.mock.Mockito
 import com.paypal.stingray.common.stats.{StatsDCommon, StatsdClient}
 import com.paypal.stingray.common.env.EnvironmentCommon
@@ -18,19 +17,22 @@ import scala.concurrent.{ExecutionContext, Future}
  * Date: 10/7/13
  * Time: 10:59 AM
  */
-class StatsDSpecs extends Specification with Mockito with ScalaCheck with Generators with EnvironmentCommon { def is = s2"""
-
-The StatsD implementation should
-  timeMethod qualify the supplied key                                                $timeMethod
-  timeMethod not qualify the supplied key if some moron has already qualified it     $timeMethodQualified
-  timeMethods qualify the supplied key                                               $timeMethods
-  timeMethods not qualify the supplied key if some moron has already qualified it    $timeMethodsQualified
-  timeFutureMethod qualify the supplied key                                          $timeFutureMethod
-  timeFutureMethods qualify the supplied key                                         $timeFutureMethods
-  increment qualify the supplied key                                                 $increment
-  decrement qualify the supplied key                                                 $decrement
-  timing qualify the supplied key                                                    $timing
-"""
+class StatsDSpecs extends Specification with Mockito with ScalaCheck with Generators with EnvironmentCommon { def is =
+  "StatsDSpecs".title                                                                                                   ^
+  """
+    |StatsDSpecs tests features of the StatsD implementation.
+  """.stripMargin                                                                                                       ^
+  "The StatsD implementation should"                                                                                    ^
+    "qualify the supplied key"                                                                                          ! timeMethod ^
+    "not qualify the supplied key if someone has already qualified it"                                                  ! timeMethodQualified ^
+    "qualify many supplied keys"                                                                                        ! timeMethods ^
+    "not qualify a supplied key in a group if someone has already qualified it"                                         ! timeMethodsQualified ^
+    "qualify the supplied key as a Future"                                                                              ! timeFutureMethod ^
+    "qualify many supplied keys as a Future"                                                                            ! timeFutureMethods ^
+    "qualify the supplied key and increment"                                                                            ! increment ^
+    "qualify the supplied key and decrement"                                                                            ! decrement ^
+    "qualify the supplied key and perform a timing"                                                                     ! timing ^
+  end
 
   lazy val clustername = "mob1"
 
@@ -73,9 +75,7 @@ The StatsD implementation should
       client.timing(prefix + key, 0) returns true
     }
     new TestableStatsDCommon(client).timeMethods(keys: _*)(())
-    keys.map { key =>
-      there was one(client).timing(prefix + key, 0)
-    } reduce {_ and _}
+    keys must contain { key: String => there was one(client).timing(prefix + key, 0) }.forall
   }
 
   def timeMethodsQualified = forAll(Gen.listOf1(genNonEmptyAlphaStr).map(_.distinct)) { keys =>
@@ -84,9 +84,7 @@ The StatsD implementation should
       client.timing(prefix + key, 0) returns true
     }
     new TestableStatsDCommon(client).timeMethods(keys.map(prefix + _): _*)(())
-    keys.map { key =>
-      there was one(client).timing(prefix + key, 0)
-    } reduce {_ and _}
+    keys must contain { key: String => there was one(client).timing(prefix + key, 0) }.forall
   }
 
   def timeFutureMethod = forAll(genNonEmptyAlphaStr) { key =>
@@ -102,9 +100,7 @@ The StatsD implementation should
       client.timing(prefix + key, 0) returns true
     }
     new TestableStatsDCommon(client).timeFutureMethods(keys: _*)(Future.successful(()))
-    keys.map { key =>
-      there was one(client).timing(prefix + key, 0)
-    } reduce {_ and _}
+    keys must contain { key: String => there was one(client).timing(prefix + key, 0) }.forall
   }
 
   def increment = forAll(genNonEmptyAlphaStr) { key =>

@@ -1,8 +1,8 @@
 package com.paypal.stingray.common.tests.enumeration
 
 import com.paypal.stingray.common.enumeration._
-import com.paypal.stingray.common.validation._
 import org.specs2.Specification
+import scala.util.Try
 
 /**
  * Created by IntelliJ IDEA.
@@ -44,7 +44,7 @@ class EnumerationSpecs extends Specification { def is =
   }
 
   private def toEnumThrows = {
-    validating("%s-INVALID".format(MyEnum1.stringVal).toEnum[MyEnum]).toOption must beNone
+    Try("%s-INVALID".format(MyEnum1.stringVal).toEnum[MyEnum]).toOption must beNone
   }
 
 }

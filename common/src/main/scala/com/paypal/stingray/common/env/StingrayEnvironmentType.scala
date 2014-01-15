@@ -1,6 +1,7 @@
 package com.paypal.stingray.common.env
 
 import com.paypal.stingray.common.enumeration._
+import com.paypal.stingray.common.option._
 
 /**
  * Created by IntelliJ IDEA.

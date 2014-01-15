@@ -1,5 +1,7 @@
 package com.paypal.stingray.common
 
+import scala.language.implicitConversions
+
 /**
  * Created by IntelliJ IDEA.
  *

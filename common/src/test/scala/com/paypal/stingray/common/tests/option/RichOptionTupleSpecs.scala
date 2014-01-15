@@ -1,7 +1,5 @@
 package com.paypal.stingray.common.tests.option
 
-import scalaz._
-import Scalaz._
 import org.specs2.Specification
 import com.paypal.stingray.common.option._
 import java.util.concurrent.atomic.AtomicInteger

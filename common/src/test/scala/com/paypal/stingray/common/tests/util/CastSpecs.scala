@@ -1,9 +1,8 @@
 package com.paypal.stingray.common.tests.util
 
 import org.specs2._
+import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.util.casts._
-import scalaz._
-import Scalaz._
 import org.scalacheck._
 import Gen._
 import org.scalacheck.Prop._

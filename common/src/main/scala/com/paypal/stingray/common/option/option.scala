@@ -14,6 +14,18 @@ import concurrent.Future
 
 package object option {
 
+  def none[T] = None: Option[T]
+
+  implicit class Any2Option[T](any: T) {
+
+    // NOTE: calling `.some` on a null value will return `Some(null): Some[T]`
+    // This behavior is equivalent to directly crafting a `Some[T](null)`
+    // Overall, prefer `.opt` for null safety.
+    def some: Option[T] = Some(any)
+
+    def opt: Option[T] = Option(any)
+  }
+
   implicit class RichOption[T](option: Option[T]) {
 
     def executeIfNone(fn: => Unit): Option[T] = {

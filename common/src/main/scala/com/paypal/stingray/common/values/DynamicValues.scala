@@ -15,6 +15,8 @@ abstract class DynamicValues(svs: Option[StaticValues],
   extends Values
   with LoggingSugar {
 
+  import DynamicValues._
+
   def this(svs: StaticValues) = this(Some(svs))
   def this(name: String) = this(Some(new StaticValues(name)))
 
@@ -23,8 +25,8 @@ abstract class DynamicValues(svs: Option[StaticValues],
 
   protected def attempt(key: String): Future[Option[String]]
 
-  // override to an async pattern
-  override def get(key: String): Future[Option[String]] = {
+  // async pattern
+  def getAsync(key: String): Future[Option[String]] = {
     val dvFuture = attempt(key)
     val svOption = svs.flatMap(_.get(key))
 
@@ -37,6 +39,11 @@ abstract class DynamicValues(svs: Option[StaticValues],
     }
   }
 
+  // synchronous pattern
+  override def get(key: String): Option[String] = {
+    Await.result(attempt(key), SynchronousTimeout)
+  }
+
   def set(key: String, value: String): Future[Unit]
 
   def delete(key: String): Future[Boolean]
@@ -46,4 +53,5 @@ abstract class DynamicValues(svs: Option[StaticValues],
 
 object DynamicValues {
   val DefaultTTL = 60000
+  val SynchronousTimeout = 5.seconds
 }

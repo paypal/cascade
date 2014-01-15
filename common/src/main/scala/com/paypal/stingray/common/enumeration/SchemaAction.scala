@@ -1,8 +1,6 @@
 package com.paypal.stingray.common.enumeration
 
-import com.paypal.stingray.common.enumeration._
-import com.paypal.stingray.common.request.AccessLevel
-
+import com.paypal.stingray.common.option._
 
 /**
  * Created by drapp on 7/16/13.

@@ -3,16 +3,12 @@ package com.paypal.stingray.common.tests.scalacheck
 import com.paypal.stingray.common.primitives._
 import com.paypal.stingray.common.enumeration._
 import com.paypal.stingray.common.env.{StingrayEnvironmentType, EnvironmentType}
+import com.paypal.stingray.common.option._
 import org.scalacheck.{Gen, Arbitrary}
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Gen._
-import scalaz._
-import Scalaz._
 import java.util.UUID
-import com.paypal.stingray.common.validation._
-import com.paypal.stingray.common.request.{AccessLevelType, Authorization}
-import com.paypal.stingray.common.request.Authorization._
-import com.paypal.stingray.common.billing.{DaysTrial, Trial, MonthsTrial}
+import scala.util.Try
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,17 +23,7 @@ trait Generators {
 
   implicit lazy val arbUUID: Arbitrary[UUID] = Arbitrary(Gen(_ => UUID.randomUUID.some))
 
-  def genNelOf[T](genT: => Gen[T]): Gen[NonEmptyList[T]] = for {
-    first <- genT
-    rest <- Gen.listOf(genT)
-  } yield NonEmptyList(first, rest: _*)
-
-  def genNelOfN[T](n: Int, genT: => Gen[T]): Gen[NonEmptyList[T]] = for {
-    first <- genT
-    rest <- Gen.listOfN(n - 1, genT)
-  } yield NonEmptyList(first, rest: _*)
-
-  lazy val genInvalidUUID: Gen[String] = arbitrary[String].suchThat(s => validating(UUID.fromString(s)).isFailure)
+  lazy val genInvalidUUID: Gen[String] = arbitrary[String].suchThat(s => Try(UUID.fromString(s)).isFailure)
 
   lazy val genClientName: Gen[ClientName] = (Gen.listOfN(ClientName.maxLength - 1, Gen.frequency((9, genAlphaLowerNumChar), (1, "-")))
     suchThat { s => ClientName.fromString(s.mkString).isDefined }
@@ -175,16 +161,6 @@ trait Generators {
     RelationType.Many2One,
     RelationType.Many2Many)
 
-  lazy val genAccessLevelType: Gen[AccessLevelType] = Gen.oneOf(
-    AccessLevelType.NotAllowed,
-    AccessLevelType.PrivateKey,
-    AccessLevelType.Owner,
-    AccessLevelType.StaticAccessList,
-    AccessLevelType.FieldAccessList,
-    AccessLevelType.OwnerAccessList,
-    AccessLevelType.AllUsers,
-    AccessLevelType.Open)
-
   lazy val genEmail: Gen[Email] = {
     for {
       prefix <- genNonEmptyAlphaStr
@@ -195,8 +171,6 @@ trait Generators {
   lazy val genEnvType: Gen[EnvironmentType] = Gen.oneOf(EnvironmentType.DEV, EnvironmentType.PROD)
 
   lazy val genInvalidEnvType: Gen[String] = arbitrary[String].suchThat(_.readEnum[EnvironmentType].isEmpty)
-
-  lazy val genAuthorization: Gen[Authorization] = Gen.oneOf(Unauthorized(), ApplicationPrivateKey())
 
   lazy val genStackMobEnvironmentType: Gen[StingrayEnvironmentType] = {
     Gen.oneOf(StingrayEnvironmentType.DEVELOPMENT, StingrayEnvironmentType.STAGING, StingrayEnvironmentType.PRODUCTION)
@@ -224,16 +198,6 @@ trait Generators {
   def genErrors[T <: Throwable : Manifest]: Gen[List[T]] = Gen.listOf1(genError)
 
   def genOption[T](gen: Gen[T]): Gen[Option[T]] = gen.flatMap(g => Gen.oneOf(g.some, none[T]))
-
-  lazy val genTrial: Gen[Trial] = {
-    for {
-      isMonths <- arbitrary[Boolean]
-      duration <- Gen.posNum[Int]
-    } yield {
-      if (isMonths) MonthsTrial(duration)
-      else DaysTrial(duration)
-    }
-  }
 
 }
 

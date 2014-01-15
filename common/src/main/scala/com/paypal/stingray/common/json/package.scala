@@ -2,6 +2,8 @@ package com.paypal.stingray.common
 
 import net.liftweb.json._
 import scala.util.{Failure, Try}
+import scala.language.implicitConversions
+import scala.language.existentials
 
 /**
  * The objects contained here are borrowed patterns from net.liftweb.json.JsonScalaz,

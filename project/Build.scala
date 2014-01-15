@@ -109,7 +109,7 @@ object Dependencies {
   lazy val sprayRouting        = "io.spray"                  % "spray-routing"               % sprayVersion
   lazy val akka                = "com.typesafe.akka"         %% "akka-actor"                 % akkaVersion
 
-  lazy val specs2              = "org.specs2"                %% "specs2"                     % "2.2.3"           % "test" exclude("org.scalaz", "scalaz-core_2.10") exclude("org.scalaz", "scalaz-concurrent_2.10") exclude("org.scalaz", "scalaz-effect_2.10")
+  lazy val specs2              = "org.specs2"                %% "specs2"                     % "2.2.3"           % "test"
   lazy val scalacheck          = "org.scalacheck"            %% "scalacheck"                 % "1.10.1"          % "test"
   lazy val mockito             = "org.mockito"               % "mockito-all"                 % "1.9.0"           % "test"
   lazy val hamcrest            = "org.hamcrest"              % "hamcrest-all"                % "1.3"             % "test"
