@@ -133,8 +133,7 @@ object Dependencies {
     slf4jJul,
     slf4jJcl,
     slf4jLog4j,
-    logback,
-    liftJson
+    logback
   )
 
   lazy val serviceDependencies = Seq(

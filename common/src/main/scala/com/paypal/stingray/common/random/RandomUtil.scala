@@ -1,7 +1,6 @@
 package com.paypal.stingray.common.random
 
 import com.paypal.stingray.common.json._
-import net.liftweb.json.JsonParser.ParseException
 import org.slf4j.LoggerFactory
 import scala.util.Random
 
@@ -35,24 +34,8 @@ object RandomUtil {
       try {
         Option(JSONSerialization.deserialize(s, klass))
       } catch {
-        case e: JSONUtilException => {
+        case e: JSONException => {
           logger.error("Can't deserialize %s into %s".format(s,  klass.getName, e))
-          None
-        }
-      }
-    )
-  }
-
-  /**
-   * Get random lift-json deserialized T from map
-   */
-  def pickRandomValue[T <: AnyRef](map: Map[String, String])(implicit m: Manifest[T]): Option[T] = {
-    pickRandomValue(map, s =>
-      try {
-        Option(JSONUtil.deserialize[T](s))
-      } catch {
-        case e: ParseException => {
-          logger.error("Can't deserialize %s into %s".format(s, m.runtimeClass.getClass.getName))
           None
         }
       }

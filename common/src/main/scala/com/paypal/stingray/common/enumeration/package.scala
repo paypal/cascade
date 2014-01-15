@@ -1,9 +1,5 @@
 package com.paypal.stingray.common
 
-import net.liftweb.json.JsonAST._
-import com.paypal.stingray.common.json._
-import scala.util.{Failure, Try}
-
 /**
  * Created by IntelliJ IDEA.
  *
@@ -63,16 +59,6 @@ package object enumeration {
   implicit class RichStringEnumReader(value: String) {
     def readEnum[T <: Enumeration](implicit reader: EnumReader[T]): Option[T] = reader.read(value)
     def toEnum[T <: Enumeration](implicit reader: EnumReader[T]): T = reader.withName(value)
-  }
-
-  implicit def enumerationJSON[T <: Enumeration](implicit reader: EnumReader[T], m: Manifest[T]) = new JSON[T] {
-    override def write(value: T): JValue = JString(value.stringVal)
-    override def read(json: JValue): Try[T] = json match {
-      case JString(s) => Try(reader.withName(s)).recover { case _ =>
-        throw UncategorizedError(s, "Invalid %s: %s".format(m.runtimeClass.getSimpleName, s), Nil)
-      }
-      case j => Failure(UnexpectedJSONError(j, classOf[JString]))
-    }
   }
 
 }

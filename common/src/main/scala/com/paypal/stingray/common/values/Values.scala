@@ -1,8 +1,6 @@
 package com.paypal.stingray.common.values
 
 import com.paypal.stingray.common.enumeration._
-import com.paypal.stingray.common.json._
-import net.liftweb.json._
 import scala.language.higherKinds
 import scala.util.Try
 
@@ -46,15 +44,6 @@ trait Values {
   def getEnum[T <: Enumeration : EnumReader](key: String): Option[T] = {
     get(key).flatMap { value =>
       value.readEnum[T]
-    }
-  }
-
-  def getJSON[T: JSONR](key: String): Option[T] = {
-    get(key).flatMap { value =>
-      for {
-        json <- Try(parse(value)).toOption
-        t <- fromJSON[T](json).toOption
-      } yield t
     }
   }
 
