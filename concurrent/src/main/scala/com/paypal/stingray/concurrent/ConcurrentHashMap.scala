@@ -20,7 +20,7 @@ import com.paypal.stingray.common.option._
  * @tparam Value the value type
  *
  */
-abstract class ConcurrentHashMap[Key: Equal, Value: Equal] extends ScalaConcurrentMap[Key, Value] {
+abstract class ConcurrentHashMap[Key, Value] extends ScalaConcurrentMap[Key, Value] {
 
   protected val map = MutableHashMap[Key, Value]()
 
@@ -63,10 +63,10 @@ abstract class ConcurrentHashMap[Key: Equal, Value: Equal] extends ScalaConcurre
    */
   def removeIf(key: Key)(valuePred: Value => Boolean): Option[Value] = map.synchronized {
     map.get(key).flatMap { value =>
-      valuePred(value).option {
+      if (valuePred(value)) {
         map -= key
-        value
-      }
+        value.some
+      } else None
     }
   }
 
@@ -76,7 +76,7 @@ abstract class ConcurrentHashMap[Key: Equal, Value: Equal] extends ScalaConcurre
    * @param value the value whose equality to check
    * @return true if the key-value pair was removed, false otherwise
    */
-  override def remove(key: Key, value: Value): Boolean = (removeIf(key)(existing => existing === value)).isDefined
+  override def remove(key: Key, value: Value): Boolean = (removeIf(key)(existing => existing.equals(value))).isDefined
 
   /**
    * remove a key-value pair if it exists
@@ -123,10 +123,10 @@ abstract class ConcurrentHashMap[Key: Equal, Value: Equal] extends ScalaConcurre
    */
   def setIf(key: Key, value: => Value)(pred: Value => Boolean): Option[Value] = map.synchronized {
     map.get(key).flatMap { oldValue =>
-      pred(oldValue).option {
+      if (pred(oldValue)) {
         map.put(key, value)
-        oldValue
-      }
+        oldValue.some
+      } else None
     }
   }
 
@@ -143,7 +143,7 @@ abstract class ConcurrentHashMap[Key: Equal, Value: Equal] extends ScalaConcurre
    * @return true if the replacement happened, false otherwise
    */
   override def replace(key: Key, oldValue: Value, newValue: Value): Boolean = (setIf(key, newValue) { existing =>
-    existing === oldValue
+    existing.equals(oldValue)
   }).isDefined
 
   /**
@@ -155,8 +155,8 @@ abstract class ConcurrentHashMap[Key: Equal, Value: Equal] extends ScalaConcurre
 }
 
 object ConcurrentHashMap {
-  def apply[Key: Equal, Value: Equal](initialPairs: (Key, Value)*): ConcurrentHashMap[Key, Value] = apply(initialPairs.toTraversable.toMap)
-  def apply[Key: Equal, Value: Equal](initialMap: Map[Key, Value] = Map()): ConcurrentHashMap[Key, Value] = new ConcurrentHashMap[Key, Value] {
+  def apply[Key, Value](initialPairs: (Key, Value)*): ConcurrentHashMap[Key, Value] = apply(initialPairs.toTraversable.toMap)
+  def apply[Key, Value](initialMap: Map[Key, Value] = Map()): ConcurrentHashMap[Key, Value] = new ConcurrentHashMap[Key, Value] {
     override protected val map = {
       val m = MutableHashMap[Key, Value]()
       for((key, value) <- initialMap) {

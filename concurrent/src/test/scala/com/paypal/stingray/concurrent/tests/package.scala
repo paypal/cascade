@@ -14,7 +14,7 @@ import Gen.value
  */
 
 package object tests {
-  def GenEmptyConcurrentHashMap[Key: Equal, Value: Equal]: Gen[ConcurrentHashMap[Key, Value]] = {
+  def GenEmptyConcurrentHashMap[Key, Value]: Gen[ConcurrentHashMap[Key, Value]] = {
     ConcurrentHashMap[Key, Value]()
   }
 }

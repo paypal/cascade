@@ -5,6 +5,7 @@ import org.specs2.ScalaCheck
 import org.scalacheck._
 import org.scalacheck.Prop._
 import com.paypal.stingray.concurrent.ConcurrentHashMap
+import com.paypal.stingray.common.option._
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**

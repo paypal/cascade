@@ -6,8 +6,10 @@ import org.scalacheck._
 import org.scalacheck.Prop._
 import com.paypal.stingray.concurrent.ConcurrentHashMap
 import com.paypal.stingray.common.logging.LoggingSugar
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.{TimeUnit, CopyOnWriteArrayList}
 import scala.collection.JavaConverters._
+import scala.concurrent.{ExecutionContext, Await, Future}
+import scala.concurrent.duration._
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,6 +31,7 @@ class ConcurrentHashMapConcurrencySpecs extends Specification with ScalaCheck wi
   private val key = "hello"
   private val value = "world"
   private val newValue = "worldNew"
+  private val concurrentTimeout = Duration(1, TimeUnit.SECONDS)
 
   private type StringCHM = ConcurrentHashMap[String, String]
   private type StringMap = Map[String, String]
@@ -103,24 +106,28 @@ class ConcurrentHashMapConcurrencySpecs extends Specification with ScalaCheck wi
     op(chm)
   }
 
-  private def parallelOpsResultsInSameAsSerialOps = forAll(Gen.someOf(ops)) { opsList =>
-    val m = ConcurrentHashMap[String, String]()
-    val opsExecuted = new CopyOnWriteArrayList[Mutation]()
-    val results = opsList.map { op =>
-      Promise {
-        forAll(Gen.choose(0L, 2L)) { sleepLong =>
-          Thread.sleep(sleepLong)
-          opsExecuted.synchronized {
-            val currentParallelMap = op(m)
-            opsExecuted.add(op)
-            currentParallelMap must beEqualTo(executeOpsInSerial(opsExecuted.subList(0, opsExecuted.size).asScala))
+  private def parallelOpsResultsInSameAsSerialOps = {
+    import ExecutionContext.Implicits.global
+
+    forAll(Gen.someOf(ops)) { opsList =>
+      val m = ConcurrentHashMap[String, String]()
+      val opsExecuted = new CopyOnWriteArrayList[Mutation]()
+      val results = opsList.map { op =>
+        Future {
+          forAll(Gen.choose(0L, 2L)) { sleepLong =>
+            Thread.sleep(sleepLong)
+            opsExecuted.synchronized {
+              val currentParallelMap = op(m)
+              opsExecuted.add(op)
+              currentParallelMap must beEqualTo(executeOpsInSerial(opsExecuted.subList(0, opsExecuted.size).asScala))
+            }
           }
         }
-      }
-    }.par.map(p => p.get)
+      }.par.map(p => Await.result(p, concurrentTimeout))
 
-    results.foldLeft(Prop.passed) { (running, result) =>
-      result && running
+      results.foldLeft(Prop.passed) { (running, result) =>
+        result && running
+      }
     }
   }
 }

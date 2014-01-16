@@ -15,29 +15,4 @@ import com.paypal.stingray.concurrent.future._
  */
 package object concurrent {
 
-  implicit val promiseMonad: Monad[Promise] = new Monad[Promise] {
-    def point[A](a: => A): Promise[A] = {
-      Promise.apply(a)(Strategy.Sequential)
-    }
-
-    def bind[A, B](fa: Promise[A])(f: (A) => Promise[B]): Promise[B] = {
-      fa.flatMap { a =>
-        f(a)
-      }
-    }
-  }
-
-  def futureMonad(implicit context: ExecutionContext): Monad[Future] = new Monad[Future] {
-    def point[A](a: => A): Future[A] = {
-      try {
-        Future.successful(a)
-      } catch {
-        case t: Throwable => Future.failed(t)
-      }
-    }
-
-    def bind[A, B](fa: Future[A])(f: (A) => Future[B]): Future[B] = {
-      fa.flatMap(f)
-    }
-  }
 }
