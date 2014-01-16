@@ -3,12 +3,10 @@ package com.paypal.stingray.services.cache
 import com.paypal.stingray.common.logging.LoggingSugar
 import com.paypal.stingray.common.option._
 import java.net.InetSocketAddress
-import com.paypal.stingray.common.validation._
 import com.paypal.stingray.common.util.casts._
-import scalaz._
-import Scalaz._
 import org.apache.commons.codec.digest.DigestUtils
 import net.rubyeye.xmemcached.MemcachedClient
+import scala.util.Try
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,7 +15,7 @@ import net.rubyeye.xmemcached.MemcachedClient
  * Time: 11:16 AM
  */
 
-class MemcachedService(mbHostStrings: Option[NonEmptyList[String]],
+class MemcachedService(mbHostStrings: Option[List[String]],
                        port: Int,
                        override protected val connPoolSize: Int,
                        override protected val opTimeout: Long = MemcachedClient.DEFAULT_OP_TIMEOUT,
@@ -35,7 +33,7 @@ class MemcachedService(mbHostStrings: Option[NonEmptyList[String]],
 
     addresses.map { hostString: String =>
       new InetSocketAddress(hostString, port)
-    }
+    }.toList
   }
 
   private def fatalError(errorMsg: String, t: Option[Throwable] = none[Throwable]) {
@@ -58,12 +56,12 @@ class MemcachedService(mbHostStrings: Option[NonEmptyList[String]],
 
   @throws(classOf[MemcachedException])
   def decr(key: String, by: Int): Long = execute {
-    validating(client.decr(key, by))
+    Try(client.decr(key, by))
   }
 
   @throws(classOf[MemcachedException])
   def incr(key: String, by: Int): Long = execute {
-    validating(client.incr(key, by))
+    Try(client.incr(key, by))
   }
 
   @throws(classOf[MemcachedException])
@@ -97,7 +95,7 @@ class MemcachedService(mbHostStrings: Option[NonEmptyList[String]],
   @throws(classOf[MemcachedException])
   def getOrElseAs[T : Manifest](key: String)(f: => T): T = execute {
     safeGet(key).map { valueAsObject =>
-      valueAsObject.cast[T] | f
+      valueAsObject.cast[T].getOrElse(f)
     }
   }
 
@@ -109,18 +107,18 @@ class MemcachedService(mbHostStrings: Option[NonEmptyList[String]],
   @throws(classOf[MemcachedException])
   def shutdown() {
     execute {
-      validating(client.shutdown())
+      Try(client.shutdown())
     }
   }
 
   @throws(classOf[MemcachedException])
-  private def execute[T](op: => ThrowableValidation[T]): T = {
-    op.getOrThrow {
+  private def execute[T](op: => Try[T]): T = {
+    op.recover {
       case e => {
         logger.error("MemcachedService error: %s".format(e.getMessage), e)
-        new MemcachedException(e.getMessage, e)
+        throw new MemcachedException(e.getMessage, e)
       }
-    }
+    }.get
   }
 
 }
