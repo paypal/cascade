@@ -1,9 +1,9 @@
 package com.paypal.stingray.common.translatable.primitives
 
-import org.codehaus.jackson.annotate.JsonCreator
 import com.paypal.stingray.common.annotate.AnnotationHelpers._
 import scala.beans.BeanProperty
 import scala.util.control.Exception._
+import com.fasterxml.jackson.annotation.JsonCreator
 
 class Domain @JsonCreator() (@ScalaJsonProperty("domain") @BeanProperty val domain: String)
   extends AbstractString(domain) {

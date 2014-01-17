@@ -74,31 +74,22 @@ object BuildSettings {
 
 object Dependencies {
   val slf4jVersion = "1.7.5"
-  val jacksonVersion = "1.9.9"
-  val fasterXmlJacksonVersion = "2.1.2"
+  val fasterXmlJacksonVersion = "2.2.2"
   val newmanVersion = "1.3.5"
   val scaliakVersion = "0.9.0"
   val sprayVersion = "1.2.0"
   val akkaVersion = "2.2.3"
 
-
-  lazy val slf4j               = "org.slf4j"                 % "slf4j-api"                   % slf4jVersion
-  lazy val newman              = "com.stackmob"              %% "newman"                     % newmanVersion exclude("com.twitter", "finagle-http_2.10") exclude("commons-codec", "commons-codec") exclude("org.scalaz", "scalaz-core_2.10")
   lazy val xmemcached          = "com.googlecode.xmemcached" % "xmemcached"                  % "1.4.1" exclude("org.slf4j", "slf4j-api")
-  lazy val jacksonAsl          = "org.codehaus.jackson"      % "jackson-core-asl"            % jacksonVersion
-  lazy val jacksonMapper       = "org.codehaus.jackson"      % "jackson-mapper-asl"          % jacksonVersion
-  lazy val jacksonAnnotations  = "com.fasterxml.jackson.core"% "jackson-annotations"         % fasterXmlJacksonVersion
-  lazy val jacksonCore         = "com.fasterxml.jackson.core"% "jackson-core"                % fasterXmlJacksonVersion
   lazy val commonsCodec        = "commons-codec"             % "commons-codec"               % "1.7"
   lazy val commonsLang         = "commons-lang"              % "commons-lang"                % "2.6"
   lazy val commonsValidator    = "commons-validator"         % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
   lazy val logback             = "ch.qos.logback"            % "logback-classic"             % "1.0.13"
-  lazy val jodaTime            = "joda-time"                 % "joda-time"                   % "2.1"
-  lazy val jodaConvert         = "org.joda"                  % "joda-convert"                % "1.2" //marked as optional in joda-time
-  lazy val mail                = "javax.mail"                % "mail"                        % "1.4"
 
-  lazy val scribe              = "org.scribe"                % "scribe"                      % "1.3.5" exclude("commons-codec", "commons-codec")
+  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"         % fasterXmlJacksonVersion
+  lazy val jacksonModule       = "com.fasterxml.jackson.module" %% "jackson-module-scala"    % fasterXmlJacksonVersion
 
+  lazy val slf4j               = "org.slf4j"                 % "slf4j-api"                   % slf4jVersion
   lazy val slf4jJul            = "org.slf4j"                 % "jul-to-slf4j"                % slf4jVersion
   lazy val slf4jJcl            = "org.slf4j"                 % "jcl-over-slf4j"              % slf4jVersion      % "runtime"
   lazy val slf4jLog4j          = "org.slf4j"                 % "log4j-over-slf4j"            % slf4jVersion      % "runtime"
@@ -113,21 +104,17 @@ object Dependencies {
   lazy val hamcrest            = "org.hamcrest"              % "hamcrest-all"                % "1.3"             % "test"
   lazy val pegdown             = "org.pegdown"               % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core")
 
-  lazy val newmanTest          = "com.stackmob"              %% "newman"                     % newmanVersion     % "test" classifier "tests" exclude("com.twitter", "finagle-http_2.10") exclude("commons-codec", "commons-codec") exclude("org.scalaz", "scalaz-core_2.10")
   lazy val sprayTest           = "io.spray"                  % "spray-testkit"               % sprayVersion      % "test"
   lazy val akkaTestKit         = "com.typesafe.akka"         %% "akka-testkit"               % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
     slf4j,
-    mail,
     xmemcached,
     commonsCodec,
     commonsLang,
     commonsValidator,
-    jacksonAsl,
-    jacksonMapper,
-    jacksonAnnotations,
-    jacksonCore,
+    jacksonDataBind,
+    jacksonModule,
     slf4jJul,
     slf4jJcl,
     slf4jLog4j,
@@ -135,24 +122,18 @@ object Dependencies {
   )
 
   lazy val serviceDependencies = Seq(
-    newman
   )
 
   lazy val httpDependencies = Seq(
-    newman,
     sprayCan,
     sprayRouting,
     akka,
-    logback,
-    jodaTime,
-    jodaConvert,
-    scribe
+    logback
   )
 
   lazy val concurrentDependencies = Seq()
 
   lazy val testDependencies = Seq(
-    newmanTest,
     specs2,
     scalacheck,
     mockito,

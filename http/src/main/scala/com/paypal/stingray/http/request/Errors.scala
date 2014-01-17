@@ -17,7 +17,3 @@ sealed trait InternalRequestToHttpRequestError extends BaseError
 case class LazyStreamBodyNotSupportedError() extends InternalRequestToHttpRequestError {
   override lazy val reason = "Streaming requests are not supported at this time"
 }
-
-case class MethodNotSupportedError(method: HttpMethod) extends InternalRequestToHttpRequestError {
-  override lazy val reason = s"Method ${method.toString} not supported in Newman"
-}

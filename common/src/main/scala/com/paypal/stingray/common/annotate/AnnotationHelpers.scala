@@ -1,7 +1,7 @@
 package com.paypal.stingray.common.annotate
 
 import annotation.target._
-import org.codehaus.jackson.annotate.{JsonIgnore, JsonProperty}
+import com.fasterxml.jackson.annotation.{JsonIgnore, JsonProperty}
 
 /**
  * Created by IntelliJ IDEA.

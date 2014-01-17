@@ -7,12 +7,6 @@ import spray.http.{MediaType, HttpHeaders, Rendering, HttpHeader}
  */
 package object headers {
 
-  implicit class RichHttpHeader(val header: HttpHeader) {
-    def toNewmanHeader = {
-      (header.name, header.value)
-    }
-  }
-
   trait BaseHeader extends HttpHeader {
     override def render[R <: Rendering](r: R): r.type =r ~~ name ~~ ':' ~~ ' ' ~~ value
   }

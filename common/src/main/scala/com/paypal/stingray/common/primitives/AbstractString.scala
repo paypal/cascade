@@ -1,6 +1,6 @@
 package com.paypal.stingray.common.translatable.primitives
 
-import org.codehaus.jackson.annotate.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnore
 
 abstract class AbstractString (val value: String) extends CharSequence with OpaqueID {
 
