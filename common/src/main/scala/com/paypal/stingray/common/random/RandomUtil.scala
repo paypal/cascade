@@ -1,6 +1,5 @@
 package com.paypal.stingray.common.random
 
-import com.paypal.stingray.common.json._
 import org.slf4j.LoggerFactory
 import scala.util.Random
 
@@ -24,22 +23,6 @@ object RandomUtil {
     } yield {
       list(r.nextInt(list.length))
     }
-  }
-
-  /**
-   * Get random jackson deserialized T from map
-   */
-  def pickRandomValue[T <: AnyRef](map: Map[String, String], klass: Class[T]): Option[T] = {
-    pickRandomValue(map, s =>
-      try {
-        Option(JSONSerialization.deserialize(s, klass))
-      } catch {
-        case e: JSONException => {
-          logger.error(s"Can't deserialize $s into ${klass.getName}", e)
-          None
-        }
-      }
-    )
   }
 
   def pickRandomValue[T <: AnyRef](map: Map[String, String], convert: String => Option[T]): Option[T] = {
