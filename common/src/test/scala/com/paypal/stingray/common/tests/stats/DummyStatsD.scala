@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * Created by Andrew Harris
  * On 8/19/13 at 8:13 PM
  *
- * This exists because I decided it would be easier to just override all these methods than to try to wrestle Mockito
+ * This exists because I decided it would be easier to just override all these methods than to trys to wrestle Mockito
  * into working with both type parameters and secondary parameters.
  *
  * I realized after the fact that I could also have just mocked the StatsdClient itself. Eh.

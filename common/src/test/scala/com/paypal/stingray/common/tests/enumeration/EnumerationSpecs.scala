@@ -36,7 +36,7 @@ class EnumerationSpecs extends Specification { def is =
   }
 
   private def readEnumReturnsNone = {
-    "%s-INVALID".format(MyEnum1.stringVal).readEnum[MyEnum] must beNone
+    s"${MyEnum1.stringVal}-INVALID".readEnum[MyEnum] must beNone
   }
 
   private def toEnumReturns = {
@@ -44,7 +44,7 @@ class EnumerationSpecs extends Specification { def is =
   }
 
   private def toEnumThrows = {
-    Try("%s-INVALID".format(MyEnum1.stringVal).toEnum[MyEnum]).toOption must beNone
+    Try(s"${MyEnum1.stringVal}-INVALID".toEnum[MyEnum]).toOption must beNone
   }
 
 }

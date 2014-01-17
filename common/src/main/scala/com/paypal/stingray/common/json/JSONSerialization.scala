@@ -64,7 +64,7 @@ object JSONSerialization {
     } catch {
       case e: UnrecognizedPropertyException => {
         if (!suppressErrors) {
-          logger.warn("Bad data, will try more lenient deser: " + e.getMessage)
+          logger.warn("Bad data, will trys more lenient deser: " + e.getMessage)
         }
         try {
           prettyMapper.readValue(json, clazz)

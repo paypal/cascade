@@ -1,8 +1,7 @@
 package com.paypal.stingray.http.resource
 
-import scalaz._
-import Scalaz._
 import scala.concurrent.Future
+import com.paypal.stingray.common.option._
 
 /**
  * Created with IntelliJ IDEA.

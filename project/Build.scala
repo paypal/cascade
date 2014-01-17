@@ -92,12 +92,10 @@ object Dependencies {
   lazy val commonsCodec        = "commons-codec"             % "commons-codec"               % "1.7"
   lazy val commonsLang         = "commons-lang"              % "commons-lang"                % "2.6"
   lazy val commonsValidator    = "commons-validator"         % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
-  lazy val rabbitmq            = "com.rabbitmq"              % "amqp-client"                 % "2.7.1"
   lazy val logback             = "ch.qos.logback"            % "logback-classic"             % "1.0.13"
   lazy val jodaTime            = "joda-time"                 % "joda-time"                   % "2.1"
   lazy val jodaConvert         = "org.joda"                  % "joda-convert"                % "1.2" //marked as optional in joda-time
   lazy val mail                = "javax.mail"                % "mail"                        % "1.4"
-  lazy val liftJson            = "net.liftweb"               %% "lift-json"                  % "2.5.1"
 
   lazy val scribe              = "org.scribe"                % "scribe"                      % "1.3.5" exclude("commons-codec", "commons-codec")
 
@@ -137,9 +135,7 @@ object Dependencies {
   )
 
   lazy val serviceDependencies = Seq(
-    newman,
-    rabbitmq,
-    liftJson
+    newman
   )
 
   lazy val httpDependencies = Seq(
@@ -150,8 +146,7 @@ object Dependencies {
     logback,
     jodaTime,
     jodaConvert,
-    scribe,
-    liftJson
+    scribe
   )
 
   lazy val concurrentDependencies = Seq()

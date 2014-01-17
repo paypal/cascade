@@ -22,7 +22,7 @@ class BuildStaticValues(svs: StaticValues) extends StaticValues(BuildStaticValue
   def getDependencyList(s: String): Option[List[String]] = {
     get(s).map(_.toLowerCase).map({ prop =>
       val artifacts = Artifact.findAllIn(prop).collect {
-        case Artifact(gid, aid, vsn, t) if t == "jar" => "%s:%s:%s".format(gid, aid, vsn)
+        case Artifact(gid, aid, vsn, t) if t == "jar" => s"$gid:$aid:$vsn"
       }.toList
       if (artifacts.size > 0) {
         // Look for the Maven format first

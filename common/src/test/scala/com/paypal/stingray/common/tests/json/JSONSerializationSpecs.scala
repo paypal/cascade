@@ -66,7 +66,7 @@ class JSONSerializationSpecs extends Specification with ScalaCheck { override de
 
   case class nakedArrayContext() extends context {
     def ok = apply {
-      forAll(Gen.listOf1(arbitrary[Int]).map(s => "[%s]".format(s.mkString(",")))) { arr =>
+      forAll(Gen.listOf1(arbitrary[Int]).map(s => s"[${s.mkString(",")}]")) { arr =>
         val node = JSONSerialization.deserializeToJsonTree(arr)
         node.isArray must beTrue
       }

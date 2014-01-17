@@ -1,7 +1,5 @@
 package com.paypal.stingray.http.resource
 
-import scalaz._
-import Scalaz._
 import spray.http.HttpRequest
 import scala.concurrent.Future
 

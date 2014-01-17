@@ -62,7 +62,7 @@ class StaticValues(mbUrl: Option[URL])
   }
 
   private def lookupFailed(key: String) = {
-    val msg = "Failed to lookup mission critical values from property files %s!!!!!!".format(key)
+    val msg = s"Failed to lookup mission critical values from property files $key!!!!!!"
     logger.error(msg)
     new IllegalStateException(msg)
   }
@@ -77,9 +77,9 @@ object StaticValues {
 
   def getServiceUrl(serviceName: Option[String]): Option[URL] = {
     Try(
-      serviceName.flatMap(s => Option(System.getProperty("%s.config".format(s))).map(new File(_).toURI.toURL)) orElse
-        serviceName.flatMap(s => Option(getClass.getClassLoader.getResource("%s.properties".format(s)))) orElse
-        serviceName.flatMap(s => Option(getClass.getResource("%s-default.properties".format(s)))) orElse
+      serviceName.flatMap(s => Option(System.getProperty(s"$s.config")).map(new File(_).toURI.toURL)) orElse
+        serviceName.flatMap(s => Option(getClass.getClassLoader.getResource(s"$s.properties"))) orElse
+        serviceName.flatMap(s => Option(getClass.getResource(s"$s-default.properties"))) orElse
         Option(System.getProperty("stingray.cluster.config")).map(new File(_).toURI.toURL)
     ).toOption.flatten
   }

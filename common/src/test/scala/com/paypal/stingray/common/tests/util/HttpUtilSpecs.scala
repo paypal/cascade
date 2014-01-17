@@ -51,7 +51,7 @@ class HttpUtilSpecs extends Specification with ScalaCheck { def is =
 
     protected lazy val genQueryPairs: Gen[List[StrPair]] = listOf(genNonEmptyStrPair)
 
-    protected def getQueryString(l: List[StrPair]) = l.map(tup => "%s=%s".format(tup._1, tup._2)).mkString("&")
+    protected def getQueryString(l: List[StrPair]) = l.map(tup => s"${tup._1}=${tup._2}").mkString("&")
 
     protected def allValues[T](m: Map[String, List[T]]): List[T] = m.flatMap(tup => tup._2).toList
     protected def uniqueKeys[T, U](maps: Map[T, U]*): Set[T] = maps.toList.foldLeft(Set[T]()) { (set, map) =>
@@ -77,7 +77,7 @@ class HttpUtilSpecs extends Specification with ScalaCheck { def is =
     }
 
     def omitsMalformedKVPs = forAll(genQueryPairs, genMalformedQueryStringPair) { (list, malformedStr) =>
-      val qStringWithMalformed = "%s&%s".format(getQueryString(list), malformedStr)
+      val qStringWithMalformed = s"${getQueryString(list)}&${malformedStr}"
       HttpUtil.parseQueryStringToPairs(qStringWithMalformed) must haveTheSameElementsAs(list)
     }
   }

@@ -6,8 +6,6 @@ import scala.collection.mutable.ListBuffer
  * Contains utility classes for class casting. Examples:
  *
  * import com.paypal.stingray.util.casts._
- * import scalaz._
- * import Scalaz._
  * ...
  * // `.cast[T]` casts an object to type T, returning an Option[T] which is some iff the object may be cast, none otherwise
  * def castToString(obj: Obj): String =

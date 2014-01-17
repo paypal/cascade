@@ -115,7 +115,7 @@ class MemcachedService(mbHostStrings: Option[List[String]],
   private def execute[T](op: => Try[T]): T = {
     op.recover {
       case e => {
-        logger.error("MemcachedService error: %s".format(e.getMessage), e)
+        logger.error(s"MemcachedService error: ${e.getMessage}", e)
         throw new MemcachedException(e.getMessage, e)
       }
     }.get

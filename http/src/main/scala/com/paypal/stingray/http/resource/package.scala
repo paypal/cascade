@@ -1,7 +1,5 @@
 package com.paypal.stingray.http
 
-import scalaz._
-import Scalaz._
 import spray.http._
 import spray.http.HttpEntity._
 import StatusCodes._
@@ -9,13 +7,17 @@ import scala.concurrent._
 import com.paypal.stingray.common.option._
 import akka.actor.Status
 import com.paypal.stingray.common.future._
+import com.paypal.stingray.common.trys._
+import scala.util.Try
+import scala.concurrent.Future
 
 /**
  * Created with IntelliJ IDEA.
  * User: drapp
  * Date: 3/18/13
  * Time: 10:05 AM
- * Utility methods for turning everyday datatypes into futures possibly throwing HaltException. Methods of the form orHalt create a future.
+ * Utility methods for turning everyday datatypes into futures possibly throwing HaltException.
+ * Methods of the form orHalt create a future.
  * Methods of the form orThrowHaltException simply throw an exception and should only be used when already in a Future
  */
 
@@ -39,10 +41,9 @@ package object resource {
       orThrowHaltException(HttpResponse(status, entity, headers))
     }
 
-    def orHalt(halt: => HttpResponse): Future[A] = v some {
-      _.continue
-    } none {
-      Future.failed(new HaltException(halt))
+    def orHalt(halt: => HttpResponse): Future[A] = v match {
+      case Some(a) => a.continue
+      case None => Future.failed(new HaltException(halt))
     }
 
     def orHaltWith(status: => StatusCode, entity: => HttpEntity = Empty, headers: => List[HttpHeader] = Nil): Future[A] = {
@@ -54,13 +55,17 @@ package object resource {
     }
   }
 
-  implicit class RichEitherThrowableHalt[A](either: Throwable \/ A) {
+  implicit class RichEitherThrowableHalt[A](either: Either[Throwable, A]) {
 
     def orThrowHaltExceptionWithMessage(status: StatusCode)(f: String => String = identity): A = {
-      either.leftMap(e => new HaltException(HttpResponse(status, f(e.getMessage)))).valueOr(throw _)
+      either.fold(
+        e => throw new HaltException(HttpResponse(status, f(e.getMessage))),
+        a => a
+      )
     }
 
-    def orThrowHaltExceptionWithErrorMessage(f: String => String = identity): A = orThrowHaltExceptionWithMessage(InternalServerError)(f)
+    def orThrowHaltExceptionWithErrorMessage(f: String => String = identity): A =
+      orThrowHaltExceptionWithMessage(InternalServerError)(f)
 
     def orHaltWithMessage(status: StatusCode)(f: String => String = identity): Future[A] = either.fold(
       l => Future.failed(new HaltException(HttpResponse(status, f(l.getMessage)))),
@@ -71,35 +76,38 @@ package object resource {
 
     // Useful for returning a failure case to the sender such that the sender receives a Future[T].
     // e.g.  sender ! someEither.orFailure
-    def orFailure: Any = either.valueOr(Status.Failure)
+    def orFailure: Any = either.right.getOrElse(Status.Failure)
 
   }
 
-  implicit class RichValidationThrowableHalt[A](v: Validation[Throwable, A]) extends RichEitherThrowableHalt(v.disjunction)
+  implicit class RichTryHalt[A](t: Try[A]) extends RichEitherThrowableHalt(t.toEither)
 
-  implicit class RichEitherHalt[T, A](either: T \/ A) {
+  implicit class RichEitherHalt[T, A](either: Either[T, A]) {
     def orThrowHaltException(haltFn: T => HttpResponse): A = {
-      either.leftMap[HaltException](haltFn.map(new HaltException(_))).valueOr(throw _)
-    }
-
-    def orErrorNow(errorFn: T => HttpEntity = { _ => Empty }): A = orThrowHaltException(e => HttpResponse(InternalServerError, errorFn(e)))
-
-    def orHalt(haltFn: T => HttpResponse): Future[A] = {
-      either.leftMap[HaltException](haltFn.map(new HaltException(_))).fold(
-        l => Future.failed(l),
-        r => r.continue
+      either.fold(
+        t => throw new HaltException(haltFn(t)),
+        a => a
       )
     }
 
-    def orError(errorFn: T => HttpEntity = { _ => Empty }): Future[A] = orHalt(e => HttpResponse(InternalServerError, errorFn(e)))
-  }
+    def orErrorNow(errorFn: T => HttpEntity = { _ => Empty }): A =
+      orThrowHaltException(e => HttpResponse(InternalServerError, errorFn(e)))
 
-  implicit class RichValidationHalt[T, A](v: Validation[T, A]) extends RichEitherHalt(v.disjunction)
+    def orHalt(haltFn: T => HttpResponse): Future[A] = {
+      either.fold(
+        t => Future.failed[A](new HaltException(haltFn(t))),
+        a => a.continue
+      )
+    }
+
+    def orError(errorFn: T => HttpEntity = { _ => Empty }): Future[A] =
+      orHalt(e => HttpResponse(InternalServerError, errorFn(e)))
+  }
 
   implicit class RichBooleanHalt(v: Boolean) {
 
     def orThrowHaltException(halt: => HttpResponse) {
-      v.option(()).orThrow(new HaltException(halt))
+      if (v) ().continue else throw new HaltException(halt)
     }
 
     def orThrowHaltException(status: => StatusCode, entity: => HttpEntity = Empty, headers: => List[HttpHeader] = Nil) {
@@ -129,7 +137,7 @@ package object resource {
   }
 
   implicit class RichIdentity[T](v: => T) {
-    def continue = Future { v }
+    def continue = Future.successful(v)
   }
 
   implicit class RichThrowableHalt(t: Throwable) {

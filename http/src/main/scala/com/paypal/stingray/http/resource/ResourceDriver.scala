@@ -1,19 +1,19 @@
 package com.paypal.stingray.http.resource
 
-import scalaz._
-import Scalaz._
 import spray.http._
 import spray.http.HttpEntity._
-import HttpMethods._
-import StatusCodes._
-import HttpHeaders._
+import spray.http.HttpMethods._
+import spray.http.StatusCodes._
+import spray.http.HttpHeaders._
 import com.paypal.stingray.common.logging.LoggingSugar
+import com.paypal.stingray.common.option._
 import scala.concurrent.Future
-import com.paypal.stingray.common.string._
+import java.nio.charset.Charset
 
 trait ResourceDriver extends LoggingSugar {
 
   protected lazy val logger = getLogger[ResourceDriver]
+  protected lazy val charset = Charset.forName("UTF-8")
 
   def ensureAvailable(resource: Resource[_, _, _, _]) = {
     import resource.context
@@ -104,8 +104,9 @@ trait ResourceDriver extends LoggingSugar {
       }
     } yield {
       val responseWithLocation = addHeaderOnCode(httpResponse, Created) {
-        val scheme = request.headers.find(_.name === "X-Forwarded-Proto").map(_.value) | "http"
-        Location(Uri("%s://%s:%s%s".format(scheme, request.uri.authority.host, request.uri.authority.port, request.uri.path) + ~location.map("/" + _)))
+        val scheme = request.headers.find(_.name == "X-Forwarded-Proto").map(_.value).getOrElse("http")
+        // TODO: there is probably a better way to do this using Spray itself
+        Location(Uri(s"$scheme://${request.uri.authority.host}:${request.uri.effectivePort}${location.map("/" + _).getOrElse("")}"))
       }
       // Just force the request to the right content type
       responseWithLocation.withEntity(responseWithLocation.entity.flatMap((entity: NonEmpty) => HttpEntity(resource.responseContentType, entity.data)))
@@ -118,7 +119,7 @@ trait ResourceDriver extends LoggingSugar {
         val finalResponse = response.withEntity(response.entity.flatMap { entity: NonEmpty =>
           entity.contentType match {
             case resource.responseContentType => entity
-            case _ => resource.coerceError(entity.data.toByteArray)
+            case _ => entity.data.toByteArray // TODO: JSONify
           }
         })
         if (finalResponse.status.intValue >= 500) {
@@ -127,7 +128,7 @@ trait ResourceDriver extends LoggingSugar {
         finalResponse
       case t: Throwable => {
         logger.error(s"Unexpected error: request: $request error: ${t.getMessage}", t)
-        HttpResponse(InternalServerError, resource.coerceError((~Option(t.getMessage)).getBytesUTF8))
+        HttpResponse(InternalServerError, Option(t.getMessage).getOrElse("").getBytes(charset)) // TODO: JSONify
       }
 
     }

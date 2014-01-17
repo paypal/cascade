@@ -35,7 +35,7 @@ trait CommonImmutableSpecificationContext extends Around with LoggingSugar {
 
   protected def logAndFail(t: Throwable): SpecsResult = {
     logger.warn(t.getMessage, t)
-    SpecsFailure("failed with exception %s (%s)".format(t.getClass.getCanonicalName, t.getMessage))
+    SpecsFailure(s"failed with exception ${t.getClass.getCanonicalName} (${t.getMessage})")
   }
 
 }

@@ -111,12 +111,12 @@ class ConcurrentHashMapSpecs extends Specification with ScalaCheck { def is =
   private def setRegardlessOfExistence() = {
     val chm = createCHM
     val setWhenPresent = {
-      val newPresentValue = "%sNew".format(presentValue)
+      val newPresentValue = s"${presentValue}New"
       chm.set(presentKey)(newPresentValue)
       exists(chm, presentKey, newPresentValue)
     }
     val setWhenAbsent = {
-      val newAbsentValue = "%sNew".format(presentValue)
+      val newAbsentValue = s"${presentValue}New"
       chm.set(absentKey)(newAbsentValue)
       exists(chm, absentKey, newAbsentValue)
     }
@@ -312,7 +312,7 @@ class ConcurrentHashMapSpecs extends Specification with ScalaCheck { def is =
     //exhaust the iterator
     val origLength = iter.length
     val allAdditionsCreateNewCopy = forAll(nonEmptyAlphaStr, nonEmptyAlphaStr) { (key, value) =>
-      chm.set("%sNew".format(key))(value)
+      chm.set(s"${key}New")(value)
       chm.iterator.toList.length must beGreaterThanOrEqualTo(origLength)
     }
     allAdditionsCreateNewCopy and

@@ -1,17 +1,12 @@
 package com.paypal.stingray.http.resource
 
-import scalaz._
-import Scalaz._
-import net.liftweb.json.scalaz.JsonScalaz._
-import net.liftweb.json._
-import com.paypal.stingray.common.json.JSONUtil._
-import com.paypal.stingray.common.validation._
 import spray.http._
 import spray.http.HttpEntity._
 import spray.http.HttpMethods._
 import spray.http.HttpResponse
 import StatusCodes._
 import com.paypal.stingray.common.logging.LoggingSugar
+import com.paypal.stingray.common.option._
 import scala.concurrent._
 import org.slf4j.LoggerFactory
 
@@ -170,29 +165,6 @@ abstract class Resource[ParsedRequest, AuthInfo, PostBody, PutBody] extends Logg
   def doOptions(req: ParsedRequest, authInfo: AuthInfo): Future[HttpResponse] = doOptions(req)
 
   /**
-   * Utility method to deserialize a json body via lift-json-scalaz
-   * @param r the request to parse the body from
-   * @tparam T the type to deserialize
-   * @return
-   */
-  def fromJsonBody[T: JSONR](r: HttpRequest): Future[Option[T]] = {
-    r.entity match {
-      case body @ NonEmpty(_, _) => {
-        for {
-          json <- validating(parse(body.asString(body.contentType.definedCharset | HttpCharsets.`UTF-8`))).toOption.orHaltWith(BadRequest, "Could not parse json body")
-          t <- fromJSON[T](json).leftMap { e =>
-            logger.warn(s"Invalid json: ${e.list.toString()}")
-            e
-          }.toOption.orHaltWith(BadRequest, "Bad json in body")
-        } yield t.some
-      }
-      case Empty => {
-        fromJSON[T](JNull).toOption.orHaltWith(BadRequest, "missing body").map(_.some)
-      }
-    }
-  }
-
-  /**
    * Convenience method to return an exception as a 500 Internal Error with the body being the message
    * of the exception
    */
@@ -200,37 +172,4 @@ abstract class Resource[ParsedRequest, AuthInfo, PostBody, PutBody] extends Logg
     HttpResponse(InternalServerError, e.getMessage)
   }
 
-  /**
-   * Utility method to return HttpResponse with status OK and a serialized json body via lift-json-scalaz.
-   * If the JSON processing is CPU intensive, it should be done in a background thread, dedicated actor, etc...
-   * into an http body with the content type set
-   * @param t the object to serialize
-   * @tparam T the type to serialize from
-   * @return
-   */
-  def jsonOKResponse[T: JSONW](t: T): HttpResponse = {
-    HttpResponse(OK, toJsonBody(t))
-  }
-
-  /**
-   * Utility method to serialize a json body via lift-json-scalaz.
-   * If the JSON processing is CPU intensive, it should be done in a background thread, dedicated actor, etc...
-   * into an http body with the content type set
-   * @param t the object to serialize
-   * @tparam T the type to serialize from
-   * @return
-   */
-  def toJsonBody[T: JSONW](t: T): HttpEntity = {
-    HttpEntity(responseContentType, toJSON(t).toWireFormat)
-  }
-
-  /**
-   * Used under the covers to force simple error strings into the proper format
-   * by default json objects
-   * @param body the body
-   * @return
-   */
-  def coerceError(body: Array[Byte]): HttpEntity = {
-    toJsonBody(Map("errors" -> List(new String(body, "UTF-8"))))
-  }
 }

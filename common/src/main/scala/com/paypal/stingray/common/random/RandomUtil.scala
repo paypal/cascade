@@ -35,7 +35,7 @@ object RandomUtil {
         Option(JSONSerialization.deserialize(s, klass))
       } catch {
         case e: JSONException => {
-          logger.error("Can't deserialize %s into %s".format(s,  klass.getName, e))
+          logger.error(s"Can't deserialize $s into ${klass.getName}", e)
           None
         }
       }
