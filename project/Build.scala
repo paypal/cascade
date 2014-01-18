@@ -98,11 +98,14 @@ object Dependencies {
   lazy val sprayRouting        = "io.spray"                  % "spray-routing"               % sprayVersion
   lazy val akka                = "com.typesafe.akka"         %% "akka-actor"                 % akkaVersion
 
-  lazy val specs2              = "org.specs2"                %% "specs2"                     % "2.2.3"           % "test"
-  lazy val scalacheck          = "org.scalacheck"            %% "scalacheck"                 % "1.10.1"          % "test"
-  lazy val mockito             = "org.mockito"               % "mockito-all"                 % "1.9.0"           % "test"
+  lazy val specs2              = "org.specs2"                %% "specs2"                     % "2.3.7"           % "test" exclude ("com.chuusai", "shapeless_2.10.3") exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
+  lazy val shapeless           = "com.chuusai"               %% "shapeless"                  % "1.2.4"           % "test"
+  lazy val scalacheck          = "org.scalacheck"            %% "scalacheck"                 % "1.11.1"          % "test"
+  lazy val mockito             = "org.mockito"               % "mockito-all"                 % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"              % "hamcrest-all"                % "1.3"             % "test"
-  lazy val pegdown             = "org.pegdown"               % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core")
+  lazy val pegdown             = "org.pegdown"               % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
+  lazy val parboiledJava       = "org.parboiled"             % "parboiled-java"              % "1.1.6"           % "test"
+  lazy val parboiledScala      = "org.parboiled"             %% "parboiled-scala"            % "1.1.6"           % "test"
 
   lazy val sprayTest           = "io.spray"                  % "spray-testkit"               % sprayVersion      % "test"
   lazy val akkaTestKit         = "com.typesafe.akka"         %% "akka-testkit"               % akkaVersion       % "test"
@@ -135,10 +138,13 @@ object Dependencies {
 
   lazy val testDependencies = Seq(
     specs2,
+    shapeless,
     scalacheck,
     mockito,
     hamcrest,
     pegdown,
+    parboiledJava,
+    parboiledScala,
     sprayTest,
     akkaTestKit
   )
