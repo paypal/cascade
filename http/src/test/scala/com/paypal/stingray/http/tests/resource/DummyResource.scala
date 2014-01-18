@@ -7,6 +7,8 @@ import com.paypal.stingray.common.option._
 import spray.http.HttpResponse
 import scala.concurrent._
 import com.paypal.stingray.http.resource._
+import scala.util.Try
+import com.paypal.stingray.common.json._
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,10 +45,18 @@ class DummyResource extends Resource[HttpRequest, Unit, Map[String, String], NoB
   override def doPostAsCreate(r: HttpRequest, auth: Unit, body: Map[String, String]): Future[(HttpResponse, Option[String])] = for {
     param <- body.get("foo").orHaltWith(BadRequest, "wrong json in body")
     _ <- ("bar" == param).orHaltWith(BadRequest, "wrong json in body")
-  } yield (HttpResponse(Created, "pong"), "foobar".some)
+  } yield (HttpResponse(Created, "pong"), "ping/foobar".some)
 
   override def doPut(r: HttpRequest, body: Option[String]): Future[HttpResponse] = for {
     _ <- body.isEmpty.orHaltWith(BadRequest, "somehow got a body")
   } yield HttpResponse(OK, "pong")
+
+  override def parsePostBody(r: HttpRequest): Future[Option[Map[String, String]]] = for {
+    parsed <- Try { JsonUtil.fromJson[Map[String, String]](r.entity.asString) }.toOption.continue
+  } yield parsed
+
+  override def parsePutBody(r: HttpRequest): Future[Option[NoBody]] = for {
+    parsed <- Try { val a = r.entity.asString; if(a.isEmpty) None else Some(a) }.toOption.continue
+  } yield parsed
 
 }

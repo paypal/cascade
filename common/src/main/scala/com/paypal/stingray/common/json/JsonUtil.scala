@@ -11,6 +11,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
  */
 object JsonUtil {
 
+  // TODO: write specs!
   val mapper = new ObjectMapper() with ScalaObjectMapper
   mapper.registerModule(DefaultScalaModule)
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
