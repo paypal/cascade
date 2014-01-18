@@ -1,8 +1,6 @@
 package com.paypal.stingray.http
 
 import org.scalacheck.Gen
-import org.scalacheck.Arbitrary._
-import java.util.UUID
 import com.paypal.stingray.common.tests.scalacheck.Generators
 import server.exception.ServiceException
 
@@ -17,11 +15,10 @@ import server.exception.ServiceException
  */
 
 package object tests extends Generators {
-  import Gen._
 
   def genServiceError[T <: ServiceException](implicit m: Manifest[T]): Gen[T] = {
     Gen.alphaStr.map(s => m.runtimeClass.getConstructor(classOf[String], classOf[Option[Throwable]]).newInstance(s, None).asInstanceOf[T])
   }
 
-  def genServiceErrors[T <: ServiceException : Manifest]: Gen[List[T]] = Gen.listOf1(genServiceError)
+  def genServiceErrors[T <: ServiceException : Manifest]: Gen[List[T]] = Gen.nonEmptyListOf(genServiceError)
 }

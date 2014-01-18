@@ -4,7 +4,7 @@ import org.specs2._
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.util.casts._
 import org.scalacheck._
-import Gen._
+import org.scalacheck.Gen._
 import org.scalacheck.Prop._
 import org.scalacheck.Arbitrary.arbitrary
 
@@ -205,8 +205,8 @@ class CastSpecs extends Specification with ScalaCheck { override def is =
 
     def traversable = apply {
       forAll(Gen.containerOf[Set, Foo](genFoo), Gen.containerOf[Set, Bar](genBar)) { (fSet: Set[Foo], bSet: Set[Bar]) =>
-        (fSet.cast[Foo] must haveTheSameElementsAs(fSet)) and
-          (bSet.cast[Bar] must haveTheSameElementsAs(bSet)) and
+        (fSet.cast[Foo] must containTheSameElementsAs(fSet.toSeq)) and
+          (bSet.cast[Bar] must containTheSameElementsAs(bSet.toSeq)) and
           (fSet.cast[Bar] must beEmpty) and
           (bSet.cast[Foo] must beEmpty)
       }
@@ -214,8 +214,8 @@ class CastSpecs extends Specification with ScalaCheck { override def is =
 
     def list = apply {
       forAll(Gen.listOf(genFoo), Gen.listOf(genBar)) { (fList: List[Foo], bList: List[Bar]) =>
-        (fList.cast[Foo] must haveTheSameElementsAs(fList)) and
-          (bList.cast[Bar] must haveTheSameElementsAs(bList)) and
+        (fList.cast[Foo] must containTheSameElementsAs(fList)) and
+          (bList.cast[Bar] must containTheSameElementsAs(bList)) and
           (fList.cast[Bar] must beEmpty) and
           (bList.cast[Foo] must beEmpty)
       }
@@ -226,8 +226,8 @@ class CastSpecs extends Specification with ScalaCheck { override def is =
   val genFoo: Gen[Foo] = for(msg <- arbitrary[String]) yield Foo(msg)
   val genBar: Gen[Bar] = for(msg <- arbitrary[String]) yield Bar(msg)
 
-  val genOptionFoo: Gen[Option[Foo]] = Gen.oneOf(for(msg <- arbitrary[String]) yield Foo(msg).some, None)
-  val genOptionBar: Gen[Option[Bar]] = Gen.oneOf(for(msg <- arbitrary[String]) yield Bar(msg).some, None)
+  val genOptionFoo: Gen[Option[Foo]] = Gen.oneOf(for(msg <- arbitrary[String]) yield Foo(msg).some, Gen.const(None))
+  val genOptionBar: Gen[Option[Bar]] = Gen.oneOf(for(msg <- arbitrary[String]) yield Bar(msg).some, Gen.const(None))
 
   case class Foo(msg: String = "foo")
   case class Bar(msg: String = "bar")

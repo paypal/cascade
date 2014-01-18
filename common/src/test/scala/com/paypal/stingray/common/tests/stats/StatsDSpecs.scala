@@ -69,7 +69,7 @@ class StatsDSpecs extends Specification with Mockito with ScalaCheck with Genera
     there was one(client).timing(prefix + key, 0)
   }
 
-  def timeMethods = forAll(Gen.listOf1(genNonEmptyAlphaStr).map(_.distinct)) { keys =>
+  def timeMethods = forAll(Gen.nonEmptyListOf(genNonEmptyAlphaStr).map(_.distinct)) { keys =>
     val client = mock[StatsdClient]
     keys.foreach { key =>
       client.timing(prefix + key, 0) returns true
@@ -78,7 +78,7 @@ class StatsDSpecs extends Specification with Mockito with ScalaCheck with Genera
     keys must contain { key: String => there was one(client).timing(prefix + key, 0) }.forall
   }
 
-  def timeMethodsQualified = forAll(Gen.listOf1(genNonEmptyAlphaStr).map(_.distinct)) { keys =>
+  def timeMethodsQualified = forAll(Gen.nonEmptyListOf(genNonEmptyAlphaStr).map(_.distinct)) { keys =>
     val client = mock[StatsdClient]
     keys.foreach { key =>
       client.timing(prefix + key, 0) returns true
@@ -94,7 +94,7 @@ class StatsDSpecs extends Specification with Mockito with ScalaCheck with Genera
     there was one(client).timing(prefix + key, 0)
   }
 
-  def timeFutureMethods = forAll(Gen.listOf1(genNonEmptyAlphaStr).map(_.distinct)) { keys =>
+  def timeFutureMethods = forAll(Gen.nonEmptyListOf(genNonEmptyAlphaStr).map(_.distinct)) { keys =>
     val client = mock[StatsdClient]
     keys.foreach { key =>
       client.timing(prefix + key, 0) returns true

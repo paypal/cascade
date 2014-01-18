@@ -62,23 +62,23 @@ class HttpUtilSpecs extends Specification with ScalaCheck { def is =
   case class ParseQueryStringToPairs() extends Context {
     def succeedsForWellFormedString = forAll(genQueryPairs) { list =>
       val qString = getQueryString(list)
-      HttpUtil.parseQueryStringToPairs(qString) must haveTheSameElementsAs(list)
+      HttpUtil.parseQueryStringToPairs(qString) must containTheSameElementsAs(list)
     }
 
     def succeedsForURLEncodedString = forAll(genQueryPairs) { list =>
       val encoded = ("redirect_uri", "http%3A%2F%2Fstackmob.com")
       val decoded = (URLDecoder.decode(encoded._1, HttpUtil.UTF_8), URLDecoder.decode(encoded._2, HttpUtil.UTF_8))
       val qString = getQueryString(encoded :: list)
-      HttpUtil.parseQueryStringToPairs(qString) must haveTheSameElementsAs(decoded :: list)
+      HttpUtil.parseQueryStringToPairs(qString) must containTheSameElementsAs(decoded :: list)
     }
 
     def succeedsForNullString = {
-      HttpUtil.parseQueryStringToPairs(null) must haveTheSameElementsAs(List[StrPair]())
+      HttpUtil.parseQueryStringToPairs(null) must containTheSameElementsAs(List[StrPair]())
     }
 
     def omitsMalformedKVPs = forAll(genQueryPairs, genMalformedQueryStringPair) { (list, malformedStr) =>
       val qStringWithMalformed = s"${getQueryString(list)}&${malformedStr}"
-      HttpUtil.parseQueryStringToPairs(qStringWithMalformed) must haveTheSameElementsAs(list)
+      HttpUtil.parseQueryStringToPairs(qStringWithMalformed) must containTheSameElementsAs(list)
     }
   }
 
@@ -101,8 +101,8 @@ class HttpUtilSpecs extends Specification with ScalaCheck { def is =
       val map1 = Map("a" -> List("b", "c"))
       val map2 = Map("b" -> List("c", "d"))
       val merged = HttpUtil.mergeParameters(map1, map2)
-      val keysMatch = merged.keys must haveTheSameElementsAs(uniqueKeys(map1, map2))
-      val valsMatch = allValues(merged) must haveTheSameElementsAs(allValues(map1) ++ allValues(map2))
+      val keysMatch = merged.keys must containTheSameElementsAs(uniqueKeys(map1, map2).toSeq)
+      val valsMatch = allValues(merged) must containTheSameElementsAs(allValues(map1) ++ allValues(map2))
       keysMatch and valsMatch
     }
 
@@ -110,15 +110,15 @@ class HttpUtilSpecs extends Specification with ScalaCheck { def is =
       val map1 = Map("a" -> List("b", "c"))
       val map2 = Map("a" -> List("c", "d"))
       val merged = HttpUtil.mergeParameters(map1, map2)
-      val keysMatch = merged.keys must haveTheSameElementsAs(uniqueKeys(map1, map2))
-      val valsMatch = allValues(merged) must haveTheSameElementsAs(allValues(map1) ++ allValues(map2))
+      val keysMatch = merged.keys must containTheSameElementsAs(uniqueKeys(map1, map2).toSeq)
+      val valsMatch = allValues(merged) must containTheSameElementsAs(allValues(map1) ++ allValues(map2))
       keysMatch and valsMatch
     }
 
     private def mergesEmptyMap(m1: Map[String, List[String]], m2: Map[String, List[String]]): SpecsResult = {
       val merged = HttpUtil.mergeParameters(m1, m2)
-      val keysMatch = merged.keys must haveTheSameElementsAs(uniqueKeys(m1, m2))
-      val valsMatch = allValues(merged) must haveTheSameElementsAs(allValues(m1) ++ allValues(m2))
+      val keysMatch = merged.keys must containTheSameElementsAs(uniqueKeys(m1, m2).toSeq)
+      val valsMatch = allValues(merged) must containTheSameElementsAs(allValues(m1) ++ allValues(m2))
       keysMatch and valsMatch
     }
 
