@@ -61,6 +61,7 @@ trait MemcachedServiceLow extends LoggingSugar {
     //execute uses an automatic type dependent closure construction (http://www.scala-lang.org/node/138),
     //and it passes on the return type of this closure, at which point scala tries to cast Nothing
     //to Object, which throws.
+    // TODO: include the above in Scaladocs
     client.get[Object](key)
   }
 

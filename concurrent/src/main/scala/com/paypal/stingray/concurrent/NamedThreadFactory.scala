@@ -4,13 +4,8 @@ import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Copyright 2012 StackMob Inc.
- *
  * Provide a method to get DefaultThreadFactory instances with a specified thread name prefix.
  * This should be used to make debugging easier.
- *
- * com.stackmob.core
- * 9/4/12
  *
  * @author Will Palmeri <will@stackmob.com>
  */

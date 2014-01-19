@@ -3,8 +3,6 @@ package com.paypal.stingray.common.enumeration
 /**
  * com.paypal.stingray.common.enumeration
  *
- * Copyright 2012 StackMob
- *
  * User: aaron
  * Date: 1/10/12
  * Time: 1:49 PM

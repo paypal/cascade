@@ -18,7 +18,7 @@ import com.paypal.stingray.common.seq.RichSeq
 class RichSeqSpecs extends Specification { def is =
   "RichSeqSpecs".title                                                                                                  ^
   """
-  RichSeq is StackMob's pimp for Seq[T]. It contains stuff that is good.
+  RichSeq is a wrapper for Seq[T]. It contains stuff that is good.
   """                                                                                                                   ^
   "RichSeq[T]#get should"                                                                                               ^
     "return Some(t) if the index was in bounds"                                                                         ! Get().inBoundsReturnsSome ^
@@ -26,14 +26,14 @@ class RichSeqSpecs extends Specification { def is =
                                                                                                                         end
   trait Context extends CommonImmutableSpecificationContext {
     protected lazy val s = Seq(1, 2, 3)
-    protected lazy val pimp = new RichSeq(s)
+    protected lazy val wrapper = new RichSeq(s)
   }
 
   case class Get() extends Context {
     def inBoundsReturnsSome: SpecsResult = s.get(0) must beEqualTo(Some(s(0)))
     def outOfBoundsReturnsNone: SpecsResult = {
-      (pimp.get(-1) must beNone) and
-      (pimp.get(s.length) must beNone)
+      (wrapper.get(-1) must beNone) and
+      (wrapper.get(s.length) must beNone)
     }
   }
 

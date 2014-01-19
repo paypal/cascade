@@ -1,6 +1,4 @@
 /**
- * Copyright 2010 StackMob Inc.
- *
  * @author Will Palmeri <will@stackmob.com> StackMob
  *         <http://www.stackmob.com>
  *

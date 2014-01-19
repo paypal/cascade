@@ -28,7 +28,7 @@ trait Generators {
 
   lazy val genInvalidEnvType: Gen[String] = arbitrary[String].suchThat(_.readEnum[EnvironmentType].isEmpty)
 
-  lazy val genStackMobEnvironmentType: Gen[StingrayEnvironmentType] = {
+  lazy val genStingrayEnvironmentType: Gen[StingrayEnvironmentType] = {
     Gen.oneOf(StingrayEnvironmentType.DEVELOPMENT, StingrayEnvironmentType.STAGING, StingrayEnvironmentType.PRODUCTION)
   }
 

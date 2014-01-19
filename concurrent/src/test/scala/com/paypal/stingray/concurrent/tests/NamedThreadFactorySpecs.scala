@@ -5,11 +5,6 @@ import com.paypal.stingray.concurrent.NamedThreadFactory
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
- * Copyright 2012 StackMob Inc.
- *
- * com.stackmob.tests.core
- * 9/4/12
- *
  * @author Will Palmeri <will@stackmob.com>
  */
 

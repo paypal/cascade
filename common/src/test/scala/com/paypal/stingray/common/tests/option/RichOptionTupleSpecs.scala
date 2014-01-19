@@ -19,7 +19,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 class RichOptionTupleSpecs extends Specification { def is =
   "RichOptionTupleSpecs".title                                                                                          ^
   """
-  RichOptionTuple is StackMob's pimp for (Option[T], Option[U]) types (ie: 2-tuples of options)
+  RichOptionTuple is a wrapper for (Option[T], Option[U]) types (ie: 2-tuples of options)
   """                                                                                                                   ^
   "fold should"                                                                                                         ^
     "execute exactly one function according to the defined permutation of Options"                                      ! Fold().accordingToCorrectPermutation

@@ -19,7 +19,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 class RichOptionSpecs extends Specification { def is =
   "RichOptionSpecs".title                                                                                               ^
   """
-  RichOption is StackMob's pimp for Option[T] types
+  RichOption is a wrapper for Option[T] types
   """                                                                                                                   ^
   "sideEffectNone should"                                                                                               ^
     "execute the given function only if the contained option is None"                                                   ! SideEffectNone().executesOnlyIfNone ^
@@ -41,10 +41,10 @@ class RichOptionSpecs extends Specification { def is =
     def executesOnlyIfNone: SpecsResult = {
       val int = new AtomicInteger(0)
       val someValue = 20
-      val pimpedNone = makeRichOption[Int]
-      val pimpedSome = makeRichOption(someValue)
-      pimpedNone.sideEffectNone { int.set(1) }
-      pimpedSome.sideEffectNone { int.set(5) }
+      val wrappedNone = makeRichOption[Int]
+      val wrappedSome = makeRichOption(someValue)
+      wrappedNone.sideEffectNone { int.set(1) }
+      wrappedSome.sideEffectNone { int.set(5) }
       int.get must beEqualTo(1)
     }
   }
@@ -53,10 +53,10 @@ class RichOptionSpecs extends Specification { def is =
     def executesOnlyIfSome: SpecsResult = {
       val int = new AtomicInteger(0)
       val someValue = 20
-      val pimpedNone = makeRichOption[Int]
-      val pimpedSome = makeRichOption(someValue)
-      pimpedNone.sideEffectSome { _ => int.set(-1) }
-      pimpedSome.sideEffectSome { x => int.set(x) }
+      val wrappedNone = makeRichOption[Int]
+      val wrappedSome = makeRichOption(someValue)
+      wrappedNone.sideEffectSome { _ => int.set(-1) }
+      wrappedSome.sideEffectSome { x => int.set(x) }
       int.get must beEqualTo(20)
     }
   }
@@ -64,12 +64,12 @@ class RichOptionSpecs extends Specification { def is =
   case class OrThrow() extends Context {
     def throwsOnlyIfNone: SpecsResult = {
       val someValue = 20
-      val pimpedNone = makeRichOption[Int]
-      val pimpedSome = makeRichOption(someValue)
+      val wrappedNone = makeRichOption[Int]
+      val wrappedSome = makeRichOption(someValue)
       val exception = new Exception(getClass.getCanonicalName)
-      (pimpedNone orThrow(exception) must throwA(exception)) and
-      (pimpedSome orThrow(exception) must not throwA(exception)) and
-      (pimpedSome orThrow(exception) must beEqualTo(someValue))
+      (wrappedNone orThrow(exception) must throwA(exception)) and
+      (wrappedSome orThrow(exception) must not throwA(exception)) and
+      (wrappedSome orThrow(exception) must beEqualTo(someValue))
     }
   }
 

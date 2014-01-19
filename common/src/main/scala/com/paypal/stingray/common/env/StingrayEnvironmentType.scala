@@ -13,10 +13,10 @@ import com.paypal.stingray.common.option._
 sealed abstract class StingrayEnvironmentType extends Enumeration
 
 /**
- * StackMobEnvironmentType represents the StackMob environment.
- *   Rackspace => PRODUCTION
- *   Townsend => STAGING
- *   Local => DEVELOPMENT
+ * StingrayEnvironmentType represents the Stingray environment.
+ *   Live => PRODUCTION
+ *   C3 => STAGING
+ *   Local/Vagrant => DEVELOPMENT
  */
 object StingrayEnvironmentType extends EnumUnapply[StingrayEnvironmentType] {
 

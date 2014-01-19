@@ -9,25 +9,23 @@ import HttpHeaders._
 import com.paypal.stingray.http.tests.matchers.SprayMatchers
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 4/12/13
- * Time: 1:14 PM
+ * Tests that exercise the [[com.paypal.stingray.http.resource.Resource]] abstract class,
+ * via the [[com.paypal.stingray.http.tests.resource.DummyResource]] implementation.
  */
-class DummyResourceSpecs extends Specification with Mockito { override def is =
+class DummyResourceSpecs extends Specification with Mockito { override def is = s2"""
 
-  "DummyResourceSpecs".title                                              ^
-                                                                          p^
-    "GET /ping  =>"                                                       ^
-      "should return pong"                                                ! Test().ping ^
-      "should have the right headers set if unauthorized"                 ! Test().unauthorized ^
-                                                                          p^
-    "POST /ping  =>"                                                      ^
-      "should return pong"                                                ! Test().pingPost ^
-                                                                          p^
-    "PUT /ping  =>"                                                       ^
-      "should return pong"                                                ! Test().pingPut ^
-                                                                          end
+  Tests that exercise the Resource abstract class, via the DummyResource implementation
+
+  GET /ping =>
+    should return pong                                                    ${Test().ping}
+    should have the right headers set if unauthorized                     ${Test().unauthorized}
+
+  POST /ping =>
+    should return pong                                                    ${Test().pingPost}
+
+  PUT /ping =>
+    should return pong                                                    ${Test().pingPut}
+  """
 
   case class Test() extends context {
     def ping = {

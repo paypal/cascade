@@ -11,8 +11,4 @@ package object headers {
     override def render[R <: Rendering](r: R): r.type =r ~~ name ~~ ':' ~~ ' ' ~~ value
   }
 
-  def stackMobAcceptHeader(version: Int): HttpHeader = HttpHeaders.Accept {
-    MediaType.custom("application", "vnd.stackmob+json", parameters = Map("version" -> version.toString))
-  }
-
 }
