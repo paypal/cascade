@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import scala.util.Try
-import scala.reflect.runtime.universe.TypeTag
-import scala.reflect.ClassTag
 
 /**
  * Created by awharris on 1/17/14.
@@ -15,6 +13,7 @@ import scala.reflect.ClassTag
 object JsonUtil {
 
   // TODO: write specs!
+  // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
   private val mapper = new ObjectMapper() with ScalaObjectMapper
   mapper.registerModule(DefaultScalaModule)
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -47,7 +46,7 @@ object JsonUtil {
    *         [[java.io.IOException]], [[com.fasterxml.jackson.core.JsonParseException]],
    *         or [[com.fasterxml.jackson.databind.JsonMappingException]]
    */
-  def fromJsonToMap[T <: AnyRef : TypeTag : ClassTag](json: String): Try[Map[String, T]] = {
+  def fromJsonToMap[T : Manifest](json: String): Try[Map[String, T]] = {
     fromJson[Map[String, T]](json)
   }
 
@@ -59,7 +58,7 @@ object JsonUtil {
    *         [[java.io.IOException]], [[com.fasterxml.jackson.core.JsonParseException]],
    *         or [[com.fasterxml.jackson.databind.JsonMappingException]]
    */
-  def fromJson[T <: AnyRef : TypeTag : ClassTag](json: String): Try[T] = Try {
+  def fromJson[T : Manifest](json: String): Try[T] = Try {
     mapper.readValue[T](json)
   }
 }
