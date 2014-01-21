@@ -10,6 +10,7 @@ import spray.routing._
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.service.ServiceNameComponent
 import com.paypal.stingray.common.values.{StaticValuesComponent, BuildStaticValues}
+import com.paypal.stingray.common.json._
 import com.paypal.stingray.http.server.StatusResponse
 import scala.concurrent.ExecutionContext
 import scala.util.{Try, Failure, Success}
@@ -34,13 +35,33 @@ trait ResourceService extends HttpService with ResourceDriver {
 
   private lazy val statusResponse = StatusResponse.getStatusResponse(bsvs, serviceName)
 
+  private lazy val statusError = "{status:error}"
+
   private lazy val statusRoute: Route = path("status") { _ =>
-    complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusResponse.status)))  // TODO: JSONify
+    val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
+    complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusRespJson)))
   }
 
   private lazy val serverActor: ActorSelection = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
 
-  protected lazy val unsealedFullRoute = statusRoute ~ route
+  private lazy val statsError = "{stats:error}"
+
+  private lazy val statsRoute: Route = path("stats") { _ =>
+    (ctx: RequestContext) => {
+      (serverActor ? GetStats)(1.second).mapTo[Stats].onComplete {
+        case Success(stats) => {
+          val statsRespJson = JsonUtil.toJson(stats).getOrElse(statsError)
+          ctx.complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statsRespJson)))
+        }
+        case Failure(t) => {
+          val statsFailureJson = JsonUtil.toJson(Map("errors" -> List(Option(t.getMessage).getOrElse("")))).getOrElse(statsError)
+          ctx.complete(HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, statsFailureJson)))
+        }
+      }
+    }
+  }
+
+  protected lazy val unsealedFullRoute = statusRoute ~ statsRoute ~ route
 
   lazy val fullRoute = sealRoute(unsealedFullRoute)
 

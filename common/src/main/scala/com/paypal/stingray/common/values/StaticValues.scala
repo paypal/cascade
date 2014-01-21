@@ -71,8 +71,6 @@ class StaticValues(mbUrl: Option[URL])
 }
 
 object StaticValues {
-  type Identity[X] = X
-
   lazy val defaultValues = new StaticValues()
 
   def getServiceUrl(serviceName: Option[String]): Option[URL] = {

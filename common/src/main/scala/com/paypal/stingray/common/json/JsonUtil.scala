@@ -3,6 +3,9 @@ package com.paypal.stingray.common.json
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import scala.util.Try
+import scala.reflect.runtime.universe.TypeTag
+import scala.reflect.ClassTag
 
 /**
  * Created by awharris on 1/17/14.
@@ -12,21 +15,51 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 object JsonUtil {
 
   // TODO: write specs!
-  val mapper = new ObjectMapper() with ScalaObjectMapper
+  private val mapper = new ObjectMapper() with ScalaObjectMapper
   mapper.registerModule(DefaultScalaModule)
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-  def toJson(value: Map[Symbol, Any]): String = {
+  /**
+   * Convert a `Map[Symbol, Any]` to a JSON string representation.
+   * @param value the map to convert
+   * @return a [[scala.util.Try]] that is either the JSON string representation,
+   *         or a [[com.fasterxml.jackson.core.JsonProcessingException]]
+   */
+  def toJson(value: Map[Symbol, Any]): Try[String] = {
     toJson(value map { case (k, v) => k.name -> v})
   }
 
-  def toJson(value: Any): String = {
+  /**
+   * Convert an object to a JSON string representation.
+   * @param value the object to convert
+   * @return a [[scala.util.Try]] that is either the JSON string representation,
+   *         or a [[com.fasterxml.jackson.core.JsonProcessingException]]
+   */
+  def toJson(value: Any): Try[String] = Try {
     mapper.writeValueAsString(value)
   }
 
-  def toMap[V: Manifest](json:String) = fromJson[Map[String, V]](json)
+  /**
+   * Convert a JSON string to a `Map[String, T]`, where `T` is some context bound type.
+   * @param json the JSON string
+   * @tparam T a context bound type
+   * @return a [[scala.util.Try]] that is either the `Map[String, T]`, or one of
+   *         [[java.io.IOException]], [[com.fasterxml.jackson.core.JsonParseException]],
+   *         or [[com.fasterxml.jackson.databind.JsonMappingException]]
+   */
+  def fromJsonToMap[T <: AnyRef : TypeTag : ClassTag](json: String): Try[Map[String, T]] = {
+    fromJson[Map[String, T]](json)
+  }
 
-  def fromJson[T: Manifest](json: String): T = {
+  /**
+   * Convert a JSON string to a `T`, where `T` is some context bound type.
+   * @param json the JSON string
+   * @tparam T a context bound type
+   * @return a [[scala.util.Try]] that is either the object of type `T`, or one of
+   *         [[java.io.IOException]], [[com.fasterxml.jackson.core.JsonParseException]],
+   *         or [[com.fasterxml.jackson.databind.JsonMappingException]]
+   */
+  def fromJson[T <: AnyRef : TypeTag : ClassTag](json: String): Try[T] = Try {
     mapper.readValue[T](json)
   }
 }

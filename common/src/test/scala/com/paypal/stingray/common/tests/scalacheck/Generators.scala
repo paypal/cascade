@@ -1,7 +1,7 @@
 package com.paypal.stingray.common.tests.scalacheck
 
 import com.paypal.stingray.common.enumeration._
-import com.paypal.stingray.common.env.{StingrayEnvironmentType, EnvironmentType}
+import com.paypal.stingray.common.env.StingrayEnvironmentType
 import com.paypal.stingray.common.option._
 import org.scalacheck.{Gen, Arbitrary}
 import org.scalacheck.Arbitrary._
@@ -24,13 +24,13 @@ trait Generators {
 
   lazy val genInvalidUUID: Gen[String] = arbitrary[String].suchThat(s => Try(UUID.fromString(s)).isFailure)
 
-  lazy val genEnvType: Gen[EnvironmentType] = Gen.oneOf(EnvironmentType.DEV, EnvironmentType.PROD)
+  lazy val genEnvType: Gen[StingrayEnvironmentType] = Gen.oneOf(
+    StingrayEnvironmentType.DEVELOPMENT,
+    StingrayEnvironmentType.PRODUCTION,
+    StingrayEnvironmentType.STAGING
+  )
 
-  lazy val genInvalidEnvType: Gen[String] = arbitrary[String].suchThat(_.readEnum[EnvironmentType].isEmpty)
-
-  lazy val genStingrayEnvironmentType: Gen[StingrayEnvironmentType] = {
-    Gen.oneOf(StingrayEnvironmentType.DEVELOPMENT, StingrayEnvironmentType.STAGING, StingrayEnvironmentType.PRODUCTION)
-  }
+  lazy val genInvalidEnvType: Gen[String] = arbitrary[String].suchThat(_.readEnum[StingrayEnvironmentType].isEmpty)
 
   lazy val genAlphaLowerNumChar: Gen[Char] = Gen.frequency((9, Gen.alphaLowerChar), (1, Gen.numChar))
 

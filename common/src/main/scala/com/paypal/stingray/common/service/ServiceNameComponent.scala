@@ -8,5 +8,5 @@ package com.paypal.stingray.common.service
  */
 trait ServiceNameComponent {
 
-  def serviceName: String
+  val serviceName: String
 }

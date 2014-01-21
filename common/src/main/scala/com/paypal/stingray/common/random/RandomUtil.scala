@@ -12,8 +12,6 @@ import scala.util.Random
 
 object RandomUtil {
 
-  private val logger = LoggerFactory.getLogger(getClass)
-
   private val r = new Random(System.currentTimeMillis)
 
   def pickRandomValue[T](list: List[T]): Option[T] = {

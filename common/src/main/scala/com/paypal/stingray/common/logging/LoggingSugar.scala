@@ -1,6 +1,7 @@
 package com.paypal.stingray.common.logging
 
 import org.slf4j.{Logger, LoggerFactory}
+import scala.reflect.ClassTag
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,16 +22,8 @@ trait LoggingSugar {
    * LoggerFactory.getLogger(classOf[Foo])
    *
    */
-  def getLogger[T <: AnyRef](implicit manifest: Manifest[T]): Logger = {
-    LoggerFactory.getLogger(manifest.runtimeClass.asInstanceOf[Class[T]])
-  }
-
-  /**
-   * Log the exception with the specified log function. then throw the exception
-   */
-  def logAndThrow(e: Throwable)(logFn: (String, Throwable) => Unit): Nothing = {
-    logFn(e.getMessage, e)
-    throw e
+  def getLogger[T <: AnyRef](implicit classTag: ClassTag[T]): Logger = {
+    LoggerFactory.getLogger(classTag.runtimeClass)
   }
 
 }

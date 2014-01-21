@@ -7,6 +7,7 @@ import spray.http.StatusCodes._
 import spray.http.HttpHeaders._
 import com.paypal.stingray.common.logging.LoggingSugar
 import com.paypal.stingray.common.option._
+import com.paypal.stingray.common.json._
 import scala.concurrent.Future
 import java.nio.charset.Charset
 

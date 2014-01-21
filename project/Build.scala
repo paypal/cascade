@@ -73,14 +73,15 @@ object BuildSettings {
 }
 
 object Dependencies {
+  import BuildSettings.scalaVsn // to maintain consistency with above scala version
+
   val slf4jVersion = "1.7.5"
   val fasterXmlJacksonVersion = "2.2.2"
-  val newmanVersion = "1.3.5"
-  val scaliakVersion = "0.9.0"
   val sprayVersion = "1.2.0"
   val akkaVersion = "2.2.3"
 
-  lazy val xmemcached          = "com.googlecode.xmemcached" % "xmemcached"                  % "1.4.1" exclude("org.slf4j", "slf4j-api")
+  lazy val scalaReflect        = "org.scala-lang"            % "scala-reflect"               % scalaVsn
+
   lazy val commonsCodec        = "commons-codec"             % "commons-codec"               % "1.7"
   lazy val commonsLang         = "commons-lang"              % "commons-lang"                % "2.6"
   lazy val commonsValidator    = "commons-validator"         % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
@@ -111,8 +112,8 @@ object Dependencies {
   lazy val akkaTestKit         = "com.typesafe.akka"         %% "akka-testkit"               % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
+    scalaReflect,
     slf4j,
-    xmemcached,
     commonsCodec,
     commonsLang,
     commonsValidator,
@@ -122,9 +123,6 @@ object Dependencies {
     slf4jJcl,
     slf4jLog4j,
     logback
-  )
-
-  lazy val serviceDependencies = Seq(
   )
 
   lazy val httpDependencies = Seq(
@@ -160,7 +158,7 @@ object CommonBuild extends Build {
       name := "parent",
       publish := {}
     ),
-    aggregate = Seq(common, services, http, concurrent)
+    aggregate = Seq(common, http, concurrent)
   )
 
   lazy val common = Project("stingray-common", file("common"),
@@ -179,16 +177,6 @@ object CommonBuild extends Build {
       publishArtifact in Test := true
     )
   )
-
-  lazy val services = Project("stingray-services", file("services"),
-    dependencies = Seq(common % "compile->compile;test->test", concurrent % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(
-      name := "stingray-services",
-      libraryDependencies ++= serviceDependencies ++ testDependencies,
-      publishArtifact in Test := true
-    )
-  )
-
 
   lazy val concurrent = Project("stingray-concurrent", file("concurrent"),
     dependencies = Seq(common % "compile->compile;test->test"),

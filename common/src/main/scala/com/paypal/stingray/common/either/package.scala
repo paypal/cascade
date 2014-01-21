@@ -1,7 +1,5 @@
 package com.paypal.stingray.common
 
-import scala.language.implicitConversions
-
 /**
  * Created by IntelliJ IDEA.
  *
@@ -12,11 +10,10 @@ import scala.language.implicitConversions
  * Time: 3:59 PM
  */
 package object either {
-  final class EitherOps[A](self: A) {
+  implicit class EitherOps[A](self: A) {
     def toRight[X]: Either[X, A] = Right(self)
 
     def toLeft[X]: Either[A, X] = Left(self)
   }
-  implicit def toEitherOps[A](a: => A) = new EitherOps(a)
 
 }

@@ -52,7 +52,7 @@ class DummyResource extends Resource[HttpRequest, Unit, Map[String, String], NoB
   } yield HttpResponse(OK, "pong")
 
   override def parsePostBody(r: HttpRequest): Future[Option[Map[String, String]]] = for {
-    parsed <- Try { JsonUtil.fromJson[Map[String, String]](r.entity.asString) }.toOption.continue
+    parsed <- JsonUtil.fromJson[Map[String, String]](r.entity.asString).toOption.continue
   } yield parsed
 
   override def parsePutBody(r: HttpRequest): Future[Option[NoBody]] = for {

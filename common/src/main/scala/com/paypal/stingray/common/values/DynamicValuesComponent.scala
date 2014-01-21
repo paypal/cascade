@@ -8,6 +8,6 @@ package com.paypal.stingray.common.values
  */
 trait DynamicValuesComponent {
 
-  def dvs: DynamicValues
+  val dvs: DynamicValues
 
 }

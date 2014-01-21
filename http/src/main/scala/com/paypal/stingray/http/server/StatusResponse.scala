@@ -1,8 +1,6 @@
 package com.paypal.stingray.http.server
 
-import com.paypal.stingray.common.constants.CommonConstants
 import com.paypal.stingray.common.logging.LoggingSugar
-import com.paypal.stingray.http.headers._
 import StatusResponse._
 import org.slf4j.LoggerFactory
 import com.paypal.stingray.common.values.{StaticValues, BuildStaticValues}
@@ -19,13 +17,6 @@ case class StatusResponse(status: String,
 object StatusResponse {
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
-
-  private[http] val statusJSONKey = "status"
-  private[http] val serviceNameJSONKey = "service-name"
-  private[http] val buildTagJSONKey = "build-tag"
-  private[http] val dependenciesJSONKey = "dependencies"
-
-  // TODO: JSON reader/writer
 
   def getStatusResponse(svs: StaticValues, serviceName: String): StatusResponse = {
     val partialStatus = svs.get("build.tag").map { buildTag =>

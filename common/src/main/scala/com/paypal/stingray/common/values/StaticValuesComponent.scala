@@ -10,7 +10,7 @@ import com.paypal.stingray.common.service.ServiceNameComponent
  */
 trait StaticValuesComponent {
 
-  def svs: StaticValues
+  val svs: StaticValues
 }
 
 trait StaticValuesFromServiceNameComponent extends StaticValuesComponent {
