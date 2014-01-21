@@ -5,8 +5,6 @@ import java.util.Properties
 import java.io.File
 import com.paypal.stingray.common.logging.LoggingSugar
 import com.paypal.stingray.common.option._
-import com.paypal.stingray.common.env.StingrayEnvironmentType
-import com.paypal.stingray.common.constants.ValueConstants._
 import scala.util.Try
 
 /**
@@ -35,12 +33,6 @@ class StaticValues(mbUrl: Option[URL])
       p
     }
   }
-
-  lazy val stingrayEnvType = getEnum[StingrayEnvironmentType](StingrayEnvironment)
-    .orThrow(lookupFailed(StingrayEnvironment))
-  lazy val isDev: Boolean = stingrayEnvType == StingrayEnvironmentType.DEVELOPMENT
-  lazy val isStaging: Boolean = stingrayEnvType == StingrayEnvironmentType.STAGING
-  lazy val isProd: Boolean = stingrayEnvType == StingrayEnvironmentType.PRODUCTION
 
   /**
    * Only use for mission critical things where we simply can't function without
