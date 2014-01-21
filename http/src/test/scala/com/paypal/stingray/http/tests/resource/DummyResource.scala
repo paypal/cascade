@@ -17,7 +17,7 @@ import com.paypal.stingray.common.json._
  * Time: 5:08 PM
  */
 
-class DummyResource extends Resource[HttpRequest, Unit, Map[String, String], NoBody] with LoggingSugar with NoParsing {
+class DummyResource extends AbstractResource[HttpRequest, Unit, Map[String, String], NoBody] with LoggingSugar with NoParsing {
 
   override protected lazy val logger = getLogger[DummyResource]
 

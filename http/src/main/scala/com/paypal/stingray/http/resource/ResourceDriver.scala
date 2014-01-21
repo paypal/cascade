@@ -16,11 +16,11 @@ trait ResourceDriver extends LoggingSugar {
   protected lazy val logger = getLogger[ResourceDriver]
   protected lazy val charset = Charset.forName("UTF-8")
 
-  def ensureAvailable(resource: Resource[_, _, _, _]) = {
+  def ensureAvailable(resource: AbstractResource[_, _, _, _]) = {
     import resource.context
     resource.available.orHaltWith(ServiceUnavailable)
   }
-  def ensureMethodSupported(resource: Resource[_, _, _, _], method: HttpMethod) = {
+  def ensureMethodSupported(resource: AbstractResource[_, _, _, _], method: HttpMethod) = {
     import resource.context
     resource.supportedHttpMethods.contains(method).orHaltWith(MethodNotAllowed)
   }
@@ -30,7 +30,7 @@ trait ResourceDriver extends LoggingSugar {
     else none[T].continue
   }
 
-  def ensureAuthorized[PR, AI](resource: Resource[PR, AI, _, _], parsedRequest: PR) = {
+  def ensureAuthorized[PR, AI](resource: AbstractResource[PR, AI, _, _], parsedRequest: PR) = {
     import resource.context
     for {
       authInfoOpt <- resource.isAuthorized(parsedRequest)
@@ -38,7 +38,7 @@ trait ResourceDriver extends LoggingSugar {
     } yield authInfo
   }
 
-  def ensureNotForbidden[PR, AI](resource: Resource[PR, AI, _, _], parsedRequest: PR, authInfo: AI) = {
+  def ensureNotForbidden[PR, AI](resource: AbstractResource[PR, AI, _, _], parsedRequest: PR, authInfo: AI) = {
     import resource.context
     for {
       isForbidden <- resource.isForbidden(parsedRequest, authInfo)
@@ -46,14 +46,14 @@ trait ResourceDriver extends LoggingSugar {
     } yield ()
   }
 
-  def ensureContentTypeSupported(resource: Resource[_, _, _, _], request: HttpRequest) = {
+  def ensureContentTypeSupported(resource: AbstractResource[_, _, _, _], request: HttpRequest) = {
     request.entity match {
       case Empty => ().continue
       case NonEmpty(ct, _) => resource.acceptableContentTypes.contains(ct).orHaltWith(UnsupportedMediaType)
     }
   }
 
-  def ensureResponseContentTypeAcceptable(resource: Resource[_, _, _, _], request: HttpRequest) = {
+  def ensureResponseContentTypeAcceptable(resource: AbstractResource[_, _, _, _], request: HttpRequest) = {
     import resource.context
     request.acceptableContentType(List(resource.responseContentType)).orHaltWith(NotAcceptable)
   }
@@ -68,7 +68,7 @@ trait ResourceDriver extends LoggingSugar {
   }
 
   def serveSync[ParsedRequest, AuthInfo, PostBody, PutBody](request: HttpRequest,
-                                                            resource: Resource[ParsedRequest, AuthInfo, PostBody, PutBody],
+                                                            resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
                                                             pathParts: Map[String, String]): Future[HttpResponse] = {
 
     import resource.context

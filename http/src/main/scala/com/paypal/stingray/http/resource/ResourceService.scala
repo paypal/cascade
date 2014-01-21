@@ -69,7 +69,7 @@ trait ResourceService extends HttpService with ResourceDriver {
    * Run the request on this resource, first applying a rewrite
    */
   def serveWithRewrite[ParsedRequest, AuthInfo, PostBody, PutBody]
-  (resource: Resource[ParsedRequest, AuthInfo, PostBody, PutBody])
+  (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody])
   (rewrite: HttpRequest => Try[(HttpRequest, Map[String, String])]): RequestContext => Unit = { ctx: RequestContext =>
     rewrite(ctx.request).map { case (request, pathParts) =>
       serve(resource, pathParts)(ctx.copy(request = request))
@@ -83,7 +83,7 @@ trait ResourceService extends HttpService with ResourceDriver {
    * Run the request on this resource
    */
   def serve[ParsedRequest, AuthInfo, PostBody, PutBody]
-  (resource: Resource[ParsedRequest, AuthInfo, PostBody, PutBody],
+  (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
    pathParts: Map[String, String] = Map()): RequestContext => Unit = { ctx: RequestContext =>
     ctx.complete(serveSync(ctx.request, resource, pathParts))
   }

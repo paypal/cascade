@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory
  * @tparam PostBody the class to serialize the POST body to. Use the type NoBody if the resource doesn't do POST, or doesn't use a body
  * @tparam PutBody the class to serialize the PUT body to. Use the type NoBody if the resource doesn't do PUT, or doesn't use a body
  */
-abstract class Resource[ParsedRequest, AuthInfo, PostBody, PutBody] extends LoggingSugar {
+abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] extends LoggingSugar {
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass)
 
