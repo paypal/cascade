@@ -3,7 +3,6 @@ package com.paypal.stingray.common.values
 import java.net.URL
 import java.util.Date
 import java.text.SimpleDateFormat
-import com.paypal.stingray.common.constants.ValueConstants._
 import scala.util.Try
 
 /**
@@ -33,9 +32,6 @@ class BuildStaticValues(svs: StaticValues) extends StaticValues(BuildStaticValue
       }
     })
   }
-
-  lazy val getVersionDescription: String =
-    s"${svs.stingrayEnvType.stringVal}, tag=${getOrDie(BuildTag)}, date=${getDate("build_date").getOrElse(new Date())}"
 
 }
 
