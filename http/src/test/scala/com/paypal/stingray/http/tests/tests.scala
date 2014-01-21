@@ -1,8 +1,7 @@
 package com.paypal.stingray.http
 
 import org.scalacheck.Gen
-import com.paypal.stingray.common.tests.scalacheck.Generators
-import server.exception.ServiceException
+import com.paypal.stingray.http.server.exception.ServiceException
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,7 +13,7 @@ import server.exception.ServiceException
  * Time: 2:37 PM
  */
 
-package object tests extends Generators {
+package object tests {
 
   def genServiceError[T <: ServiceException](implicit m: Manifest[T]): Gen[T] = {
     Gen.alphaStr.map(s => m.runtimeClass.getConstructor(classOf[String], classOf[Option[Throwable]]).newInstance(s, None).asInstanceOf[T])

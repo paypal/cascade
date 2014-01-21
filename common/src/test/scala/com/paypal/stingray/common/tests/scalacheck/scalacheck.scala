@@ -1,10 +1,8 @@
 package com.paypal.stingray.common.tests.scalacheck
 
-import com.paypal.stingray.common.enumeration._
 import com.paypal.stingray.common.option._
 import org.scalacheck.{Gen, Arbitrary}
 import org.scalacheck.Arbitrary._
-//import org.scalacheck.Gen._
 import java.util.UUID
 import scala.util.Try
 
@@ -15,7 +13,7 @@ import scala.util.Try
  * Time: 5:25 PM
  */
 
-trait Generators {
+package object scalacheck {
 
   implicit lazy val arbSymbol: Arbitrary[Symbol] = Arbitrary(arbitrary[String].map(Symbol(_)))
 

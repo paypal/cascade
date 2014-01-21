@@ -1,4 +1,4 @@
-package com.paypal.stingray.common.tests.util
+package com.paypal.stingray.http.tests.util
 
 import org.specs2.{ScalaCheck, Specification}
 import org.specs2.execute.{Result => SpecsResult}
@@ -7,8 +7,8 @@ import org.scalacheck.Gen
 import org.scalacheck.Prop._
 import org.scalacheck.Gen._
 import com.paypal.stingray.common.url.StrPair
-import com.paypal.stingray.common.util.HttpUtil
 import java.net.URLDecoder
+import com.paypal.stingray.http.util.HttpUtil
 
 /**
  * Created by IntelliJ IDEA.

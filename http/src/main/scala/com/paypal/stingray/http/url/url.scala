@@ -1,12 +1,12 @@
 package com.paypal.stingray.common
 
 import java.net.URL
-import com.paypal.stingray.common.util.HttpUtil
+import com.paypal.stingray.http.util.HttpUtil
 
 /**
  * Created by IntelliJ IDEA.
  *
- * com.paypal.stingray.common.url
+ * com.paypal.stingray.http.url
  *
  * User: aaron
  * Date: 7/13/12

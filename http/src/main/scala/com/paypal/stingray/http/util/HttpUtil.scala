@@ -1,4 +1,4 @@
-package com.paypal.stingray.common.util
+package com.paypal.stingray.http.util
 
 import java.net.URLDecoder
 
