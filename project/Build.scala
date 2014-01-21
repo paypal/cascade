@@ -79,6 +79,8 @@ object Dependencies {
   val fasterXmlJacksonVersion = "2.2.2"
   val sprayVersion = "1.2.0"
   val akkaVersion = "2.2.3"
+  val specsVersion = "2.3.7"
+  val parboiledVersion = "1.1.6"
 
   lazy val scalaReflect        = "org.scala-lang"            % "scala-reflect"               % scalaVsn
 
@@ -99,17 +101,41 @@ object Dependencies {
   lazy val sprayRouting        = "io.spray"                  % "spray-routing"               % sprayVersion
   lazy val akka                = "com.typesafe.akka"         %% "akka-actor"                 % akkaVersion
 
-  lazy val specs2              = "org.specs2"                %% "specs2"                     % "2.3.7"           % "test" exclude ("com.chuusai", "shapeless_2.10.3") exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
-  lazy val shapeless           = "com.chuusai"               %% "shapeless"                  % "1.2.4"           % "test"
+  lazy val specs2Analysis      = "org.specs2"                %% "specs2-analysis"            % specsVersion      % "test"
+  lazy val specs2Common        = "org.specs2"                %% "specs2-common"              % specsVersion      % "test"
+  lazy val specs2Core          = "org.specs2"                %% "specs2-core"                % specsVersion      % "test"
+  lazy val specs2Form          = "org.specs2"                %% "specs2-form"                % specsVersion      % "test"
+  lazy val specs2Html          = "org.specs2"                %% "specs2-html"                % specsVersion      % "test"
+  lazy val specs2Junit         = "org.specs2"                %% "specs2-junit"               % specsVersion      % "test"
+  lazy val specs2Markdown      = "org.specs2"                %% "specs2-markdown"            % specsVersion      % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
+  lazy val specs2Matcher       = "org.specs2"                %% "specs2-matcher"             % specsVersion      % "test"
+  lazy val specs2MatcherExtra  = "org.specs2"                %% "specs2-matcher-extra"       % specsVersion      % "test"
+  lazy val specs2Mock          = "org.specs2"                %% "specs2-mock"                % specsVersion      % "test"
+  lazy val specs2Scalacheck    = "org.specs2"                %% "specs2-scalacheck"          % specsVersion      % "test"
+
   lazy val scalacheck          = "org.scalacheck"            %% "scalacheck"                 % "1.11.1"          % "test"
   lazy val mockito             = "org.mockito"               % "mockito-all"                 % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"              % "hamcrest-all"                % "1.3"             % "test"
   lazy val pegdown             = "org.pegdown"               % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
-  lazy val parboiledJava       = "org.parboiled"             % "parboiled-java"              % "1.1.6"           % "test"
-  lazy val parboiledScala      = "org.parboiled"             %% "parboiled-scala"            % "1.1.6"           % "test"
+  lazy val parboiledJava       = "org.parboiled"             % "parboiled-java"              % parboiledVersion  % "test"
+  lazy val parboiledScala      = "org.parboiled"             %% "parboiled-scala"            % parboiledVersion  % "test"
 
   lazy val sprayTest           = "io.spray"                  % "spray-testkit"               % sprayVersion      % "test"
   lazy val akkaTestKit         = "com.typesafe.akka"         %% "akka-testkit"               % akkaVersion       % "test"
+
+  lazy val specsJars = Seq(
+    specs2Analysis,
+    specs2Common,
+    specs2Core,
+    specs2Form,
+    specs2Html,
+    specs2Junit,
+    specs2Markdown,
+    specs2Matcher,
+    specs2MatcherExtra,
+    specs2Mock,
+    specs2Scalacheck
+  )
 
   lazy val commonDependencies = Seq(
     scalaReflect,
@@ -135,8 +161,6 @@ object Dependencies {
   lazy val concurrentDependencies = Seq()
 
   lazy val testDependencies = Seq(
-    specs2,
-    shapeless,
     scalacheck,
     mockito,
     hamcrest,
@@ -145,7 +169,7 @@ object Dependencies {
     parboiledScala,
     sprayTest,
     akkaTestKit
-  )
+  ) ++ specsJars
 
 }
 
