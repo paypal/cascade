@@ -107,7 +107,7 @@ trait ResourceDriver extends LoggingSugar {
       val responseWithLocation = addHeaderOnCode(httpResponse, Created) {
         val scheme = request.headers.find(_.name == "X-Forwarded-Proto").map(_.value).getOrElse("http")
         // TODO: there is probably a better way to do this using Spray itself
-        Location(Uri(s"$scheme://${request.uri.authority.host}:${request.uri.effectivePort}${location.map("/" + _).getOrElse("")}"))
+        Location(Uri(s"$scheme://${request.uri.authority.host}:${request.uri.effectivePort}${request.uri.path}${location.map("/" + _).getOrElse("")}"))
       }
       // Just force the request to the right content type
       responseWithLocation.withEntity(responseWithLocation.entity.flatMap((entity: NonEmpty) => HttpEntity(resource.responseContentType, entity.data)))

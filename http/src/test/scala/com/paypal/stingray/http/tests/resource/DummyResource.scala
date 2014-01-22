@@ -45,7 +45,7 @@ class DummyResource extends AbstractResource[HttpRequest, Unit, Map[String, Stri
   override def doPostAsCreate(r: HttpRequest, auth: Unit, body: Map[String, String]): Future[(HttpResponse, Option[String])] = for {
     param <- body.get("foo").orHaltWith(BadRequest, "wrong json in body")
     _ <- ("bar" == param).orHaltWith(BadRequest, "wrong json in body")
-  } yield (HttpResponse(Created, "pong"), "ping/foobar".some)
+  } yield (HttpResponse(Created, "pong"), "foobar".some)
 
   override def doPut(r: HttpRequest, body: Option[String]): Future[HttpResponse] = for {
     _ <- body.isEmpty.orHaltWith(BadRequest, "somehow got a body")
