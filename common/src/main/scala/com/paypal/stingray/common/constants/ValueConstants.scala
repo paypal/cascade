@@ -1,5 +1,7 @@
 package com.paypal.stingray.common.constants
 
+import java.nio.charset.Charset
+
 /**
  * Created with IntelliJ IDEA.
  * User: drapp
@@ -10,4 +12,6 @@ object ValueConstants {
   val StingrayEnvironment = "stingray.environment"
   val ClusterName = "cluster.name"
   val BuildTag = "build_name"
+
+  val charset = Charset.forName("UTF-8")
 }

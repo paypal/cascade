@@ -8,13 +8,12 @@ import spray.http.HttpHeaders._
 import com.paypal.stingray.common.logging.LoggingSugar
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.json._
+import com.paypal.stingray.common.constants.ValueConstants.charset
 import scala.concurrent.Future
-import java.nio.charset.Charset
 
 trait ResourceDriver extends LoggingSugar {
 
   protected lazy val logger = getLogger[ResourceDriver]
-  protected lazy val charset = Charset.forName("UTF-8")
 
   def ensureAvailable(resource: AbstractResource[_, _, _, _]) = {
     import resource.context
