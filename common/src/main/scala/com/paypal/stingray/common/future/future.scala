@@ -1,6 +1,6 @@
 package com.paypal.stingray.common
 
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.Try
 import org.slf4j.Logger
@@ -32,39 +32,46 @@ package object future {
   implicit class RichFutureHelpers[T](v: Future[T]) {
 
     /**
-     *
-     * @param f
-     * @param ctx
-     * @return
+     * Converts a Future Failure Throwable into a different Throwable type
+     * @param f the conversion function
+     * @param ctx implicitly, the execution context of this Future
+     * @return a Future of the same type `T`, with Failures mapped into a different Throwable type
      */
     def mapFailure(f: Throwable => Throwable)(implicit ctx: ExecutionContext): Future[T] = {
       v.transform(identity, f)
     }
 
     /**
-     *
-     * @param f
-     * @param ctx
-     * @tparam E
-     * @return
+     * Converts, via a partial function, a Future Failure Throwable into a different Throwable type
+     * @param f the conversion partial function
+     * @param ctx implicitly, the execution context of this Future
+     * @tparam E the resulting Throwable type or types
+     * @return a Future of the same type `T`, with Failures mapped into a different Throwable type
      */
     def mapFailure[E <: Throwable](f: PartialFunction[Throwable, E])(implicit ctx: ExecutionContext): Future[T] = {
       v.transform(identity, f.applyOrElse(_, identity[Throwable]))
     }
 
     /**
-     *
-     * @param dur
-     * @return
+     * Blocks to get the result of a Future using Await.result, wrapped in a [[scala.util.Try]]
+     * @param dur the maximum amount of time to block; default 1 second
+     * @return a Try containing one of:
+     *         the value of the Future;
+     *         an exception of a failed Future, or;
+     *         one of the three Throwable types from Await.result
      */
     def block(dur: Duration = 1.second): Try[T] = {
       Try(Await.result(v, dur))
     }
 
     /**
-     *
-     * @param dur
-     * @return
+     * Blocks to get the result of a Future using Await.result; throws the exception inside of a failed Future,
+     * and can throw one of the three Throwable types from Await.result
+     * @param dur the maximum amount of time to block; default 1 second
+     * @return the value of the Future
+     * @throws InterruptedException if the current thread is interrupted while waiting
+     * @throws TimeoutException if after waiting for the specified time `v` is still not ready
+     * @throws IllegalArgumentException if `dur` is [[scala.concurrent.duration.Duration.Undefined Duration.Undefined]]
      */
     def blockUnsafe(dur: Duration = 1.second): T = {
       Await.result(v, dur)
