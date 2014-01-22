@@ -1,6 +1,6 @@
 package com.paypal.stingray.common
 
-import concurrent.Future
+import scala.concurrent.Future
 
 /**
  * Created by IntelliJ IDEA.

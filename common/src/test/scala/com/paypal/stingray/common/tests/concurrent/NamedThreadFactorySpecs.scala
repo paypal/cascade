@@ -1,8 +1,8 @@
-package com.paypal.stingray.concurrent.tests
+package com.paypal.stingray.common.tests.concurrent
 
 import org.specs2.Specification
-import com.paypal.stingray.concurrent.NamedThreadFactory
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.concurrent.NamedThreadFactory
 
 /**
  * @author Will Palmeri <will@stackmob.com>

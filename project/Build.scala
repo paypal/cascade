@@ -158,8 +158,6 @@ object Dependencies {
     logback
   )
 
-  lazy val concurrentDependencies = Seq()
-
   lazy val testDependencies = Seq(
     scalacheck,
     mockito,
@@ -182,7 +180,7 @@ object CommonBuild extends Build {
       name := "parent",
       publish := {}
     ),
-    aggregate = Seq(common, http, concurrent)
+    aggregate = Seq(common, http)
   )
 
   lazy val common = Project("stingray-common", file("common"),
@@ -194,19 +192,10 @@ object CommonBuild extends Build {
   )
 
   lazy val http = Project("stingray-http", file("http"),
-    dependencies = Seq(common % "compile->compile;test->test", concurrent % "compile->compile;test->test"),
+    dependencies = Seq(common % "compile->compile;test->test"),
     settings = standardSettings ++ Seq(
       name := "stingray-http",
       libraryDependencies ++= httpDependencies ++ testDependencies,
-      publishArtifact in Test := true
-    )
-  )
-
-  lazy val concurrent = Project("stingray-concurrent", file("concurrent"),
-    dependencies = Seq(common % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(
-      name := "stingray-concurrent",
-      libraryDependencies ++= concurrentDependencies ++ testDependencies,
       publishArtifact in Test := true
     )
   )

@@ -1,4 +1,4 @@
-package com.paypal.stingray.concurrent
+package com.paypal.stingray.common.concurrent
 
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
