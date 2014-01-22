@@ -35,7 +35,7 @@ trait ResourceService extends HttpService with ResourceDriver {
 
   private lazy val statusResponse = StatusResponse.getStatusResponse(bsvs, serviceName)
 
-  private lazy val statusError = "{status:error}"
+  private lazy val statusError = """{"status":"error"}"""
 
   private lazy val statusRoute: Route = path("status") { _ =>
     val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
@@ -44,7 +44,7 @@ trait ResourceService extends HttpService with ResourceDriver {
 
   private lazy val serverActor: ActorSelection = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
 
-  private lazy val statsError = "{stats:error}"
+  private lazy val statsError = """{"stats":"error"}"""
 
   private lazy val statsRoute: Route = path("stats") { _ =>
     (ctx: RequestContext) => {
