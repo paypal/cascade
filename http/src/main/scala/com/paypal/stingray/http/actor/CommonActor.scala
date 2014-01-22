@@ -3,12 +3,10 @@ package com.paypal.stingray.http.actor
 import akka.actor.{ActorLogging, Actor, Status}
 
 /**
- * Created with IntelliJ IDEA.
- * User: taylor
- * Date: 8/1/13
- * Time: 5:50 PM
+ * CommonActor is intended for top-level actors that have robust error-handling, and that are responsible for
+ * receiving exceptions from other actors. Generally, there should only be one actor (or a small pool of actors)
+ * extending this trait directly.
  */
-
 trait CommonActor extends Actor with ActorLogging {
 
   override def preStart() {
@@ -33,6 +31,10 @@ trait CommonActor extends Actor with ActorLogging {
 
 }
 
+/**
+ * ServiceActor returns an error response for unhandled messages and escalates the error to the supervisor
+ * by throwing an exception. For most child actors, this trait should be preferred.
+ */
 trait ServiceActor extends CommonActor {
   override def unhandled(message: Any) {
     /**
