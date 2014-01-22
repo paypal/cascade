@@ -18,6 +18,4 @@ trait ThrowableJson[T <: Throwable] {
 
   val errorRootJSONKey = "errors"
 
-  // TODO: JSONW
-
 }

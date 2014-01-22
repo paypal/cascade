@@ -119,7 +119,7 @@ trait ResourceDriver extends LoggingSugar {
         val finalResponse = response.withEntity(response.entity.flatMap { entity: NonEmpty =>
           entity.contentType match {
             case resource.responseContentType => entity
-            case _ => entity.data.toByteArray // TODO: JSONify
+            case _ => resource.coerceError(entity.data.toByteArray)
           }
         })
         if (finalResponse.status.intValue >= 500) {
@@ -128,7 +128,7 @@ trait ResourceDriver extends LoggingSugar {
         finalResponse
       case t: Throwable => {
         logger.error(s"Unexpected error: request: $request error: ${t.getMessage}", t)
-        HttpResponse(InternalServerError, Option(t.getMessage).getOrElse("").getBytes(charset)) // TODO: JSONify
+        HttpResponse(InternalServerError, resource.coerceError(Option(t.getMessage).getOrElse("").getBytes(charset)))
       }
 
     }
