@@ -8,7 +8,7 @@ import spray.http.HttpHeaders._
 import com.paypal.stingray.common.logging.LoggingSugar
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.json._
-import com.paypal.stingray.common.constants.ValueConstants.charset
+import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.concurrent.Future
 
 trait ResourceDriver extends LoggingSugar {
@@ -128,7 +128,7 @@ trait ResourceDriver extends LoggingSugar {
         finalResponse
       case t: Throwable => {
         logger.error(s"Unexpected error: request: $request error: ${t.getMessage}", t)
-        HttpResponse(InternalServerError, resource.coerceError(Option(t.getMessage).getOrElse("").getBytes(charset)))
+        HttpResponse(InternalServerError, resource.coerceError(Option(t.getMessage).getOrElse("").getBytes(charsetUtf8)))
       }
 
     }

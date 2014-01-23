@@ -8,7 +8,7 @@ import StatusCodes._
 import com.paypal.stingray.common.logging.LoggingSugar
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.json._
-import com.paypal.stingray.common.constants.ValueConstants.charset
+import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.concurrent._
 import scala.util.{Success => TrySuccess, Failure => TryFailure}
 import org.slf4j.LoggerFactory
@@ -183,7 +183,7 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
    * @tparam T the type to serialize from
    * @return an HttpResponse containing an OK StatusCode and the serialized object
    */
-  def jsonOKResponse[T: Manifest](t: T): HttpResponse = {
+  def jsonOKResponse[T : Manifest](t: T): HttpResponse = {
     // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
     HttpResponse(OK, toJsonBody(t))
   }
@@ -196,11 +196,11 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
    * @tparam T the type to serialize from
    * @return an HttpResponse containing either the desired HttpEntity, or an error entity
    */
-  def toJsonBody[T: Manifest](t: T): HttpEntity = {
+  def toJsonBody[T : Manifest](t: T): HttpEntity = {
     // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
     JsonUtil.toJson(t) match {
       case TrySuccess(j) => HttpEntity(responseContentType, j)
-      case TryFailure(e) => coerceError(e.getMessage.getBytes(charset))
+      case TryFailure(e) => coerceError(e.getMessage.getBytes(charsetUtf8))
     }
   }
 
@@ -211,7 +211,7 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
    * @return an HttpEntity containing an error body
    */
   def coerceError(body: Array[Byte]): HttpEntity = {
-    toJsonBody(Map("errors" -> List(new String(body, charset))))
+    toJsonBody(Map("errors" -> List(new String(body, charsetUtf8))))
   }
 
 }

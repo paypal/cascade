@@ -13,5 +13,5 @@ object ValueConstants {
   val ClusterName = "cluster.name"
   val BuildTag = "build_name"
 
-  val charset = Charset.forName("UTF-8")
+  val charsetUtf8 = Charset.forName("UTF-8")
 }
