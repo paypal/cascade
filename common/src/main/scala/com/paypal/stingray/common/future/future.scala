@@ -6,18 +6,15 @@ import scala.util.Try
 import org.slf4j.Logger
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 10/2/13
- * Time: 5:13 PM
+ * Convenience methods and implicits for working with Futures
  */
 package object future {
 
   /**
-   * a {{{scala.concurrent.ExecutionContext}}} that runs tasks immediately, and logs errors to the given logger.
-   * this context is useful for use with mapping functions that are cheap to compute (ie: simple transformations, etc)
+   * An [[scala.concurrent.ExecutionContext]] that runs tasks immediately, and logs errors to the given logger.
+   * This context is useful for mapping functions that are cheap to compute (ie: simple transformations, etc)
    * @param logger the logger to which to log errors
-   * @return the new {{{ExecutionContext}}}
+   * @return the new [[scala.concurrent.ExecutionContext]]
    */
   def sequentialExecutionContext(logger: Logger): ExecutionContext = new ExecutionContext {
     def reportFailure(t: Throwable) {
@@ -29,6 +26,18 @@ package object future {
     }
   }
 
+  /**
+   * Implicits to provide slightly cleaner patterns for handling Futures
+   *
+   * {{{
+   *   import com.paypal.stingray.common.future._
+   *   val f = Future { ... }
+   *   f.block
+   * }}}
+   *
+   * @param v
+   * @tparam T
+   */
   implicit class RichFutureHelpers[T](v: Future[T]) {
 
     /**
