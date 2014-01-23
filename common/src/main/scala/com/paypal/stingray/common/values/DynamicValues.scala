@@ -86,21 +86,6 @@ abstract class DynamicValues(svs: Option[StaticValues],
   }
 
   /**
-   * Attempts to set a value for a given key
-   * @param key the key to set
-   * @param value the value
-   * @return a Future containing the operation
-   */
-  def set(key: String, value: String): Future[Unit]
-
-  /**
-   * Attempts to delete a value for a given key
-   * @param key the key to delete
-   * @return a Future containing the operation, representing whether the delete was successful
-   */
-  def delete(key: String): Future[Boolean]
-
-  /**
    * Attempts to retrieve all the values currently held by the DynamicValues service, for local access
    * @return a map of all values
    */
