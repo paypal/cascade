@@ -1,12 +1,12 @@
-package com.paypal.stingray.common.tests.util
+package com.paypal.stingray.common.tests.util.casts
 
 import org.specs2._
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.util.casts._
 import org.scalacheck._
-import org.scalacheck.Gen._
 import org.scalacheck.Prop._
 import org.scalacheck.Arbitrary.arbitrary
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
  * Created by IntelliJ IDEA.

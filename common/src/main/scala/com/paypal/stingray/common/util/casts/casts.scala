@@ -34,7 +34,7 @@ import scala.reflect._
  * }}}
  */
 
-object casts {
+package object casts {
 
   /**
    * Wrapper to allow any class to be cast, based on a Manifest for that class
