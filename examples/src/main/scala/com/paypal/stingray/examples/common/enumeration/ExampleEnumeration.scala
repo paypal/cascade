@@ -67,18 +67,29 @@ private[this] class MyEnumDeserializer extends JsonDeserializer[MyEnum] {
 }
 
 /**
- * Normally, case classes making use of an Enumeration would live outside of the file for the Enumeration.
- * If case classes do live inside the same file, they need to be at the top-most level in the file.
- * Otherwise, the serializer won't find the case class type, and won't know how to work with it.
- * @param v1 an example parameter
- */
-private case class CS(v1: MyEnum)
-
-/**
  * A simple example runner, demonstrating how to serialize and deserialize objects with Enumerations.
  * The `toJson` and `fromJson` calls are from implicits in [[com.paypal.stingray.common.json]].
  */
 object MyEnumRunner {
+
+  /**
+   * Normally, case classes making use of an Enumeration would live outside of the file containing the Enumeration,
+   * in an object more appropriate for the classes using them.
+   *
+   * There are some ser/deser caveats regarding where to define case classes that contain Enumerations:
+   *  - OK: in a package object
+   *  - OK: in an object inside a different file
+   *  - OK: in an object inside the same file as the Enumeration (as seen here)
+   *  - NOT OK: in a trait that is mixed in to a class or object in which deser takes place
+   *  - NOT OK: in a def that performs ser/deser
+   *
+   *  Note that this is not an exhaustive list of possibilities. Always test!
+   *
+   * @param v1 an example parameter
+   */
+  case class CS(v1: MyEnum)
+
+  /** Run it! */
   def main(args: Array[String]) {
 
     println("custom Enumeration example")

@@ -13,8 +13,11 @@ package object enumeration {
    * Our Enumeration will raise non-exhaustive match warnings when used in pattern matches, unlike
    * [[scala.Enumeration]] which lets you partially match (and in turn run the risk of a [[scala.MatchError]]).
    *
-   * The price for this match safety is a fair amount of boilerplate for each implementation. Again, see the
-   * examples subproject.
+   * The price for this match safety is a fair amount of up-front boilerplate for each implementation.
+   * However, this is acceptable when compared to the type annotations that must be used every time with
+   * [[scala.Enumeration]] values, when writing case classes to be used with Jackson.
+   *
+   * See https://github.com/FasterXML/jackson-module-scala/wiki/Enumerations for more information.
    */
   trait Enumeration extends Serializable {
     override def toString: String = stringVal
