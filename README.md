@@ -1,2 +1,2 @@
-userdomain-common
+stingray-common
 =================
