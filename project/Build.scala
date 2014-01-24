@@ -205,7 +205,7 @@ object CommonBuild extends Build {
     settings = standardSettings ++ Seq(
       name := "stingray-examples",
       libraryDependencies ++= httpDependencies ++ testDependencies,
-      publishArtifact in Test := true
+      publish := {}
     )
   )
 

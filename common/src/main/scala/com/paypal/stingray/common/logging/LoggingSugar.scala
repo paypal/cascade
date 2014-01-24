@@ -4,23 +4,14 @@ import org.slf4j.{Logger, LoggerFactory}
 import scala.reflect.ClassTag
 
 /**
- * Created by IntelliJ IDEA.
- * User: taylor
- * Date: 11/16/11
- * Time: 11:41 PM
+ * Convenience methods for interacting with [[org.slf4j.Logger]] and other SLF4J objects.
  */
 
 trait LoggingSugar {
 
   /**
-   * This is just a convenience method so you can type:
-   *
-   * getLogger[Foo]
-   *
-   * ...rather than...
-   *
-   * LoggerFactory.getLogger(classOf[Foo])
-   *
+   * Retrieves a [[org.slf4j.Logger]] object for the given object type `T`. Allows you to write code such as
+   * {{{ getLogger[Foo] }}} in place of lengthier code such as {{{ LoggerFactory.getLogger(classOf[Foo]) }}}.
    */
   def getLogger[T <: AnyRef](implicit classTag: ClassTag[T]): Logger = {
     LoggerFactory.getLogger(classTag.runtimeClass)
