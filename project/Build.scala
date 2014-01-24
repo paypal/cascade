@@ -2,6 +2,8 @@ import io.Source
 import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import de.johoop.jacoco4sbt._
+import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
 import org.scalastyle.sbt.ScalastylePlugin
 import sbtrelease._
@@ -41,6 +43,7 @@ object BuildSettings {
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     javaOptions in run ++= runArgs,
+    javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
     fork := true,
@@ -184,7 +187,7 @@ object CommonBuild extends Build {
   )
 
   lazy val common = Project("stingray-common", file("common"),
-    settings = standardSettings ++ Seq(
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-common",
       libraryDependencies ++= commonDependencies ++ testDependencies,
       publishArtifact in Test := true
@@ -193,7 +196,7 @@ object CommonBuild extends Build {
 
   lazy val http = Project("stingray-http", file("http"),
     dependencies = Seq(common % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-http",
       libraryDependencies ++= httpDependencies ++ testDependencies,
       publishArtifact in Test := true
