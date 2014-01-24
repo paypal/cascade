@@ -37,14 +37,14 @@ import scala.reflect._
 package object casts {
 
   /**
-   * Wrapper to allow any class to be cast, based on a Manifest for that class
+   * Wrapper to allow any class to be cast, based on a ClassTag for that class
    * @param any the class to be cast
    */
   implicit class CastableAny(any: Any) {
 
     /**
      * Cast the wrapped object as type `T`, optionally returning the newly cast object if the cast was successful
-     * @param target the manifest of type `T`
+     * @param target the ClassTag of type `T`
      * @tparam T the type to which this wrapped object will be cast
      * @return optionally, the newly cast object, or None if the cast was unsuccessful
      */
@@ -68,42 +68,138 @@ package object casts {
         }
       }
     }
-    def castIf[T](pred: T => Boolean)(implicit m: Manifest[T]): Option[T] = {
-      cast[T].flatMap(c => if(pred(c)) Some(c) else None)
-    }
-  }
 
-  implicit class CastableOption(opt: Option[_]) {
-    def cast[T : ClassTag]: Option[T] = {
-      opt.flatMap(_.cast[T])
-    }
+    /**
+     * Cast the wrapped object as type `T` and optionally return it if it satisfies some predicate `pred`
+     * @param pred the function to be satisfied, based on some value of type `T`
+     * @tparam T the type to which this wrapped object will be cast
+     * @return optionally, the newly cast object, or None if the cast was unsuccessful or `pred` was not satisfied
+     */
     def castIf[T : ClassTag](pred: T => Boolean): Option[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
   }
 
+  /**
+   * Wrapper to allow any Option to cast its inner object, if it exists 
+   * @param opt the Option whose inner object will be cast
+   */
+  implicit class CastableOption(opt: Option[_]) {
+
+    /**
+     * Cast the Option's inner object as type `T`, returning a new Option with the cast value if the cast
+     * was successful, or None if not
+     * @tparam T the type to which this wrapped Option's inner value will be cast 
+     * @return a new Option with the cast value, or None if the cast was unsuccessful or `opt` was None 
+     */
+    def cast[T : ClassTag]: Option[T] = {
+      opt.flatMap(_.cast[T])
+    }
+
+    /**
+     * Cast the Option's inner object as type `T`, returning a new Option with the cast value if the cast
+     * was successful and `pred` is then satisfied, or None if not 
+     * @param pred the function to be satisfied, based on some value of type `T`
+     * @tparam T the type to which this wrapped Option's inner value will be cast
+     * @return a new Option with the cast value, or None if the cast was unsuccessful, `pred` was not satisfied,
+     *         or `opt` was None
+     */
+    def castIf[T : ClassTag](pred: T => Boolean): Option[T] = {
+      cast[T].flatMap(c => if(pred(c)) Some(c) else None)
+    }
+  }
+
+  /**
+   * Wrapper to allow a Traversable to be cast into a new Traversable with objects of type `T`. Attempts to cast
+   * each individual member of the given traversable.
+   * @param traversable the Traversable whose members will be cast
+   */
   implicit class CastableTraversable(traversable: Traversable[_]) {
+
+    /**
+     * Cast the Traversable's objects as type `T`, returning a new Traversable with each data member that was
+     * successfully cast. Has the potential to lose data, as any uncastable members are not included in the new
+     * Traverable.
+     * @tparam T the type to which Traversable members will be cast
+     * @return a new Traversable containing all the members of this Traversable that were successfully cast
+     */
     def cast[T : ClassTag]: Traversable[T] = {
       traversable.flatMap(_.cast[T])
     }
+
+    /**
+     * Cast the Traversable's objects as type `T`, returning a new Traversable with each data member that was
+     * successfully cast and that satisfied `pred`. Has the potential to lose data, as any uncastable members are
+     * not included in the new Traversable.
+     * @param pred the function to be satisfied, based on some value of type `T`
+     * @tparam T the type to which Traversable members will be cast
+     * @return a new Traversable containing all the members of this Traversable that were successfully cast and
+     *         that satisfied `pred`
+     */
     def castIf[T : ClassTag](pred: T => Boolean): Traversable[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
   }
 
+  /**
+   * Wrapper to allow a List to be cast into a new List with objects of type `T`. Attempts to cast each individual
+   * member of the given List.
+   * @param list the List whose members will be cast
+   */
   implicit class CastableList(list: List[_]) {
+
+    /**
+     * Cast the List's objects as type `T`, returning a new List with each data member that was
+     * successfully cast. Has the potential to lose data, as any uncastable members are not included in the new
+     * List.
+     * @tparam T the type to which List members will be cast
+     * @return a new List containing all the members of this List that were successfully cast
+     */
     def cast[T : ClassTag]: List[T] = {
       list.flatMap(_.cast[T])
     }
+
+    /**
+     * Cast the List's objects as type `T`, returning a new List with each data member that was
+     * successfully cast and that satisfied `pred`. Has the potential to lose data, as any uncastable members are
+     * not included in the new List.
+     * @param pred the function to be satisfied, based on some value of type `T`
+     * @tparam T the type to which List members will be cast
+     * @return a new List containing all the members of this List that were successfully cast and
+     *         that satisfied `pred`
+     */
     def castIf[T : ClassTag](pred: T => Boolean): List[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
   }
 
+  /**
+   * Wrapper to allow an Array to be cast into a new Array with objects of type `T`. Attempts to cast each individual
+   * member of the given Array.
+   * @param array the Array whose members will be cast
+   */
   implicit class CastableArray(array: Array[_]) {
+
+    /**
+     * Cast the Array's objects as type `T`, returning a new Array with each data member that was
+     * successfully cast. Has the potential to lose data, as any uncastable members are not included in the new
+     * Array.
+     * @tparam T the type to which Array members will be cast
+     * @return a new Array containing all the members of this Array that were successfully cast
+     */
     def cast[T : ClassTag]: Array[T] = {
       array.flatMap(_.cast[T])
     }
+
+    /**
+     * Cast the Array's objects as type `T`, returning a new Array with each data member that was
+     * successfully cast and that satisfied `pred`. Has the potential to lose data, as any uncastable members are
+     * not included in the new Array.
+     * @param pred the function to be satisfied, based on some value of type `T`
+     * @tparam T the type to which Array members will be cast
+     * @return a new Array containing all the members of this Array that were successfully cast and
+     *         that satisfied `pred`
+     */
     def castIf[T : ClassTag](pred: T => Boolean): Array[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }

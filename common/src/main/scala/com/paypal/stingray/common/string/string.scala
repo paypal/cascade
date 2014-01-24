@@ -1,22 +1,25 @@
 package com.paypal.stingray.common
 
+import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
+
 /**
- * Created by IntelliJ IDEA.
- *
- * com.paypal.stingray.common.string
- *
- * User: aaron
- * Date: 5/8/13
- * Time: 4:15 PM
+ * Convenience methods and implicit wrappers for working with Strings
  */
+
 package object string {
+
+  /**
+   * Implicit wrapper for Strings
+   * @param inner the String to wrap
+   */
   implicit class RichString(inner: String) {
+
     /**
-     * a convenience method for .getBytes("UTF-8")
+     * A convenience method for .getBytes("UTF-8")
      * @return an array of bytes from UTF-8 encoding
      */
     def getBytesUTF8: Array[Byte] = {
-      inner.getBytes("UTF-8")
+      inner.getBytes(charsetUtf8)
     }
   }
 }

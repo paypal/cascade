@@ -1,12 +1,10 @@
 package com.paypal.stingray.common.service
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 8/9/13
- * Time: 2:06 PM
+ * Base trait for named services
  */
 trait ServiceNameComponent {
 
+  /** The name of this service */
   val serviceName: String
 }
