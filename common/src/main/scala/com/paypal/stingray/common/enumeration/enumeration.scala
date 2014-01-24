@@ -13,19 +13,13 @@ package object enumeration {
 
   /**
    * Our custom Enumeration type. Prefer this instead of [[scala.Enumeration]] or [[java.util.Enumeration]].
+   * See the examples subproject for an implementation.
    *
-   * {{{
-   *   import com.paypal.stingray.common.enumeration.Enumeration
+   * Our Enumeration will raise non-exhaustive match warnings when used in pattern matches, unlike
+   * [[scala.Enumeration]] which lets you partially match (and in turn run the risk of a [[scala.MatchError]]).
    *
-   *   sealed abstract class MyEnum extends Enumeration
-   *   case object CaseOne extends MyEnum {
-   *     override def stringVal = "caseone"
-   *   }
-   *   case object CaseTwo extends MyEnum {
-   *     override def stringVal = "casetwo"
-   *   }
-   *   ...
-   * }}}
+   * The price for this match safety is a fair amount of boilerplate for each implementation. Again, see the
+   * examples subproject.
    */
   trait Enumeration extends Serializable {
     override def toString: String = stringVal
