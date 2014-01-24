@@ -12,8 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger
  *
  * Refer to documentation on [[java.lang.Thread]] for distinctions between daemon/non-daemon threads.
  * Short version: daemon threads die immediately when their parent dies; non-daemon threads are allowed to finish.
- *
- * @author Will Palmeri <wpalmeri@paypal.com>
  */
 
 trait NamedThreadFactory {

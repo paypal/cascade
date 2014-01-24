@@ -3,15 +3,10 @@ package com.paypal.stingray.common.constants
 import java.nio.charset.Charset
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 3/12/13
- * Time: 12:28 PM
+ * Commonly used values and strings.
  */
 object ValueConstants {
-  val StingrayEnvironment = "stingray.environment"
-  val ClusterName = "cluster.name"
-  val BuildTag = "build_name"
 
+  /** For JSON (and many other specs), Unicode is required and UTF-8 is default. */
   val charsetUtf8 = Charset.forName("UTF-8")
 }

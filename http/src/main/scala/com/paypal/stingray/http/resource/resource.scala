@@ -12,20 +12,20 @@ import scala.util.Try
 import scala.concurrent.Future
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 3/18/13
- * Time: 10:05 AM
- * Utility methods for turning everyday datatypes into futures possibly throwing HaltException.
- * Methods of the form orHalt create a future.
- * Methods of the form orThrowHaltException simply throw an exception and should only be used when already in a Future
+ * Utility methods for turning everyday datatypes into Futures that can possibly return (or throw) a
+ * [[com.paypal.stingray.http.resource.HaltException]]. Methods of the form `orHalt` create a Future.
+ * Methods of the form `orThrowHaltException` throw an Exception immediately and should only be used
+ * when already inside a Future.
  */
 
 package object resource {
 
+  /** For resources that do not expect a body in requests */
   type NoBody = Option[String]
 
+  /** For resources that do not perform any degree of authorization of incoming requests */
   type NoAuth = Unit
+
 
   def halt[T](status: StatusCode,
               entity: HttpEntity = Empty,
@@ -33,11 +33,14 @@ package object resource {
 
 
   implicit class RichOptionHalt[A](v: Option[A]) {
+
     def orThrowHaltException(halt: => HttpResponse): A = {
       v.orThrow(new HaltException(halt))
     }
 
-    def orThrowHaltException(status: => StatusCode, entity: => HttpEntity = Empty, headers: => List[HttpHeader] = Nil): A = {
+    def orThrowHaltException(status: => StatusCode,
+                             entity: => HttpEntity = Empty,
+                             headers: => List[HttpHeader] = Nil): A = {
       orThrowHaltException(HttpResponse(status, entity, headers))
     }
 
@@ -46,18 +49,22 @@ package object resource {
       case None => Future.failed(new HaltException(halt))
     }
 
-    def orHaltWith(status: => StatusCode, entity: => HttpEntity = Empty, headers: => List[HttpHeader] = Nil): Future[A] = {
+    def orHaltWith(status: => StatusCode,
+                   entity: => HttpEntity = Empty,
+                   headers: => List[HttpHeader] = Nil): Future[A] = {
       orHalt(HttpResponse(status, entity, headers))
     }
 
-    def orError(entity: => HttpEntity = Empty, headers: => List[HttpHeader] = Nil): Future[A] = {
+    def orError(entity: => HttpEntity = Empty,
+                headers: => List[HttpHeader] = Nil): Future[A] = {
       orHaltWith(InternalServerError, entity, headers)
     }
   }
 
   implicit class RichEitherThrowableHalt[A](either: Either[Throwable, A]) {
 
-    def orThrowHaltExceptionWithMessage(status: StatusCode)(f: String => String = identity): A = {
+    def orThrowHaltExceptionWithMessage(status: StatusCode)
+                                       (f: String => String = identity): A = {
       either.fold(
         e => throw new HaltException(HttpResponse(status, f(e.getMessage))),
         a => a
@@ -67,7 +74,8 @@ package object resource {
     def orThrowHaltExceptionWithErrorMessage(f: String => String = identity): A =
       orThrowHaltExceptionWithMessage(InternalServerError)(f)
 
-    def orHaltWithMessage(status: StatusCode)(f: String => String = identity): Future[A] = either.fold(
+    def orHaltWithMessage(status: StatusCode)
+                         (f: String => String = identity): Future[A] = either.fold(
       l => Future.failed(new HaltException(HttpResponse(status, f(l.getMessage)))),
       r => r.continue
     )
@@ -110,7 +118,9 @@ package object resource {
       if (v) ().continue else throw new HaltException(halt)
     }
 
-    def orThrowHaltException(status: => StatusCode, entity: => HttpEntity = Empty, headers: => List[HttpHeader] = Nil) {
+    def orThrowHaltException(status: => StatusCode,
+                             entity: => HttpEntity = Empty,
+                             headers: => List[HttpHeader] = Nil) {
       orThrowHaltException(HttpResponse(status, entity, headers))
     }
 
@@ -118,11 +128,14 @@ package object resource {
       if (v) ().continue else Future.failed(new HaltException(halt))
     }
 
-    def orHaltWith(status: => StatusCode, entity: => HttpEntity = Empty, headers: => List[HttpHeader] = Nil): Future[Unit] = {
+    def orHaltWith(status: => StatusCode,
+                   entity: => HttpEntity = Empty,
+                   headers: => List[HttpHeader] = Nil): Future[Unit] = {
       orHalt(HttpResponse(status, entity, headers))
     }
 
-    def orError(entity: => HttpEntity = Empty, headers: => List[HttpHeader] = Nil): Future[Unit] = {
+    def orError(entity: => HttpEntity = Empty,
+                headers: => List[HttpHeader] = Nil): Future[Unit] = {
       orHaltWith(InternalServerError, entity, headers)
     }
   }
@@ -131,7 +144,7 @@ package object resource {
 
     def orHalt(halt: PartialFunction[Throwable, HttpResponse])(implicit ec: ExecutionContext): Future[T] = {
       v.recoverWith {
-        halt andThen { resp => Future.failed(new HaltException(resp)) }
+        halt.andThen { resp => Future.failed(new HaltException(resp)) }
       }
     }
   }

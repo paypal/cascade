@@ -5,7 +5,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.common.concurrent.NamedThreadFactory
 
 /**
- * @author Will Palmeri <wpalmeri@paypal.com>
+ *
  */
 class NamedThreadFactorySpecs extends Specification { override def is =
 

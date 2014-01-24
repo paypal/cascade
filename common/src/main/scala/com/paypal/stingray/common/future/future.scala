@@ -32,7 +32,7 @@ package object future {
    * {{{
    *   import com.paypal.stingray.common.future._
    *   val f = Future { ... }
-   *   f.block
+   *   f.mapFailure { case e: SomeThrowable => ... }
    * }}}
    *
    * @param v
@@ -59,31 +59,6 @@ package object future {
      */
     def mapFailure[E <: Throwable](f: PartialFunction[Throwable, E])(implicit ctx: ExecutionContext): Future[T] = {
       v.transform(identity, f.applyOrElse(_, identity[Throwable]))
-    }
-
-    /**
-     * Blocks to get the result of a Future using Await.result, wrapped in a [[scala.util.Try]]
-     * @param dur the maximum amount of time to block; default 1 second
-     * @return a Try containing one of:
-     *         the value of the Future;
-     *         an exception of a failed Future, or;
-     *         one of the three Throwable types from Await.result
-     */
-    def block(dur: Duration = 1.second): Try[T] = {
-      Try(Await.result(v, dur))
-    }
-
-    /**
-     * Blocks to get the result of a Future using Await.result; throws the exception inside of a failed Future,
-     * and can throw one of the three Throwable types from Await.result
-     * @param dur the maximum amount of time to block; default 1 second
-     * @return the value of the Future
-     * @throws InterruptedException if the current thread is interrupted while waiting
-     * @throws TimeoutException if after waiting for the specified time `v` is still not ready
-     * @throws IllegalArgumentException if `dur` is [[scala.concurrent.duration.Duration.Undefined Duration.Undefined]]
-     */
-    def blockUnsafe(dur: Duration = 1.second): T = {
-      Await.result(v, dur)
     }
 
   }

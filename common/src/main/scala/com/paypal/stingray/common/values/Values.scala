@@ -1,9 +1,7 @@
 package com.paypal.stingray.common.values
 
 import com.paypal.stingray.common.enumeration._
-import scala.language.higherKinds
 import scala.util.Try
-import com.paypal.stingray.common.json.JsonUtil
 
 /**
  * Base trait for creating Values producers, e.g. [[com.paypal.stingray.common.values.DynamicValues]] and
@@ -80,16 +78,4 @@ trait Values {
     }
   }
 
-  /**
-   * Retrieves an optional value and attempts to parse it as a JSON representation of an object of type `T`,
-   * using the Jackson parser implementation in [[com.paypal.stingray.common.json.JsonUtil]]
-   * @param key the key to retrieve
-   * @tparam T the object type to be used for JSON parsing
-   * @return an optional object of type `T`
-   */
-  def getJson[T : Manifest](key: String): Option[T] = {
-    get(key).flatMap { value =>
-      JsonUtil.fromJson[T](value).toOption
-    }
-  }
 }

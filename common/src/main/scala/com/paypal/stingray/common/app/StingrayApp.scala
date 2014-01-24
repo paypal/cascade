@@ -4,14 +4,13 @@ import org.slf4j.bridge.SLF4JBridgeHandler
 import org.slf4j.MDC
 
 /**
- * Created with IntelliJ IDEA.
- * User: taylor
- * Date: 3/4/13
- * Time: 12:25 PM
+ * Starting point for runnable applications and services. Sets up logging and MDC values.
+ * Otherwise functions like [[scala.App]].
  */
 
 trait StingrayApp extends App {
 
+  /** The name of this service */
   def serviceName: String
 
   MDC.put("service", serviceName)
