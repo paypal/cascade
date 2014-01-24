@@ -200,6 +200,15 @@ object CommonBuild extends Build {
     )
   )
 
+  lazy val examples = Project("stingray-examples", file("examples"),
+    dependencies = Seq(common % "compile->compile;test->test"),
+    settings = standardSettings ++ Seq(
+      name := "stingray-examples",
+      libraryDependencies ++= httpDependencies ++ testDependencies,
+      publishArtifact in Test := true
+    )
+  )
+
 }
 
 object ChangelogReleaseStep {
