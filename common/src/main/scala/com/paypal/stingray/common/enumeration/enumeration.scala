@@ -1,10 +1,5 @@
 package com.paypal.stingray.common
 
-import com.fasterxml.jackson.databind.{DeserializationContext, JsonDeserializer, SerializerProvider, JsonSerializer}
-import com.fasterxml.jackson.core.{JsonParser, JsonGenerator}
-import com.paypal.stingray.common.enumeration.EnumReader
-import com.fasterxml.jackson.databind.annotation.{JsonSerialize, JsonDeserialize}
-
 /**
  * Contains our custom Enumeration type, as well as methods to help interact with that type.
  */
