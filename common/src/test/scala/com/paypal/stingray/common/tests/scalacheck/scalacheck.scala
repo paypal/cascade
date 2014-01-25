@@ -7,10 +7,7 @@ import java.util.UUID
 import scala.util.Try
 
 /**
- * Created by IntelliJ IDEA.
- * User: taylor
- * Date: 6/26/12
- * Time: 5:25 PM
+ * Custom generators for use with ScalaCheck
  */
 
 package object scalacheck {

@@ -5,13 +5,7 @@ import org.specs2.Specification
 import scala.util.Try
 
 /**
- * Created by IntelliJ IDEA.
- * 
- * com.paypal.stingray.common.tests.enumeration
- * 
- * User: aaron
- * Date: 12/17/12
- * Time: 4:57 PM
+ * Tests for [[com.paypal.stingray.common.enumeration.Enumeration]]
  */
 class EnumerationSpecs extends Specification { def is =
   "EnumerationSpecs".title                                                                                              ^

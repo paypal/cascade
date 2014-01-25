@@ -6,10 +6,7 @@ import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 4/30/13
- * Time: 2:26 PM
+ * Tests for implicit [[com.paypal.stingray.common.option.RichOptionBoolean]]
  */
 class RichOptionBooleanSpecs extends Specification { def is =
   "RichOptionBooleanSpecs".title                                                 ^

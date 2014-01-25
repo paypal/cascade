@@ -6,7 +6,7 @@ import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
- * Created by awharris on 1/14/14.
+ * Tests for implicit [[com.paypal.stingray.common.option.Any2Option]]
  */
 class Any2OptionSpecs extends Specification { def is =
   "Any2OptionSpecs".title                                                        ^

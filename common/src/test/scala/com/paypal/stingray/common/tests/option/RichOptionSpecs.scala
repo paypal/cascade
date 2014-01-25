@@ -7,13 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
- * Created by IntelliJ IDEA.
- *
- * com.paypal.stingray.common.tests.option
- *
- * User: aaron
- * Date: 5/18/12
- * Time: 7:58 PM
+ * Tests for implicit [[com.paypal.stingray.common.option.RichOption]]
  */
 
 class RichOptionSpecs extends Specification { def is =

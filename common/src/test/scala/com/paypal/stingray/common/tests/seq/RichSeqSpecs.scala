@@ -6,13 +6,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.common.seq.RichSeq
 
 /**
- * Created by IntelliJ IDEA.
- *
- * com.paypal.stingray.common.tests.seq
- *
- * User: aaron
- * Date: 7/3/12
- * Time: 4:43 PM
+ * Tests for implicit [[com.paypal.stingray.common.seq.RichSeq]]
  */
 
 class RichSeqSpecs extends Specification { def is =

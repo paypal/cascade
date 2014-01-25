@@ -9,10 +9,7 @@ import org.scalacheck.Arbitrary.arbitrary
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
- * Created by IntelliJ IDEA.
- * User: taylor
- * Date: 5/30/12
- * Time: 11:29 AM
+ * Tests for implicit casts in [[com.paypal.stingray.common.util.casts]]
  */
 
 class CastSpecs extends Specification with ScalaCheck { override def is =
