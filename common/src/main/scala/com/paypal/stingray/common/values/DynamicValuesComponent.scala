@@ -1,13 +1,11 @@
 package com.paypal.stingray.common.values
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 8/9/13
- * Time: 2:27 PM
+ * Trait used to mix-in a [[com.paypal.stingray.common.values.DynamicValues]] instance
  */
 trait DynamicValuesComponent {
 
+  /** the DynamicValues instance */
   val dvs: DynamicValues
 
 }
