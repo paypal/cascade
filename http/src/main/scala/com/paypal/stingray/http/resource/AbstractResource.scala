@@ -47,83 +47,86 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
   implicit lazy val context: ExecutionContext = executionContext
 
   /**
-   * whether this service is available
+   * Whether this service is available, by default true
    * @return true if available, false otherwise
    */
   def available: Boolean = true
 
   /**
-   * the HTTP methods to accept in this server
+   * HTTP methods to accept in this server, by default: GET, PUT, POST, DELETE, HEAD
    * @return a list of the allowed HTTP methods
    */
   def supportedHttpMethods: List[HttpMethod] = List(GET, PUT, POST, DELETE, HEAD)
 
   /**
-   * attempt to parse the incoming request. if this is CPU intensive, you should do it in a background thread,
+   * Attempt to parse the incoming request. If this is CPU intensive, use a background thread,
    * actor running on a dedicated thread, etc
    * @param r the request to parse into some data structure
-   * @return either a failure response or the parsed request
+   * @return the parsed request, or a Failure response
    */
   def parseRequest(r: HttpRequest, pathParts: Map[String, String]): Future[ParsedRequest]
 
   /**
    * Convert the raw body into the PostBody type
-   * @param r the http request
-   * @return
+   * @param r the HTTP request
+   * @return optionally, an object of the PostBody type
    */
   def parsePostBody(r: HttpRequest): Future[Option[PostBody]] = none[PostBody].continue
 
   /**
    * Convert the raw body into the PutBody type
    * @param r the http request
-   * @return
+   * @return optionally, an object of the PutBody type
    */
   def parsePutBody(r: HttpRequest): Future[Option[PutBody]] = none[PutBody].continue
 
   /**
-   * The message to be sent back with the WWW-Authenticate header when the request is
-   * unauthorized. This particular form is important because android is stupid
+   * The message to be sent back with the `WWW-Authenticate` header when the request is
+   * unauthorized. This particular form works around a known Android quirk.
+   *
+   * See discussion at http://stackoverflow.com/questions/6114455/
    * @return the message
    */
-  def unauthorizedChallenge(req: HttpRequest): List[HttpChallenge] = List(HttpChallenge("OAuth", req.uri.authority.host.toString))
+  def unauthorizedChallenge(req: HttpRequest): List[HttpChallenge] =
+    List(HttpChallenge("OAuth", req.uri.authority.host.toString))
 
   /**
-   * determine if a given request is authorized to execute
+   * Determines the AuthInfo for a given request, if authorized
    * @param p the parsed request
-   * @return either a Failure(halt) or the auth result
+   * @return optionally, the AuthInfo for this request, or a Failure(halt)
    */
   def isAuthorized(p: ParsedRequest): Future[Option[AuthInfo]]
 
   /**
-   * determine if an incoming request is forbidden to execute
+   * Whether an incoming request is forbidden to execute, by default false
    * @param p the parsed request
-   * @return either a Failure(halt) or the auth result
+   * @return Failure(halt) if forbidden, false if not
    */
   def isForbidden(p: ParsedRequest): Future[Boolean] = false.continue
   def isForbidden(p: ParsedRequest, auth: AuthInfo): Future[Boolean] = isForbidden(p)
 
   /**
-   * a list of content types that that this server can accept. These will be matched against
-   * the Content-Type header of incoming requests.
+   * A list of content types that that this server can accept, by default `application/json`.
+   * These will be matched against the `Content-Type` header of incoming requests.
    * @return a list of content types
    */
   lazy val acceptableContentTypes: List[ContentType] = List(ContentTypes.`application/json`)
 
   /**
-   * the content type that this server provides
+   * The content type that this server provides, by default `application/json`
    * @return a list of content types
    */
   lazy val responseContentType: ContentType = ContentTypes.`application/json`
 
   /**
-   * handle a GET request.
+   * Handle a GET request.
    * @return a response for the given request
    */
   def doGet(req: ParsedRequest): Future[HttpResponse] = HttpResponse(InternalServerError).continue
   def doGet(req: ParsedRequest, authInfo: AuthInfo): Future[HttpResponse] = doGet(req)
 
   /**
-   * handle a HEAD request. By default it routes to get and strips any body
+   * Handle a HEAD request. By default it routes to get and strips any body
    * @return a response for the given request
    */
   def doHead(req: ParsedRequest): Future[HttpResponse] = doGet(req).map { resp =>
@@ -132,24 +135,24 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
   def doHead(req: ParsedRequest, authInfo: AuthInfo): Future[HttpResponse] = doGet(req)
 
   /**
-   * handle a DELETE request
+   * Handle a DELETE request
    * @return the response for the delete
    */
   def doDelete(req: ParsedRequest): Future[HttpResponse] = HttpResponse(InternalServerError).continue
   def doDelete(req: ParsedRequest, authInfo: AuthInfo): Future[HttpResponse] = doDelete(req)
 
   /**
-   * handle a POST request. Use either this or doPostAsCreate
-   * @return the response for the post
+   * Handle a POST request. Use either this or `doPostAsCreate`, but not both.
+   *@return the response for the post
    */
   def doPost(req: ParsedRequest, body: PostBody): Future[HttpResponse] = HttpResponse(InternalServerError).continue
   def doPost(req: ParsedRequest, authInfo: AuthInfo, body: PostBody): Future[HttpResponse] = doPost(req, body)
 
   /**
-   * handle a POST request, treating it as a create. The path of the newly created resource should be returned
-   * along with the response, if applicable, and it will be incorporated into the location header if a 201 is
-   * returned. Use either this or doPost
-   * @return the response for the post and the new location
+   * Handle a POST request, treating it as a create in the CRUD paradigm. The path of the newly created resource
+   * should be returned along with the response, if applicable, and it will be incorporated into the location header
+   * if a 201 is returned. Use either this or `doPost`, but not both.
+   *@return the response for the post and the new location
    */
   def doPostAsCreate(req: ParsedRequest, authInfo: AuthInfo, body: PostBody): Future[(HttpResponse, Option[String])] = {
     doPost(req, authInfo, body).map { resp =>
@@ -158,14 +161,14 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
   }
 
   /**
-   * handle a PUT request
+   * Handle a PUT request
    * @return the response for the put
    */
   def doPut(req: ParsedRequest, b: PutBody): Future[HttpResponse] = HttpResponse(InternalServerError).continue
   def doPut(req: ParsedRequest, authInfo: AuthInfo, b: PutBody): Future[HttpResponse] = doPut(req, b)
 
   /**
-   * handle an OPTIONS request
+   * Handle an OPTIONS request
    * @return the response
    */
   def doOptions(req: ParsedRequest): Future[HttpResponse] = HttpResponse(InternalServerError).continue
@@ -209,10 +212,9 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
   }
 
   /**
-   * Used under the covers to force simple error strings into the proper format
-   * by default json objects
+   * Used under the covers to force simple error strings into a JSON format
    * @param body the body
-   * @return an HttpEntity containing an error body
+   * @return an HttpEntity containing an error JSON body
    */
   def coerceError(body: Array[Byte]): HttpEntity = {
     toJsonBody(Map("errors" -> List(new String(body, charsetUtf8))))

@@ -4,14 +4,16 @@ import scala.concurrent.Future
 import com.paypal.stingray.common.option._
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 4/26/13
- * Time: 1:16 PM
- * Mix this into a SimpleResource with AuthInfo=NoAuth to allways authorize requests
+ * Mix this into an [[com.paypal.stingray.http.resource.AbstractResource]] implementation,
+ * and set AuthInfo to [[com.paypal.stingray.http.resource.NoAuth]] to always authorize requests.
  */
 trait AlwaysAuthorized[T] {
 
+  /**
+   * Always returns authorized
+   * @param p the request
+   * @return authorized
+   */
   def isAuthorized(p: T): Future[Option[NoAuth]] = ().some.continue
 
 }
