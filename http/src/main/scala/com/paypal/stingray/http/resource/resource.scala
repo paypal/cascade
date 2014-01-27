@@ -39,13 +39,14 @@ package object resource {
 
   /**
    * Implicit wrapper to allow optional values to halt or throw
-   * @param v the option to wrap
-   * @tparam A the type of the wrapped option
    *
    * {{{
    *   import com.paypal.stingray.http.resource._
    *   Option("hi").orError()  // Future("hi")
    * }}}
+   *
+   * @param v the option to wrap
+   * @tparam A the type of the wrapped option
    */
   implicit class RichOptionHalt[A](v: Option[A]) {
 
@@ -110,6 +111,13 @@ package object resource {
 
   /**
    * Implicit wrapper to allow right-biased, left Throwable [[scala.util.Either]] values to halt or throw
+   *
+   * {{{
+   *   import com.paypal.stingray.http.resource._
+   *   Right("hi").orErrorWithMessage                 // Future("hi")
+   *   Left(new Throwable("fail")).orErrorWithMessage // Future(HaltException(500, "fail", List()))
+   * }}}
+   *
    * @param either the either to wrap
    * @tparam A the right type of the either
    */
@@ -171,6 +179,13 @@ package object resource {
   /**
    * Implicit wrapper to allow [[scala.util.Try]] values to halt or throw.
    * Handled internally as a right-biased [[scala.util.Either]] with a Throwable left.
+   *
+   * {{{
+   *   import com.paypal.stingray.http.resource._
+   *   Try { "hi" }.orErrorWithMessage                      // Future("hi")
+   *   Try { throw new Throwable("no") }.orErrorWithMessage // Future(HaltException(HttpResponse(500, "no", List())))
+   * }}}
+   *
    * @param t the try to wrap
    * @tparam A the success type of the try
    */
@@ -178,6 +193,13 @@ package object resource {
 
   /**
    * Implicit wrapper to allow right-biased [[scala.util.Either]] values, of any left type, to halt or throw
+   *
+   * {{{
+   *   import com.paypal.stingray.http.resource._
+   *   Right("hi").orError                                                             // Future("hi")
+   *   Left(CustomError("no")).orError { c => HttpResponse(500, c.getMessage, List() } // Future(HaltException(...))
+   * }}}
+   *
    * @param either the either to wrap
    * @tparam T the left type, by convention representing a failure
    * @tparam A the right type, by convention representing a success
@@ -230,6 +252,13 @@ package object resource {
 
   /**
    * Implicit wrapper to allow Booleans to halt or throw
+   *
+   * {{{
+   *   import com.paypal.stingray.http.resource._
+   *   true.orError  // Future({})
+   *   false.orError // Future(HaltException(HttpResponse(500, Empty, List())))
+   * }}}
+   *
    * @param v the boolean to wrap
    */
   implicit class RichBooleanHalt(v: Boolean) {
@@ -292,6 +321,15 @@ package object resource {
 
   /**
    * Implicit wrapper to allow Futures to halt
+   *
+   * {{{
+   *   import com.paypal.stingray.http.resource._
+   *   Future { "hi" }.orHalt { case e: Throwable => HttpResponse(...) }
+   *     // => Future("hi")
+   *   Future { throw new Throwable("fail") }.orHalt { case e: Throwable => HttpResponse(...) }
+   *     // => Future(HaltException(HttpResponse(...)))
+   * }}}
+   *
    * @param v the future to wrap
    * @tparam T the success type of the future
    */
@@ -312,6 +350,12 @@ package object resource {
 
   /**
    * Implicit wrapper to allow anything to continue
+   *
+   * {{{
+   *   import com.paypal.stingray.http.resource._
+   *   "hi".continue  // Future("hi")
+   * }}}
+   *
    * @param v the object to wrap
    * @tparam T the type of this object
    */
@@ -326,6 +370,12 @@ package object resource {
 
   /**
    * Implicit wrapper to allow any Throwable to halt
+   *
+   * {{{
+   *   import com.paypal.stingray.http.resource._
+   *   (new Throwable("no")).haltWith(InternalServiceError)  // Future(HaltException(HttpResponse(500, "no", List())))
+   * }}}
+   *
    * @param t the throwable to wrap
    */
   implicit class RichThrowableHalt(t: Throwable) {
