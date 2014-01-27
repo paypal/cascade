@@ -1,6 +1,5 @@
 package com.paypal.stingray.common.random
 
-import org.slf4j.LoggerFactory
 import scala.util.Random
 
 /**

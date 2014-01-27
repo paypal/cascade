@@ -9,21 +9,40 @@ import akka.actor.{ActorLogging, Actor, Status}
  */
 trait CommonActor extends Actor with ActorLogging {
 
+  /**
+   * Can be overridden in subsequent actor implementations, but `super.preStart()` should also be called
+   * to preserve consistent behavior
+   */
   override def preStart() {
     log.info(s"Starting actor: ${self.path}")
     super.preStart()
   }
 
+  /**
+   * Can be overridden in subsequent actor implementations, but `super.preRestart(reason, message)`
+   * should also be called to preserve consistent behavior
+   * @param reason what triggered this restart cycle
+   * @param message why this restart was triggered
+   */
   override def preRestart(reason: Throwable, message: Option[Any]) {
     log.error(reason, s"Restarting actor: ${self.path}, message: ${message.getOrElse("")}")
     super.preRestart(reason, message)
   }
 
+  /**
+   * Can be overridden in subsequent actor implementations, but `super.postRestart(reason)` should also be called
+   * to preserve consistent behavior
+   * @param reason what triggered this restart cycle
+   */
   override def postRestart(reason: Throwable) {
     log.error(reason, s"Restarted actor: ${self.path}")
     super.postRestart(reason)
   }
 
+  /**
+   * Can be overridden in subsequent actor implementations, but `super.postStop()` should also be called
+   * to preserve consistent behavior
+   */
   override def postStop() {
     log.info(s"Stopped actor: ${self.path}")
     super.postStop()
@@ -36,12 +55,16 @@ trait CommonActor extends Actor with ActorLogging {
  * by throwing an exception. For most child actors, this trait should be preferred.
  */
 trait ServiceActor extends CommonActor {
+
+  /**
+   * Triggered when an actor receives a message that it doesn't recognize. In order:
+   *
+   * 1) Publishes an unhandled message to the actor system's event stream.
+   * 2) Replies with a [[akka.actor.Status.Failure]] message to the sender.
+   * 3) Throws an [[com.paypal.stingray.http.actor.UnhandledMessageException]] for delegation to the supervisor.
+   */
+  @throws(classOf[UnhandledMessageException])
   override def unhandled(message: Any) {
-    /**
-     * 1) Publish an unhandled message to the actor system's even stream.
-     * 2) Reply with a failure message to the sender.
-     * 3) Throw an exception for delegation to the supervisor.
-     */
     super.unhandled(message)
     val ex = new UnhandledMessageException(s"Unhandled message recieved by actor: ${self.path}, message: $message")
     sender ! Status.Failure(ex)
@@ -49,8 +72,17 @@ trait ServiceActor extends CommonActor {
   }
 }
 
+/**
+ * Exception raised when an unhandled message is received by a CommonActor
+ * @param message what happened
+ */
 class UnhandledMessageException(message: String) extends ActorException(message)
 
+/**
+ * Base type for custom exceptions raised within an actor
+ * @param message what happened
+ * @param cause if there was another exception that triggered this, it's here
+ */
 abstract class ActorException(message: String, cause: Option[Throwable] = None)
   extends Exception(message, cause.orNull)
 

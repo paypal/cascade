@@ -1,23 +1,30 @@
 package com.paypal.stingray.common
 
 /**
- * Contains our custom Enumeration type, as well as methods to help interact with that type.
+ * Contains a fully type-safe enumeration framework. Takes more setup & code than the built-in [[scala.Enumeration]],
+ * but has two distinct advantages:
+ *
+ * 1. Configurable outcomes when a conversion from a String to Enumeration value fails
+ * 2. Non-exhaustive match warnings when one or more Enumeration values are not included in a `match`
+ *
+ * By comparison, [[scala.Enumeration]] will allow a `match` over as few as one Enumeration type, which runs the risk
+ * of a [[scala.MatchError]]. This will alert at compile time as to the possibility of a `match` miss.
+ *
+ * As of Jackson 2.x, a method exists to directly serialize [[scala.Enumeration]], which involves writing less
+ * up-front boilerplate. One distinct downside, however, is the need for a special Jackson annotation on case classes
+ * that use Enumerations in this way. The annotation must be applied directly to each case class member that is an
+ * Enumeration. In this way, serializing [[scala.Enumeration]] in Jackson involves substantially more boilerplate
+ * effort than the custom Enumeration presented here. See
+ * https://github.com/FasterXML/jackson-module-scala/wiki/Enumeration for more information.
+ *
+ * For these reasons, our custom Enumeration type should be preferred instead of [[scala.Enumeration]] or
+ * [[java.util.Enumeration]]. See the examples subproject for a sample implementation.
  */
 
 package object enumeration {
 
   /**
-   * Our custom Enumeration type. Prefer this instead of [[scala.Enumeration]] or [[java.util.Enumeration]].
-   * See the examples subproject for an implementation.
-   *
-   * Our Enumeration will raise non-exhaustive match warnings when used in pattern matches, unlike
-   * [[scala.Enumeration]] which lets you partially match (and in turn run the risk of a [[scala.MatchError]]).
-   *
-   * The price for this match safety is a fair amount of up-front boilerplate for each implementation.
-   * However, this is acceptable when compared to the type annotations that must be used every time with
-   * [[scala.Enumeration]] values, when writing case classes to be used with Jackson.
-   *
-   * See https://github.com/FasterXML/jackson-module-scala/wiki/Enumerations for more information.
+   * Our custom Enumeration type.
    */
   trait Enumeration extends Serializable {
     override def toString: String = stringVal

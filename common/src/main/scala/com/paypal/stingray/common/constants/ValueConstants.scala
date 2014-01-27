@@ -8,5 +8,5 @@ import java.nio.charset.Charset
 object ValueConstants {
 
   /** For JSON (and many other specs), Unicode is required and UTF-8 is default. */
-  val charsetUtf8 = Charset.forName("UTF-8")
+  val charsetUtf8: Charset = Charset.forName("UTF-8")
 }

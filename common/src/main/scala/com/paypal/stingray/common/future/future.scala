@@ -1,8 +1,6 @@
 package com.paypal.stingray.common
 
 import scala.concurrent._
-import scala.concurrent.duration._
-import scala.util.Try
 import org.slf4j.Logger
 
 /**

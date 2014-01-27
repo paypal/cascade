@@ -1,21 +1,25 @@
 package com.paypal.stingray.common.enumeration
 
 /**
- * By mixing this into your enum you are able to pattern match on string values
- * that you want to convert to enum values (iif they are valid). For example,
- * see com.paypal.stingray.common.deploymentapi.metadata.RepositoryType has this trait mixed in
- * and can be used as such:
+ * Allows pattern matching on String values that correspond to [[com.paypal.stingray.common.enumeration.Enumeration]]
+ * subtypes. Note that the type returned by the extractor is the general sealed trait `T`, not an Enumeration instance.
  *
- * Note: the type returned by the extractor is the general sealed trait T, not the
- * enum instances themselves
- *
- * scala> "HTML5" match { case RepositoryType(a) => a; case _ => throw new Exception("fail!") }
- * res0: com.paypal.stingray.common.deploymentapi.metadata.RepositoryType = HTML5
- * scala> "CC" match { case RepositoryType(a) => a; case _ => throw new Exception("fail!") }
- * res1: com.paypal.stingray.common.deploymentapi.metadata.RepositoryType = CC
- * scala> "a" match { case RepositoryType(a) => a; case _ => throw new Exception("fail!") }
- * java.lang.Exception: fail!
+ * {{{
+ *   scala> "SOMETYPE" match { case AnEnumeration(a) => a; case _ => throw new Exception("fail!") }
+ *   res0: com.project.AnEnumeration = SOMETYPE
+ *   scala> "OTHERTYPE" match { case AnEnumeration(a) => a; case _ => throw new Exception("fail!") }
+ *   res1: com.project.AnEnumeration = OTHERTYPE
+ *   scala> "not a type" match { case AnEnumeration(a) => a; case _ => throw new Exception("fail!") }
+ *   java.lang.Exception: fail!
+ * }}}
  */
 trait EnumUnapply[T <: Enumeration] {
+
+  /**
+   * Allows pattern matching on String values that correspond to Enumeration subtypes
+   * @param s the String to try to convert
+   * @param reader implicitly, the [[com.paypal.stingray.common.enumeration.EnumReader]] to use for conversion
+   * @return optionally, an Enumeration subtype corresponding to the input String
+   */
   def unapply(s: String)(implicit reader: EnumReader[T]): Option[T] = reader.read(s)
 }

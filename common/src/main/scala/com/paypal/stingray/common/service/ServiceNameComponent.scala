@@ -1,7 +1,7 @@
 package com.paypal.stingray.common.service
 
 /**
- * Base trait for named services
+ * Base trait for named services. See [[com.paypal.stingray.common.values.StaticValues]] for an example.
  */
 trait ServiceNameComponent {
 

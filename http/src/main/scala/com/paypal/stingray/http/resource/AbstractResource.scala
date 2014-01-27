@@ -14,23 +14,26 @@ import scala.util.{Success => TrySuccess, Failure => TryFailure}
 import org.slf4j.LoggerFactory
 
 /**
+ * Base class for HTTP resources built with Spray.
  *
- * @tparam ParsedRequest A representation of the request as this resource sees it. This should contain all the data from the request
- *                       needed by this resource to produce the response (except the body). Use the type HttpRequest and mix in
- *                       NoParsing to skip parsing
- * @tparam AuthInfo a structure for information gained during authorization. Use the type NoAuth and mixin AlwaysAuthorized to skip
- *                  authorization
- * @tparam PostBody the class to serialize the POST body to. Use the type NoBody if the resource doesn't do POST, or doesn't use a body
- * @tparam PutBody the class to serialize the PUT body to. Use the type NoBody if the resource doesn't do PUT, or doesn't use a body
+ * @tparam ParsedRequest A representation of the request as this resource sees it. This should contain all the data
+ *                       from the request needed by this resource to produce the response (except the body).
+ *                       Use the type [[spray.http.HttpRequest]] and
+ *                       trait [[com.paypal.stingray.http.resource.NoParsing]] to skip parsing
+ * @tparam AuthInfo a structure for information gained during authorization.
+ *                  Use the type [[com.paypal.stingray.http.resource.NoAuth]]
+ *                  and trait [[com.paypal.stingray.http.resource.AlwaysAuthorized]] to skip authorization
+ * @tparam PostBody the class to serialize the POST body to. Use the type [[com.paypal.stingray.http.resource.NoBody]]
+ *                  if the resource doesn't do POST, or doesn't use a body
+ * @tparam PutBody the class to serialize the PUT body to. Use the type [[com.paypal.stingray.http.resource.NoBody]]
+ *                 if the resource doesn't do PUT, or doesn't use a body
  */
 abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] extends LoggingSugar {
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass)
 
-  /**
-   * the context used by default by futures created in this resource
-   */
-  lazy val executionContext = new ExecutionContext {
+  /** Default context used by futures created in this resource */
+  lazy val executionContext: ExecutionContext = new ExecutionContext {
     def reportFailure(t: Throwable) {
       logger.warn(t.getMessage, t)
     }
@@ -40,7 +43,8 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
     }
   }
 
-  implicit lazy val context = executionContext
+  /** Provide your own, or the default will be used */
+  implicit lazy val context: ExecutionContext = executionContext
 
   /**
    * whether this service is available
