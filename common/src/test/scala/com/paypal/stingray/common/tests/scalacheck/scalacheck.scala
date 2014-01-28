@@ -1,4 +1,4 @@
-package com.paypal.stingray.common.tests.scalacheck
+package com.paypal.stingray.common.tests
 
 import com.paypal.stingray.common.option._
 import org.scalacheck.{Gen, Arbitrary}
@@ -21,6 +21,9 @@ package object scalacheck {
   lazy val genAlphaLowerNumChar: Gen[Char] = Gen.frequency((9, Gen.alphaLowerChar), (1, Gen.numChar))
 
   lazy val genNonEmptyAlphaStr: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString)
+  
+  lazy val genNonEmptyAlphaNumStr: Gen[String] =
+    Gen.nonEmptyListOf(Gen.frequency((52, Gen.alphaChar), (10, Gen.numChar))).map(_.mkString)
 
   def genListWithSizeInRange[T](min: Int, max: Int, gen: Gen[T]): Gen[List[T]] = {
     for {
