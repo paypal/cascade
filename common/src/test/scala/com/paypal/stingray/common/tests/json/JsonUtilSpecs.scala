@@ -37,10 +37,11 @@ class JsonUtilSpecs
     a case class containing multiple members of mixed basic types            ${CaseClasses.TwoMemberMixedBasic().ok}
     a case class containing mutliple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
 
-  JsonUtil should fail to deserialize
-    malformed json
-    json that does not correspond to a given specified type
-    json that corresponds to only some data members in a specified type
+  JsonUtil should
+    not deserialize malformed json                                           ${Badness.MalformedJson().fails}
+    not deserialize json that is type mismatched                             ${Badness.MismatchedTypes().fails}
+    deserialize json that is missing an AnyVal, with a default value         ${Badness.MissingAnyVal().ok}
+    deserialize json that is missing an AnyRef, with a null value            ${Badness.MissingAnyRef().ok}
   """
 
   //TODO: tests using optional types
@@ -180,6 +181,73 @@ class JsonUtilSpecs
 
         (to must beEqualTo("""{"one":["%s","%s"],"two":{"%s":%d}}""".format(li1, li2, k, v))) and
           (from must beEqualTo(TwoMemberMixedComplexData(List(li1, li2), Map(k -> v))))
+      }
+    }
+  }
+
+  object Badness {
+
+    case class MalformedJson() {
+      def fails = forAll(genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (k, v) =>
+        val unquotedKey = """{%s:"%s"}""".format(k, v)
+        val partiallyQuotedKey1 = """{"%s:"%s"}""".format(k, v)
+        val partiallyQuotedKey2 = """{%s":"%s"}""".format(k, v)
+        val unquotedStringValue = """{"%s":%s}""".format(k, v)
+        val partiallyQuotedStringValue1 = """{"%s":"%s}""".format(k, v)
+        val partiallyQuotedStringValue2 = """{"%s":%s"}""".format(k, v)
+        val noOpeningBrace = """"%s":"%s"}""".format(k, v)
+        val noClosingBrace = """{"%s":"%s"""".format(k, v)
+        val unfinishedInnerList1 = """{"%s":[%s}""".format(k, v)
+        val unfinishedInnerList2 = """{"%s":%s]""".format(k, v)
+        val unfinishedInnerMap1 = """{"%s":{"%s":}}""".format(k, v)
+        val unfinishedInnerMap2 = """{"%s":{"%s":"%s"}""".format(k, v, v)
+        val unfinishedInnerMap3 = """{"%s":"%s":"%s"}}""".format(k, v, v)
+
+        (fromJson[Map[String, String]](unquotedKey) must beFailedTry) and
+          (fromJson[Map[String, String]](partiallyQuotedKey1) must beFailedTry) and
+          (fromJson[Map[String, String]](partiallyQuotedKey2) must beFailedTry) and
+          (fromJson[Map[String, String]](unquotedStringValue) must beFailedTry) and
+          (fromJson[Map[String, String]](partiallyQuotedStringValue1) must beFailedTry) and
+          (fromJson[Map[String, String]](partiallyQuotedStringValue2) must beFailedTry) and
+          (fromJson[Map[String, String]](noOpeningBrace) must beFailedTry) and
+          (fromJson[Map[String, String]](noClosingBrace) must beFailedTry) and
+          (fromJson[Map[String, List[String]]](unfinishedInnerList1) must beFailedTry) and
+          (fromJson[Map[String, List[String]]](unfinishedInnerList2) must beFailedTry) and
+          (fromJson[Map[String, Map[String, String]]](unfinishedInnerMap1) must beFailedTry) and
+          (fromJson[Map[String, Map[String, String]]](unfinishedInnerMap2) must beFailedTry) and
+          (fromJson[Map[String, Map[String, String]]](unfinishedInnerMap3) must beFailedTry)
+      }
+    }
+
+    case class MismatchedTypes() {
+      def fails = forAll(genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (k, v) =>
+        val to = toJson(Map(k -> v)).get
+
+        // Note: if instead `v` were an Int, and `fromJson[Map[String, String]]` were used,
+        // Jackson would attempt to convert the value to a String, which would be a Success
+        val from = fromJson[Map[String, Int]](to)
+
+        from must beFailedTry
+      }
+    }
+
+    case class MissingAnyVal() {
+      import JsonUtilSpecs._
+      def ok = forAll(genNonEmptyAlphaNumStr) { k =>
+        val from = fromJson[TwoMemberMixedBasicData]("""{"one":"%s"}""".format(k)).get
+
+        // this is a known Jackson quirk: missing AnyVals in case classes get instantiated at default values, e.g. 0
+        from must beEqualTo(TwoMemberMixedBasicData(k, 0))
+      }
+    }
+
+    case class MissingAnyRef() {
+      import JsonUtilSpecs._
+      def ok = forAll(arbitrary[Int]) { k =>
+        val from = fromJson[TwoMemberMixedBasicData]("""{"two":%d}""".format(k)).get
+
+        // this is another known Jackson quirk: missing AnyRefs in case classes come in as `null`
+        from must beEqualTo(TwoMemberMixedBasicData(null, k))
       }
     }
   }
