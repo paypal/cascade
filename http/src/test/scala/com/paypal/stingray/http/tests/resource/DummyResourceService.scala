@@ -5,15 +5,18 @@ import com.paypal.stingray.http.tests.TestServiceNameComponent
 import com.paypal.stingray.common.values.StaticValuesFromServiceNameComponent
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 4/4/13
- * Time: 5:17 PM
+ * A dummy resource service implementation for use with [[com.paypal.stingray.http.tests.resource.DummyResource]].
+ * Only accepts requests to the "/ping" endpoint.
  */
-trait DummyResourceService extends ResourceService with TestServiceNameComponent with StaticValuesFromServiceNameComponent {
+trait DummyResourceService
+  extends ResourceService
+  with TestServiceNameComponent
+  with StaticValuesFromServiceNameComponent {
 
+  /** This resource */
   val dummy = new DummyResource
 
+  /** The route for this resource */
   override val route = {
     path("ping") {
       get {

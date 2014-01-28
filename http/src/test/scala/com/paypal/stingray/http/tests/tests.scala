@@ -4,15 +4,8 @@ import org.scalacheck.Gen
 import com.paypal.stingray.http.server.exception.ServiceException
 
 /**
- * Created by IntelliJ IDEA.
- *
- * com.paypal.stingray.http.tests
- *
- * User: aaron
- * Date: 7/5/12
- * Time: 2:37 PM
+ * Convenience methods for testing services
  */
-
 package object tests {
 
   def genServiceError[T <: ServiceException](implicit m: Manifest[T]): Gen[T] = {

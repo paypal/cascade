@@ -6,20 +6,13 @@ import com.paypal.stingray.common.logging.LoggingSugar
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
 import org.scalacheck.Gen._
-import com.paypal.stingray.common.url.StrPair
 import java.net.URLDecoder
+import com.paypal.stingray.http.url.StrPair
 import com.paypal.stingray.http.util.HttpUtil
 
 /**
- * Created by IntelliJ IDEA.
- *
- * com.paypal.stingray.common.tests.util
- *
- * User: aaron
- * Date: 7/13/12
- * Time: 1:26 PM
+ * Tests features of [[com.paypal.stingray.http.util.HttpUtil]]
  */
-
 class HttpUtilSpecs extends Specification with ScalaCheck { def is =
   "HttpUtilSpecs".title                                                                                                 ^
   """
