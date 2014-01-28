@@ -7,7 +7,6 @@ import spray.http.ContentTypes
 import spray.http.HttpEntity
 import spray.http.StatusCodes._
 import spray.routing._
-import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.service.ServiceNameComponent
 import com.paypal.stingray.common.values.{StaticValuesComponent, BuildStaticValues}
 import com.paypal.stingray.common.json._
@@ -19,19 +18,29 @@ import akka.actor.ActorSelection
 import akka.pattern.ask
 
 /**
- * Created with IntelliJ IDEA.
- * User: drapp
- * Date: 4/12/13
- * Time: 12:20 PM
+ * Base type for implementing resource-based services. Contains several often-used patterns, e.g. stats and status
+ * endpoints, and is driven by [[com.paypal.stingray.http.resource.ResourceDriver]].
+ *
+ * Implementing classes should override `route` with their own Spray route logic. This should serve as the top-most
+ * actor (or very close to top) in a Spray-based actor hierarchy, as it is the first point of entry into most services.
+ *
+ * See https://confluence.paypal.com/cnfl/display/stingray/AbstractResource%2C+ResourceDriver%2C+and+ResourceService
+ * for more information.
  */
-trait ResourceService extends HttpService with ResourceDriver {
-  this: StaticValuesComponent with ServiceNameComponent =>
+trait ResourceService
+  extends HttpService
+  with ResourceDriver {
+  this: StaticValuesComponent
+    with ServiceNameComponent =>
 
+  /** The execution context in which Futures will be executed */
   protected implicit def ec: ExecutionContext
 
+  /** A source of build-specific values for this service */
   protected lazy val bsvs = new BuildStaticValues(svs)
 
-  def route: Route
+  /** The routing rules for this service */
+  val route: Route
 
   private lazy val statusResponse = StatusResponse.getStatusResponse(bsvs, serviceName)
 
@@ -54,19 +63,30 @@ trait ResourceService extends HttpService with ResourceDriver {
           ctx.complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statsRespJson)))
         }
         case Failure(t) => {
-          val statsFailureJson = JsonUtil.toJson(Map("errors" -> List(Option(t.getMessage).getOrElse("")))).getOrElse(statsError)
-          ctx.complete(HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, statsFailureJson)))
+          val statsFailureJson =
+            JsonUtil.toJson(Map("errors" -> List(Option(t.getMessage).getOrElse("")))).getOrElse(statsError)
+          ctx.complete(
+            HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, statsFailureJson)))
         }
       }
     }
   }
 
-  protected lazy val unsealedFullRoute = statusRoute ~ statsRoute ~ route
+  /** The route before sealing into `fullRoute`. This should not be overridden. */
+  protected lazy val unsealedFullRoute: Route = statusRoute ~ statsRoute ~ route
 
-  lazy val fullRoute = sealRoute(unsealedFullRoute)
+  /** The route after sealing, which will be used to handle requests. This should not be overridden.*/
+  lazy val fullRoute: Route = sealRoute(unsealedFullRoute)
 
   /**
-   * Run the request on this resource, first applying a rewrite
+   * Run the request on this resource, first applying a rewrite. This should not be overridden.
+   * @param resource this resource
+   * @param rewrite a method by which to rewrite the request
+   * @tparam ParsedRequest the request after parsing
+   * @tparam AuthInfo the authorization container
+   * @tparam PostBody the POST body after parsing
+   * @tparam PutBody the PUT body after parsing
+   * @return the rewritten request execution
    */
   def serveWithRewrite[ParsedRequest, AuthInfo, PostBody, PutBody]
   (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody])
@@ -80,7 +100,14 @@ trait ResourceService extends HttpService with ResourceDriver {
   }
 
   /**
-   * Run the request on this resource
+   * Run the request on this resource. This should not be overridden.
+   * @param resource this resource
+   * @param pathParts the parsed path
+   * @tparam ParsedRequest the request after parsing
+   * @tparam AuthInfo the authorization container
+   * @tparam PostBody the POST body after parsing
+   * @tparam PutBody the PUT body after parsing
+   * @return the request execution
    */
   def serve[ParsedRequest, AuthInfo, PostBody, PutBody]
   (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],

@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory
 /**
  * Base class for HTTP resources built with Spray.
  *
+ * See https://confluence.paypal.com/cnfl/display/stingray/AbstractResource%2C+ResourceDriver%2C+and+ResourceService
+ * for more information.
+ *
  * @tparam ParsedRequest A representation of the request as this resource sees it. This should contain all the data
  *                       from the request needed by this resource to produce the response (except the body).
  *                       Use the type [[spray.http.HttpRequest]] and

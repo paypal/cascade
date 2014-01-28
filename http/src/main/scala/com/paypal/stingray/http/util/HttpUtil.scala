@@ -2,13 +2,22 @@ package com.paypal.stingray.http.util
 
 import java.net.URLDecoder
 
+/**
+ * Convenience methods for interacting with URLs and other request components.
+ *
+ * Methods found within [[spray.http]] objects should be preferred over these, wherever Spray objects are already
+ * in use. For example, if working with a [[spray.http.Uri]], prefer to access its query string pairs using
+ * [[spray.http.Uri.Query.toMap]] instead of using `parseQueryStringToMap` found here.
+ */
 object HttpUtil {
-  import com.paypal.stingray.common.url.StrPair
+  import com.paypal.stingray.http.url.StrPair
 
+  /** Convenience value for `utf-8` */
   val UTF_8 = "utf-8"
 
   /**
-   * parse a query string into a list of key-value pairs
+   * Parse a query string into a List of key-value String pairs
+   *
    * @param queryString the query string to parse (without the '?')
    * @return a list of (String, String), representing each key-value pair in the query string
    */
@@ -23,7 +32,7 @@ object HttpUtil {
   }
 
   /**
-   * Parse a query string into a map of key/value pairs. ignores invalid key-value pairs in the query string
+   * Parse a query string into a Map of key-value String pairs. Ignores invalid key-value pairs in the query string
    *
    * @param queryString the query string to parse, without the leading '?'
    * @return key/value pairs mapping to the items in the query string
@@ -44,6 +53,7 @@ object HttpUtil {
     }
   }
 
+  /** Convenience value for `application/x-www-form-urlencoded` */
   val FormURLEncodedContentType = "application/x-www-form-urlencoded"
 
   /**
@@ -56,7 +66,9 @@ object HttpUtil {
    * @param headers request headers
    * @return Map of parameter names to list of given values.
    */
-  def parseQueryStringAndBody(queryString: String, body: String, headers: Map[String, String]): Map[String, List[String]] = {
+  def parseQueryStringAndBody(queryString: String,
+                              body: String,
+                              headers: Map[String, String]): Map[String, List[String]] = {
     val params: Map[String, List[String]] = parseQueryStringToMap(queryString)
     Option(headers).map(_.get("content-type")).flatten match {
       case Some(contentType) if(contentType.startsWith(FormURLEncodedContentType)) => {
@@ -68,7 +80,14 @@ object HttpUtil {
     }
   }
 
-  def mergeParameters(m1: Map[String, List[String]], m2: Map[String, List[String]]): Map[String, List[String]] = {
+  /**
+   * Merge two parameter maps into one
+   * @param m1 the first map
+   * @param m2 the second map
+   * @return a merged map containing members from both maps
+   */
+  def mergeParameters(m1: Map[String, List[String]],
+                      m2: Map[String, List[String]]): Map[String, List[String]] = {
     val list: List[(String, List[String])] = m1.toList ++ m2.toList
     list.foldLeft(Map[String, List[String]]()) { (runningMap, currentElt) =>
       val (currentKey, currentList) = currentElt

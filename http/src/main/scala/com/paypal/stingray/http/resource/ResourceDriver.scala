@@ -7,29 +7,69 @@ import spray.http.StatusCodes._
 import spray.http.HttpHeaders._
 import com.paypal.stingray.common.logging.LoggingSugar
 import com.paypal.stingray.common.option._
-import com.paypal.stingray.common.json._
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.concurrent.Future
+
+/**
+ * Implementation of a basic HTTP request handling pipeline.
+ *
+ * Used in [[com.paypal.stingray.http.resource.ResourceService]] to push along HTTP requests. This trait should not
+ * normally be directly extended, but rather will be part of an extended ResourceService.
+ *
+ * See https://confluence.paypal.com/cnfl/display/stingray/AbstractResource%2C+ResourceDriver%2C+and+ResourceService
+ * for more information.
+ */
 
 trait ResourceDriver extends LoggingSugar {
 
   protected lazy val logger = getLogger[ResourceDriver]
 
-  def ensureAvailable(resource: AbstractResource[_, _, _, _]) = {
+  /**
+   * Continues execution if this resource is available, or halts
+   * @param resource this resource
+   * @return an empty Future
+   */
+  def ensureAvailable(resource: AbstractResource[_, _, _, _]): Future[Unit] = {
     import resource.context
     resource.available.orHaltWith(ServiceUnavailable)
   }
-  def ensureMethodSupported(resource: AbstractResource[_, _, _, _], method: HttpMethod) = {
+
+  /**
+   * Continues execution if this method is supported, or halts
+   * @param resource this resource
+   * @param method the method sent
+   * @return an empty Future
+   */
+  def ensureMethodSupported(resource: AbstractResource[_, _, _, _],
+                            method: HttpMethod): Future[Unit] = {
     import resource.context
     resource.supportedHttpMethods.contains(method).orHaltWith(MethodNotAllowed)
   }
 
-  def parseBody[T](request: HttpRequest, method: HttpMethod)(f: HttpRequest => Future[Option[T]]) = {
+  /**
+   * Attempts to parse this request body, if one exists
+   * @param request the request
+   * @param method the method sent
+   * @param f a function to parse this request body
+   * @tparam T the `ParsedRequest` type
+   * @return a Future with an optional parsed body, or None if parsing fails
+   */
+  def parseBody[T](request: HttpRequest, method: HttpMethod)
+                  (f: HttpRequest => Future[Option[T]]): Future[Option[T]] = {
     if(request.method == method) f(request)
     else none[T].continue
   }
 
-  def ensureAuthorized[PR, AI](resource: AbstractResource[PR, AI, _, _], parsedRequest: PR) = {
+  /**
+   * Continues execution and yields an `AuthInfo` if this method is authorized, or halts
+   * @param resource this resource
+   * @param parsedRequest the request after parsing
+   * @tparam PR the `ParsedRequest` type
+   * @tparam AI the `AuthInfo` type
+   * @return a Future containing an `AuthInfo` object, or a failure
+   */
+  def ensureAuthorized[PR, AI](resource: AbstractResource[PR, AI, _, _],
+                               parsedRequest: PR): Future[AI] = {
     import resource.context
     for {
       authInfoOpt <- resource.isAuthorized(parsedRequest)
@@ -37,7 +77,18 @@ trait ResourceDriver extends LoggingSugar {
     } yield authInfo
   }
 
-  def ensureNotForbidden[PR, AI](resource: AbstractResource[PR, AI, _, _], parsedRequest: PR, authInfo: AI) = {
+  /**
+   * Continues execution if this resource is not forbidden to the requester, or halts
+   * @param resource this resource
+   * @param parsedRequest the request after parsing
+   * @param authInfo the `AuthInfo` after authorization
+   * @tparam PR the `ParsedRequest` type
+   * @tparam AI the `AuthInfo` theype
+   * @return an empty Future
+   */
+  def ensureNotForbidden[PR, AI](resource: AbstractResource[PR, AI, _, _],
+                                 parsedRequest: PR,
+                                 authInfo: AI): Future[Unit] = {
     import resource.context
     for {
       isForbidden <- resource.isForbidden(parsedRequest, authInfo)
@@ -45,19 +96,41 @@ trait ResourceDriver extends LoggingSugar {
     } yield ()
   }
 
-  def ensureContentTypeSupported(resource: AbstractResource[_, _, _, _], request: HttpRequest) = {
+  /**
+   * Continues execution if this resource supports the content type sent in the request, or halts
+   * @param resource this resource
+   * @param request the request
+   * @return an empty Future
+   */
+  def ensureContentTypeSupported(resource: AbstractResource[_, _, _, _],
+                                 request: HttpRequest): Future[Unit] = {
     request.entity match {
       case Empty => ().continue
       case NonEmpty(ct, _) => resource.acceptableContentTypes.contains(ct).orHaltWith(UnsupportedMediaType)
     }
   }
 
-  def ensureResponseContentTypeAcceptable(resource: AbstractResource[_, _, _, _], request: HttpRequest) = {
+  /**
+   * Continues execution if this resource can respond in a format that the requester can accept, or halts
+   * @param resource this resource
+   * @param request the request
+   * @return a Future containing the acceptable content type found, or a failure
+   */
+  def ensureResponseContentTypeAcceptable(resource: AbstractResource[_, _, _, _],
+                                          request: HttpRequest): Future[ContentType] = {
     import resource.context
     request.acceptableContentType(List(resource.responseContentType)).orHaltWith(NotAcceptable)
   }
 
-  def addHeaderOnCode(response: HttpResponse, status: StatusCode)(header: => HttpHeader) = {
+  /**
+   * Given a matching HTTP response code, add the given header to that response
+   * @param response the initial response
+   * @param status the response status code
+   * @param header the header to conditionally add
+   * @return a possibly modified response
+   */
+  def addHeaderOnCode(response: HttpResponse, status: StatusCode)
+                     (header: => HttpHeader): HttpResponse = {
     if(response.status == status) {
       response.withHeaders(header :: response.headers)
     } else {
@@ -66,6 +139,17 @@ trait ResourceDriver extends LoggingSugar {
 
   }
 
+  /**
+   * Main driver for HTTP requests
+   * @param request the incoming request
+   * @param resource this resource
+   * @param pathParts the parsed path
+   * @tparam ParsedRequest the request after parsing
+   * @tparam AuthInfo the authorization container
+   * @tparam PostBody the POST body after parsing
+   * @tparam PutBody the PUT body after parsing
+   * @return a Future containing an HttpResponse
+   */
   def serveSync[ParsedRequest, AuthInfo, PostBody, PutBody](request: HttpRequest,
                                                             resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
                                                             pathParts: Map[String, String]): Future[HttpResponse] = {
