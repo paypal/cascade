@@ -81,7 +81,7 @@ package object casts {
   }
 
   /**
-   * Wrapper to allow any Option to cast its inner object, if it exists 
+   * Wrapper to allow any Option to cast its inner object, if it exists
    * @param opt the Option whose inner object will be cast
    */
   implicit class CastableOption(opt: Option[_]) {
@@ -89,8 +89,8 @@ package object casts {
     /**
      * Cast the Option's inner object as type `T`, returning a new Option with the cast value if the cast
      * was successful, or None if not
-     * @tparam T the type to which this wrapped Option's inner value will be cast 
-     * @return a new Option with the cast value, or None if the cast was unsuccessful or `opt` was None 
+     * @tparam T the type to which this wrapped Option's inner value will be cast
+     * @return a new Option with the cast value, or None if the cast was unsuccessful or `opt` was None
      */
     def cast[T : ClassTag]: Option[T] = {
       opt.flatMap(_.cast[T])
@@ -98,7 +98,7 @@ package object casts {
 
     /**
      * Cast the Option's inner object as type `T`, returning a new Option with the cast value if the cast
-     * was successful and `pred` is then satisfied, or None if not 
+     * was successful and `pred` is then satisfied, or None if not
      * @param pred the function to be satisfied, based on some value of type `T`
      * @tparam T the type to which this wrapped Option's inner value will be cast
      * @return a new Option with the cast value, or None if the cast was unsuccessful, `pred` was not satisfied,

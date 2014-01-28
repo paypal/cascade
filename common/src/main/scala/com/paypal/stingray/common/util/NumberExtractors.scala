@@ -33,7 +33,7 @@ object IntExtractor {
 
 /**
  * Convenience object for working with Long values
- * 
+ *
  * {{{
  *   import com.paypal.stingray.common.util.LongExtractor
  *

@@ -56,8 +56,11 @@ trait ResourceDriver extends LoggingSugar {
    */
   def parseBody[T](request: HttpRequest, method: HttpMethod)
                   (f: HttpRequest => Future[Option[T]]): Future[Option[T]] = {
-    if(request.method == method) f(request)
-    else none[T].continue
+    if(request.method == method) {
+      f(request)
+    } else {
+      none[T].continue
+    }
   }
 
   /**

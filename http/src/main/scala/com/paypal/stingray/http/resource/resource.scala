@@ -35,7 +35,7 @@ package object resource {
    */
   def halt[T](status: StatusCode,
               entity: HttpEntity = Empty,
-              headers: List[HttpHeader] = Nil) = none[T].orHaltWith(status, entity, headers)
+              headers: List[HttpHeader] = Nil): Future[T] = none[T].orHaltWith(status, entity, headers)
 
   /**
    * Implicit wrapper to allow optional values to halt or throw
@@ -365,7 +365,7 @@ package object resource {
      * Wraps this object in a successful Future
      * @return the wrapped, successful Future
      */
-    def continue = Future.successful(v)
+    def continue: Future[T] = Future.successful(v)
   }
 
   /**

@@ -13,7 +13,7 @@ package object option {
    * @tparam T the Option type
    * @return a None of type Option[T]
    */
-  def none[T] = None: Option[T]
+  def none[T]: Option[T] = None: Option[T]
 
   /**
    * Allows any object to be wrapped in a Some or an Option. Note that some objects provide their own
