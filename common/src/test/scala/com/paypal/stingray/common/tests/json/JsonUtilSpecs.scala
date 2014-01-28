@@ -7,6 +7,7 @@ import org.specs2._
 import org.scalacheck.Gen._
 import org.scalacheck.Prop._
 import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen
 
 /**
  * Tests that exercise methods in [[com.paypal.stingray.common.json.JsonUtil]]
@@ -33,15 +34,16 @@ class JsonUtilSpecs
 
   JsonUtil should serialize and deserialize case classes, such as
     a case class containing a single data member                             ${CaseClasses.OneMember().ok}
-    a case class containing multiple members of mixed basic types
-    a case class containing mutliple members of mixed complex types
-    a case class containing mixed types, including optional types
+    a case class containing multiple members of mixed basic types            ${CaseClasses.TwoMemberMixedBasic().ok}
+    a case class containing mutliple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
 
   JsonUtil should fail to deserialize
     malformed json
     json that does not correspond to a given specified type
     json that corresponds to only some data members in a specified type
   """
+
+  //TODO: tests using optional types
 
   object BasicTypes {
 
@@ -145,8 +147,8 @@ class JsonUtilSpecs
   }
 
   object CaseClasses {
+    import JsonUtilSpecs._
 
-    case class OneMemberData(value: String)
     case class OneMember() {
       def ok = forAll(genNonEmptyAlphaStr) { v =>
         val to = toJson(OneMemberData(v)).get
@@ -156,5 +158,35 @@ class JsonUtilSpecs
           (from must beEqualTo(OneMemberData(v)))
       }
     }
+
+    case class TwoMemberMixedBasic() {
+      def ok = forAll(genNonEmptyAlphaNumStr, arbitrary[Int]) { (s, i) =>
+        val to = toJson(TwoMemberMixedBasicData(s, i)).get
+        val from = fromJson[TwoMemberMixedBasicData](to).get
+
+        (to must beEqualTo("""{"one":"%s","two":%d}""".format(s, i))) and
+          (from must beEqualTo(TwoMemberMixedBasicData(s, i)))
+      }
+    }
+
+    lazy val genStringIntPair: Gen[(String, Int)] = for {
+      s <- genNonEmptyAlphaNumStr
+      i <- arbitrary[Int]
+    } yield (s, i)
+    case class TwoMemberMixedComplex() {
+      def ok = forAll(genNonEmptyAlphaNumStr, genNonEmptyAlphaNumStr, genNonEmptyAlphaNumStr, arbitrary[Int]) { (li1, li2, k, v) =>
+        val to = toJson(TwoMemberMixedComplexData(List(li1, li2), Map(k -> v))).get
+        val from = fromJson[TwoMemberMixedComplexData](to).get
+
+        (to must beEqualTo("""{"one":["%s","%s"],"two":{"%s":%d}}""".format(li1, li2, k, v))) and
+          (from must beEqualTo(TwoMemberMixedComplexData(List(li1, li2), Map(k -> v))))
+      }
+    }
   }
+}
+
+object JsonUtilSpecs {
+  case class OneMemberData(value: String)
+  case class TwoMemberMixedBasicData(one: String, two: Int)
+  case class TwoMemberMixedComplexData(one: List[String], two: Map[String, Int])
 }
