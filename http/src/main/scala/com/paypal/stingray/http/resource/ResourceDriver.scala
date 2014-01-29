@@ -9,6 +9,7 @@ import com.paypal.stingray.common.logging.LoggingSugar
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.concurrent.Future
+import spray.http.Uri.Path
 
 /**
  * Implementation of a basic HTTP request handling pipeline.
@@ -191,12 +192,19 @@ trait ResourceDriver extends LoggingSugar {
       }
     } yield {
       val responseWithLocation = addHeaderOnCode(httpResponse, Created) {
-        val scheme = request.headers.find(_.name == "X-Forwarded-Proto").map(_.value).getOrElse("http")
-        // TODO: there is probably a better way to do this using Spray itself
-        Location(Uri(s"$scheme://${request.uri.authority.host}:${request.uri.effectivePort}${request.uri.path}${location.map("/" + _).getOrElse("")}"))
+        // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
+        val newScheme = request.headers.find(_.name == "X-Forwarded-Proto").map(_.value).getOrElse(request.uri.scheme)
+
+        // if we created something, `location` will have more information to append to the response path
+        val newPath = Path(request.uri.path.toString + location.map("/" + _).getOrElse(""))
+
+        // copy the request uri, replacing scheme and path as needed, and return a `Location` header with the new uri
+        val newUri = request.uri.copy(scheme = newScheme, path = newPath)
+        Location(newUri)
       }
       // Just force the request to the right content type
-      responseWithLocation.withEntity(responseWithLocation.entity.flatMap((entity: NonEmpty) => HttpEntity(resource.responseContentType, entity.data)))
+      responseWithLocation.withEntity(responseWithLocation.entity.flatMap((entity: NonEmpty) =>
+        HttpEntity(resource.responseContentType, entity.data)))
     }).recover {
       case e: HaltException =>
         val response = addHeaderOnCode(e.response, Unauthorized) {
