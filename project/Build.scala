@@ -158,7 +158,6 @@ object Dependencies {
   lazy val httpDependencies = Seq(
     sprayCan,
     sprayRouting,
-    akka,
     logback
   )
 
