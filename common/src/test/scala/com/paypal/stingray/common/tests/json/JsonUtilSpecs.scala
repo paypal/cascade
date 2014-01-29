@@ -1,6 +1,5 @@
 package com.paypal.stingray.common.tests.json
 
-import com.paypal.stingray.common.json._
 import com.paypal.stingray.common.json.JsonUtil._
 import com.paypal.stingray.common.tests.scalacheck._
 import org.specs2._
@@ -39,12 +38,15 @@ class JsonUtilSpecs
     a case class containing an optional AnyVal type                          ${CaseClasses.OptionalAnyValMember().ok}
     a case class containing an optional AnyRef type                          ${CaseClasses.OptionalAnyRefMember().ok}
     a case class containing another case class                               ${CaseClasses.NestedClasses().ok}
+    a case class containing an optional case class                           ${CaseClasses.OptionalNested().ok}
 
   JsonUtil should
     not deserialize malformed json                                           ${Badness.MalformedJson().fails}
     not deserialize json that is type mismatched                             ${Badness.MismatchedTypes().fails}
     deserialize json that is missing an AnyVal, with a default value         ${Badness.MissingAnyVal().ok}
     deserialize json that is missing an AnyRef, with a null value            ${Badness.MissingAnyRef().ok}
+    fail to correctly ser/deser a list of options                            ${Badness.ListOption().fails}
+    fail to correctly ser/deser a case class containing a list of options    ${Badness.ListOptionMember().fails}
   """
 
   object BasicTypes {
@@ -171,10 +173,6 @@ class JsonUtilSpecs
       }
     }
 
-    lazy val genStringIntPair: Gen[(String, Int)] = for {
-      s <- genNonEmptyAlphaNumStr
-      i <- arbitrary[Int]
-    } yield (s, i)
     case class TwoMemberMixedComplex() {
       def ok = forAll(genNonEmptyAlphaNumStr, genNonEmptyAlphaNumStr, genNonEmptyAlphaNumStr, arbitrary[Int]) { (li1, li2, k, v) =>
         val to = toJson(TwoMemberMixedComplexData(List(li1, li2), Map(k -> v))).get
@@ -228,9 +226,22 @@ class JsonUtilSpecs
           (from must beEqualTo(NestedOuter(NestedInner(s))))
       }
     }
+
+    lazy val genNestedInner: Gen[NestedInner] = for {
+      s <- genNonEmptyAlphaNumStr
+    } yield NestedInner(s)
+    case class OptionalNested() {
+      def ok = forAll(option(genNestedInner)) { mbN =>
+        val to = toJson(OptionalInner(mbN)).get
+        val from = fromJson[OptionalInner](to).get
+
+        from must beEqualTo(OptionalInner(mbN))
+      }
+    }
   }
 
   object Badness {
+    import JsonUtilSpecs._
 
     case class MalformedJson() {
       def fails = forAll(genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (k, v) =>
@@ -277,7 +288,6 @@ class JsonUtilSpecs
     }
 
     case class MissingAnyVal() {
-      import JsonUtilSpecs._
       def ok = forAll(genNonEmptyAlphaNumStr) { k =>
         val from = fromJson[TwoMemberMixedBasicData]("""{"one":"%s"}""".format(k)).get
 
@@ -287,12 +297,31 @@ class JsonUtilSpecs
     }
 
     case class MissingAnyRef() {
-      import JsonUtilSpecs._
       def ok = forAll(arbitrary[Int]) { k =>
         val from = fromJson[TwoMemberMixedBasicData]("""{"two":%d}""".format(k)).get
 
         // this is another known Jackson quirk: missing AnyRefs in case classes come in as `null`
         from must beEqualTo(TwoMemberMixedBasicData(null, k))
+      }
+    }
+
+    case class ListOption() {
+      def fails = forAll(nonEmptyListOf(const[Option[String]](None))) { l =>
+        val to = toJson(l).get
+        val from = fromJson[List[Option[String]]](to).get
+
+        // Jackson will ser None as null, but then fail to deser it back to None, instead leaving it as null
+        from.toSeq must not(containTheSameElementsAs(l.toSeq))
+      }
+    }
+
+    case class ListOptionMember() {
+      def fails = forAll(nonEmptyListOf(const[Option[String]](None))) { l =>
+        val to = toJson(ListOptionData(l)).get
+        val from = fromJson[ListOptionData](to).get
+
+        // Jackson will ser None as null, but then fail to deser it back to None, instead leaving it as null
+        from.l.toSeq must not(containTheSameElementsAs(l.toSeq))
       }
     }
   }
@@ -304,6 +333,8 @@ object JsonUtilSpecs {
   case class TwoMemberMixedComplexData(one: List[String], two: Map[String, Int])
   case class OptionalAnyValData(one: String, mbTwo: Option[Int])
   case class OptionalAnyRefData(mbOne: Option[String], two: Int)
+  case class OptionalInner(mbInner: Option[NestedInner])
+  case class ListOptionData(l: List[Option[String]])
   case class NestedInner(one: String)
   case class NestedOuter(inner: NestedInner)
 }
