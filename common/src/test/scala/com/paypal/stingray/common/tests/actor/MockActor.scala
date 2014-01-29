@@ -18,9 +18,9 @@ trait MockActor {
    * A stubbed actor generator, yielding actors that extend [[TestProbe]] with configurable message logic
    * @param expect a partial function that specifies logic for incoming messages
    * @tparam T the response message type
-   * @return a TestProbe ActorRef with `expect` logic embedded, ready for testing
+   * @return a TestProbe with `expect` logic embedded, ready for testing
    */
-  protected def mockActor[T](expect: PartialFunction[Any, T]): TestProbe = {
+  protected def mockActorWithProbe[T](expect: PartialFunction[Any, T]): TestProbe = {
     val probe = TestProbe()
     probe.setAutoPilot(new TestActor.AutoPilot {
 
@@ -38,5 +38,13 @@ trait MockActor {
     })
     probe
   }
+
+  /**
+   * A wrapper to [[mockActorWithProbe]] that yields the probe's ActorRef instead
+   * @param expect a partial function that specifies logic for incoming messages
+   * @tparam T the response message type
+   * @return a TestProbe ActorRef with `expect` logic embedded, ready for testing
+   */
+  protected def mockActor[T](expect: PartialFunction[Any, T]): ActorRef = mockActorWithProbe(expect).ref
 
 }
