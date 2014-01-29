@@ -36,9 +36,6 @@ package object scalacheck {
   // an optimization over letting Scalacheck try to create these objects
   private lazy val unicodeChars = (Character.MIN_VALUE to Character.MAX_VALUE).filter(Character.isDefined(_)).toArray
 
-  /** Any legal Unicode character, including control characters */
-  lazy val unicodeChar: Gen[Char] = choose(0, unicodeChars.size - 1).map(unicodeChars(_))
-
   // all used inside `isAUnicodeControlChar`
   private lazy val unicodeC0C1ControlCodes = 0x007F :: (0x0000 to 0x001F).toList
   private lazy val unicodeNewlines = (0x2028 to 0x2029).toList
@@ -68,10 +65,10 @@ package object scalacheck {
   private lazy val jsonChars = unicodeChars.filter(c => !isAUnicodeControlChar(c) && c != '\\' && c != '\"')
 
   /** Any legal JSON character: any Unicode, non-control, not a double-quote, not a backslash */
-  lazy val jsonChar: Gen[Char] = choose(0, jsonChars.size - 1).map(jsonChars(_))
+  lazy val genJsonChar: Gen[Char] = choose(0, jsonChars.size - 1).map(jsonChars(_))
 
   /** Legal JSON strings */
-  lazy val jsonString: Gen[String] = nonEmptyListOf(jsonChar).map(_.mkString)
+  lazy val genJsonString: Gen[String] = nonEmptyListOf(genJsonChar).map(_.mkString)
 
   /**
    * Generates a List[T] of size between `min` and `max`

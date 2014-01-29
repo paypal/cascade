@@ -20,14 +20,13 @@ trait MockActor {
    * @tparam T the response message type
    * @return a TestProbe ActorRef with `expect` logic embedded, ready for testing
    */
-  protected def mockActor[T](expect: PartialFunction[Any, T]): ActorRef = {
+  protected def mockActor[T](expect: PartialFunction[Any, T]): TestProbe = {
     val probe = TestProbe()
     probe.setAutoPilot(new TestActor.AutoPilot {
 
       def invalidMessage(msg: Any): T = throw new IllegalStateException(s"Invalid message sent $msg")
 
-      override def run(sender: ActorRef,
-                       msg: Any): TestActor.AutoPilot = {
+      override def run(sender: ActorRef, msg: Any): TestActor.AutoPilot = {
         implicit val ec = actorSystem.dispatchers.lookup(CallingThreadDispatcher.Id)
 
         Try { expect.applyOrElse(msg, invalidMessage) } match {
@@ -37,7 +36,7 @@ trait MockActor {
         TestActor.KeepRunning
       }
     })
-    probe.ref
+    probe
   }
 
 }
