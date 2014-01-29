@@ -118,22 +118,34 @@ class JsonUtilSpecs
     }
 
     case class StringToListString() {
-      def ok = forAll(genNonEmptyAlphaStr, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (k, v1, v2) =>
-        val to = toJson(Map(k -> List(v1, v2))).get
+      def ok = forAll(genNonEmptyAlphaStr, nonEmptyListOf(genNonEmptyAlphaStr)) { (k, l) =>
+        val to = toJson(Map(k -> l)).get
         val from = fromJson[Map[String, List[String]]](to).get
 
-        (to must beEqualTo("""{"%s":["%s","%s"]}""".format(k, v1, v2))) and
-          (from must havePair(k -> List(v1, v2)))
+        val listJson = (for {
+          li <- l
+        } yield """"%s"""".format(li)).mkString(",")
+
+        (to must beEqualTo("""{"%s":[%s]}""".format(k, listJson))) and
+          (from.get(k) must beSome.like { case lst =>
+            lst.toSeq must containTheSameElementsAs(l.toSeq)
+          })
       }
     }
 
     case class StringToListInt() {
-      def ok = forAll(genNonEmptyAlphaStr, arbitrary[Int], arbitrary[Int]) { (k, v1, v2) =>
-        val to = toJson(Map(k -> List(v1, v2))).get
+      def ok = forAll(genNonEmptyAlphaStr, nonEmptyListOf(arbitrary[Int])) { (k, l) =>
+        val to = toJson(Map(k -> l)).get
         val from = fromJson[Map[String, List[Int]]](to).get
 
-        (to must beEqualTo("""{"%s":[%d,%d]}""".format(k, v1, v2))) and
-          (from must havePair(k -> List(v1, v2)))
+        val listJson = (for {
+          li <- l
+        } yield s"$li").mkString(",")
+
+        (to must beEqualTo("""{"%s":[%s]}""".format(k, listJson))) and
+          (from.get(k) must beSome.like { case lst =>
+            lst.toSeq must containTheSameElementsAs(l.toSeq)
+          })
       }
     }
 
