@@ -36,6 +36,9 @@ class JsonUtilSpecs
     a case class containing a single data member                             ${CaseClasses.OneMember().ok}
     a case class containing multiple members of mixed basic types            ${CaseClasses.TwoMemberMixedBasic().ok}
     a case class containing mutliple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
+    a case class containing an optional AnyVal type                          ${CaseClasses.OptionalAnyValMember().ok}
+    a case class containing an optional AnyRef type                          ${CaseClasses.OptionalAnyRefMember().ok}
+    a case class containing another case class                               ${CaseClasses.NestedClasses().ok}
 
   JsonUtil should
     not deserialize malformed json                                           ${Badness.MalformedJson().fails}
@@ -44,12 +47,10 @@ class JsonUtilSpecs
     deserialize json that is missing an AnyRef, with a null value            ${Badness.MissingAnyRef().ok}
   """
 
-  //TODO: tests using optional types
-
   object BasicTypes {
 
     case class Strings() {
-      def ok = forAll(genNonEmptyAlphaStr) { str =>  // TODO: write valid json chars generator
+      def ok = forAll(genNonEmptyAlphaStr) { str =>  // TODO: write exhaustive json chars generator
         val to = toJson(str).get
         val from = fromJson[String](to).get
         // for whatever reason, the compiler balks on string interpolation here
@@ -183,6 +184,50 @@ class JsonUtilSpecs
           (from must beEqualTo(TwoMemberMixedComplexData(List(li1, li2), Map(k -> v))))
       }
     }
+
+    case class OptionalAnyValMember() {
+      def ok = forAll(genNonEmptyAlphaStr, option(arbitrary[Int])) { (s, mbInt) =>
+        val to = toJson(OptionalAnyValData(s, mbInt)).get
+        val from = fromJson[OptionalAnyValData](to).get
+
+        // Note: Jackson serializes None as null, so `mbTwo` will always be present as a key,
+        // but possibly with a null value
+        val mbIntToJson = mbInt match {
+          case None => "null"
+          case Some(i) => s"$i"
+        }
+
+        (to must beEqualTo("""{"one":"%s","mbTwo":%s}""".format(s, mbIntToJson))) and
+          (from must beEqualTo(OptionalAnyValData(s, mbInt)))
+      }
+    }
+
+    case class OptionalAnyRefMember() {
+      def ok = forAll(option(genNonEmptyAlphaStr), arbitrary[Int]) { (mbStr, i) =>
+        val to = toJson(OptionalAnyRefData(mbStr, i)).get
+        val from = fromJson[OptionalAnyRefData](to).get
+
+        // Note: Jackson serializes None as null, so `mbOne` will always be present as a key,
+        // but possibly with a null value
+        val mbStrToJson = mbStr match {
+          case None => "null"
+          case Some(str) => """"%s"""".format(str)
+        }
+
+        (to must beEqualTo("""{"mbOne":%s,"two":%d}""".format(mbStrToJson, i))) and
+          (from must beEqualTo(OptionalAnyRefData(mbStr, i)))
+      }
+    }
+
+    case class NestedClasses() {
+      def ok = forAll(genNonEmptyAlphaStr) { s =>
+        val to = toJson(NestedOuter(NestedInner(s))).get
+        val from = fromJson[NestedOuter](to).get
+
+        (to must beEqualTo("""{"inner":{"one":"%s"}}""".format(s))) and
+          (from must beEqualTo(NestedOuter(NestedInner(s))))
+      }
+    }
   }
 
   object Badness {
@@ -257,4 +302,8 @@ object JsonUtilSpecs {
   case class OneMemberData(value: String)
   case class TwoMemberMixedBasicData(one: String, two: Int)
   case class TwoMemberMixedComplexData(one: List[String], two: Map[String, Int])
+  case class OptionalAnyValData(one: String, mbTwo: Option[Int])
+  case class OptionalAnyRefData(mbOne: Option[String], two: Int)
+  case class NestedInner(one: String)
+  case class NestedOuter(inner: NestedInner)
 }
