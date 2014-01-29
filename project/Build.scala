@@ -141,6 +141,7 @@ object Dependencies {
   )
 
   lazy val commonDependencies = Seq(
+    akka,
     scalaReflect,
     slf4j,
     commonsCodec,

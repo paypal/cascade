@@ -1,4 +1,4 @@
-package com.paypal.stingray.http.actor
+package com.paypal.stingray.common.actor
 
 import akka.actor.{ActorLogging, Actor, Status}
 
@@ -61,7 +61,7 @@ trait ServiceActor extends CommonActor {
    *
    * 1) Publishes an unhandled message to the actor system's event stream.
    * 2) Replies with a [[akka.actor.Status.Failure]] message to the sender.
-   * 3) Throws an [[com.paypal.stingray.http.actor.UnhandledMessageException]] for delegation to the supervisor.
+   * 3) Throws an [[com.paypal.stingray.common.actor.UnhandledMessageException]] for delegation to the supervisor.
    */
   @throws(classOf[UnhandledMessageException])
   override def unhandled(message: Any) {
