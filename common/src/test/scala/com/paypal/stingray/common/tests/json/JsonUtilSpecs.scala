@@ -52,7 +52,7 @@ class JsonUtilSpecs
   object BasicTypes {
 
     case class Strings() {
-      def ok = forAll(genNonEmptyAlphaStr) { str =>  // TODO: write exhaustive json chars generator
+      def ok = forAll(jsonString) { str =>
         val to = toJson(str).get
         val from = fromJson[String](to).get
         // for whatever reason, the compiler balks on string interpolation here
@@ -97,7 +97,7 @@ class JsonUtilSpecs
   object Maps {
 
     case class StringToString() {
-      def ok = forAll(genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (k, v) =>
+      def ok = forAll(jsonString, jsonString) { (k, v) =>
         val to = toJson(Map(k -> v)).get
         val from = fromJson[Map[String, String]](to).get
 
@@ -108,7 +108,7 @@ class JsonUtilSpecs
     }
 
     case class StringToInt() {
-      def ok = forAll(genNonEmptyAlphaStr, arbitrary[Int]) { (k, v) =>
+      def ok = forAll(jsonString, arbitrary[Int]) { (k, v) =>
         val to = toJson(Map(k -> v)).get
         val from = fromJson[Map[String, Int]](to).get
 
@@ -118,7 +118,7 @@ class JsonUtilSpecs
     }
 
     case class StringToListString() {
-      def ok = forAll(genNonEmptyAlphaStr, nonEmptyListOf(genNonEmptyAlphaStr)) { (k, l) =>
+      def ok = forAll(jsonString, nonEmptyListOf(jsonString)) { (k, l) =>
         val to = toJson(Map(k -> l)).get
         val from = fromJson[Map[String, List[String]]](to).get
 
@@ -134,7 +134,7 @@ class JsonUtilSpecs
     }
 
     case class StringToListInt() {
-      def ok = forAll(genNonEmptyAlphaStr, nonEmptyListOf(arbitrary[Int])) { (k, l) =>
+      def ok = forAll(jsonString, nonEmptyListOf(arbitrary[Int])) { (k, l) =>
         val to = toJson(Map(k -> l)).get
         val from = fromJson[Map[String, List[Int]]](to).get
 
@@ -150,7 +150,7 @@ class JsonUtilSpecs
     }
 
     case class StringToMapStringString() {
-      def ok = forAll(genNonEmptyAlphaStr, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (k, k1, v1) =>
+      def ok = forAll(jsonString, jsonString, jsonString) { (k, k1, v1) =>
         val to = toJson(Map(k -> Map(k1 -> v1))).get
         val from = fromJson[Map[String, Map[String, String]]](to).get
 
@@ -166,7 +166,7 @@ class JsonUtilSpecs
     import JsonUtilSpecs._
 
     case class OneMember() {
-      def ok = forAll(genNonEmptyAlphaStr) { v =>
+      def ok = forAll(jsonString) { v =>
         val to = toJson(OneMemberData(v)).get
         val from = fromJson[OneMemberData](to).get
 
@@ -176,7 +176,7 @@ class JsonUtilSpecs
     }
 
     case class TwoMemberMixedBasic() {
-      def ok = forAll(genNonEmptyAlphaNumStr, arbitrary[Int]) { (s, i) =>
+      def ok = forAll(jsonString, arbitrary[Int]) { (s, i) =>
         val to = toJson(TwoMemberMixedBasicData(s, i)).get
         val from = fromJson[TwoMemberMixedBasicData](to).get
 
@@ -186,7 +186,7 @@ class JsonUtilSpecs
     }
 
     case class TwoMemberMixedComplex() {
-      def ok = forAll(genNonEmptyAlphaNumStr, genNonEmptyAlphaNumStr, genNonEmptyAlphaNumStr, arbitrary[Int]) { (li1, li2, k, v) =>
+      def ok = forAll(jsonString, jsonString, jsonString, arbitrary[Int]) { (li1, li2, k, v) =>
         val to = toJson(TwoMemberMixedComplexData(List(li1, li2), Map(k -> v))).get
         val from = fromJson[TwoMemberMixedComplexData](to).get
 
@@ -196,7 +196,7 @@ class JsonUtilSpecs
     }
 
     case class OptionalAnyValMember() {
-      def ok = forAll(genNonEmptyAlphaStr, option(arbitrary[Int])) { (s, mbInt) =>
+      def ok = forAll(jsonString, option(arbitrary[Int])) { (s, mbInt) =>
         val to = toJson(OptionalAnyValData(s, mbInt)).get
         val from = fromJson[OptionalAnyValData](to).get
 
@@ -213,7 +213,7 @@ class JsonUtilSpecs
     }
 
     case class OptionalAnyRefMember() {
-      def ok = forAll(option(genNonEmptyAlphaStr), arbitrary[Int]) { (mbStr, i) =>
+      def ok = forAll(option(jsonString), arbitrary[Int]) { (mbStr, i) =>
         val to = toJson(OptionalAnyRefData(mbStr, i)).get
         val from = fromJson[OptionalAnyRefData](to).get
 
@@ -230,7 +230,7 @@ class JsonUtilSpecs
     }
 
     case class NestedClasses() {
-      def ok = forAll(genNonEmptyAlphaStr) { s =>
+      def ok = forAll(jsonString) { s =>
         val to = toJson(NestedOuter(NestedInner(s))).get
         val from = fromJson[NestedOuter](to).get
 
@@ -239,9 +239,10 @@ class JsonUtilSpecs
       }
     }
 
-    lazy val genNestedInner: Gen[NestedInner] = for {
-      s <- genNonEmptyAlphaNumStr
+    private lazy val genNestedInner: Gen[NestedInner] = for {
+      s <- jsonString
     } yield NestedInner(s)
+
     case class OptionalNested() {
       def ok = forAll(option(genNestedInner)) { mbN =>
         val to = toJson(OptionalInner(mbN)).get
@@ -256,7 +257,7 @@ class JsonUtilSpecs
     import JsonUtilSpecs._
 
     case class MalformedJson() {
-      def fails = forAll(genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (k, v) =>
+      def fails = forAll(jsonString, jsonString) { (k, v) =>
         val unquotedKey = """{%s:"%s"}""".format(k, v)
         val partiallyQuotedKey1 = """{"%s:"%s"}""".format(k, v)
         val partiallyQuotedKey2 = """{%s":"%s"}""".format(k, v)
@@ -288,7 +289,7 @@ class JsonUtilSpecs
     }
 
     case class MismatchedTypes() {
-      def fails = forAll(genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (k, v) =>
+      def fails = forAll(jsonString, jsonString) { (k, v) =>
         val to = toJson(Map(k -> v)).get
 
         // Note: if instead `v` were an Int, and `fromJson[Map[String, String]]` were used,
@@ -300,7 +301,7 @@ class JsonUtilSpecs
     }
 
     case class MissingAnyVal() {
-      def ok = forAll(genNonEmptyAlphaNumStr) { k =>
+      def ok = forAll(jsonString) { k =>
         val from = fromJson[TwoMemberMixedBasicData]("""{"one":"%s"}""".format(k)).get
 
         // this is a known Jackson quirk: missing AnyVals in case classes get instantiated at default values, e.g. 0
