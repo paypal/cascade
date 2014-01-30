@@ -2,6 +2,8 @@ import io.Source
 import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import de.johoop.jacoco4sbt._
+import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
 import org.scalastyle.sbt.ScalastylePlugin
 import sbtrelease._
@@ -41,6 +43,7 @@ object BuildSettings {
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     javaOptions in run ++= runArgs,
+    javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
     fork := true,
@@ -73,31 +76,26 @@ object BuildSettings {
 }
 
 object Dependencies {
+  import BuildSettings.scalaVsn // to maintain consistency with above scala version
+
   val slf4jVersion = "1.7.5"
-  val jacksonVersion = "1.9.9"
-  val fasterXmlJacksonVersion = "2.1.2"
-  val newmanVersion = "1.3.5"
-  val scaliakVersion = "0.9.0"
+  val fasterXmlJacksonVersion = "2.2.2"
   val sprayVersion = "1.2.0"
   val akkaVersion = "2.2.3"
+  val specsVersion = "2.3.7"
+  val parboiledVersion = "1.1.6"
 
+  lazy val scalaReflect        = "org.scala-lang"            % "scala-reflect"               % scalaVsn
 
-  lazy val slf4j               = "org.slf4j"                 % "slf4j-api"                   % slf4jVersion
-  lazy val newman              = "com.stackmob"              %% "newman"                     % newmanVersion exclude("com.twitter", "finagle-http_2.10") exclude("commons-codec", "commons-codec") exclude("org.scalaz", "scalaz-core_2.10")
-  lazy val xmemcached          = "com.googlecode.xmemcached" % "xmemcached"                  % "1.4.1" exclude("org.slf4j", "slf4j-api")
-  lazy val jacksonAsl          = "org.codehaus.jackson"      % "jackson-core-asl"            % jacksonVersion
-  lazy val jacksonMapper       = "org.codehaus.jackson"      % "jackson-mapper-asl"          % jacksonVersion
-  lazy val jacksonAnnotations  = "com.fasterxml.jackson.core"% "jackson-annotations"         % fasterXmlJacksonVersion
-  lazy val jacksonCore         = "com.fasterxml.jackson.core"% "jackson-core"                % fasterXmlJacksonVersion
   lazy val commonsCodec        = "commons-codec"             % "commons-codec"               % "1.7"
   lazy val commonsLang         = "commons-lang"              % "commons-lang"                % "2.6"
   lazy val commonsValidator    = "commons-validator"         % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
-  lazy val rabbitmq            = "com.rabbitmq"              % "amqp-client"                 % "2.7.1"
   lazy val logback             = "ch.qos.logback"            % "logback-classic"             % "1.0.13"
-  lazy val jodaTime            = "joda-time"                 % "joda-time"                   % "2.1"
-  lazy val jodaConvert         = "org.joda"                  % "joda-convert"                % "1.2" //marked as optional in joda-time
-  lazy val mail                = "javax.mail"                % "mail"                        % "1.4"
 
+  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"         % fasterXmlJacksonVersion
+  lazy val jacksonModule       = "com.fasterxml.jackson.module" %% "jackson-module-scala"    % fasterXmlJacksonVersion
+
+  lazy val slf4j               = "org.slf4j"                 % "slf4j-api"                   % slf4jVersion
   lazy val slf4jJul            = "org.slf4j"                 % "jul-to-slf4j"                % slf4jVersion
   lazy val slf4jJcl            = "org.slf4j"                 % "jcl-over-slf4j"              % slf4jVersion      % "runtime"
   lazy val slf4jLog4j          = "org.slf4j"                 % "log4j-over-slf4j"            % slf4jVersion      % "runtime"
@@ -106,60 +104,73 @@ object Dependencies {
   lazy val sprayRouting        = "io.spray"                  % "spray-routing"               % sprayVersion
   lazy val akka                = "com.typesafe.akka"         %% "akka-actor"                 % akkaVersion
 
-  lazy val specs2              = "org.specs2"                %% "specs2"                     % "2.2.3"           % "test" exclude("org.scalaz", "scalaz-core_2.10") exclude("org.scalaz", "scalaz-concurrent_2.10") exclude("org.scalaz", "scalaz-effect_2.10")
-  lazy val scalacheck          = "org.scalacheck"            %% "scalacheck"                 % "1.10.1"          % "test"
-  lazy val mockito             = "org.mockito"               % "mockito-all"                 % "1.9.0"           % "test"
-  lazy val hamcrest            = "org.hamcrest"              % "hamcrest-all"                % "1.3"             % "test"
-  lazy val pegdown             = "org.pegdown"               % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core")
+  lazy val specs2Analysis      = "org.specs2"                %% "specs2-analysis"            % specsVersion      % "test"
+  lazy val specs2Common        = "org.specs2"                %% "specs2-common"              % specsVersion      % "test"
+  lazy val specs2Core          = "org.specs2"                %% "specs2-core"                % specsVersion      % "test"
+  lazy val specs2Form          = "org.specs2"                %% "specs2-form"                % specsVersion      % "test"
+  lazy val specs2Html          = "org.specs2"                %% "specs2-html"                % specsVersion      % "test"
+  lazy val specs2Junit         = "org.specs2"                %% "specs2-junit"               % specsVersion      % "test"
+  lazy val specs2Markdown      = "org.specs2"                %% "specs2-markdown"            % specsVersion      % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
+  lazy val specs2Matcher       = "org.specs2"                %% "specs2-matcher"             % specsVersion      % "test"
+  lazy val specs2MatcherExtra  = "org.specs2"                %% "specs2-matcher-extra"       % specsVersion      % "test"
+  lazy val specs2Mock          = "org.specs2"                %% "specs2-mock"                % specsVersion      % "test"
+  lazy val specs2Scalacheck    = "org.specs2"                %% "specs2-scalacheck"          % specsVersion      % "test"
 
-  lazy val newmanTest          = "com.stackmob"              %% "newman"                     % newmanVersion     % "test" classifier "tests" exclude("com.twitter", "finagle-http_2.10") exclude("commons-codec", "commons-codec") exclude("org.scalaz", "scalaz-core_2.10")
+  lazy val scalacheck          = "org.scalacheck"            %% "scalacheck"                 % "1.11.1"          % "test"
+  lazy val mockito             = "org.mockito"               % "mockito-all"                 % "1.9.5"           % "test"
+  lazy val hamcrest            = "org.hamcrest"              % "hamcrest-all"                % "1.3"             % "test"
+  lazy val pegdown             = "org.pegdown"               % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
+  lazy val parboiledJava       = "org.parboiled"             % "parboiled-java"              % parboiledVersion  % "test"
+  lazy val parboiledScala      = "org.parboiled"             %% "parboiled-scala"            % parboiledVersion  % "test"
+
   lazy val sprayTest           = "io.spray"                  % "spray-testkit"               % sprayVersion      % "test"
   lazy val akkaTestKit         = "com.typesafe.akka"         %% "akka-testkit"               % akkaVersion       % "test"
 
+  lazy val specsJars = Seq(
+    specs2Analysis,
+    specs2Common,
+    specs2Core,
+    specs2Form,
+    specs2Html,
+    specs2Junit,
+    specs2Markdown,
+    specs2Matcher,
+    specs2MatcherExtra,
+    specs2Mock,
+    specs2Scalacheck
+  )
+
   lazy val commonDependencies = Seq(
+    akka,
+    scalaReflect,
     slf4j,
-    mail,
-    xmemcached,
     commonsCodec,
     commonsLang,
     commonsValidator,
-    jacksonAsl,
-    jacksonMapper,
-    jacksonAnnotations,
-    jacksonCore,
+    jacksonDataBind,
+    jacksonModule,
     slf4jJul,
     slf4jJcl,
     slf4jLog4j,
     logback
   )
 
-  lazy val serviceDependencies = Seq(
-    newman,
-    rabbitmq
-  )
-
   lazy val httpDependencies = Seq(
-    newman,
     sprayCan,
     sprayRouting,
-    akka,
-    logback,
-    jodaTime,
-    jodaConvert
+    logback
   )
 
-  lazy val concurrentDependencies = Seq()
-
   lazy val testDependencies = Seq(
-    newmanTest,
-    specs2,
     scalacheck,
     mockito,
     hamcrest,
     pegdown,
+    parboiledJava,
+    parboiledScala,
     sprayTest,
     akkaTestKit
-  )
+  ) ++ specsJars
 
 }
 
@@ -172,11 +183,11 @@ object CommonBuild extends Build {
       name := "parent",
       publish := {}
     ),
-    aggregate = Seq(common, services, http, concurrent)
+    aggregate = Seq(common, http)
   )
 
   lazy val common = Project("stingray-common", file("common"),
-    settings = standardSettings ++ Seq(
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-common",
       libraryDependencies ++= commonDependencies ++ testDependencies,
       publishArtifact in Test := true
@@ -184,30 +195,20 @@ object CommonBuild extends Build {
   )
 
   lazy val http = Project("stingray-http", file("http"),
-    dependencies = Seq(common % "compile->compile;test->test", concurrent % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(
+    dependencies = Seq(common % "compile->compile;test->test"),
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-http",
       libraryDependencies ++= httpDependencies ++ testDependencies,
       publishArtifact in Test := true
     )
   )
 
-  lazy val services = Project("stingray-services", file("services"),
-    dependencies = Seq(common % "compile->compile;test->test", concurrent % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(
-      name := "stingray-services",
-      libraryDependencies ++= serviceDependencies ++ testDependencies,
-      publishArtifact in Test := true
-    )
-  )
-
-
-  lazy val concurrent = Project("stingray-concurrent", file("concurrent"),
+  lazy val examples = Project("stingray-examples", file("examples"),
     dependencies = Seq(common % "compile->compile;test->test"),
     settings = standardSettings ++ Seq(
-      name := "stingray-concurrent",
-      libraryDependencies ++= concurrentDependencies ++ testDependencies,
-      publishArtifact in Test := true
+      name := "stingray-examples",
+      libraryDependencies ++= httpDependencies ++ testDependencies,
+      publish := {}
     )
   )
 
