@@ -58,6 +58,7 @@ object BuildSettings {
     resolvers += "Stingray Nexus" at s"http://$stingrayNexusHost/nexus/content/groups/public/",
     conflictManager := ConflictManager.strict,
     dependencyOverrides <+= scalaVersion { vsn => "org.scala-lang" % "scala-library" % vsn },
+    tagName <<= (version in ThisBuild).map(_),
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,
       inquireVersions,
