@@ -30,6 +30,7 @@ class JsonUtilSpecs
     a Map[String, List[String]]                                              ${Maps.StringToListString().ok}
     a Map[String, List[Int]]                                                 ${Maps.StringToListInt().ok}
     a Map[String, Map[String, String]]                                       ${Maps.StringToMapStringString().ok}
+    a Map[Symbol, Any]                                                       ${Maps.SymbolToAny().ok}
 
   JsonUtil should serialize and deserialize case classes, such as
     a case class containing a single data member                             ${CaseClasses.OneMember().ok}
@@ -158,6 +159,15 @@ class JsonUtilSpecs
           (from.get(k) must beSome.like { case m =>
             m must havePair(k1 -> v1)
           })
+      }
+    }
+
+    case class SymbolToAny() {
+      def ok = forAll(genJsonString, genJsonString) { (k, v) =>
+        val symbol = Symbol(k)
+        val to = toJson(Map[Symbol, Any](symbol -> v)).get
+
+        to must beEqualTo("""{"%s":"%s"}""".format(k, v))
       }
     }
   }
