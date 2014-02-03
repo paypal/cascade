@@ -10,18 +10,19 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
  * Tests for implicit [[com.paypal.stingray.common.option.RichOption]]
  */
 
-class RichOptionSpecs extends Specification { def is =
-  "RichOptionSpecs".title                                                                                               ^
-  """
+class RichOptionSpecs extends Specification { def is = s2"""
   RichOption is a wrapper for Option[T] types
-  """                                                                                                                   ^
-  "sideEffectNone should"                                                                                               ^
-    "execute the given function only if the contained option is None"                                                   ! SideEffectNone().executesOnlyIfNone ^
-    "execute the given function only if the contained option is Some"                                                   ! SideEffectSome().executesOnlyIfSome ^
-                                                                                                                        end ^
-  "orThrow should"                                                                                                      ^
-    "throw only if the contained option is None"                                                                        ! OrThrow().throwsOnlyIfNone ^
-                                                                                                                        end
+
+  executeIfNone should
+    exeute the given function only if the contained option is None  ${ExecuteIfNone().executesOnlyIfNone}
+
+  sideEffectNone should
+    execute the given function only if the contained option is None ${SideEffectNone().executesOnlyIfNone}
+    execute the given function only if the contained option is Some ${SideEffectSome().executesOnlyIfSome}
+
+  orThrow should
+    throw only if the contained option is None                      ${OrThrow().throwsOnlyIfNone}
+  """
 
   trait Context extends CommonImmutableSpecificationContext {
     protected val someValue = 20
@@ -29,6 +30,18 @@ class RichOptionSpecs extends Specification { def is =
 
     protected def makeRichOption[T]: RichOption[T] = makeRichOption(Option.empty[T])
     protected def makeRichOption[T](t: T): RichOption[T] = makeRichOption(t.some)
+  }
+
+  case class ExecuteIfNone() extends Context {
+    def executesOnlyIfNone: SpecsResult = {
+      val int = new AtomicInteger(0)
+      val someValue = 20
+      val wrappedNone = makeRichOption[Int]
+      val wrappedSome = makeRichOption(someValue)
+      wrappedNone.executeIfNone { int.set(1) }
+      wrappedSome.executeIfNone { int.set(5) }
+      int.get must beEqualTo(1)
+    }
   }
 
   case class SideEffectNone() extends Context {
