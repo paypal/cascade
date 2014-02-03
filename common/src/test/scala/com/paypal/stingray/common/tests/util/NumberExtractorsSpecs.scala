@@ -28,16 +28,14 @@ class NumberExtractorsSpecs extends Specification with ScalaCheck { def is = s2"
         case IntExtractor(a) => a
         case _ => 0
       }
-      (newInt must beEqualTo(1234)) and
-        (newInt must beAnInstanceOf[java.lang.Integer])
+      newInt must beEqualTo(1234)
     }
     def failureCase = {
       val newInt = "1234a" match {
         case IntExtractor(a) => a
         case _ => 0
       }
-      (newInt must beEqualTo(0)) and
-        (newInt must beAnInstanceOf[java.lang.Integer])
+      newInt must beEqualTo(0)
     }
   }
 
@@ -47,16 +45,14 @@ class NumberExtractorsSpecs extends Specification with ScalaCheck { def is = s2"
         case LongExtractor(a) => a
         case _ => 0L
       }
-      (newLong must beEqualTo(1234)) and
-        (newLong must beAnInstanceOf[java.lang.Long])
+      newLong must beEqualTo(1234L)
     }
     def failureCase = {
       val newLong = "1234a" match {
         case LongExtractor(a) => a
         case _ => 0L
       }
-      (newLong must beEqualTo(0L)) and
-        (newLong must beAnInstanceOf[java.lang.Long])
+      newLong must beEqualTo(0L)
     }
   }
 
