@@ -4,7 +4,7 @@ stingray-common
 This is a repository of common patterns, convenience objects, utilities, and other foundational pieces used in
 projects developed by the Stingray team.
 
-To use them in a project, include the following dependencies in your `Build.scala`:
+To use them in a project, include the following dependencies in your `build.sbt` or `Build.scala`:
 
     "com.paypal.stingray"   %% "stingray-common"    % commonVersion
     "com.paypal.stingray"   %% "stingray-http"      % commonVersion
