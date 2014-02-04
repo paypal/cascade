@@ -37,16 +37,6 @@ object JsonUtil {
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
   /**
-   * Convert a `Map[Symbol, Any]` to a JSON string representation.
-   * @param value the map to convert
-   * @return a [[scala.util.Try]] that is either the JSON string representation,
-   *         or a [[com.fasterxml.jackson.core.JsonProcessingException]]
-   */
-  def toJson(value: Map[Symbol, Any]): Try[String] = {
-    toJson(value map { case (k, v) => k.name -> v})
-  }
-
-  /**
    * Convert an object to a JSON string representation.
    * @param value the object to convert
    * @return a [[scala.util.Try]] that is either the JSON string representation,
@@ -54,18 +44,6 @@ object JsonUtil {
    */
   def toJson(value: Any): Try[String] = Try {
     mapper.writeValueAsString(value)
-  }
-
-  /**
-   * Convert a JSON string to a `Map[String, T]`, where `T` is some context bound type.
-   * @param json the JSON string
-   * @tparam T a context bound type
-   * @return a [[scala.util.Try]] that is either the `Map[String, T]`, or one of
-   *         [[java.io.IOException]], [[com.fasterxml.jackson.core.JsonParseException]],
-   *         or [[com.fasterxml.jackson.databind.JsonMappingException]]
-   */
-  def fromJsonToMap[T : Manifest](json: String): Try[Map[String, T]] = {
-    fromJson[Map[String, T]](json)
   }
 
   /**
