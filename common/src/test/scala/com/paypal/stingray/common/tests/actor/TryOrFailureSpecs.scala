@@ -27,7 +27,7 @@ class TryOrFailureSpecs
     on a Try[A] that is a Failure, return a Status.Failure wrapping the given exception     ${OrFailureWith.FailureCase().fails}
     on a Try[A] that is a Failure with an Error, throw the Error                            ${OrFailureWith.ErrorCase().failsHard}
 
-  .orFailureWith should, given a conversion function Throwable => Throwable
+  .orFailureWith should, given a conversion function Exception => Exception
     on a Try[A] that is a Success, return the A value                                       ${OrFailureWithConversion.SuccessCase().ok}
     on a Try[A] that is a Failure, return a Status.Failure wrapping the converted exception ${OrFailureWithConversion.FailureCase().fails}
     on a Try[A] that is a Failure with an Error, throw the Error                            ${OrFailureWithConversion.ErrorCase().failsHard}
