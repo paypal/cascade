@@ -86,8 +86,6 @@ object Dependencies {
   val specsVersion = "2.3.7"
   val parboiledVersion = "1.1.6"
 
-  lazy val scalaReflect        = "org.scala-lang"            % "scala-reflect"               % scalaVsn
-
   lazy val commonsCodec        = "commons-codec"             % "commons-codec"               % "1.7"
   lazy val commonsLang         = "commons-lang"              % "commons-lang"                % "2.6"
   lazy val commonsValidator    = "commons-validator"         % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
@@ -143,7 +141,6 @@ object Dependencies {
 
   lazy val commonDependencies = Seq(
     akka,
-    scalaReflect,
     slf4j,
     commonsCodec,
     commonsLang,
