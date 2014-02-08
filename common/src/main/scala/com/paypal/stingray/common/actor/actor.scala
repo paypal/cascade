@@ -39,15 +39,17 @@ package object actor {
      * @return the value or a failure
      */
     def orFailure: Any = t.recover {
-      case e: Throwable => Status.Failure(e)
-    }.getOrElse(Status.Failure(new Throwable("unknown error")))
+      case e: Exception => Status.Failure(e)
+    }.get
 
     /**
      * Returns the value of the Try if successful, or a [[Status.Failure]] message wrapping a given exception if failed
      * @param e the given exception
      * @return the value or a failure with the given exception
      */
-    def orFailureWith(e: Throwable): Any = t.getOrElse(Status.Failure(e))
+    def orFailureWith(e: Exception): Any = t.recover {
+      case _: Exception => Status.Failure(e)
+    }.get
 
     /**
      * Returns the value of the Try if successful, or a [[Status.Failure]] message wrapping the result of applying the
@@ -55,9 +57,9 @@ package object actor {
      * @param f the function
      * @return the value or a failure with the converted exception
      */
-    def orFailureWith(f: Throwable => Throwable): Any = t.recover {
-      case e: Throwable => Status.Failure(f(e))
-    }.getOrElse(Status.Failure(new Throwable("unknown error")))
+    def orFailureWith(f: Exception => Exception): Any = t.recover {
+      case e: Exception => Status.Failure(f(e))
+    }.get
 
   }
 
