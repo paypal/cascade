@@ -32,8 +32,7 @@ class TryOrFailureSpecs
     on a Try[A] that is a Failure, return a Status.Failure wrapping the converted exception ${OrFailureWithConversion.FailureCase().fails}
     on a Try[A] that is a Failure with an Error, throw the Error                            ${OrFailureWithConversion.ErrorCase().failsHard}
 
-
-"""
+  """
 
   object OrFailure {
 

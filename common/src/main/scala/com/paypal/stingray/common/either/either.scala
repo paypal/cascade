@@ -1,5 +1,7 @@
 package com.paypal.stingray.common
 
+import scala.util.{Success, Failure, Try}
+
 /**
  * Convenience methods and implicits for working with [[scala.util.Either]].
  *
@@ -38,6 +40,34 @@ package object either {
      * @return an Either containing the object as its Left
      */
     def toLeft[X]: Either[A, X] = Left(self)
+  }
+
+  /**
+   * Implicit wrapper to convert Either[Throwable, A] objects to [[scala.util.Try]], right-biasing
+   * @param either the wrapped object
+   * @tparam A the Right type of the wrapped object
+   */
+  implicit class ThrowableEitherToTry[A](either: Either[Throwable, A]) {
+    /**
+     * Converts the object to a [[scala.util.Try]]
+     * @return a Try with either the value on the right, or a failure based on the left
+     */
+    def toTry: Try[A] = either.fold(e => Failure(e), a => Success(a))
+  }
+
+  /**
+   * Implicit wrapper to convert arbitrary Either objects to [[scala.util.Try]], right-biasing
+   * @param either the wrapped object
+   * @tparam E the Left type of the wrapped object
+   * @tparam A the Right type of the wrapped object
+   */
+  implicit class AnyEitherToTry[E, A](either: Either[E, A]) {
+    /**
+     * Converts the object to a [[scala.util.Try]]
+     * @param f the conversion function for Left values
+     * @return a Try with either the value on the right, or a converted failure based on the left
+     */
+    def toTry(f: E => Throwable): Try[A] = either.fold(e => Failure(f(e)), a => Success(a))
   }
 
 }
