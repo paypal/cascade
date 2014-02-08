@@ -23,6 +23,12 @@ package object actor {
    *   actor ! t.orFailureWith(new Throwable("it died!"))
    * }}}
    *
+   * {{{
+   *   // given some ActorRef `actor` and a custom exception type `case class CustomException(e: Throwable)`
+   *   val t = Try { ... }
+   *   actor ! t.orFailureWith(CustomException(_))
+   * }}}
+   *
    * @param t the Try to wrap
    * @tparam A the type of the Try
    */
@@ -42,6 +48,16 @@ package object actor {
      * @return the value or a failure with the given exception
      */
     def orFailureWith(e: Throwable): Any = t.getOrElse(Status.Failure(e))
+
+    /**
+     * Returns the value of the Try if successful, or a [[Status.Failure]] message wrapping the result of applying the
+     * given function to the failure exception
+     * @param f the function
+     * @return the value or a failure with the converted exception
+     */
+    def orFailureWith(f: Throwable => Throwable): Any = t.recover {
+      case e: Throwable => Status.Failure(f(e))
+    }.getOrElse(Status.Failure(new Throwable("unknown error")))
 
   }
 

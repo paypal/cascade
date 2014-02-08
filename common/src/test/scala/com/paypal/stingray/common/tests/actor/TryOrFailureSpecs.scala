@@ -17,12 +17,17 @@ class TryOrFailureSpecs
   TryOrFailure is an implicit wrapper for Try objects to interoperate with Actors
 
   .orFailure should
-    on a Try[A] that is a Success, return the A value                                      ${OrFailure.SuccessCase().ok}
-    on a Try[A] that is a Failure, return a Status.Failure wrapping the failure exception  ${OrFailure.FailureCase().fails}
+    on a Try[A] that is a Success, return the A value                                       ${OrFailure.SuccessCase().ok}
+    on a Try[A] that is a Failure, return a Status.Failure wrapping the failure exception   ${OrFailure.FailureCase().fails}
 
-  .orFailureWith should
-    on a Try[A] that is a Success, return the A value                                      ${OrFailureWith.SuccessCase().ok}
-    on a Try[A] that is a Failure, return a Status.Failure wrapping the given exception    ${OrFailureWith.FailureCase().fails}
+  .orFailureWith should, given a concrete Throwable
+    on a Try[A] that is a Success, return the A value                                       ${OrFailureWith.SuccessCase().ok}
+    on a Try[A] that is a Failure, return a Status.Failure wrapping the given exception     ${OrFailureWith.FailureCase().fails}
+
+  .orFailureWith should, given a conversion function Throwable => Throwable
+    on a Try[A] that is a Success, return the A value                                       ${OrFailureWithConversion.SuccessCase().ok}
+    on a Try[A] that is a Failure, return a Status.Failure wrapping the converted exception ${OrFailureWithConversion.FailureCase().fails}
+
 
 """
 
@@ -51,6 +56,23 @@ class TryOrFailureSpecs
     case class FailureCase() {
       def fails = forAll(arbitrary[Throwable]) { e =>
         Try { throw new Throwable("incorrect") }.orFailureWith(e) must beEqualTo(Status.Failure(e))
+      }
+    }
+  }
+
+  object OrFailureWithConversion {
+
+    private case class ConvertedThrowable(e: Throwable) extends Throwable(s"converted: ${e.getMessage}")
+
+    case class SuccessCase() {
+      def ok = forAll(arbitrary[String]) { s =>
+        Try { s }.orFailureWith(ConvertedThrowable(_)) must beEqualTo(s)
+      }
+    }
+
+    case class FailureCase() {
+      def fails = forAll(arbitrary[String], arbitrary[Throwable]) { (s, e) =>
+        Try { throw e }.orFailureWith(ConvertedThrowable(_)) must beEqualTo(Status.Failure(ConvertedThrowable(e)))
       }
     }
   }
