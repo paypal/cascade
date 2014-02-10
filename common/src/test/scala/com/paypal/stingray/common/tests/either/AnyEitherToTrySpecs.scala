@@ -14,7 +14,7 @@ class AnyEitherToTrySpecs
 
   AnyEitherToTry is an implicit wrapper to convert Either[E, A] to Try[A]
 
-  toEither, given a conversion function E => Exception
+  toTry, given a conversion function E => Exception
     on a Left, return a Try Failure containing the converted Left exception ${LeftFailure().fails}
     on a Right, return a Try Success containing the Right value             ${RightSuccess().ok}
 

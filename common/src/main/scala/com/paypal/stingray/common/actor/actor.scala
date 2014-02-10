@@ -20,11 +20,11 @@ package object actor {
    * {{{
    *   // given some ActorRef `actor`
    *   val t = Try { ... }
-   *   actor ! t.orFailureWith(new Throwable("it died!"))
+   *   actor ! t.orFailureWith(new Exception("it died!"))
    * }}}
    *
    * {{{
-   *   // given some ActorRef `actor` and a custom exception type `case class CustomException(e: Throwable)`
+   *   // given some ActorRef `actor` and a custom exception type `case class CustomException(e: Exception)`
    *   val t = Try { ... }
    *   actor ! t.orFailureWith(CustomException(_))
    * }}}

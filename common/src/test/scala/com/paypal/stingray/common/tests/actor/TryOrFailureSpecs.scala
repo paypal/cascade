@@ -74,7 +74,7 @@ class TryOrFailureSpecs
 
   object OrFailureWithConversion {
 
-    private case class ConvertedException(e: Throwable) extends Exception(s"converted: ${e.getMessage}")
+    private case class ConvertedException(e: Exception) extends Exception(s"converted: ${e.getMessage}")
 
     case class SuccessCase() {
       def ok = forAll(arbitrary[String]) { s =>
