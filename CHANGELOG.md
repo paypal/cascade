@@ -1,7 +1,4 @@
 
-# 0.1.3 02/10/14 released by awharris
-* New patterns for actors (TryOrFailure, EitherOrFailure)
-
 # 0.1.2 02/06/14 released by awharris
 * Removed unnecessary JsonUtil methods, removed scala-reflect dependency
 
