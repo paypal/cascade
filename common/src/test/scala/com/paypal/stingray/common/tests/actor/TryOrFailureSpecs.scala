@@ -22,7 +22,7 @@ class TryOrFailureSpecs
     on a Try[A] that is a Failure, return a Status.Failure wrapping the failure exception   ${OrFailure.FailureCase().fails}
     on a Try[A] that is a Failure with an Error, throw the Error                            ${OrFailure.ErrorCase().failsHard}
 
-  .orFailureWith should, given a concrete Throwable
+  .orFailureWith should, given a concrete Exception
     on a Try[A] that is a Success, return the A value                                       ${OrFailureWith.SuccessCase().ok}
     on a Try[A] that is a Failure, return a Status.Failure wrapping the given exception     ${OrFailureWith.FailureCase().fails}
     on a Try[A] that is a Failure with an Error, throw the Error                            ${OrFailureWith.ErrorCase().failsHard}
