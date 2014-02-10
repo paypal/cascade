@@ -16,7 +16,7 @@ package object trys {
   implicit class RichTry[A](self: => Try[A]) {
 
     /**
-     * Converts this `Try[A]` to an [[scala.util.Either]]
+     * Converts this `Try[A]` to an [[scala.util.Either]] with a Throwable Left type
      * @return an Either based on this Try
      */
     def toEither: Either[Throwable, A] = {
@@ -24,6 +24,20 @@ package object trys {
         Right(self.get)
       } catch {
         case e: Throwable => Left(e)
+      }
+    }
+
+    /**
+     * Converts this `Try[A]` to an [[scala.util.Either]] with an arbitrary Left type
+     * @param f converts from a Throwable to an arbitrary type
+     * @tparam LeftT the Left type to use
+     * @return an Either based on this Try
+     */
+    def toEither[LeftT](f: Throwable => LeftT): Either[LeftT, A] = {
+      try {
+        Right(self.get)
+      } catch {
+        case e: Throwable => Left(f(e))
       }
     }
   }
