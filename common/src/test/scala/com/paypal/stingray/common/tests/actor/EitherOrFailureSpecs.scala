@@ -16,10 +16,6 @@ class EitherOrFailureSpecs
 
   EitherOrFailure is an implicit wrapper for Either objects to interoperate with Actors
 
-  .orFailure should
-    on an Either[E, A] that is Right, return the A value                          ${OrFailure.SuccessCase().ok}
-    on an Either[E, A] that is Left, return Status.Failure                        ${OrFailure.FailureCase().fails}
-
   .orFailureWith should, given an Exception e
     on an Either[E, A] that is Right, return the A value                          ${OrFailureWith.SuccessCase().ok}
     on an Either[E, A] that is Left, return Status.Failure(e)                     ${OrFailureWith.FailureCase().fails}
@@ -29,20 +25,6 @@ class EitherOrFailureSpecs
     on an Either[E, A] that is Left, return Status.Failure with a converted left  ${OrFailureWithConversion.FailureCase().fails}
 
   """
-
-  object OrFailure {
-
-    case class SuccessCase() {
-      def ok = forAll(arbitrary[String]) { s =>
-        Right(s).orFailure must beEqualTo(s)
-      }
-    }
-    case class FailureCase() {
-      def fails = forAll(arbitrary[Exception]) { e =>
-        Left(e).orFailure must beEqualTo(Status.Failure)
-      }
-    }
-  }
 
   object OrFailureWith {
 

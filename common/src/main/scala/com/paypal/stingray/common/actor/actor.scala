@@ -64,14 +64,13 @@ package object actor {
   }
 
   /**
-   * Implicit wrapper for Either objects, right-biased, with methods that interoperate with actors
+   * Implicit wrapper for Either objects, right-biased, with methods that interoperate with actors.
    *
    * {{{
-   *   // given some ActorRef `actor`
-   *   actor ! Right("hello").orFailure                         // sends "hello"
-   *   actor ! Left("no").orFailure                             // sends Status.Failure()
-   *   actor ! Left("no").orFailureWith(new Exception("fail"))  // sends Status.Failure(Exception("fail"))
-   *   actor ! Left("no").orFailureWith(new Exception(_))       // sends Status.Failure(Exception("no"))
+   *   // given some ActorRef `actor` and a custom exception type `case class CustomException(e: Exception)`
+   *   actor ! Right("hello").orFailureWith(new Exception("fail"))  // sends "hello"
+   *   actor ! Left("no").orFailureWith(new Exception("fail"))      // sends Status.Failure(Exception("fail"))
+   *   actor ! Left("no").orFailureWith(CustomException(_))         // sends Status.Failure(Exception("no"))
    * }}}
    *
    * @param either the Either to wrap
@@ -79,13 +78,6 @@ package object actor {
    * @tparam A the right type of the Either
    */
   implicit class EitherOrFailure[E, A](either: Either[E, A]) {
-
-    /**
-     * Returns the value on the right, or an empty Akka [[akka.actor.Status.Failure]], ignoring the left entirely.
-     * If this is an Either[Throwable, A], consider converting to a [[scala.util.Try]] first.
-     * @return the value on the right or a failure
-     */
-    def orFailure: Any = either.right.getOrElse(Status.Failure)
 
     /**
      * Returns the value on the right, or an Akka [[akka.actor.Status.Failure]] containing the given Exception,
@@ -104,7 +96,7 @@ package object actor {
      */
     def orFailureWith(f: E => Exception): Any = either.fold(
       e => Status.Failure(f(e)),
-      a => a
+      identity
     )
   }
 
