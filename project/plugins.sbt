@@ -1,4 +1,4 @@
-resolvers += "Stingray Nexus" at "http://stingray-nexus.stratus.dev.ebay.com/nexus/content/groups/public/"
+resolvers += "Stingray Nexus" at "http://stingray-nexus-145194.phx-os1.stratus.dev.ebay.com:8081/nexus/content/groups/public/"
 
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.2")
 
