@@ -18,7 +18,7 @@ object BuildSettings {
 
   val org = "com.paypal.stingray"
   val scalaVsn = "2.10.3"
-  val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com:8081"
+  val stingrayNexusHost = "stingray-nexus-145194.phx-os1.stratus.dev.ebay.com:8081"
 
   val propFileDir = System.getenv.get("STINGRAY_PROP_FILE_DIR")
   val defaultArgs = Seq(
