@@ -1,13 +1,8 @@
 package com.paypal.stingray.common.tests.values
 
 import org.specs2._
-import org.scalacheck._
-import scala.util.Try
-import java.net.URL
-import java.util.Properties
 import com.paypal.stingray.common.values.StaticValues
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
-import java.io.File
 
 /**
  * Tests [[com.paypal.stingray.common.values.StaticValues]]
