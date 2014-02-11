@@ -24,7 +24,7 @@ class ThrowableEitherToTrySpecs
 
   case class LeftFailure() {
     def fails = forAll(arbitrary[String]) { s =>
-      Left(CustomException(s)).toTry must beFailedTry.withThrowable[CustomException](s)
+      Left(CustomException(s)).toTry must beFailedTry.withThrowable[CustomException]
     }
   }
   case class RightSuccess() {
