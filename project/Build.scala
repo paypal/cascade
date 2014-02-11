@@ -83,7 +83,7 @@ object Dependencies {
   val fasterXmlJacksonVersion = "2.2.2"
   val sprayVersion = "1.2.0"
   val akkaVersion = "2.2.3"
-  val specsVersion = "2.3.7"
+  val specsVersion = "2.3.8"
   val parboiledVersion = "1.1.6"
 
   lazy val commonsCodec        = "commons-codec"             % "commons-codec"               % "1.7"
@@ -115,7 +115,7 @@ object Dependencies {
   lazy val specs2Mock          = "org.specs2"                %% "specs2-mock"                % specsVersion      % "test"
   lazy val specs2Scalacheck    = "org.specs2"                %% "specs2-scalacheck"          % specsVersion      % "test"
 
-  lazy val scalacheck          = "org.scalacheck"            %% "scalacheck"                 % "1.11.1"          % "test"
+  lazy val scalacheck          = "org.scalacheck"            %% "scalacheck"                 % "1.11.3"          % "test"
   lazy val mockito             = "org.mockito"               % "mockito-all"                 % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"              % "hamcrest-all"                % "1.3"             % "test"
   lazy val pegdown             = "org.pegdown"               % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
@@ -226,7 +226,6 @@ object ChangelogReleaseStep {
        case e: Throwable => sys.error("There was an error getting the changelog info: "+ e.getMessage)
      }
    }
-
 
   lazy val updateChangelog: ReleaseStep = { st: State =>
     try {
