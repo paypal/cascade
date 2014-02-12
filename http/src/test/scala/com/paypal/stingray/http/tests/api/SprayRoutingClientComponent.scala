@@ -15,17 +15,32 @@ trait SprayRoutingClientComponent {
   //Dependencies
   this: ResourceService with RootActorSystemComponent =>
 
+  /**
+   * the sprayRoutingClient is for use in integration tests to test the full service stack, including spray routes
+   */
   //Service Provided
   val sprayRoutingClient: SprayRoutingClient = new BasicSprayRoutingClient
 
+  /**
+   * A SprayRoutingClient provides a method for interacting with a spray service as if via HTTP, using the declared routes
+   */
   //Interface provided
   trait SprayRoutingClient {
-    def makeRequest(method: HttpMethod, url: String, headers: List[HttpHeader], body: Option[HttpEntity]): HttpResponse
+    /**
+     * Make a request against the spray routes handled by the mixed in ResourceService
+     * @param method Http method to use
+     * @param url Relative path indicating route to use
+     * @param headers Headers in the request
+     * @param body Body of the request, None if no body; defaults to None
+     * @return A spray HttpResponse with the server's response
+     * @throws IllegalStateException if the request times out
+     */
+    def makeRequest(method: HttpMethod, url: String, headers: List[HttpHeader], body: Option[HttpEntity] = None): HttpResponse
   }
 
   //Implementation
-  class BasicSprayRoutingClient extends SprayRoutingClient {
-    def makeRequest(method: HttpMethod, url: String, headers: List[HttpHeader], body: Option[HttpEntity]): HttpResponse = {
+  private class BasicSprayRoutingClient extends SprayRoutingClient {
+    def makeRequest(method: HttpMethod, url: String, headers: List[HttpHeader], body: Option[HttpEntity] = None): HttpResponse = {
       TestActorRef(new RequestRunner).underlyingActor.makeRequest(method, url, headers, body)
     }
   }
@@ -34,7 +49,7 @@ trait SprayRoutingClientComponent {
   //This class just needs to be an actor so that we can trick spray into sending us the response
   //It also needs its own state so needs to be spun up for each request
   //Taken from Doug's old SprayRoutingHttpClient
-  class RequestRunner extends Actor {
+  private class RequestRunner extends Actor {
     val latch: CountDownLatch = new CountDownLatch(1)
     var response: Option[HttpResponse] = none
 

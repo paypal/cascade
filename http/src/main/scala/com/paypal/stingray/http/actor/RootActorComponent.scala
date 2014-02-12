@@ -5,16 +5,18 @@ import spray.routing.HttpService
 import com.paypal.stingray.http.resource.ResourceService
 
 /**
- * Created by ayakushev on 1/28/14.
+ * Created by Miles O'Connell.
+ *
+ * 2/11/14
  */
-
-trait RootActorComponent {
+class RootActorComponent {
   this: ResourceService =>
 
-  class RootActor extends Actor with HttpService {
+  /**
+   * The root actor implementation used by spray
+   */
+  protected class RootActor extends Actor with HttpService {
     override val actorRefFactory = context
-//    implicitly[RoutingSettings](RoutingSettings.default)
-//    implicitly[ExceptionHandler](ExceptionHandler.default)
     override def receive = runRoute(fullRoute)
   }
 }
