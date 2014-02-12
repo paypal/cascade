@@ -19,15 +19,15 @@ trait SprayRoutingClientComponent {
   this: ResourceService with RootActorSystemComponent =>
 
   /**
+   * Service Provided
    * the sprayRoutingClient is for use in integration tests to test the full service stack, including spray routes
    */
-  //Service Provided
   lazy val sprayRoutingClient: SprayRoutingClient = new BasicSprayRoutingClient
 
   /**
+   * Interface provided
    * A SprayRoutingClient provides a method for interacting with a spray service as if via HTTP, using the declared routes
    */
-  //Interface provided
   trait SprayRoutingClient {
     /**
      * Make a request against the spray routes handled by the mixed in ResourceService

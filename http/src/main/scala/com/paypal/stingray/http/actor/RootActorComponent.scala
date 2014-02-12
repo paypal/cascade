@@ -11,6 +11,7 @@ class RootActorComponent {
   this: ResourceService =>
 
   /**
+   * Implementation (only - see [[com.paypal.stingray.http.actor.RootActorSystemComponent]] for use
    * The root actor implementation used by spray
    */
   protected class RootActor extends Actor with HttpService {

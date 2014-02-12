@@ -7,7 +7,7 @@ import com.paypal.stingray.http.resource.ResourceService
 import spray.routing.HttpService
 
 /**
- * This component provides the root actor system for a spray service
+ * Provides the root actor which supervises other actors and handles spray http requests
  */
 trait RootActorSystemComponent {
   //Dependencies
@@ -19,9 +19,9 @@ trait RootActorSystemComponent {
   implicit lazy val ec: ExecutionContext = system.dispatcher
 
   /**
+   * Service Provided
    * The root actor which supervises other actors and handles spray http requests
    */
-  //Service Provided
   lazy val service = {
     sys.addShutdownHook(system.shutdown())
     system.actorOf(rootActorProps, serviceName)
