@@ -11,6 +11,9 @@ import spray.routing.RequestContext
 import com.paypal.stingray.http.resource.ResourceService
 import com.paypal.stingray.http.actor.RootActorSystemComponent
 
+/**
+ * Provides the sprayRoutingClient is for use in integration tests to test the full service stack, including spray routes
+ */
 trait SprayRoutingClientComponent {
   //Dependencies
   this: ResourceService with RootActorSystemComponent =>
@@ -19,7 +22,7 @@ trait SprayRoutingClientComponent {
    * the sprayRoutingClient is for use in integration tests to test the full service stack, including spray routes
    */
   //Service Provided
-  val sprayRoutingClient: SprayRoutingClient = new BasicSprayRoutingClient
+  lazy val sprayRoutingClient: SprayRoutingClient = new BasicSprayRoutingClient
 
   /**
    * A SprayRoutingClient provides a method for interacting with a spray service as if via HTTP, using the declared routes
@@ -48,6 +51,7 @@ trait SprayRoutingClientComponent {
   //Why is this not exposed with an actor ref? Because this is not properly an actor-backed service
   //This class just needs to be an actor so that we can trick spray into sending us the response
   //It also needs its own state so needs to be spun up for each request
+  //This actor is not started conventionally, instead makeRequest() starts it up as a TestActorRef within akka's test framework
   //Taken from Doug's old SprayRoutingHttpClient
   private class RequestRunner extends Actor {
     val latch: CountDownLatch = new CountDownLatch(1)

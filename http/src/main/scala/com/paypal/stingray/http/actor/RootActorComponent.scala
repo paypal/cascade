@@ -5,9 +5,7 @@ import spray.routing.HttpService
 import com.paypal.stingray.http.resource.ResourceService
 
 /**
- * Created by Miles O'Connell.
- *
- * 2/11/14
+ * Provides the root actor implementation used by spray
  */
 class RootActorComponent {
   this: ResourceService =>
