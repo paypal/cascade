@@ -54,6 +54,7 @@ trait SprayRoutingClientComponent {
   //This actor is not started conventionally, instead makeRequest() starts it up as a TestActorRef within akka's test framework
   //Taken from Doug's old SprayRoutingHttpClient
   private class RequestRunner extends Actor {
+    //waits for the response from spray, see a few lines below
     private val latch: CountDownLatch = new CountDownLatch(1)
     private var response: Option[HttpResponse] = none
 
