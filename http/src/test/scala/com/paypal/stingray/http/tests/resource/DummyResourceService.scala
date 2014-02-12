@@ -1,8 +1,8 @@
 package com.paypal.stingray.http.tests.resource
 
 import com.paypal.stingray.http.resource.ResourceService
-import com.paypal.stingray.http.tests.TestServiceNameComponent
 import com.paypal.stingray.common.values.StaticValuesFromServiceNameComponent
+import com.paypal.stingray.common.service.ServiceNameComponent
 
 /**
  * A dummy resource service implementation for use with [[com.paypal.stingray.http.tests.resource.DummyResource]].
@@ -10,7 +10,7 @@ import com.paypal.stingray.common.values.StaticValuesFromServiceNameComponent
  */
 trait DummyResourceService
   extends ResourceService
-  with TestServiceNameComponent
+  with ServiceNameComponent
   with StaticValuesFromServiceNameComponent {
 
   /** This resource */
@@ -24,4 +24,7 @@ trait DummyResourceService
       }
     }
   }
+
+  override lazy val serviceName = "tests"
+
 }
