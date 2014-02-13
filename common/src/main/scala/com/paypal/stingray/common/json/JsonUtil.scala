@@ -2,7 +2,7 @@ package com.paypal.stingray.common.json
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala._
 import scala.util.Try
 
 /**
@@ -33,7 +33,8 @@ object JsonUtil {
 
   // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
   private val mapper = new ObjectMapper() with ScalaObjectMapper
-  mapper.registerModule(DefaultScalaModule)
+
+  mapper.registerModule(StingrayScalaModule)
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
   /**
@@ -57,4 +58,15 @@ object JsonUtil {
   def fromJson[T : Manifest](json: String): Try[T] = Try {
     mapper.readValue[T](json)
   }
+
+  class StingrayScalaModule
+    extends DefaultScalaModule
+    with StingrayOptionModule {
+    override def getModuleName() = "StingrayScalaModule"
+  }
+
+  object StingrayScalaModule extends StingrayScalaModule
+
+  trait StingrayOptionModule extends StingrayOptionSerializerModule with StingrayOptionDeserializerModule
+
 }

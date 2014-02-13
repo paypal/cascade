@@ -80,7 +80,7 @@ object Dependencies {
   import BuildSettings.scalaVsn // to maintain consistency with above scala version
 
   val slf4jVersion = "1.7.5"
-  val fasterXmlJacksonVersion = "2.2.2"
+  val fasterXmlJacksonVersion = "2.3.0"
   val sprayVersion = "1.2.0"
   val akkaVersion = "2.2.3"
   val specsVersion = "2.3.7"
