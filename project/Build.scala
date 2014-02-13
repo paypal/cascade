@@ -77,67 +77,40 @@ object BuildSettings {
 }
 
 object Dependencies {
-  import BuildSettings.scalaVsn // to maintain consistency with above scala version
 
   val slf4jVersion = "1.7.5"
   val fasterXmlJacksonVersion = "2.2.2"
   val sprayVersion = "1.2.0"
   val akkaVersion = "2.2.3"
-  val specsVersion = "2.3.8"
   val parboiledVersion = "1.1.6"
 
-  lazy val commonsCodec        = "commons-codec"             % "commons-codec"               % "1.7"
-  lazy val commonsLang         = "commons-lang"              % "commons-lang"                % "2.6"
-  lazy val commonsValidator    = "commons-validator"         % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
-  lazy val logback             = "ch.qos.logback"            % "logback-classic"             % "1.0.13"
+  lazy val commonsCodec        = "commons-codec"                % "commons-codec"               % "1.7"
+  lazy val commonsLang         = "commons-lang"                 % "commons-lang"                % "2.6"
+  lazy val commonsValidator    = "commons-validator"            % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
+  lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.0.13"
 
-  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"         % fasterXmlJacksonVersion
-  lazy val jacksonModule       = "com.fasterxml.jackson.module" %% "jackson-module-scala"    % fasterXmlJacksonVersion
+  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"            % fasterXmlJacksonVersion
+  lazy val jacksonModule       = "com.fasterxml.jackson.module" %% "jackson-module-scala"       % fasterXmlJacksonVersion
 
-  lazy val slf4j               = "org.slf4j"                 % "slf4j-api"                   % slf4jVersion
-  lazy val slf4jJul            = "org.slf4j"                 % "jul-to-slf4j"                % slf4jVersion
-  lazy val slf4jJcl            = "org.slf4j"                 % "jcl-over-slf4j"              % slf4jVersion      % "runtime"
-  lazy val slf4jLog4j          = "org.slf4j"                 % "log4j-over-slf4j"            % slf4jVersion      % "runtime"
+  lazy val slf4j               = "org.slf4j"                    % "slf4j-api"                   % slf4jVersion
+  lazy val slf4jJul            = "org.slf4j"                    % "jul-to-slf4j"                % slf4jVersion
+  lazy val slf4jJcl            = "org.slf4j"                    % "jcl-over-slf4j"              % slf4jVersion      % "runtime"
+  lazy val slf4jLog4j          = "org.slf4j"                    % "log4j-over-slf4j"            % slf4jVersion      % "runtime"
 
-  lazy val sprayCan            = "io.spray"                  % "spray-can"                   % sprayVersion
-  lazy val sprayRouting        = "io.spray"                  % "spray-routing"               % sprayVersion
-  lazy val akka                = "com.typesafe.akka"         %% "akka-actor"                 % akkaVersion
+  lazy val sprayCan            = "io.spray"                     % "spray-can"                   % sprayVersion
+  lazy val sprayRouting        = "io.spray"                     % "spray-routing"               % sprayVersion
+  lazy val akka                = "com.typesafe.akka"            %% "akka-actor"                 % akkaVersion
 
-  lazy val specs2Analysis      = "org.specs2"                %% "specs2-analysis"            % specsVersion      % "test"
-  lazy val specs2Common        = "org.specs2"                %% "specs2-common"              % specsVersion      % "test"
-  lazy val specs2Core          = "org.specs2"                %% "specs2-core"                % specsVersion      % "test"
-  lazy val specs2Form          = "org.specs2"                %% "specs2-form"                % specsVersion      % "test"
-  lazy val specs2Html          = "org.specs2"                %% "specs2-html"                % specsVersion      % "test"
-  lazy val specs2Junit         = "org.specs2"                %% "specs2-junit"               % specsVersion      % "test"
-  lazy val specs2Markdown      = "org.specs2"                %% "specs2-markdown"            % specsVersion      % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
-  lazy val specs2Matcher       = "org.specs2"                %% "specs2-matcher"             % specsVersion      % "test"
-  lazy val specs2MatcherExtra  = "org.specs2"                %% "specs2-matcher-extra"       % specsVersion      % "test"
-  lazy val specs2Mock          = "org.specs2"                %% "specs2-mock"                % specsVersion      % "test"
-  lazy val specs2Scalacheck    = "org.specs2"                %% "specs2-scalacheck"          % specsVersion      % "test"
+  lazy val specs2              = "org.specs2"                   %% "specs2"                     % "2.3.8"           % "test"
+  lazy val scalacheck          = "org.scalacheck"               %% "scalacheck"                 % "1.11.3"          % "test"
+  lazy val mockito             = "org.mockito"                  % "mockito-all"                 % "1.9.5"           % "test"
+  lazy val hamcrest            = "org.hamcrest"                 % "hamcrest-all"                % "1.3"             % "test"
+  lazy val pegdown             = "org.pegdown"                  % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
+  lazy val parboiledJava       = "org.parboiled"                % "parboiled-java"              % parboiledVersion  % "test"
+  lazy val parboiledScala      = "org.parboiled"                %% "parboiled-scala"            % parboiledVersion  % "test"
 
-  lazy val scalacheck          = "org.scalacheck"            %% "scalacheck"                 % "1.11.3"          % "test"
-  lazy val mockito             = "org.mockito"               % "mockito-all"                 % "1.9.5"           % "test"
-  lazy val hamcrest            = "org.hamcrest"              % "hamcrest-all"                % "1.3"             % "test"
-  lazy val pegdown             = "org.pegdown"               % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
-  lazy val parboiledJava       = "org.parboiled"             % "parboiled-java"              % parboiledVersion  % "test"
-  lazy val parboiledScala      = "org.parboiled"             %% "parboiled-scala"            % parboiledVersion  % "test"
-
-  lazy val sprayTest           = "io.spray"                  % "spray-testkit"               % sprayVersion      % "test"
-  lazy val akkaTestKit         = "com.typesafe.akka"         %% "akka-testkit"               % akkaVersion       % "test"
-
-  lazy val specsJars = Seq(
-    specs2Analysis,
-    specs2Common,
-    specs2Core,
-    specs2Form,
-    specs2Html,
-    specs2Junit,
-    specs2Markdown,
-    specs2Matcher,
-    specs2MatcherExtra,
-    specs2Mock,
-    specs2Scalacheck
-  )
+  lazy val sprayTest           = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test"
+  lazy val akkaTestKit         = "com.typesafe.akka"            %% "akka-testkit"               % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
     akka,
@@ -166,9 +139,10 @@ object Dependencies {
     pegdown,
     parboiledJava,
     parboiledScala,
+    specs2,
     sprayTest,
     akkaTestKit
-  ) ++ specsJars
+  )
 
 }
 
