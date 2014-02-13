@@ -17,39 +17,39 @@ class JsonUtilSpecs
 
   JsonUtil is an interface to Jackson that allows for simple serialization/deserialization of case classes, etc
 
+  JsonUtil should serialize and deserialize basic types, such as
+    an arbitrary String without modifying it                                 ${BasicTypes.Strings().ok}
+    an Int as a String representation of that Int                            ${BasicTypes.Ints().ok}
+    a Long as a String representation of that Long                           ${BasicTypes.Longs().ok}
+    a Float as a String representation of that Float                         ${BasicTypes.Floats().ok}
+    a Double as a String representation of that Double                       ${BasicTypes.Doubles().ok}
 
+  JsonUtil should serialize and deserialize more complex types, such as
+    a Map[String, String]                                                    ${Maps.StringToString().ok}
+    a Map[String, Int]                                                       ${Maps.StringToInt().ok}
+    a Map[String, List[String]]                                              ${Maps.StringToListString().ok}
+    a Map[String, List[Int]]                                                 ${Maps.StringToListInt().ok}
+    a Map[String, Map[String, String]]                                       ${Maps.StringToMapStringString().ok}
+
+  JsonUtil should serialize and deserialize case classes, such as
+    a case class containing a single data member                             ${CaseClasses.OneMember().ok}
+    a case class containing multiple members of mixed basic types            ${CaseClasses.TwoMemberMixedBasic().ok}
+    a case class containing mutliple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
+    a case class containing an optional AnyVal type                          ${CaseClasses.OptionalAnyValMember().ok}
+    a case class containing an optional AnyRef type                          ${CaseClasses.OptionalAnyRefMember().ok}
+    a case class containing another case class                               ${CaseClasses.NestedClasses().ok}
+    a case class containing an optional case class                           ${CaseClasses.OptionalNested().ok}
+
+  JsonUtil should
+    not deserialize malformed json                                           ${Badness.MalformedJson().fails}
+    not deserialize json that is type mismatched                             ${Badness.MismatchedTypes().fails}
+    deserialize json that is missing an AnyVal, with a default value         ${Badness.MissingAnyVal().ok}
+    deserialize json that is missing an AnyRef, with a null value            ${Badness.MissingAnyRef().ok}
+    fail to correctly ser/deser a list of options                            ${Badness.ListOption().fails}
     fail to correctly ser/deser a case class containing a list of options    ${Badness.ListOptionMember().fails}
   """
 
-//  JsonUtil should serialize and deserialize basic types, such as
-//    an arbitrary String without modifying it                                 ${BasicTypes.Strings().ok}
-//  an Int as a String representation of that Int                            ${BasicTypes.Ints().ok}
-//  a Long as a String representation of that Long                           ${BasicTypes.Longs().ok}
-//  a Float as a String representation of that Float                         ${BasicTypes.Floats().ok}
-//  a Double as a String representation of that Double                       ${BasicTypes.Doubles().ok}
-//
-//  JsonUtil should serialize and deserialize more complex types, such as
-//    a Map[String, String]                                                    ${Maps.StringToString().ok}
-//  a Map[String, Int]                                                       ${Maps.StringToInt().ok}
-//  a Map[String, List[String]]                                              ${Maps.StringToListString().ok}
-//  a Map[String, List[Int]]                                                 ${Maps.StringToListInt().ok}
-//  a Map[String, Map[String, String]]                                       ${Maps.StringToMapStringString().ok}
-//
-//  JsonUtil should serialize and deserialize case classes, such as
-//    a case class containing a single data member                             ${CaseClasses.OneMember().ok}
-//  a case class containing multiple members of mixed basic types            ${CaseClasses.TwoMemberMixedBasic().ok}
-//  a case class containing mutliple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
-//  a case class containing an optional AnyVal type                          ${CaseClasses.OptionalAnyValMember().ok}
-//  a case class containing an optional AnyRef type                          ${CaseClasses.OptionalAnyRefMember().ok}
-//  a case class containing another case class                               ${CaseClasses.NestedClasses().ok}
-//  a case class containing an optional case class                           ${CaseClasses.OptionalNested().ok}
-//
-//  JsonUtil should
-//    not deserialize malformed json                                           ${Badness.MalformedJson().fails}
-//  not deserialize json that is type mismatched                             ${Badness.MismatchedTypes().fails}
-//  deserialize json that is missing an AnyVal, with a default value         ${Badness.MissingAnyVal().ok}
-//  deserialize json that is missing an AnyRef, with a null value            ${Badness.MissingAnyRef().ok}
-//  fail to correctly ser/deser a list of options                            ${Badness.ListOption().fails}
+
 
   object BasicTypes {
 
