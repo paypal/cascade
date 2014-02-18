@@ -20,7 +20,7 @@ trait SprayMatchers {
   lazy val driver: ResourceDriver = new ResourceDriver{}
   
   /** Default timeout for SprayMatcher responses. Default of 2 seconds; override if necessary. */
-  def sprayMatcherAwaitDuration: Duration = 2.seconds
+  lazy val sprayMatcherAwaitDuration: Duration = 2.seconds
 
   /**
    * Requires that a run request must have a certain response code

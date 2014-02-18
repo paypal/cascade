@@ -27,7 +27,7 @@ trait ActorSpecification extends SpecificationStructure {
   override def map(fs: => Fragments): Fragments = super.map(fs).add(Step(system.shutdown()))
 
   /** Used inside of [[RichFuture]] to control Await timing. By default, blocks infinitely; override if needed. */
-  def actorSpecAwaitDuration: Duration = Duration.Inf
+  lazy val actorSpecAwaitDuration: Duration = Duration.Inf
 
   /**
    * Wrapper for Futures
