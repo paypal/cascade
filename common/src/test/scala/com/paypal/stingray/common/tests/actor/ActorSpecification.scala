@@ -27,7 +27,7 @@ trait ActorSpecification extends SpecificationStructure {
   override def map(fs: => Fragments): Fragments = super.map(fs).add(Step(system.shutdown()))
 
   /** Used inside of [[RichFuture]] to control Await timing. By default, blocks infinitely; override if needed. */
-  def awaitDuration: Duration = Duration.Inf
+  def actorSpecAwaitDuration: Duration = Duration.Inf
 
   /**
    * Wrapper for Futures
@@ -46,7 +46,7 @@ trait ActorSpecification extends SpecificationStructure {
      * Blocks for a result on `f`, wrapping failures or a timeout in a Try
      * @return a Try of the value, or a failure/timeout
      */
-    def toTry: Try[T] = Try { Await.result(f, awaitDuration) }
+    def toTry: Try[T] = Try { Await.result(f, actorSpecAwaitDuration) }
 
     /**
      * Blocks for a result on `f`, yielding Some if successful or None if not
@@ -72,7 +72,7 @@ trait ActorSpecification extends SpecificationStructure {
      * Blocks for a result on `f`, wrapping a timeout in a Try, and flattens
      * @return a Try of the value, or a failure/timeout
      */
-    def toTry: Try[T] = Try { Await.result(f, awaitDuration) }.flatten
+    def toTry: Try[T] = Try { Await.result(f, actorSpecAwaitDuration) }.flatten
 
     /**
      * Blocks for a result on `f`, yielding Some if successful or None if not
