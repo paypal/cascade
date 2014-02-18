@@ -18,6 +18,9 @@ trait SprayMatchers {
 
   /** Resource driver to use for requests */
   lazy val driver: ResourceDriver = new ResourceDriver{}
+  
+  /** Default timeout for SprayMatcher responses. Default of sprayMatcherAwaitDuration; override if necessary. */
+  def sprayMatcherAwaitDuration: Duration = 2.seconds
 
   /**
    * Requires that a run request must have a certain response code
@@ -199,7 +202,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       result(
         code == resp.status,
         s"Response has code: ${code.intValue}",
@@ -225,7 +228,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       result(
         body == resp.entity,
         "Expected response body found",
@@ -251,7 +254,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       result(
         body == resp.entity.asString,
         "Expected response body found",
@@ -279,7 +282,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity)
       result(
         code == resp.status && matchResult.isSuccess,
@@ -311,7 +314,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity.asString)
       result(
         code == resp.status && matchResult.isSuccess,
@@ -341,7 +344,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity)
       result(
         matchResult.isSuccess,
@@ -368,7 +371,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity.asString)
       result(
         matchResult.isSuccess,
@@ -385,7 +388,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       val hdr = resp.headers.find(_.lowercaseName == header.lowercaseName)
       result(
         hdr.exists(_ == header),
@@ -413,7 +416,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       val hdr = resp.headers.find(_.lowercaseName == header)
       result(
         hdr.exists(_.value.trim != ""),
@@ -441,7 +444,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
 
     override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(driver.serveSync(req, r.value, pathParts), 2 seconds)
+      val resp = Await.result(driver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
       val resultCType = resp.entity.some collect {
         case NonEmpty(c, _) => c
       }
