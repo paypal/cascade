@@ -7,7 +7,6 @@ import com.paypal.stingray.http.resource.{AbstractResource, ResourceDriver}
 import com.paypal.stingray.common.option._
 import scala.concurrent._
 import scala.concurrent.duration._
-import language.postfixOps
 import scala.util.Try
 
 /**
