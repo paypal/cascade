@@ -44,21 +44,27 @@ trait ActorSpecification extends SpecificationStructure {
 
     /**
      * Blocks for a result on `f`, wrapping failures or a timeout in a Try
+     * @param awaitFor Duration to await for the Future; by default, waits infinitely
      * @return a Try of the value, or a failure/timeout
      */
-    def toTry: Try[T] = Try { Await.result(f, actorSpecAwaitDuration) }
+    def toTry(awaitFor: Duration = actorSpecAwaitDuration): Try[T] = Try { Await.result(f, awaitFor) }
+    def toTry: Try[T] = toTry()
 
     /**
      * Blocks for a result on `f`, yielding Some if successful or None if not
+     * @param awaitFor Duration to await for the Future; by default, waits infinitely
      * @return Some value if successful, None if not
      */
-    def toOption: Option[T] = toTry.toOption
+    def toOption(awaitFor: Duration = actorSpecAwaitDuration): Option[T] = toTry(awaitFor).toOption
+    def toOption: Option[T] = toOption()
 
     /**
      * Blocks for a result on `f`, wrapping failures or a timeout in a right-biased Either
+     * @param awaitFor Duration to await for the Future; by default, waits infinitely
      * @return a right-biased Either of the value, or a failure/timeout
      */
-    def toEither: Either[Throwable, T] = toTry.toEither
+    def toEither(awaitFor: Duration = actorSpecAwaitDuration): Either[Throwable, T] = toTry(awaitFor).toEither
+    def toEither: Either[Throwable, T] = toEither()
   }
 
   /**
@@ -70,21 +76,27 @@ trait ActorSpecification extends SpecificationStructure {
 
     /**
      * Blocks for a result on `f`, wrapping a timeout in a Try, and flattens
+     * @param awaitFor Duration to await for the Future; by default, waits infinitely
      * @return a Try of the value, or a failure/timeout
      */
-    def toTry: Try[T] = Try { Await.result(f, actorSpecAwaitDuration) }.flatten
+    def toTry(awaitFor: Duration = actorSpecAwaitDuration): Try[T] = Try { Await.result(f, awaitFor) }.flatten
+    def toTry: Try[T] = toTry()
 
     /**
      * Blocks for a result on `f`, yielding Some if successful or None if not
+     * @param awaitFor Duration to await for the Future; by default, waits infinitely
      * @return Some value if successful, None if not
      */
-    def toOption: Option[T] = toTry.toOption
+    def toOption(awaitFor: Duration = actorSpecAwaitDuration): Option[T] = toTry(awaitFor).toOption
+    def toOption: Option[T] = toOption()
 
     /**
      * Blocks for a result on `f`, wrapping failures or a timeout in a right-biased Either
+     * @param awaitFor Duration to await for the Future; by default, waits infinitely
      * @return a right-biased Either of the value, or a failure/timeout
      */
-    def toEither: Either[Throwable, T] = toTry.toEither
+    def toEither(awaitFor: Duration = actorSpecAwaitDuration): Either[Throwable, T] = toTry(awaitFor).toEither
+    def toEither: Either[Throwable, T] = toEither()
   }
 
 }
