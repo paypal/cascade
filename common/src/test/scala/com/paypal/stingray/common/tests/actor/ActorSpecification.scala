@@ -48,7 +48,7 @@ trait ActorSpecification extends SpecificationStructure {
      * @return a Try of the value, or a failure/timeout
      */
     def toTry(awaitFor: Duration = actorSpecAwaitDuration): Try[T] = Try { Await.result(f, awaitFor) }
-    def toTry: Try[T] = toTry()
+    def toTry: Try[T] = this.toTry()
 
     /**
      * Blocks for a result on `f`, yielding Some if successful or None if not
@@ -56,7 +56,7 @@ trait ActorSpecification extends SpecificationStructure {
      * @return Some value if successful, None if not
      */
     def toOption(awaitFor: Duration = actorSpecAwaitDuration): Option[T] = toTry(awaitFor).toOption
-    def toOption: Option[T] = toOption()
+    def toOption: Option[T] = this.toOption()
 
     /**
      * Blocks for a result on `f`, wrapping failures or a timeout in a right-biased Either
@@ -64,7 +64,7 @@ trait ActorSpecification extends SpecificationStructure {
      * @return a right-biased Either of the value, or a failure/timeout
      */
     def toEither(awaitFor: Duration = actorSpecAwaitDuration): Either[Throwable, T] = toTry(awaitFor).toEither
-    def toEither: Either[Throwable, T] = toEither()
+    def toEither: Either[Throwable, T] = this.toEither()
   }
 
   /**
@@ -80,7 +80,7 @@ trait ActorSpecification extends SpecificationStructure {
      * @return a Try of the value, or a failure/timeout
      */
     def toTry(awaitFor: Duration = actorSpecAwaitDuration): Try[T] = Try { Await.result(f, awaitFor) }.flatten
-    def toTry: Try[T] = toTry()
+    def toTry: Try[T] = this.toTry()
 
     /**
      * Blocks for a result on `f`, yielding Some if successful or None if not
@@ -88,7 +88,7 @@ trait ActorSpecification extends SpecificationStructure {
      * @return Some value if successful, None if not
      */
     def toOption(awaitFor: Duration = actorSpecAwaitDuration): Option[T] = toTry(awaitFor).toOption
-    def toOption: Option[T] = toOption()
+    def toOption: Option[T] = this.toOption()
 
     /**
      * Blocks for a result on `f`, wrapping failures or a timeout in a right-biased Either
@@ -96,7 +96,7 @@ trait ActorSpecification extends SpecificationStructure {
      * @return a right-biased Either of the value, or a failure/timeout
      */
     def toEither(awaitFor: Duration = actorSpecAwaitDuration): Either[Throwable, T] = toTry(awaitFor).toEither
-    def toEither: Either[Throwable, T] = toEither()
+    def toEither: Either[Throwable, T] = this.toEither()
   }
 
 }
