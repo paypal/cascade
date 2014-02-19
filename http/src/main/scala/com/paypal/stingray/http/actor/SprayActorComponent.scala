@@ -39,7 +39,7 @@ trait SprayActorComponent {
     }
   }
 
-  //companion object for pros
+  //companion object for props
   private object SprayActor {
     val props = Props[SprayActor]
   }
