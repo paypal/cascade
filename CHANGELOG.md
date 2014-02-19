@@ -1,4 +1,7 @@
 
+# 0.1.4 02/18/14 released by awharris
+* configurable Await timeouts for SprayMatchers requests, ActorSpecification RichFuture methods
+
 # 0.1.3 02/11/14 released by awharris
 * New patterns for actors (TryOrFailure, EitherOrFailure)
 
