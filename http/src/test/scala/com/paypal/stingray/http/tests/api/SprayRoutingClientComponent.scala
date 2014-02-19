@@ -9,14 +9,14 @@ import akka.testkit.TestActorRef
 import java.util.concurrent.{TimeUnit, CountDownLatch}
 import spray.routing.RequestContext
 import com.paypal.stingray.http.resource.ResourceService
-import com.paypal.stingray.http.actor.RootActorSystemComponent
+import com.paypal.stingray.http.actor.ActorSystemComponent
 
 /**
  * Provides the sprayRoutingClient is for use in integration tests to test the full service stack, including spray routes
  */
 trait SprayRoutingClientComponent {
   //Dependencies
-  this: ResourceService with RootActorSystemComponent =>
+  this: ResourceService with ActorSystemComponent =>
 
   /**
    * Service Provided
