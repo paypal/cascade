@@ -13,7 +13,11 @@ trait ActorSystemComponent {
   self: ResourceService with ServiceNameComponent =>
 
   //Implicits provided
-  implicit lazy val system = ActorSystem(serviceName)
+  implicit lazy val system = {
+    val newSystem = ActorSystem(serviceName)
+    sys.addShutdownHook(newSystem.shutdown())
+    newSystem
+  }
   implicit lazy val actorRefFactory: ActorRefFactory = system
   implicit lazy val ec: ExecutionContext = system.dispatcher
 
