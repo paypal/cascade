@@ -46,7 +46,6 @@ object BuildSettings {
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
-    fork := true,
     publishTo <<= version { version: String =>
       val stingrayNexus = s"http://$stingrayNexusHost/nexus/content/repositories/"
       if (version.trim.endsWith("SNAPSHOT")) {
