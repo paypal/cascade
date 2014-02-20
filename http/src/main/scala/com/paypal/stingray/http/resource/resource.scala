@@ -168,12 +168,6 @@ package object resource {
      */
     def orErrorWithMessage(f: String => String = identity): Future[A] = orHaltWithMessage(InternalServerError)(f)
 
-    /**
-     * Return the value on the right, or an Akka [[akka.actor.Status.Failure]], bypassing the `halt` chain
-     * @return the value on the right, or an Akka Failure
-     */
-    def orFailure: Any = either.right.getOrElse(Status.Failure)
-
   }
 
   /**

@@ -20,6 +20,12 @@ package object scalacheck {
   /** Generates an arbitrary [[java.util.UUID]] */
   implicit lazy val arbUUID: Arbitrary[UUID] = Arbitrary(Gen.wrap(UUID.randomUUID))
 
+  /** Arbitrary instance of Exception (incidentally this is how arbThrowable is implemented, too) */
+  implicit lazy val arbException: Arbitrary[Exception] = Arbitrary(const(new Exception))
+
+  /** Arbitrary instance of Error */
+  implicit lazy val arbError: Arbitrary[Error] = Arbitrary(const(new Error))
+
   /** Generates a broken UUID */
   lazy val genInvalidUUID: Gen[String] = arbitrary[String].suchThat(s => Try(UUID.fromString(s)).isFailure)
 
