@@ -1,8 +1,8 @@
 package com.paypal.stingray.http.actor
 
 import akka.actor.{ActorRef, Props, Actor}
-import spray.routing.{RoutingSettings, RejectionHandler, ExceptionHandler, HttpService}
-import com.paypal.stingray.http.resource.ResourceService
+import spray.routing.{RoutingSettings, RejectionHandler, ExceptionHandler}
+import com.paypal.stingray.http.resource.ResourceServiceComponent
 import com.paypal.stingray.common.service.ServiceNameComponent
 import spray.util.LoggingContext
 import spray.can.Http
@@ -13,7 +13,10 @@ import com.paypal.stingray.http.server.SprayConfigurationComponent
  * Provides the root actor implementation used by spray
  */
 trait SprayActorComponent {
-  this: ActorSystemComponent with ResourceService with ServiceNameComponent with SprayConfigurationComponent =>
+  this: ActorSystemComponent
+    with ResourceServiceComponent
+    with ServiceNameComponent
+    with SprayConfigurationComponent =>
 
   /**
    * Service Provided
@@ -39,7 +42,7 @@ trait SprayActorComponent {
    * Implementation
    * The root actor implementation used by spray
    */
-  protected class SprayActor extends Actor with HttpService {
+  protected class SprayActor extends Actor with ResourceService {
     override val actorRefFactory = context
     override def receive = {
       val loggingContext: LoggingContext = implicitly[LoggingContext]
@@ -49,6 +52,6 @@ trait SprayActorComponent {
 
   //companion object for props
   private object SprayActor {
-    lazy val props = Props[SprayActor]
+    val props = Props[SprayActor]
   }
 }

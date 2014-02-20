@@ -1,22 +1,21 @@
 package com.paypal.stingray.http.tests.api
 
-import scalaz._
-import Scalaz._
 import spray.http._
 import akka.actor.Actor
 import spray.http.HttpResponse
 import akka.testkit.TestActorRef
 import java.util.concurrent.{TimeUnit, CountDownLatch}
 import spray.routing.RequestContext
-import com.paypal.stingray.http.resource.ResourceService
+import com.paypal.stingray.http.resource.ResourceServiceComponent
 import com.paypal.stingray.http.actor.ActorSystemComponent
+import com.paypal.stingray.common.option._
 
 /**
  * Provides the sprayRoutingClient is for use in integration tests to test the full service stack, including spray routes
  */
 trait SprayRoutingClientComponent {
   //Dependencies
-  this: ResourceService with ActorSystemComponent =>
+  this: ResourceServiceComponent with ActorSystemComponent =>
 
   /**
    * Service Provided
@@ -53,10 +52,11 @@ trait SprayRoutingClientComponent {
   //It also needs its own state so needs to be spun up for each request
   //This actor is not started conventionally, instead makeRequest() starts it up as a TestActorRef within akka's test framework
   //Taken from Doug's old SprayRoutingHttpClient
-  private class RequestRunner extends Actor {
+  private class RequestRunner extends Actor with ResourceService {
     //waits for the response from spray, see a few lines below
     private val latch: CountDownLatch = new CountDownLatch(1)
     private var response: Option[HttpResponse] = none
+    override def actorRefFactory = context
 
     def makeRequest(method: HttpMethod, url: String, headers: List[HttpHeader], body: Option[HttpEntity]): HttpResponse = {
       val req = HttpRequest(method = method, uri = url, headers = headers, entity = body getOrElse HttpEntity.Empty)

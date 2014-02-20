@@ -3,14 +3,14 @@ package com.paypal.stingray.http.actor
 import akka.actor.{Props, ActorRefFactory, ActorSystem}
 import com.paypal.stingray.common.service.ServiceNameComponent
 import scala.concurrent.ExecutionContext
-import com.paypal.stingray.http.resource.ResourceService
+import com.paypal.stingray.http.resource.ResourceServiceComponent
 
 /**
  * Provides the root actor which supervises other actors and handles spray http requests
  */
 trait ActorSystemComponent {
   //Dependencies
-  self: ResourceService with ServiceNameComponent =>
+  self: ResourceServiceComponent with ServiceNameComponent =>
 
   //Implicits provided
   implicit lazy val system = {

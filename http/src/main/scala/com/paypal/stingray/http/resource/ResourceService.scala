@@ -16,6 +16,7 @@ import scala.util.{Try, Failure, Success}
 import scala.concurrent.duration._
 import akka.actor.ActorSelection
 import akka.pattern.ask
+import com.paypal.stingray.http.actor.ActorSystemComponent
 
 /**
  * Base type for implementing resource-based services. Contains several often-used patterns, e.g. stats and status
@@ -27,92 +28,64 @@ import akka.pattern.ask
  * See https://confluence.paypal.com/cnfl/display/stingray/AbstractResource%2C+ResourceDriver%2C+and+ResourceService
  * for more information.
  */
-trait ResourceService
-  extends HttpService
-  with ResourceDriver {
+trait ResourceServiceComponent {
   this: StaticValuesComponent
-    with ServiceNameComponent =>
+    with ServiceNameComponent
+    with ActorSystemComponent =>
 
-  /** The execution context in which Futures will be executed */
-  protected implicit def ec: ExecutionContext
 
-  /** A source of build-specific values for this service */
-  protected lazy val bsvs = new BuildStaticValues(svs)
-
-  /** The routing rules for this service */
+  /**
+   * Configuration value provided
+   * The routing rules for this service
+   */
   val route: Route
 
-  private lazy val statusResponse = StatusResponse.getStatusResponse(bsvs, serviceName)
+  /**
+   * Interface provided
+   * This will be extended by the SprayActor
+   */
+  trait ResourceService
+    extends HttpService {
 
-  private lazy val statusError = """{"status":"error"}"""
+    /** A source of build-specific values for this service */
+    protected lazy val bsvs = new BuildStaticValues(svs)
 
-  private lazy val statusRoute: Route = path("status") { _ =>
-    val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
-    complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusRespJson)))
-  }
+    private lazy val statusResponse = StatusResponse.getStatusResponse(bsvs, serviceName)
 
-  private lazy val serverActor: ActorSelection = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
+    private lazy val statusError = """{"status":"error"}"""
 
-  private lazy val statsError = """{"stats":"error"}"""
+    private lazy val statusRoute: Route = path("status") { _ =>
+      val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
+      complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusRespJson)))
+    }
 
-  private lazy val statsRoute: Route = path("stats") { _ =>
-    (ctx: RequestContext) => {
-      (serverActor ? GetStats)(1.second).mapTo[Stats].onComplete {
-        case Success(stats) => {
-          val statsRespJson = JsonUtil.toJson(stats).getOrElse(statsError)
-          ctx.complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statsRespJson)))
-        }
-        case Failure(t) => {
-          val statsFailureJson =
-            JsonUtil.toJson(Map("errors" -> List(Option(t.getMessage).getOrElse("")))).getOrElse(statsError)
-          ctx.complete(
-            HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, statsFailureJson)))
+    private lazy val serverActor: ActorSelection = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
+
+    private lazy val statsError = """{"stats":"error"}"""
+
+    private lazy val statsRoute: Route = path("stats") { _ =>
+      (ctx: RequestContext) => {
+        (serverActor ? GetStats)(1.second).mapTo[Stats].onComplete {
+          case Success(stats) => {
+            val statsRespJson = JsonUtil.toJson(stats).getOrElse(statsError)
+            ctx.complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statsRespJson)))
+          }
+          case Failure(t) => {
+            val statsFailureJson =
+              JsonUtil.toJson(Map("errors" -> List(Option(t.getMessage).getOrElse("")))).getOrElse(statsError)
+            ctx.complete(
+              HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, statsFailureJson)))
+          }
         }
       }
     }
-  }
 
-  /** The route before sealing into `fullRoute`. This should not be overridden. */
-  protected lazy val unsealedFullRoute: Route = statusRoute ~ statsRoute ~ route
+    /** The route before sealing into `fullRoute`. This should not be overridden. */
+    protected lazy val unsealedFullRoute: Route = statusRoute ~ statsRoute ~ route
 
-  /** The route after sealing, which will be used to handle requests. This should not be overridden.*/
-  lazy val fullRoute: Route = sealRoute(unsealedFullRoute)
+    /** The route after sealing, which will be used to handle requests. This should not be overridden.*/
+    lazy val fullRoute: Route = sealRoute(unsealedFullRoute)
 
-  /**
-   * Run the request on this resource, first applying a rewrite. This should not be overridden.
-   * @param resource this resource
-   * @param rewrite a method by which to rewrite the request
-   * @tparam ParsedRequest the request after parsing
-   * @tparam AuthInfo the authorization container
-   * @tparam PostBody the POST body after parsing
-   * @tparam PutBody the PUT body after parsing
-   * @return the rewritten request execution
-   */
-  def serveWithRewrite[ParsedRequest, AuthInfo, PostBody, PutBody]
-  (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody])
-  (rewrite: HttpRequest => Try[(HttpRequest, Map[String, String])]): RequestContext => Unit = { ctx: RequestContext =>
-    rewrite(ctx.request).map { case (request, pathParts) =>
-      serve(resource, pathParts)(ctx.copy(request = request))
-    }.recover {
-      case e: Throwable =>
-        ctx.complete(HttpResponse(BadRequest, HttpEntity(ContentTypes.`application/json`, e.getMessage)))
-    }
-  }
-
-  /**
-   * Run the request on this resource. This should not be overridden.
-   * @param resource this resource
-   * @param pathParts the parsed path
-   * @tparam ParsedRequest the request after parsing
-   * @tparam AuthInfo the authorization container
-   * @tparam PostBody the POST body after parsing
-   * @tparam PutBody the PUT body after parsing
-   * @return the request execution
-   */
-  def serve[ParsedRequest, AuthInfo, PostBody, PutBody]
-  (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
-   pathParts: Map[String, String] = Map()): RequestContext => Unit = { ctx: RequestContext =>
-    ctx.complete(serveSync(ctx.request, resource, pathParts))
   }
 
 }
