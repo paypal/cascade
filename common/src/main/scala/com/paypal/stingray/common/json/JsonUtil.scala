@@ -80,6 +80,6 @@ object JsonUtil {
 
   object StingrayScalaModule extends StingrayScalaModule
 
-  trait StingrayOptionModule extends StingrayOptionSerializerModule with StingrayOptionDeserializerModule
+  trait StingrayOptionModule extends StingrayOptionSerializerModule with OptionDeserializerModule
 
 }
