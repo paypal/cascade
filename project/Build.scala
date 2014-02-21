@@ -80,7 +80,7 @@ object Dependencies {
   import BuildSettings.scalaVsn // to maintain consistency with above scala version
 
   val slf4jVersion = "1.7.5"
-  val fasterXmlJacksonVersion = "2.3.0"
+  val fasterXmlJacksonVersion = "2.3.1-STINGRAY" //custom version until our fixes are released
   val sprayVersion = "1.2.0"
   val akkaVersion = "2.2.3"
   val specsVersion = "2.3.7"
@@ -91,8 +91,8 @@ object Dependencies {
   lazy val commonsValidator    = "commons-validator"         % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
   lazy val logback             = "ch.qos.logback"            % "logback-classic"             % "1.0.13"
 
-  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"         % fasterXmlJacksonVersion
-  lazy val jacksonModule       = "com.fasterxml.jackson.module" %% "jackson-module-scala"    % fasterXmlJacksonVersion
+  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"         % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations")
+  lazy val jacksonModule       = "com.fasterxml.jackson.module" %% "jackson-module-scala"    % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
 
   lazy val slf4j               = "org.slf4j"                 % "slf4j-api"                   % slf4jVersion
   lazy val slf4jJul            = "org.slf4j"                 % "jul-to-slf4j"                % slf4jVersion

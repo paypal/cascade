@@ -1,9 +1,13 @@
 package com.paypal.stingray.common.json
 
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.databind.{JavaType, DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.module.scala._
 import scala.util.Try
+import com.fasterxml.jackson.module.scala.introspect.ScalaClassIntrospectorModule
+import com.fasterxml.jackson.module.scala.deser.{OptionDeserializerModule, UntypedObjectDeserializerModule}
+import com.google.common.cache.{CacheBuilder, LoadingCache}
+import com.fasterxml.jackson.module.scala.util.Implicits._
 
 /**
  * Created by awharris on 1/17/14.
@@ -60,7 +64,16 @@ object JsonUtil {
   }
 
   class StingrayScalaModule
-    extends DefaultScalaModule
+    extends JacksonModule
+    with IteratorModule
+    with EnumerationModule
+    with IterableModule
+    with TupleModule
+    with MapModule
+    with SetModule
+    with ScalaClassIntrospectorModule
+    with UntypedObjectDeserializerModule
+    with SeqModule
     with StingrayOptionModule {
     override def getModuleName() = "StingrayScalaModule"
   }
