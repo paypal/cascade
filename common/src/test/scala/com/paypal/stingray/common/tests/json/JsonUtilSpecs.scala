@@ -31,8 +31,7 @@ class JsonUtilSpecs
     a Map[String, List[Int]]                                                 ${Maps.StringToListInt().ok}
     a Map[String, List[List[String]]]                                        ${Maps.StringToListListString().ok}
     a Map[String, Map[String, String]]                                       ${Maps.StringToMapStringString().ok}
-    a List[Option[String]                                                    ${Collections.ListOption().ok}
-    a List[Option[String]]                                                   ${Collections.ListOption().ok}
+    a List[Option[String]]                                                   ${Lists.ListOption().ok}
 
   JsonUtil should serialize and deserialize case classes, such as
     a case class containing a single data member                             ${CaseClasses.OneMember().ok}
@@ -176,7 +175,7 @@ class JsonUtilSpecs
     }
   }
 
-  object Collections {
+  object Lists {
 
     case class ListOption() {
       def ok = forAll(nonEmptyListOf(genOption(genJsonString))) { l =>
