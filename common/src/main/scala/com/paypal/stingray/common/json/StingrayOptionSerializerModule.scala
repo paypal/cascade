@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer
 import com.fasterxml.jackson.databind.jsonschema.{JsonSchema, SchemaAware}
 import java.lang.reflect.Type
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import scala.Some
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper
 
 private class OptionSerializer(valueSerializer: Option[JsonSerializer[AnyRef]],
