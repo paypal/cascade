@@ -52,6 +52,6 @@ trait SprayActorComponent {
 
   //companion object for props
   private object SprayActor {
-    val props = Props[SprayActor]
+    val props = Props(new SprayActor)
   }
 }
