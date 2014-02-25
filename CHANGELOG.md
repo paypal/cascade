@@ -1,4 +1,8 @@
 
+# 0.1.7 02/25/14 released by mpoconnell
+* Fix for SprayActor
+Simplified ResourceDriver
+
 # 0.1.6 02/25/14 released by mpoconnell
 * Resource Driver fixes, actor system fixes (Actually)
 
