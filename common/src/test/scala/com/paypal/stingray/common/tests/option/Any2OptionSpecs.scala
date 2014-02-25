@@ -8,30 +8,34 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 /**
  * Tests for implicit [[com.paypal.stingray.common.option.Any2Option]]
  */
-class Any2OptionSpecs extends Specification { def is =
-  "Any2OptionSpecs".title                                                        ^
-    """
+class Any2OptionSpecs extends Specification { def is = s2"""
+
   Any2OptionSpecs adds helpful Option methods to any object in scope
-    """                                                                          ^
-    "orFalse should"                                                             ^
-      "return false given Some(false)"                                           ! SomeTest().someAnyVal ^
-      "return true given Some(true)"                                             ! SomeTest().someAnyRef ^
-      "return false given None"                                                  ! SomeTest().someNull ^
-                                                                                 end ^
-    "orTrue should"                                                              ^
-      "return false given Some(false)"                                           ! OptTest().optAnyVal ^
-      "return true given Some(true)"                                             ! OptTest().optAnyRef ^
-      "return true given None"                                                   ! OptTest().optNull ^
-                                                                                 end
+
+    orFalse should
+      return false given Some(false)                                  ${SomeTest().someAnyVal}
+      return true given Some(true)                                    ${SomeTest().someAnyRef}
+      return false given None                                         ${SomeTest().someNull}
+
+    orTrue should
+      return false given Some(false)                                  ${OptTest().optAnyVal}
+      return true given Some(true)                                    ${OptTest().optAnyRef}
+      return true given None                                          ${OptTest().optNull}
+
+ """
 
   case class SomeTest() extends CommonImmutableSpecificationContext {
-    def someAnyVal: SpecsResult =  0L.some must beSome.like {
-      case l => l must beEqualTo(0L)
+    def someAnyVal = {
+      0L.some must beSome.like {
+        case l => l must beEqualTo(0L)
+      }
     }
-    def someAnyRef: SpecsResult = List[String]().some must beSome.like {
-      case l => l must beTheSameAs(List[String]())
+    def someAnyRef = {
+      List[String]().some must beSome.like {
+        case l => l must beTheSameAs(List[String]())
+      }
     }
-    def someNull: SpecsResult = {
+    def someNull = {
       val s: String = null
       s.some must beSome.like {
         case o => o must beNull

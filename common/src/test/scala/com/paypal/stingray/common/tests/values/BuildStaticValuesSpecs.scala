@@ -1,14 +1,16 @@
 package com.paypal.stingray.common.tests.values
 
 import org.specs2._
+import org.specs2.mock.Mockito
 import com.paypal.stingray.common.values.BuildStaticValues
 import com.paypal.stingray.common.values.StaticValues
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
+import java.util.Date
 
 /**
  * Tests [[com.paypal.stingray.common.values.BuildStaticValues]]
  */
-class BuildStaticValuesSpecs extends Specification with ScalaCheck { def is = s2"""
+class BuildStaticValuesSpecs extends Specification with Mockito { def is = s2"""
 
   BuildStaticValues inherits from com.paypal.stingray.common.values.StaticValues
   and adds methods to get the current date as well as a dependency list of a given
@@ -25,16 +27,12 @@ class BuildStaticValuesSpecs extends Specification with ScalaCheck { def is = s2
   object Constructors {
 
     case class Default() extends ConstructorsContext {
-      override def before {
-        System.setProperty("some-service.config", "src/test/resources/test.properties")
-      }
-      override def after {
-        System.clearProperty("some-service.config")
-      }
       def ok = this {
-        val sv = new StaticValues("some-service")
-        val bsv = new BuildStaticValues(sv)
-        bsv must not beNull
+        val sv = new StaticValues
+        val bsv = spy(new BuildStaticValues(sv))
+        bsv.get("some.date") returns Some("140226091500PST")
+        val value = bsv.getDate("some.date")
+        value must beSome[Date]
       }
     }
   }

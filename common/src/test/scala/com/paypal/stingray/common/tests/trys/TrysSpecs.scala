@@ -15,8 +15,8 @@ class TrysSpecs extends Specification with ScalaCheck { def is = s2"""
 
   Convenience wrappers and methods for working with [[scala.util.Try]].
 
-  Try[A] returning value should be converted and return right     ${TryToEither().successCase}
-  Try[A] returning exception should be converted and return left  ${TryToEither().errorCase}
+  Try[A] returning value should be converted and return right           ${TryToEither().successCase}
+  Try[A] returning exception should be converted and return left        ${TryToEither().errorCase}
 
 
   """

@@ -13,20 +13,20 @@ class RichOptionSpecs extends Specification { def is = s2"""
   RichOption is a wrapper for Option[T] types
 
   executeIfNone should
-    exeute the given function only if the contained option is None  ${ExecuteIfNone().executesOnlyIfNone}
+    exeute the given function only if the contained option is None    ${ExecuteIfNone().executesOnlyIfNone}
 
   sideEffectNone should
-    execute the given function only if the contained option is None ${SideEffectNone().executesOnlyIfNone}
-    execute the given function only if the contained option is Some ${SideEffectSome().executesOnlyIfSome}
+    execute the given function only if the contained option is None   ${SideEffectNone().executesOnlyIfNone}
+    execute the given function only if the contained option is Some   ${SideEffectSome().executesOnlyIfSome}
 
   orThrow should
-    throw only if the contained option is None                      ${OrThrow().throwsOnlyIfNone}
+    throw only if the contained option is None                        ${OrThrow().throwsOnlyIfNone}
 
   toFuture should
-    yield a future with the options value if some                   ${ToFuture().returnsValue}
-    yield a future with Throwable as its failure state if none      ${ToFuture().returnsThrowable}
+    yield a future with the options value if some                     ${ToFuture().returnsValue}
+    yield a future with Throwable as its failure state if none        ${ToFuture().returnsThrowable}
 
-  Convenience method none[T] on option works                        ${None().works}
+  Convenience method none[T] on option works                          ${None().works}
   """
 
   trait Context extends CommonImmutableSpecificationContext {

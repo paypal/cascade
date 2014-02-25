@@ -15,8 +15,7 @@ import java.util.concurrent.TimeUnit
 class CommonActorSpecs
   extends TestKit(ActorSystem("CommonActorSpecs"))
   with SpecificationLike
-  with ActorSpecification
-  with ScalaCheck { def is = s2"""
+  with ActorSpecification { def is = s2"""
 
   Passing an unhandled exception results in an UnhandledMessageException ${Message().failureCase}
 

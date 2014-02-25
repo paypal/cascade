@@ -1,12 +1,10 @@
 package com.paypal.stingray.common.tests.random
 
 import org.specs2._
-import org.scalacheck.Gen
 import org.scalacheck.Gen._
 import org.scalacheck.Prop._
 import org.scalacheck.Arbitrary._
 import com.paypal.stingray.common.random.RandomUtil
-import org.scalacheck.Gen
 
 /**
  * Tests for [[com.paypal.stingray.common.random]]

@@ -8,9 +8,9 @@ import org.specs2._
  */
 class LoggingSugarSpecs extends Specification { def is = s2"""
 
-  Convenience methods for interacting with [[org.slf4j.Logger]] and other SLF4J objects.
+  Convenience methods for interacting with org.slf4j.Logger and other SLF4J objects.
 
-    getLogger should retrieve an instance for the specified class       ${Logger.GetLogger().ok}
+  getLogger should retrieve an instance for the specified class       ${Logger.GetLogger().ok}
 
   """
 
