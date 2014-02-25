@@ -199,7 +199,7 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
   }
 
   /**
-   * Utility method to serialize a json body via lift-json-scalaz.
+   * Utility method to serialize a json body via jackson.
    * If the JSON processing is CPU intensive, it should be done in a background thread, dedicated actor, etc...
    * into an http body with the content type set
    * @param t the object to serialize
