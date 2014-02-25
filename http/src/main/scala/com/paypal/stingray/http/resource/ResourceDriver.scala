@@ -10,20 +10,21 @@ import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.concurrent.Future
 import spray.http.Uri.Path
+import scala.util.Try
+import spray.routing.RequestContext
 
 /**
  * Implementation of a basic HTTP request handling pipeline.
  *
- * Used in [[com.paypal.stingray.http.resource.ResourceService]] to push along HTTP requests. This trait should not
- * normally be directly extended, but rather will be part of an extended ResourceService.
+ * Used to push along HTTP requests
  *
  * See https://confluence.paypal.com/cnfl/display/stingray/AbstractResource%2C+ResourceDriver%2C+and+ResourceService
  * for more information.
  */
 
-trait ResourceDriver extends LoggingSugar {
+object ResourceDriver extends LoggingSugar {
 
-  protected lazy val logger = getLogger[ResourceDriver]
+  protected lazy val logger = getLogger[ResourceDriver.type]
 
   /**
    * Continues execution if this resource is available, or halts
@@ -142,6 +143,44 @@ trait ResourceDriver extends LoggingSugar {
     }
 
   }
+  /**
+   * Run the request on this resource, first applying a rewrite. This should not be overridden.
+   * @param resource this resource
+   * @param rewrite a method by which to rewrite the request
+   * @tparam ParsedRequest the request after parsing
+   * @tparam AuthInfo the authorization container
+   * @tparam PostBody the POST body after parsing
+   * @tparam PutBody the PUT body after parsing
+   * @return the rewritten request execution
+   */
+  final def serveWithRewrite[ParsedRequest, AuthInfo, PostBody, PutBody]
+  (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody])
+  (rewrite: HttpRequest => Try[(HttpRequest, Map[String, String])]): RequestContext => Unit = { ctx: RequestContext =>
+    rewrite(ctx.request).map { case (request, pathParts) =>
+      serve(resource, pathParts)(ctx.copy(request = request))
+    }.recover {
+      case e: Throwable =>
+        ctx.complete(HttpResponse(BadRequest, HttpEntity(ContentTypes.`application/json`, e.getMessage)))
+    }
+  }
+
+  /**
+   * Run the request on this resource. This should not be overridden.
+   * @param resource this resource
+   * @param pathParts the parsed path
+   * @tparam ParsedRequest the request after parsing
+   * @tparam AuthInfo the authorization container
+   * @tparam PostBody the POST body after parsing
+   * @tparam PutBody the PUT body after parsing
+   * @return the request execution
+   */
+  final def serve[ParsedRequest, AuthInfo, PostBody, PutBody]
+  (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
+   pathParts: Map[String, String] = Map()): RequestContext => Unit = { ctx: RequestContext => {
+    implicit val ec = resource.context
+    ctx.complete(serveSync(ctx.request, resource, pathParts))
+  }}
+
 
   /**
    * Main driver for HTTP requests
@@ -154,7 +193,7 @@ trait ResourceDriver extends LoggingSugar {
    * @tparam PutBody the PUT body after parsing
    * @return a Future containing an HttpResponse
    */
-  def serveSync[ParsedRequest, AuthInfo, PostBody, PutBody](request: HttpRequest,
+  final def serveSync[ParsedRequest, AuthInfo, PostBody, PutBody](request: HttpRequest,
                                                             resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
                                                             pathParts: Map[String, String]): Future[HttpResponse] = {
 
