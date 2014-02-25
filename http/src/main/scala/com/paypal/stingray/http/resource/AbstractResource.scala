@@ -26,12 +26,8 @@ import org.slf4j.LoggerFactory
  * @tparam AuthInfo a structure for information gained during authorization.
  *                  Use the type [[com.paypal.stingray.http.resource.NoAuth]]
  *                  and trait [[com.paypal.stingray.http.resource.AlwaysAuthorized]] to skip authorization
- * @tparam PostBody the class to serialize the POST body to. Use the type [[com.paypal.stingray.http.resource.NoBody]]
- *                  if the resource doesn't do POST, or doesn't use a body
- * @tparam PutBody the class to serialize the PUT body to. Use the type [[com.paypal.stingray.http.resource.NoBody]]
- *                 if the resource doesn't do PUT, or doesn't use a body
  */
-abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] extends LoggingSugar {
+abstract class AbstractResource[ParsedRequest, AuthInfo] extends LoggingSugar {
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -70,20 +66,6 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
   def parseRequest(r: HttpRequest, pathParts: Map[String, String]): Future[ParsedRequest]
 
   /**
-   * Convert the raw body into the PostBody type
-   * @param r the HTTP request
-   * @return optionally, an object of the PostBody type
-   */
-  def parsePostBody(r: HttpRequest): Future[Option[PostBody]] = none[PostBody].continue
-
-  /**
-   * Convert the raw body into the PutBody type
-   * @param r the http request
-   * @return optionally, an object of the PutBody type
-   */
-  def parsePutBody(r: HttpRequest): Future[Option[PutBody]] = none[PutBody].continue
-
-  /**
    * The message to be sent back with the `WWW-Authenticate` header when the request is
    * unauthorized. This particular form works around a known Android quirk.
    *
@@ -120,62 +102,6 @@ abstract class AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody] exte
    * @return a list of content types
    */
   lazy val responseContentType: ContentType = ContentTypes.`application/json`
-
-  /**
-   * Handle a GET request.
-   * @return a response for the given request
-   */
-  def doGet(req: ParsedRequest): Future[HttpResponse] = HttpResponse(InternalServerError).continue
-  def doGet(req: ParsedRequest, authInfo: AuthInfo): Future[HttpResponse] = doGet(req)
-
-  /**
-   * Handle a HEAD request. By default it routes to get and strips any body
-   * @return a response for the given request
-   */
-  def doHead(req: ParsedRequest): Future[HttpResponse] = doGet(req).map { resp =>
-    resp.withEntity(Empty)
-  }
-  def doHead(req: ParsedRequest, authInfo: AuthInfo): Future[HttpResponse] = doGet(req)
-
-  /**
-   * Handle a DELETE request
-   * @return the response for the delete
-   */
-  def doDelete(req: ParsedRequest): Future[HttpResponse] = HttpResponse(InternalServerError).continue
-  def doDelete(req: ParsedRequest, authInfo: AuthInfo): Future[HttpResponse] = doDelete(req)
-
-  /**
-   * Handle a POST request. Use either this or `doPostAsCreate`, but not both.
-   *@return the response for the post
-   */
-  def doPost(req: ParsedRequest, body: PostBody): Future[HttpResponse] = HttpResponse(InternalServerError).continue
-  def doPost(req: ParsedRequest, authInfo: AuthInfo, body: PostBody): Future[HttpResponse] = doPost(req, body)
-
-  /**
-   * Handle a POST request, treating it as a create in the CRUD paradigm. The path of the newly created resource
-   * should be returned along with the response, if applicable, and it will be incorporated into the location header
-   * if a 201 is returned. Use either this or `doPost`, but not both.
-   *@return the response for the post and the new location
-   */
-  def doPostAsCreate(req: ParsedRequest, authInfo: AuthInfo, body: PostBody): Future[(HttpResponse, Option[String])] = {
-    doPost(req, authInfo, body).map { resp =>
-      resp -> none[String]
-    }
-  }
-
-  /**
-   * Handle a PUT request
-   * @return the response for the put
-   */
-  def doPut(req: ParsedRequest, b: PutBody): Future[HttpResponse] = HttpResponse(InternalServerError).continue
-  def doPut(req: ParsedRequest, authInfo: AuthInfo, b: PutBody): Future[HttpResponse] = doPut(req, b)
-
-  /**
-   * Handle an OPTIONS request
-   * @return the response
-   */
-  def doOptions(req: ParsedRequest): Future[HttpResponse] = HttpResponse(InternalServerError).continue
-  def doOptions(req: ParsedRequest, authInfo: AuthInfo): Future[HttpResponse] = doOptions(req)
 
   /**
    * Convenience method to return an exception as a 500 Internal Error with the body being the message

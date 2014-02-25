@@ -31,7 +31,7 @@ object ResourceDriver extends LoggingSugar {
    * @param resource this resource
    * @return an empty Future
    */
-  def ensureAvailable(resource: AbstractResource[_, _, _, _]): Future[Unit] = {
+  def ensureAvailable(resource: AbstractResource[_, _]): Future[Unit] = {
     import resource.context
     resource.available.orHaltWith(ServiceUnavailable)
   }
@@ -42,7 +42,7 @@ object ResourceDriver extends LoggingSugar {
    * @param method the method sent
    * @return an empty Future
    */
-  def ensureMethodSupported(resource: AbstractResource[_, _, _, _],
+  def ensureMethodSupported(resource: AbstractResource[_, _],
                             method: HttpMethod): Future[Unit] = {
     import resource.context
     resource.supportedHttpMethods.contains(method).orHaltWith(MethodNotAllowed)
@@ -73,7 +73,7 @@ object ResourceDriver extends LoggingSugar {
    * @tparam AI the `AuthInfo` type
    * @return a Future containing an `AuthInfo` object, or a failure
    */
-  def ensureAuthorized[PR, AI](resource: AbstractResource[PR, AI, _, _],
+  def ensureAuthorized[PR, AI](resource: AbstractResource[PR, AI],
                                parsedRequest: PR): Future[AI] = {
     import resource.context
     for {
@@ -91,7 +91,7 @@ object ResourceDriver extends LoggingSugar {
    * @tparam AI the `AuthInfo` theype
    * @return an empty Future
    */
-  def ensureNotForbidden[PR, AI](resource: AbstractResource[PR, AI, _, _],
+  def ensureNotForbidden[PR, AI](resource: AbstractResource[PR, AI],
                                  parsedRequest: PR,
                                  authInfo: AI): Future[Unit] = {
     import resource.context
@@ -107,7 +107,7 @@ object ResourceDriver extends LoggingSugar {
    * @param request the request
    * @return an empty Future
    */
-  def ensureContentTypeSupported(resource: AbstractResource[_, _, _, _],
+  def ensureContentTypeSupported(resource: AbstractResource[_, _],
                                  request: HttpRequest): Future[Unit] = {
     request.entity match {
       case Empty => ().continue
@@ -121,7 +121,7 @@ object ResourceDriver extends LoggingSugar {
    * @param request the request
    * @return a Future containing the acceptable content type found, or a failure
    */
-  def ensureResponseContentTypeAcceptable(resource: AbstractResource[_, _, _, _],
+  def ensureResponseContentTypeAcceptable(resource: AbstractResource[_, _],
                                           request: HttpRequest): Future[ContentType] = {
     import resource.context
     request.acceptableContentType(List(resource.responseContentType)).orHaltWith(NotAcceptable)
@@ -149,15 +149,14 @@ object ResourceDriver extends LoggingSugar {
    * @param rewrite a method by which to rewrite the request
    * @tparam ParsedRequest the request after parsing
    * @tparam AuthInfo the authorization container
-   * @tparam PostBody the POST body after parsing
-   * @tparam PutBody the PUT body after parsing
    * @return the rewritten request execution
    */
-  final def serveWithRewrite[ParsedRequest, AuthInfo, PostBody, PutBody]
-  (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody])
+  final def serveWithRewrite[ParsedRequest, AuthInfo]
+  (resource: AbstractResource[ParsedRequest, AuthInfo],
+   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])])
   (rewrite: HttpRequest => Try[(HttpRequest, Map[String, String])]): RequestContext => Unit = { ctx: RequestContext =>
     rewrite(ctx.request).map { case (request, pathParts) =>
-      serve(resource, pathParts)(ctx.copy(request = request))
+      serve(resource, processFunction, pathParts)(ctx.copy(request = request))
     }.recover {
       case e: Throwable =>
         ctx.complete(HttpResponse(BadRequest, HttpEntity(ContentTypes.`application/json`, e.getMessage)))
@@ -167,18 +166,18 @@ object ResourceDriver extends LoggingSugar {
   /**
    * Run the request on this resource. This should not be overridden.
    * @param resource this resource
+   * @param processFunction the function to be executed to process the request
    * @param pathParts the parsed path
    * @tparam ParsedRequest the request after parsing
    * @tparam AuthInfo the authorization container
-   * @tparam PostBody the POST body after parsing
-   * @tparam PutBody the PUT body after parsing
    * @return the request execution
    */
   final def serve[ParsedRequest, AuthInfo, PostBody, PutBody]
-  (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
+  (resource: AbstractResource[ParsedRequest, AuthInfo],
+   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
    pathParts: Map[String, String] = Map()): RequestContext => Unit = { ctx: RequestContext => {
     implicit val ec = resource.context
-    ctx.complete(serveSync(ctx.request, resource, pathParts))
+    ctx.complete(serveSync(ctx.request, resource, processFunction, pathParts))
   }}
 
 
@@ -186,16 +185,16 @@ object ResourceDriver extends LoggingSugar {
    * Main driver for HTTP requests
    * @param request the incoming request
    * @param resource this resource
+   * @param processFunction the function to be executed to process the request
    * @param pathParts the parsed path
    * @tparam ParsedRequest the request after parsing
    * @tparam AuthInfo the authorization container
-   * @tparam PostBody the POST body after parsing
-   * @tparam PutBody the PUT body after parsing
    * @return a Future containing an HttpResponse
    */
-  final def serveSync[ParsedRequest, AuthInfo, PostBody, PutBody](request: HttpRequest,
-                                                            resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
-                                                            pathParts: Map[String, String]): Future[HttpResponse] = {
+  final def serveSync[ParsedRequest, AuthInfo](request: HttpRequest,
+                                         resource: AbstractResource[ParsedRequest, AuthInfo],
+                                         processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                         pathParts: Map[String, String]): Future[HttpResponse] = {
 
     import resource.context
 
@@ -204,31 +203,13 @@ object ResourceDriver extends LoggingSugar {
       _ <- ensureMethodSupported(resource, request.method)
 
       parsedRequest <- resource.parseRequest(request, pathParts)
-      postBody <- parseBody(request, POST)(resource.parsePostBody)
-      putBody <- parseBody(request, PUT)(resource.parsePutBody)
 
       authInfo <- ensureAuthorized(resource, parsedRequest)
       _ <- ensureNotForbidden(resource, parsedRequest, authInfo)
       _ <- ensureContentTypeSupported(resource, request)
       _ <- ensureResponseContentTypeAcceptable(resource, request)
 
-      (httpResponse, location) <- request.method match {
-        case GET => resource.doGet(parsedRequest, authInfo).map((_, none[String]))
-        case HEAD => resource.doHead(parsedRequest, authInfo).map((_, none[String]))
-        case PUT => {
-          putBody.orError().flatMap { body =>
-            resource.doPut(parsedRequest, authInfo, body).map((_, none[String]))
-          }
-        }
-        case POST => {
-          postBody.orError().flatMap { body =>
-            resource.doPostAsCreate(parsedRequest, authInfo, body)
-          }
-        }
-        case DELETE => resource.doDelete(parsedRequest, authInfo).map((_, none[String]))
-        case OPTIONS => resource.doOptions(parsedRequest, authInfo).map((_, none[String]))
-        case _ => halt(MethodNotAllowed)
-      }
+      (httpResponse, location) <- processFunction(parsedRequest)
     } yield {
       val responseWithLocation = addHeaderOnCode(httpResponse, Created) {
         // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us

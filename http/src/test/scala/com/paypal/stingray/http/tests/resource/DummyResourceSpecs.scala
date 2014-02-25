@@ -30,7 +30,7 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
   case class Test() extends context {
     def ping = {
       val request = HttpRequest(uri = "/ping?foo=bar").withHeaders(List(Accept(MediaTypes.`text/plain`)))
-      resource must resultInCodeAndBodyLike(request, Map(), StatusCodes.OK) {
+      resource must resultInCodeAndBodyLike(request, resource.doGet, Map(), StatusCodes.OK) {
         case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
         case Empty => true must beFalse
       }
@@ -38,21 +38,21 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
     def unauthorized = {
       val request = HttpRequest(uri = "/ping").withHeaders(List(Accept(MediaTypes.`text/plain`), RawHeader("unauthorized", "true")))
-      (resource must resultInCodeGivenData(request, Map(), StatusCodes.Unauthorized)) and
-      (resource must resultInResponseWithHeaderContaining(request, Map(), `WWW-Authenticate`(HttpChallenge("OAuth", request.uri.authority.host.toString))))
+      (resource must resultInCodeGivenData(request, resource.doGet, Map(), StatusCodes.Unauthorized)) and
+      (resource must resultInResponseWithHeaderContaining(request, resource.doGet, Map(), `WWW-Authenticate`(HttpChallenge("OAuth", request.uri.authority.host.toString))))
     }
 
     def pingPost = {
       val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
-      (resource must resultInCodeAndBodyLike(request, Map(), StatusCodes.Created) {
+      (resource must resultInCodeAndBodyLike(request, resource.doPostAsCreate, Map(), StatusCodes.Created) {
         case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
         case Empty => true must beFalse
-      }) and (resource must resultInResponseWithHeaderContaining(request, Map(), HttpHeaders.Location("http://foo.com/ping/foobar")))
+      }) and (resource must resultInResponseWithHeaderContaining(request, resource.doPostAsCreate, Map(), HttpHeaders.Location("http://foo.com/ping/foobar")))
     }
 
     def pingPut = {
       val request = HttpRequest(method = HttpMethods.PUT, uri = "/ping").withHeaders(List(Accept(MediaTypes.`text/plain`)))
-      resource must resultInCodeAndBodyLike(request, Map(), StatusCodes.OK) {
+      resource must resultInCodeAndBodyLike(request, resource.doPut, Map(), StatusCodes.OK) {
         case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
         case Empty => true must beFalse
       }

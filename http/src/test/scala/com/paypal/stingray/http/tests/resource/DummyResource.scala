@@ -17,19 +17,29 @@ import com.paypal.stingray.common.json._
  * Useful when the action of a request through an HTTP server is important to model, as opposed to mocking a resource.
  */
 class DummyResource
-  extends AbstractResource[HttpRequest, Unit, Map[String, String], NoBody]
-  with LoggingSugar
-  with NoParsing {
+  extends AbstractResource[(HttpRequest, Option[Map[String, String]]), Unit]
+  with LoggingSugar {
+
+  type ParsedRequest = (HttpRequest, Option[Map[String, String]])
+
+  override def parseRequest(r: HttpRequest, pathParts: Map[String, String]): Future[ParsedRequest] = {
+    if (r.method != HttpMethods.POST) {
+      (r, None).continue
+    } else {
+      (r, JsonUtil.fromJson[Map[String, String]](r.entity.asString).toOption).continue
+    }
+  }
 
   /** This logger */
   override protected lazy val logger = getLogger[DummyResource]
 
   /**
    * Authorized if a header marked `Unauthorized` is not sent.
-   * @param p the parsed request
+   * @param r the parsed request
    * @return optionally, the AuthInfo for this request, or a Failure(halt)
    */
-  override def isAuthorized(p: HttpRequest): Future[Option[Unit]] = {
+  override def isAuthorized(r: ParsedRequest): Future[Option[Unit]] = {
+    val p = r._1
     if (p.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
       Some(()).continue
     } else {
@@ -49,26 +59,23 @@ class DummyResource
    * @param r the request
    * @return a response for the given request
    */
-  override def doGet(r: HttpRequest): Future[HttpResponse] = for {
-    query <- r.uri.query.continue
+  def doGet(r: ParsedRequest): Future[(HttpResponse, Option[String])] = for {
+    query <- r._1.uri.query.continue
     param <- query.get("foo").orHaltWith(BadRequest, "no query param")
     _ <- ("bar" == param).orHaltWith(BadRequest, "wrong query param")
     (foo, bar) <- ("foo", "bar").some.orHaltWith(BadRequest, "what")
-    accept <- r.header[HttpHeaders.Accept].orHaltWith(BadRequest, "no accept header")
+    accept <- r._1.header[HttpHeaders.Accept].orHaltWith(BadRequest, "no accept header")
     _ <- ((accept.mediaRanges.size == 1) && (accept.mediaRanges(0).value == MediaTypes.`text/plain`.value))
       .orHaltWith(BadRequest, "no accept header")
-  } yield HttpResponse(OK, "pong")
+  } yield (HttpResponse(OK, "pong"), None)
 
   /**
    * A dummy POST request must have a body "{"foo":"bar"}"
    * @param r the request
-   * @param auth the Auth object
-   * @param body the body
    * @return the response for the post and the new location
    */
-  override def doPostAsCreate(r: HttpRequest,
-                              auth: Unit,
-                              body: Map[String, String]): Future[(HttpResponse, Option[String])] = for {
+  def doPostAsCreate(r: ParsedRequest): Future[(HttpResponse, Option[String])] = for {
+    body <- r._2.orHaltWith(BadRequest, "no body provided")
     param <- body.get("foo").orHaltWith(BadRequest, "wrong json in body")
     _ <- ("bar" == param).orHaltWith(BadRequest, "wrong json in body")
   } yield (HttpResponse(Created, "pong"), "foobar".some)
@@ -76,29 +83,11 @@ class DummyResource
   /**
    * A dummy PUT request must have no body
    * @param r the request
-   * @param body the body
    * @return the response for the put
    */
-  override def doPut(r: HttpRequest, body: Option[String]): Future[HttpResponse] = for {
-    _ <- body.isEmpty.orHaltWith(BadRequest, "somehow got a body")
-  } yield HttpResponse(OK, "pong")
+  def doPut(r: ParsedRequest): Future[(HttpResponse, Option[String])] = for {
+    _ <- r._2.isEmpty.orHaltWith(BadRequest, "somehow got a body")
+  } yield (HttpResponse(OK, "pong"), None)
 
-  /**
-   * Parse the POST body as JSON
-   * @param r the HTTP request
-   * @return optionally, an object of the PostBody type
-   */
-  override def parsePostBody(r: HttpRequest): Future[Option[Map[String, String]]] = for {
-    parsed <- JsonUtil.fromJson[Map[String, String]](r.entity.asString).toOption.continue
-  } yield parsed
-
-  /**
-   * Parse the PUT body as an Option
-   * @param r the http request
-   * @return optionally, an object of the PutBody type
-   */
-  override def parsePutBody(r: HttpRequest): Future[Option[NoBody]] = for {
-    parsed <- Try { val a = r.entity.asString; if(a.isEmpty) None else Some(a) }.toOption.continue
-  } yield parsed
 
 }
