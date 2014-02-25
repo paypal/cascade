@@ -1,9 +1,13 @@
 package com.paypal.stingray.common.json
 
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.databind.{JavaType, DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala._
 import scala.util.Try
+import com.fasterxml.jackson.module.scala.introspect.ScalaClassIntrospectorModule
+import com.fasterxml.jackson.module.scala.deser.{OptionDeserializerModule, UntypedObjectDeserializerModule}
+import com.google.common.cache.{CacheBuilder, LoadingCache}
+import com.fasterxml.jackson.module.scala.util.Implicits._
 
 /**
  * Created by awharris on 1/17/14.
@@ -33,7 +37,8 @@ object JsonUtil {
 
   // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
   private val mapper = new ObjectMapper() with ScalaObjectMapper
-  mapper.registerModule(DefaultScalaModule)
+
+  mapper.registerModule(StingrayScalaModule)
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
   /**
@@ -57,4 +62,24 @@ object JsonUtil {
   def fromJson[T : Manifest](json: String): Try[T] = Try {
     mapper.readValue[T](json)
   }
+
+  class StingrayScalaModule
+    extends JacksonModule
+    with IteratorModule
+    with EnumerationModule
+    with IterableModule
+    with TupleModule
+    with MapModule
+    with SetModule
+    with ScalaClassIntrospectorModule
+    with UntypedObjectDeserializerModule
+    with SeqModule
+    with StingrayOptionModule {
+    override def getModuleName() = "StingrayScalaModule"
+  }
+
+  object StingrayScalaModule extends StingrayScalaModule
+
+  trait StingrayOptionModule extends StingrayOptionSerializerModule with OptionDeserializerModule
+
 }
