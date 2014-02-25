@@ -153,7 +153,7 @@ object ResourceDriver extends LoggingSugar {
    * @tparam PutBody the PUT body after parsing
    * @return the rewritten request execution
    */
-  def serveWithRewrite[ParsedRequest, AuthInfo, PostBody, PutBody]
+  final def serveWithRewrite[ParsedRequest, AuthInfo, PostBody, PutBody]
   (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody])
   (rewrite: HttpRequest => Try[(HttpRequest, Map[String, String])]): RequestContext => Unit = { ctx: RequestContext =>
     rewrite(ctx.request).map { case (request, pathParts) =>
@@ -174,7 +174,7 @@ object ResourceDriver extends LoggingSugar {
    * @tparam PutBody the PUT body after parsing
    * @return the request execution
    */
-  def serve[ParsedRequest, AuthInfo, PostBody, PutBody]
+  final def serve[ParsedRequest, AuthInfo, PostBody, PutBody]
   (resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
    pathParts: Map[String, String] = Map()): RequestContext => Unit = { ctx: RequestContext => {
     implicit val ec = resource.context
@@ -193,7 +193,7 @@ object ResourceDriver extends LoggingSugar {
    * @tparam PutBody the PUT body after parsing
    * @return a Future containing an HttpResponse
    */
-  def serveSync[ParsedRequest, AuthInfo, PostBody, PutBody](request: HttpRequest,
+  final def serveSync[ParsedRequest, AuthInfo, PostBody, PutBody](request: HttpRequest,
                                                             resource: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody],
                                                             pathParts: Map[String, String]): Future[HttpResponse] = {
 
