@@ -11,10 +11,9 @@ import ReleasePlugin._
 import ReleaseKeys._
 import sbt._
 import Keys._
-import ReleaseStateTransformations._
+import com.paypal.stingray.sbt.BuildUtilities._
 
 object BuildSettings {
-  import ChangelogReleaseStep._
 
   val org = "com.paypal.stingray"
   val scalaVsn = "2.10.3"
@@ -58,20 +57,7 @@ object BuildSettings {
     conflictManager := ConflictManager.strict,
     dependencyOverrides <+= scalaVersion { vsn => "org.scala-lang" % "scala-library" % vsn },
     tagName <<= (version in ThisBuild).map(a => a),
-    releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      checkForChangelog,
-      runTest,
-      setReleaseVersion,
-      commitReleaseVersion,
-      updateChangelog,
-      tagRelease,
-      publishArtifacts,
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
-    )
+    releaseProcess := defaultStingrayRelease
   )
 }
 
@@ -182,90 +168,5 @@ object CommonBuild extends Build {
       publish := {}
     )
   )
-
-}
-
-object ChangelogReleaseStep {
-  val changelog = "CHANGELOG.md"
-
-  private def getReleasedVersion(st: State) = st.get(versions).getOrElse(sys.error("No versions are set! Was this release part executed before inquireVersions?"))._1
-
-  lazy val checkForChangelog: ReleaseStep = { st: State =>
-     try {
-       getChangelogInfo
-       st
-     } catch {
-       case info: ChangelogInfoMissingException => sys.error("You must provide a changelog message and author")
-       case e: Throwable => sys.error("There was an error getting the changelog info: "+ e.getMessage)
-     }
-   }
-
-  lazy val updateChangelog: ReleaseStep = { st: State =>
-    try {
-        val info = getChangelogInfo
-        updateChangelog(info, st)
-        commitChangelog(st)
-        st
-
-    } catch {
-      case info: ChangelogInfoMissingException => sys.error("You must provide a changelog message and author")
-      case update: ChangelogUpdateException=> sys.error("There was an error writing to the changelog: " + update.getMessage)
-      case commit: ChangelogCommitException => sys.error("There was an error committing the changelog: "+ commit.getMessage)
-      case e: Throwable => sys.error("There was an error updating the changelog: "+ e.getMessage)
-    }
-  }
-
-  case class ChangelogInfo(msg: String, author: String)
-
-  class ChangelogInfoMissingException(e: Throwable) extends Exception(e)
-  class ChangelogUpdateException(e: Throwable) extends Exception(e)
-  class ChangelogCommitException(e: Throwable) extends Exception(e)
-
-  private def getChangelogInfo: ChangelogInfo = {
-    try {
-      val msg = System.getProperty("changelog.msg")
-      val msgExists = Option(msg).exists(_.length > 1)
-      val author = System.getProperty("changelog.author")
-      val authorExists = Option(author).exists(_.length > 1)
-      if (msgExists & authorExists) {
-        new ChangelogInfo(msg, author)
-      } else {
-        throw new Exception("msg or author too short")
-      }
-    } catch {
-      case e: Throwable => throw new ChangelogInfoMissingException(e)
-    }
-  }
-
-  private def updateChangelog(info: ChangelogInfo, st: State) {
-    try {
-      val oldChangelog = Source.fromFile(changelog).mkString
-      val theVersion = getReleasedVersion(st)
-      val dateFormat = new SimpleDateFormat("MM/dd/yy")
-      val theDate = dateFormat.format(Calendar.getInstance().getTime)
-
-      val out = new PrintWriter( changelog, "UTF-8")
-      try {
-        out.write("\n# " + theVersion + " " + theDate + " released by " + info.author + "\n")
-        if (!info.msg.trim.startsWith("*")) out.write("* ")
-        out.write(info.msg + "\n")
-        oldChangelog.foreach(out.write(_))
-      } finally {
-        out.close()
-      }
-    } catch {
-      case e: Throwable => throw new ChangelogUpdateException(e)
-    }
-  }
-
-  private def commitChangelog(st: State) {
-    try {
-      val vcs = Project.extract(st).get(versionControlSystem).getOrElse(sys.error("Aborting release. Working directory is not a repository of a recognized VCS."))
-      vcs.add(changelog) !! st.log
-      vcs.commit("Changelog updated for " + getReleasedVersion(st)) ! st.log
-    } catch {
-      case e: Throwable  => throw new ChangelogCommitException(e)
-    }
-  }
 
 }
