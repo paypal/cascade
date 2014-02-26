@@ -27,7 +27,7 @@ class Any2OptionSpecs extends Specification with ScalaCheck { def is = s2"""
  """
 
   case class SomeTest() extends CommonImmutableSpecificationContext {
-    def someAnyVal = forAll(arbAnyVal) { value =>
+    def someAnyVal = forAll(arbitrary[AnyVal]) { value =>
       value.some must beSome.like {
         case l => l must beEqualTo(value)
       }
