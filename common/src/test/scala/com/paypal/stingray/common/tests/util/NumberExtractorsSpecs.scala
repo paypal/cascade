@@ -32,7 +32,6 @@ class NumberExtractorsSpecs extends Specification with ScalaCheck { def is = s2"
       newInt must beEqualTo(num)
     }
     def failureCase = forAll(arbitrary[Int], Gen.alphaChar) { (num, char) =>
-      println(num.toString + char)
       val newInt = num.toString + char match {
         case IntExtractor(a) => a
         case _ => 0
