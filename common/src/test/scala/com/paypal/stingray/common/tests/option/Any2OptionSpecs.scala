@@ -12,15 +12,15 @@ class Any2OptionSpecs extends Specification { def is = s2"""
 
   Any2OptionSpecs adds helpful Option methods to any object in scope
 
-    orFalse should
-      return false given Some(false)                                  ${SomeTest().someAnyVal}
-      return true given Some(true)                                    ${SomeTest().someAnyRef}
-      return false given None                                         ${SomeTest().someNull}
+    some should
+      return Some(val) given val: AnyVal                                  ${SomeTest().someAnyVal}
+      return Some(val) given val: AnyRef                                  ${SomeTest().someAnyRef}
+      return Some(null) given null string                                 ${SomeTest().someNull}
 
-    orTrue should
-      return false given Some(false)                                  ${OptTest().optAnyVal}
-      return true given Some(true)                                    ${OptTest().optAnyRef}
-      return true given None                                          ${OptTest().optNull}
+    opt should
+      return Some(val) given val: AnyVal                                  ${OptTest().optAnyVal}
+      return Some(val) given val: AnyRef                                  ${OptTest().optAnyRef}
+      return None given null string                                       ${OptTest().optNull}
 
  """
 
@@ -44,13 +44,17 @@ class Any2OptionSpecs extends Specification { def is = s2"""
   }
 
   case class OptTest() extends CommonImmutableSpecificationContext {
-    def optAnyVal: SpecsResult =  0L.opt must beSome.like {
-      case l => l must beEqualTo(0L)
+    def optAnyVal = {
+      0L.opt must beSome.like {
+        case l => l must beEqualTo(0L)
+      }
     }
-    def optAnyRef: SpecsResult = List[String]().opt must beSome.like {
-      case l => l must beTheSameAs(List[String]())
+    def optAnyRef ={
+      List[String]().opt must beSome.like {
+        case l => l must beTheSameAs(List[String]())
+      }
     }
-    def optNull: SpecsResult = {
+    def optNull = {
       val s: String = null
       s.opt must beNone
     }
