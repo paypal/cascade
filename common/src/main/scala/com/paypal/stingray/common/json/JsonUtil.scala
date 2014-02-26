@@ -1,9 +1,14 @@
 package com.paypal.stingray.common.json
 
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.databind.{JavaType, DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala._
 import scala.util.Try
+import com.fasterxml.jackson.module.scala.introspect.ScalaClassIntrospectorModule
+import com.fasterxml.jackson.module.scala.deser.{OptionDeserializerModule, UntypedObjectDeserializerModule}
+import com.google.common.cache.{CacheBuilder, LoadingCache}
+import com.fasterxml.jackson.module.scala.util.Implicits._
+import com.fasterxml.jackson.annotation.JsonInclude
 
 /**
  * Created by awharris on 1/17/14.
@@ -19,22 +24,15 @@ import scala.util.Try
  *  - Null values will be treated as valid JSON. This is because `null` is a valid JSON value. Case classes that will
  *    be serialized/deser'd need to include their own validation to guard against unintentional nulls.
  *
- *  - Options do not serialize/deserialize cleanly. Jackson is Java underneath, and so has no concept of an Option.
- *    As a result, Options are serialized as their inner value if Some, or null if None. On deserialization, because
- *    `null` is a valid JSON value, any null values are deserialized as just that: null values.
- *
- *    For case classes that use Options, values that are Options are safe to use. Jackson lifts those into their
- *    correct Option form.
- *
- *    For containers that use Options, e.g. `List[Option[T]]`, Jackson will not ser/deser properly. This will
- *    yield a result such as `List(null)` when `List(None)` is intended.
  */
 object JsonUtil {
 
   // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
   private val mapper = new ObjectMapper() with ScalaObjectMapper
+
   mapper.registerModule(DefaultScalaModule)
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+  mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
   /**
    * Convert an object to a JSON string representation.
@@ -57,4 +55,5 @@ object JsonUtil {
   def fromJson[T : Manifest](json: String): Try[T] = Try {
     mapper.readValue[T](json)
   }
+
 }

@@ -25,14 +25,13 @@ trait SprayMatchers {
    * @param code the response code required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInCodeGivenData[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
+  def resultInCodeGivenData[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                        processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                                         pathParts: Map[String, String],
                                                                         code: StatusCode) =
-    new ResponseHasCode[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, code)
+    new ResponseHasCode[ParsedRequest, AuthInfo](req, processFunction, pathParts, code)
 
   /**
    * Requires that a run request must have a certain response body
@@ -41,14 +40,13 @@ trait SprayMatchers {
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInBodyGivenData[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
+  def resultInBodyGivenData[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                        processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                                         pathParts: Map[String, String],
                                                                         body: HttpEntity) =
-    new ResponseHasBody[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, body)
+    new ResponseHasBody[ParsedRequest, AuthInfo](req, processFunction, pathParts, body)
 
   /**
    * Requires that a run request must have a certain response body
@@ -57,14 +55,13 @@ trait SprayMatchers {
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInBodyStringGivenData[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
+  def resultInBodyStringGivenData[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                              processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                                               pathParts: Map[String, String],
                                                                               body: String) =
-    new ResponseHasBodyString[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, body)
+    new ResponseHasBodyString[ParsedRequest, AuthInfo](req, processFunction, pathParts, body)
 
   /**
    * Requires that a run request must have a response body that passes a given comparison function
@@ -73,14 +70,13 @@ trait SprayMatchers {
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInBodyLike[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                   pathParts: Map[String, String])
-                                                                  (f: HttpEntity => MatchResult[Any]) =
-    new ResponseHasBodyLike[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, f)
+  def resultInBodyLike[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                pathParts: Map[String, String])
+                                               (f: HttpEntity => MatchResult[Any]) =
+    new ResponseHasBodyLike[ParsedRequest, AuthInfo](req, processFunction, pathParts, f)
 
   /**
    * Requires that a run request must have a response body that passes a given comparison function
@@ -89,14 +85,13 @@ trait SprayMatchers {
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInBodyStringLike[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                         pathParts: Map[String, String])
-                                                                        (f: String => MatchResult[Any]) =
-    new ResponseHasBodyStringLike[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, f)
+  def resultInBodyStringLike[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                      processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                      pathParts: Map[String, String])
+                                                     (f: String => MatchResult[Any]) =
+    new ResponseHasBodyStringLike[ParsedRequest, AuthInfo](req, processFunction, pathParts, f)
 
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
@@ -106,15 +101,14 @@ trait SprayMatchers {
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInCodeAndBodyLike[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                          pathParts: Map[String, String],
-                                                                          code: StatusCode)
-                                                                         (f: HttpEntity => MatchResult[Any]) =
-    new ResponseHasCodeAndBodyLike[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, code, f)
+  def resultInCodeAndBodyLike[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                       processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                       pathParts: Map[String, String],
+                                                       code: StatusCode)
+                                                      (f: HttpEntity => MatchResult[Any]) =
+    new ResponseHasCodeAndBodyLike[ParsedRequest, AuthInfo](req, processFunction, pathParts, code, f)
 
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
@@ -124,15 +118,14 @@ trait SprayMatchers {
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInCodeAndBodyStringLike[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                                pathParts: Map[String, String],
-                                                                                code: StatusCode)
-                                                                               (f: String => MatchResult[Any]) =
-    new ResponseHasCodeAndBodyStringLike[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, code, f)
+  def resultInCodeAndBodyStringLike[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                             processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                             pathParts: Map[String, String],
+                                                             code: StatusCode)
+                                                            (f: String => MatchResult[Any]) =
+    new ResponseHasCodeAndBodyStringLike[ParsedRequest, AuthInfo](req, processFunction, pathParts, code, f)
 
   /**
    * Requires that a run request must have a given header in its response
@@ -141,14 +134,13 @@ trait SprayMatchers {
    * @param header the header
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInResponseWithHeaderContaining[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                                       pathParts: Map[String, String],
-                                                                                       header: HttpHeader) =
-    new ResponseHasHeaderContainingValue[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, header)
+  def resultInResponseWithHeaderContaining[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                    processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                                    pathParts: Map[String, String],
+                                                                    header: HttpHeader) =
+    new ResponseHasHeaderContainingValue[ParsedRequest, AuthInfo](req, processFunction, pathParts, header)
 
   /**
    * Requires that a run request must have a given header and header value in its response
@@ -157,14 +149,13 @@ trait SprayMatchers {
    * @param header the header
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInResponseWithNonEmptyHeader[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
+  def resultInResponseWithNonEmptyHeader[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                                     processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                                                      pathParts: Map[String, String],
                                                                                      header: String) =
-    new ResponseHasNonEmptyHeader[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, header)
+    new ResponseHasNonEmptyHeader[ParsedRequest, AuthInfo](req, processFunction, pathParts, header)
 
   /**
    * Requires that a run request must have a given `Content-Type` header in its response
@@ -173,14 +164,13 @@ trait SprayMatchers {
    * @param cType the content type
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInContentType[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                      pathParts: Map[String, String],
-                                                                      cType: ContentType) =
-    new ResponseHasContentType[ParsedRequest, AuthInfo, PostBody, PutBody](req, pathParts, cType)
+  def resultInContentType[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                   pathParts: Map[String, String],
+                                                   cType: ContentType) =
+    new ResponseHasContentType[ParsedRequest, AuthInfo](req, processFunction, pathParts, cType)
 
   /**
    * Requires that a run request must have a certain response code
@@ -189,16 +179,15 @@ trait SprayMatchers {
    * @param code the response code required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    */
-  class ResponseHasCode[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                    pathParts: Map[String, String],
-                                                                    code: StatusCode)
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+  class ResponseHasCode[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                  processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                  pathParts: Map[String, String],
+                                                  code: StatusCode)
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       result(
         code == resp.status,
         s"Response has code: ${code.intValue}",
@@ -215,16 +204,15 @@ trait SprayMatchers {
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    */
-  class ResponseHasBody[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
+  class ResponseHasBody[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                    processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                                     pathParts: Map[String, String],
                                                                     body: HttpEntity)
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       result(
         body == resp.entity,
         "Expected response body found",
@@ -241,16 +229,15 @@ trait SprayMatchers {
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    */
-  class ResponseHasBodyString[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                          pathParts: Map[String, String],
-                                                                          body: String)
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+  class ResponseHasBodyString[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                       processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                       pathParts: Map[String, String],
+                                                       body: String)
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       result(
         body == resp.entity.asString,
         "Expected response body found",
@@ -268,17 +255,16 @@ trait SprayMatchers {
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    */
-  class ResponseHasCodeAndBodyLike[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                               pathParts: Map[String, String],
-                                                                               code: StatusCode,
-                                                                               f: HttpEntity => MatchResult[Any])
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+  class ResponseHasCodeAndBodyLike[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                            processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                            pathParts: Map[String, String],
+                                                            code: StatusCode,
+                                                            f: HttpEntity => MatchResult[Any])
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity)
       result(
         code == resp.status && matchResult.isSuccess,
@@ -300,17 +286,16 @@ trait SprayMatchers {
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    */
-  class ResponseHasCodeAndBodyStringLike[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                                     pathParts: Map[String, String],
-                                                                                     code: StatusCode,
-                                                                                     f: String => MatchResult[Any])
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+  class ResponseHasCodeAndBodyStringLike[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                  processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                                  pathParts: Map[String, String],
+                                                                  code: StatusCode,
+                                                                  f: String => MatchResult[Any])
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity.asString)
       result(
         code == resp.status && matchResult.isSuccess,
@@ -331,16 +316,15 @@ trait SprayMatchers {
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    */
-  class ResponseHasBodyLike[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                        pathParts: Map[String, String],
-                                                                        f: HttpEntity => MatchResult[Any])
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+  class ResponseHasBodyLike[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                     processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                     pathParts: Map[String, String],
+                                                     f: HttpEntity => MatchResult[Any])
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity)
       result(
         matchResult.isSuccess,
@@ -358,16 +342,15 @@ trait SprayMatchers {
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    */
-  class ResponseHasBodyStringLike[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
+  class ResponseHasBodyStringLike[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                              processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                                               pathParts: Map[String, String],
                                                                               f: String => MatchResult[Any])
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity.asString)
       result(
         matchResult.isSuccess,
@@ -378,13 +361,14 @@ trait SprayMatchers {
     }
   }
 
-  class ResponseHasHeaderContainingValue[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
+  class ResponseHasHeaderContainingValue[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                                     processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                                                      pathParts: Map[String, String],
                                                                                      header: HttpHeader)
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       val hdr = resp.headers.find(_.lowercaseName == header.lowercaseName)
       result(
         hdr.exists(_ == header),
@@ -403,16 +387,15 @@ trait SprayMatchers {
    * @param header the header
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    */
-  class ResponseHasNonEmptyHeader[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
-                                                                              pathParts: Map[String, String],
-                                                                              header: String)
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+  class ResponseHasNonEmptyHeader[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                           processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                           pathParts: Map[String, String],
+                                                           header: String)
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       val hdr = resp.headers.find(_.lowercaseName == header)
       result(
         hdr.exists(_.value.trim != ""),
@@ -431,16 +414,15 @@ trait SprayMatchers {
    * @param cType the content type
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
-   * @tparam PostBody the parsed POST body type
-   * @tparam PutBody the parsed PUT body type
    */
-  class ResponseHasContentType[ParsedRequest, AuthInfo, PostBody, PutBody](req: HttpRequest,
+  class ResponseHasContentType[ParsedRequest, AuthInfo](req: HttpRequest,
+                                                                           processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                                            pathParts: Map[String, String],
                                                                            cType: ContentType)
-    extends Matcher[AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]] {
+    extends Matcher[AbstractResource[ParsedRequest, AuthInfo]] {
 
-    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo, PostBody, PutBody]](r: Expectable[S]): MatchResult[S] = {
-      val resp = Await.result(ResourceDriver.serveSync(req, r.value, pathParts), sprayMatcherAwaitDuration)
+    override def apply[S <: AbstractResource[ParsedRequest, AuthInfo]](r: Expectable[S]): MatchResult[S] = {
+      val resp = Await.result(ResourceDriver.serveSync(req, r.value, processFunction, pathParts), sprayMatcherAwaitDuration)
       val resultCType = resp.entity.some collect {
         case NonEmpty(c, _) => c
       }

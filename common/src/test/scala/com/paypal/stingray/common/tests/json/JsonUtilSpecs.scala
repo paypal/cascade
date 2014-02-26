@@ -29,7 +29,9 @@ class JsonUtilSpecs
     a Map[String, Int]                                                       ${Maps.StringToInt().ok}
     a Map[String, List[String]]                                              ${Maps.StringToListString().ok}
     a Map[String, List[Int]]                                                 ${Maps.StringToListInt().ok}
+    a Map[String, List[List[String]]]                                        ${Maps.StringToListListString().ok}
     a Map[String, Map[String, String]]                                       ${Maps.StringToMapStringString().ok}
+    a List[Option[String]]                                                   ${Lists.ListOption().ok}
 
   JsonUtil should serialize and deserialize case classes, such as
     a case class containing a single data member                             ${CaseClasses.OneMember().ok}
@@ -39,14 +41,14 @@ class JsonUtilSpecs
     a case class containing an optional AnyRef type                          ${CaseClasses.OptionalAnyRefMember().ok}
     a case class containing another case class                               ${CaseClasses.NestedClasses().ok}
     a case class containing an optional case class                           ${CaseClasses.OptionalNested().ok}
+    a case class containing a list of options                                ${CaseClasses.ListOptionMember().ok}
 
   JsonUtil should
     not deserialize malformed json                                           ${Badness.MalformedJson().fails}
     not deserialize json that is type mismatched                             ${Badness.MismatchedTypes().fails}
     deserialize json that is missing an AnyVal, with a default value         ${Badness.MissingAnyVal().ok}
     deserialize json that is missing an AnyRef, with a null value            ${Badness.MissingAnyRef().ok}
-    fail to correctly ser/deser a list of options                            ${Badness.ListOption().fails}
-    fail to correctly ser/deser a case class containing a list of options    ${Badness.ListOptionMember().fails}
+
   """
 
   object BasicTypes {
@@ -133,6 +135,17 @@ class JsonUtilSpecs
       }
     }
 
+    case class StringToListListString() {
+      def ok = forAll(genJsonString, nonEmptyListOf(nonEmptyListOf(genJsonString))) { (k, l) =>
+        val to = toJson(Map(k -> l)).get
+        val from = fromJson[Map[String, List[List[String]]]](to).get
+
+        from.get(k) must beSome.like { case lst =>
+          lst.toSeq must containTheSameElementsAs(l.toSeq)
+        }
+      }
+    }
+
     case class StringToListInt() {
       def ok = forAll(genJsonString, nonEmptyListOf(arbitrary[Int])) { (k, l) =>
         val to = toJson(Map(k -> l)).get
@@ -160,6 +173,19 @@ class JsonUtilSpecs
           })
       }
     }
+  }
+
+  object Lists {
+
+    case class ListOption() {
+      def ok = forAll(nonEmptyListOf(genOption(genJsonString))) { l =>
+        val to = toJson(l).get
+        val from = fromJson[List[Option[String]]](to).get
+
+        from.toSeq must containTheSameElementsAs(l.toSeq)
+      }
+    }
+
   }
 
   object CaseClasses {
@@ -200,14 +226,13 @@ class JsonUtilSpecs
         val to = toJson(OptionalAnyValData(s, mbInt)).get
         val from = fromJson[OptionalAnyValData](to).get
 
-        // Note: Jackson serializes None as null, so `mbTwo` will always be present as a key,
-        // but possibly with a null value
-        val mbIntToJson = mbInt match {
-          case None => "null"
-          case Some(i) => s"$i"
+        //None's should not be serialized
+        val mbIntToJson: String = mbInt match {
+          case None => ""
+          case Some(i) => ",\"mbTwo\":" + i
         }
 
-        (to must beEqualTo("""{"one":"%s","mbTwo":%s}""".format(s, mbIntToJson))) and
+        (to must beEqualTo("""{"one":"%s"%s}""".format(s, mbIntToJson))) and
           (from must beEqualTo(OptionalAnyValData(s, mbInt)))
       }
     }
@@ -217,14 +242,13 @@ class JsonUtilSpecs
         val to = toJson(OptionalAnyRefData(mbStr, i)).get
         val from = fromJson[OptionalAnyRefData](to).get
 
-        // Note: Jackson serializes None as null, so `mbOne` will always be present as a key,
-        // but possibly with a null value
+        //None's should not be serialized
         val mbStrToJson = mbStr match {
-          case None => "null"
-          case Some(str) => """"%s"""".format(str)
+          case None => ""
+          case Some(str) => """"mbOne":"%s",""".format(str)
         }
 
-        (to must beEqualTo("""{"mbOne":%s,"two":%d}""".format(mbStrToJson, i))) and
+        (to must beEqualTo("""{%s"two":%d}""".format(mbStrToJson, i))) and
           (from must beEqualTo(OptionalAnyRefData(mbStr, i)))
       }
     }
@@ -249,6 +273,15 @@ class JsonUtilSpecs
         val from = fromJson[OptionalInner](to).get
 
         from must beEqualTo(OptionalInner(mbN))
+      }
+    }
+
+    case class ListOptionMember() {
+      def ok = forAll(nonEmptyListOf(genOption(genJsonString))) { l =>
+        val to = toJson(ListOptionData(l)).get
+        val from = fromJson[ListOptionData](to).get
+
+        from.l.toSeq must containTheSameElementsAs(l.toSeq)
       }
     }
   }
@@ -318,25 +351,6 @@ class JsonUtilSpecs
       }
     }
 
-    case class ListOption() {
-      def fails = forAll(nonEmptyListOf(const[Option[String]](None))) { l =>
-        val to = toJson(l).get
-        val from = fromJson[List[Option[String]]](to).get
-
-        // Jackson will ser None as null, but then fail to deser it back to None, instead leaving it as null
-        from.toSeq must not(containTheSameElementsAs(l.toSeq))
-      }
-    }
-
-    case class ListOptionMember() {
-      def fails = forAll(nonEmptyListOf(const[Option[String]](None))) { l =>
-        val to = toJson(ListOptionData(l)).get
-        val from = fromJson[ListOptionData](to).get
-
-        // Jackson will ser None as null, but then fail to deser it back to None, instead leaving it as null
-        from.l.toSeq must not(containTheSameElementsAs(l.toSeq))
-      }
-    }
   }
 }
 

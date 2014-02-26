@@ -1,4 +1,15 @@
 
+# 0.1.7 02/25/14 released by mpoconnell
+* Fix for SprayActor
+Simplified ResourceDriver
+
+# 0.1.6 02/25/14 released by mpoconnell
+* Resource Driver fixes, actor system fixes (Actually)
+
+# 0.1.5 02/25/14 released by mpoconnell
+* Changes to ResourceService and ResourceDriver
+Actor System changes
+
 # 0.1.4 02/18/14 released by awharris
 * configurable Await timeouts for SprayMatchers requests, ActorSpecification RichFuture methods
 
