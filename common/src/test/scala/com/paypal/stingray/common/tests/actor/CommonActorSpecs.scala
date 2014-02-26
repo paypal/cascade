@@ -1,6 +1,8 @@
 package com.paypal.stingray.common.tests.actor
 
 import org.specs2._
+import org.scalacheck.Prop._
+import org.scalacheck.Arbitrary._
 import akka.pattern.ask
 import com.paypal.stingray.common.actor._
 import akka.actor._
@@ -15,6 +17,7 @@ import java.util.concurrent.TimeUnit
 class CommonActorSpecs
   extends TestKit(ActorSystem("CommonActorSpecs"))
   with SpecificationLike
+  with ScalaCheck
   with ActorSpecification { def is = s2"""
 
   Passing an unhandled exception results in an UnhandledMessageException ${Message().failureCase}
@@ -36,8 +39,8 @@ class CommonActorSpecs
 
   case class Message() extends Context {
 
-    def failureCase = this {
-      (testActor ? "hello").mapTo[String].toTry must beFailedTry[String].withThrowable[UnhandledMessageException]
+    def failureCase = forAll(arbitrary[String]) { str =>
+      (testActor ? str).mapTo[String].toTry must beFailedTry[String].withThrowable[UnhandledMessageException]
     }
 
   }

@@ -5,7 +5,6 @@ import org.scalacheck._
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Prop._
 import com.paypal.stingray.common.util.{IntExtractor, LongExtractor}
-import scala.util.Random
 
 /**
  * Tests number extractor methods [[com.paypal.stingray.common.util]]
@@ -32,8 +31,9 @@ class NumberExtractorsSpecs extends Specification with ScalaCheck { def is = s2"
       }
       newInt must beEqualTo(num)
     }
-    def failureCase = forAll(arbitrary[String]) { str =>
-      val newInt = str + Random.nextInt(100).toString match {
+    def failureCase = forAll(arbitrary[Int], Gen.alphaChar) { (num, char) =>
+      println(num.toString + char)
+      val newInt = num.toString + char match {
         case IntExtractor(a) => a
         case _ => 0
       }
@@ -49,8 +49,8 @@ class NumberExtractorsSpecs extends Specification with ScalaCheck { def is = s2"
       }
       newLong must beEqualTo(num)
     }
-    def failureCase = forAll(arbitrary[String]) { str =>
-      val newLong = str + Random.nextLong.toString match {
+    def failureCase = forAll(arbitrary[Long], Gen.alphaChar) { (num, char) =>
+      val newLong = num.toString + char match {
         case LongExtractor(a) => a
         case _ => 0L
       }
