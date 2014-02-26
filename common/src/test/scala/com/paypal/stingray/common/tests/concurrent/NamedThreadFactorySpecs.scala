@@ -7,14 +7,17 @@ import com.paypal.stingray.common.concurrent.NamedThreadFactory
 /**
  * Tests for [[com.paypal.stingray.common.concurrent.NamedThreadFactory]]
  */
-class NamedThreadFactorySpecs extends Specification { override def is =
+class NamedThreadFactorySpecs extends Specification { override def is = s2"""
 
-  "NamedThreadFactorySpecs".title                                                                  ^
-    "A NamedThreadFactory should"                                                                  ^
-    "be able to create NORMAL priority non-daemon threads with given prefix"                       ! thread().normal ^
-    "be able to create NORMAL priority daemon threads with given prefix"                           ! thread().normalDaemon ^
-    "be able to create multiple threads"                                                           ! thread().multiple ^
-    end
+    NamedThreadFactory provides a method to get DefaultThreadFactory instances with a specified thread name prefix.
+
+    NamedThreadFactory should:
+
+    be able to create NORMAL priority non-daemon threads with given prefix                    ${thread().normal}
+    be able to create NORMAL priority daemon threads from root with given prefix              ${thread().normalDaemonRoot}
+    be able to create NORMAL priority daemon threads with given prefix                        ${thread().normalDaemon}
+    be able to create multiple threads                                                        ${thread().multiple}
+  """
 
   case class thread() extends CommonImmutableSpecificationContext {
 
@@ -25,13 +28,19 @@ class NamedThreadFactorySpecs extends Specification { override def is =
     def normal = apply {
       val t = factory.namedThreadFactory(prefix).newThread(noopRunnable)
       //don't start the thread, just inspect it
-      (t.getName must startWith(prefix)) and (t.isDaemon must beFalse) and (t.getPriority must_== Thread.NORM_PRIORITY)
+      (t.getName must startWith(prefix)) and (t.isDaemon must beFalse) and (t.getPriority must beEqualTo(Thread.NORM_PRIORITY))
     }
 
     def normalDaemon = apply {
+      val t = factory.namedDaemonThreadFactory(prefix).newThread(noopRunnable)
+      //don't start the thread, just inspect it
+      (t.getName must startWith(prefix)) and (t.isDaemon must beTrue) and (t.getPriority must beEqualTo(Thread.NORM_PRIORITY))
+    }
+
+    def normalDaemonRoot = apply {
       val t = factory.namedDaemonRootThreadFactory(prefix).newThread(noopRunnable)
       //don't start the thread, just inspect it
-      (t.getName must startWith(prefix)) and (t.isDaemon must beTrue) and (t.getPriority must_== Thread.NORM_PRIORITY)
+      (t.getName must startWith(prefix)) and (t.isDaemon must beTrue) and (t.getPriority must beEqualTo(Thread.NORM_PRIORITY))
     }
 
     def multiple = apply {

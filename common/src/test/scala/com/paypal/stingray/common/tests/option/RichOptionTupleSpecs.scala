@@ -10,14 +10,15 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
  * Tests for implicit [[com.paypal.stingray.common.option.RichOptionTuple]]
  */
 
-class RichOptionTupleSpecs extends Specification { def is =
-  "RichOptionTupleSpecs".title                                                                                          ^
-  """
+class RichOptionTupleSpecs extends Specification { def is = s2"""
+
   RichOptionTuple is a wrapper for (Option[T], Option[U]) types (ie: 2-tuples of options)
-  """                                                                                                                   ^
-  "fold should"                                                                                                         ^
-    "execute exactly one function according to the defined permutation of Options"                                      ! Fold().accordingToCorrectPermutation
-                                                                                                                        end
+
+  fold should
+    execute exactly one function according to the defined permutation of Options             ${Fold().accordingToCorrectPermutation}
+
+"""
+
   trait Context extends CommonImmutableSpecificationContext {
     protected def makeRichOptionTuple[T, U](opt1: Option[T], opt2: Option[U]) = new RichOptionTuple[T, U](opt1 -> opt2)
 
@@ -60,7 +61,7 @@ class RichOptionTupleSpecs extends Specification { def is =
 
 
   case class Fold() extends Context {
-    def accordingToCorrectPermutation: SpecsResult = {
+    def accordingToCorrectPermutation = {
       int.get.must(beEqualTo(0)) and
       doFold(bothW).must(beEqualTo(bothRes)) and
       int.get.must(beEqualTo(1)) and

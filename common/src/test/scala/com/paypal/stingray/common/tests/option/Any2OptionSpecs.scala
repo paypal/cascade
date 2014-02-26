@@ -1,37 +1,43 @@
 package com.paypal.stingray.common.tests.option
 
-import org.specs2.Specification
+import org.specs2._
 import org.specs2.execute.{Result => SpecsResult}
+import org.scalacheck.Prop._
+import org.scalacheck.Arbitrary._
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
  * Tests for implicit [[com.paypal.stingray.common.option.Any2Option]]
  */
-class Any2OptionSpecs extends Specification { def is =
-  "Any2OptionSpecs".title                                                        ^
-    """
+class Any2OptionSpecs extends Specification with ScalaCheck { def is = s2"""
+
   Any2OptionSpecs adds helpful Option methods to any object in scope
-    """                                                                          ^
-    "orFalse should"                                                             ^
-      "return false given Some(false)"                                           ! SomeTest().someAnyVal ^
-      "return true given Some(true)"                                             ! SomeTest().someAnyRef ^
-      "return false given None"                                                  ! SomeTest().someNull ^
-                                                                                 end ^
-    "orTrue should"                                                              ^
-      "return false given Some(false)"                                           ! OptTest().optAnyVal ^
-      "return true given Some(true)"                                             ! OptTest().optAnyRef ^
-      "return true given None"                                                   ! OptTest().optNull ^
-                                                                                 end
+
+    some should
+      return Some(val) given val: AnyVal                                  ${SomeTest().someAnyVal}
+      return Some(val) given val: AnyRef                                  ${SomeTest().someAnyRef}
+      return Some(null) given null string                                 ${SomeTest().someNull}
+
+    opt should
+      return Some(val) given val: AnyVal                                  ${OptTest().optAnyVal}
+      return Some(val) given val: AnyRef                                  ${OptTest().optAnyRef}
+      return None given null string                                       ${OptTest().optNull}
+
+ """
 
   case class SomeTest() extends CommonImmutableSpecificationContext {
-    def someAnyVal: SpecsResult =  0L.some must beSome.like {
-      case l => l must beEqualTo(0L)
+    def someAnyVal = forAll(arbitrary[AnyVal]) { value =>
+      value.some must beSome.like {
+        case l => l must beEqualTo(value)
+      }
     }
-    def someAnyRef: SpecsResult = List[String]().some must beSome.like {
-      case l => l must beTheSameAs(List[String]())
+    def someAnyRef = forAll(arbitrary[List[String]]) { ref =>
+      ref.some must beSome.like {
+        case l => l must beTheSameAs(ref)
+      }
     }
-    def someNull: SpecsResult = {
+    def someNull = {
       val s: String = null
       s.some must beSome.like {
         case o => o must beNull
@@ -40,13 +46,17 @@ class Any2OptionSpecs extends Specification { def is =
   }
 
   case class OptTest() extends CommonImmutableSpecificationContext {
-    def optAnyVal: SpecsResult =  0L.opt must beSome.like {
-      case l => l must beEqualTo(0L)
+    def optAnyVal = forAll(arbAnyVal) { value =>
+      value.opt must beSome.like {
+        case l => l must beEqualTo(value)
+      }
     }
-    def optAnyRef: SpecsResult = List[String]().opt must beSome.like {
-      case l => l must beTheSameAs(List[String]())
+    def optAnyRef = forAll(arbitrary[List[String]]) { ref =>
+      ref.opt must beSome.like {
+        case l => l must beTheSameAs(ref)
+      }
     }
-    def optNull: SpecsResult = {
+    def optNull = {
       val s: String = null
       s.opt must beNone
     }

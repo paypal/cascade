@@ -12,25 +12,24 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
  * Tests for implicit casts in [[com.paypal.stingray.common.util.casts]]
  */
 
-class CastSpecs extends Specification with ScalaCheck { override def is =
+class CastSpecs extends Specification with ScalaCheck { override def is = s2"""
 
-  "CastSpecs".title                                                                        ^
-  """
   The cast utilities provide a type safe way to perform casts without throwing exceptions.
-  """                                                                                      ^
-  "Cast an Any"                                                                            ! cast().any ^
-  "Cast any primitive"                                                                     ! cast().primitive ^
-  "Cast an Option[_]"                                                                      ! cast().option ^
-  "Cast an Array[_]"                                                                       ! cast().array ^
-  "Cast a Traversable[_]"                                                                  ! cast().traversable ^
-  "Cast a List[_]"                                                                         ! cast().list ^
-  "CastIf an Any"                                                                          ! castIf().any ^
-  "CastIf any primitive"                                                                   ! castIf().primitive ^
-  "CastIf an Option[_]"                                                                    ! castIf().option ^
-  "CastIf an Array[_]"                                                                     ! castIf().array ^
-  "CastIf a Traversable[_]"                                                                ! castIf().traversable ^
-  "CastIf a List[_]"                                                                       ! castIf().list ^
-                                                                                           end
+
+  Cast an Any                                                                          ${cast().any}
+  Cast any primitive                                                                   ${cast().primitive}
+  Cast an Option[_]                                                                    ${cast().option}
+  Cast an Array[_]                                                                     ${cast().array}
+  Cast a Traversable[_]                                                                ${cast().traversable}
+  Cast a List[_]                                                                       ${cast().list}
+  CastIf an Any                                                                        ${castIf().any}
+  CastIf any primitive                                                                 ${castIf().primitive}
+  CastIf an Option[_]                                                                  ${castIf().option}
+  CastIf an Array[_]                                                                   ${castIf().array}
+  CastIf a Traversable[_]                                                              ${castIf().traversable}
+  CastIf a List[_]                                                                     ${castIf().list}
+
+"""
 
   case class castIf() extends CommonImmutableSpecificationContext {
 
