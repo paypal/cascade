@@ -19,7 +19,6 @@ object BuildSettings {
   val scalaVsn = "2.10.3"
   val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
 
-  val propFileDir = System.getenv.get("STINGRAY_PROP_FILE_DIR")
   val defaultArgs = Seq(
     "-Xmx4096m",
     "-XX:MaxPermSize=512m",
@@ -28,11 +27,11 @@ object BuildSettings {
     "-XX:+UseCodeCacheFlushing",
     "-XX:+UseCompressedOops",
     "-XX:+UseConcMarkSweepGC",
-    "-XX:+CMSClassUnloadingEnabled",
-    "-Dstingray.cluster.config=%s/dev-master.properties".format(propFileDir)
+    "-XX:+CMSClassUnloadingEnabled"
   )
-  val runArgs = defaultArgs ++ Seq("-Dlogback.configurationFile=%s/dev-logback.xml".format(propFileDir))
-  val testArgs = defaultArgs ++ Seq("-Dlogback.configurationFile=%s/logback-test.xml".format(propFileDir))
+
+  val runArgs = defaultArgs
+  val testArgs = defaultArgs
 
   lazy val standardSettings = Defaults.defaultSettings ++ releaseSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
     organization := org,
