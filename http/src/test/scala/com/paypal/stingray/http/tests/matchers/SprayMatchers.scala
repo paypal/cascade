@@ -21,7 +21,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code
    * @param req the request to run the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -36,7 +36,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -51,7 +51,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -66,7 +66,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -81,7 +81,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -96,7 +96,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
@@ -113,7 +113,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
@@ -130,7 +130,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given header in its response
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param header the header
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -145,7 +145,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given header and header value in its response
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param header the header
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -160,7 +160,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given `Content-Type` header in its response
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param cType the content type
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -175,7 +175,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code
    * @param req the request to run the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -200,7 +200,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -225,7 +225,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -250,7 +250,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
@@ -281,7 +281,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
@@ -312,7 +312,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -338,7 +338,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -383,7 +383,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given header and header value in its response
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param header the header
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
@@ -410,7 +410,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given `Content-Type` header in its response
    * @param req the request to run
-   * @param requestParser the path
+   * @param requestParser function, which converts the request, into a parsed request
    * @param cType the content type
    * @tparam ParsedRequest the parsed request type
    * @tparam AuthInfo the auth container type
