@@ -31,7 +31,7 @@ object ResourceDriver extends LoggingSugar {
    * @param resource this resource
    * @return an empty Future
    */
-  def ensureAvailable(resource: AbstractResource[_, _]): Future[Unit] = {
+  def ensureAvailable(resource: AbstractResource[_]): Future[Unit] = {
     import resource.context
     resource.available.orHaltWith(ServiceUnavailable)
   }
@@ -42,7 +42,7 @@ object ResourceDriver extends LoggingSugar {
    * @param method the method sent
    * @return an empty Future
    */
-  def ensureMethodSupported(resource: AbstractResource[_, _],
+  def ensureMethodSupported(resource: AbstractResource[_],
                             method: HttpMethod): Future[Unit] = {
     import resource.context
     resource.supportedHttpMethods.contains(method).orHaltWith(MethodNotAllowed)
@@ -68,16 +68,15 @@ object ResourceDriver extends LoggingSugar {
   /**
    * Continues execution and yields an `AuthInfo` if this method is authorized, or halts
    * @param resource this resource
-   * @param parsedRequest the request after parsing
-   * @tparam PR the `ParsedRequest` type
+   * @param request the request
    * @tparam AI the `AuthInfo` type
    * @return a Future containing an `AuthInfo` object, or a failure
    */
-  def ensureAuthorized[PR, AI](resource: AbstractResource[PR, AI],
-                               parsedRequest: PR): Future[AI] = {
+  def ensureAuthorized[AI](resource: AbstractResource[AI],
+                               request: HttpRequest): Future[AI] = {
     import resource.context
     for {
-      authInfoOpt <- resource.isAuthorized(parsedRequest)
+      authInfoOpt <- resource.isAuthorized(request)
       authInfo <- authInfoOpt.orHaltWith(Unauthorized)
     } yield authInfo
   }
@@ -87,12 +86,11 @@ object ResourceDriver extends LoggingSugar {
    * @param resource this resource
    * @param parsedRequest the request after parsing
    * @param authInfo the `AuthInfo` after authorization
-   * @tparam PR the `ParsedRequest` type
    * @tparam AI the `AuthInfo` theype
    * @return an empty Future
    */
-  def ensureNotForbidden[PR, AI](resource: AbstractResource[PR, AI],
-                                 parsedRequest: PR,
+  def ensureNotForbidden[AI](resource: AbstractResource[AI],
+                                 parsedRequest: HttpRequest,
                                  authInfo: AI): Future[Unit] = {
     import resource.context
     for {
@@ -107,7 +105,7 @@ object ResourceDriver extends LoggingSugar {
    * @param request the request
    * @return an empty Future
    */
-  def ensureContentTypeSupported(resource: AbstractResource[_, _],
+  def ensureContentTypeSupported(resource: AbstractResource[_],
                                  request: HttpRequest): Future[Unit] = {
     request.entity match {
       case Empty => ().continue
@@ -121,7 +119,7 @@ object ResourceDriver extends LoggingSugar {
    * @param request the request
    * @return a Future containing the acceptable content type found, or a failure
    */
-  def ensureResponseContentTypeAcceptable(resource: AbstractResource[_, _],
+  def ensureResponseContentTypeAcceptable(resource: AbstractResource[_],
                                           request: HttpRequest): Future[ContentType] = {
     import resource.context
     request.acceptableContentType(List(resource.responseContentType)).orHaltWith(NotAcceptable)
@@ -152,11 +150,11 @@ object ResourceDriver extends LoggingSugar {
    * @return the rewritten request execution
    */
   final def serveWithRewrite[ParsedRequest, AuthInfo]
-  (resource: AbstractResource[ParsedRequest, AuthInfo],
+  (resource: AbstractResource[AuthInfo],
    processFunction: ParsedRequest => Future[(HttpResponse, Option[String])])
-  (rewrite: HttpRequest => Try[(HttpRequest, Map[String, String])]): RequestContext => Unit = { ctx: RequestContext =>
-    rewrite(ctx.request).map { case (request, pathParts) =>
-      serve(resource, processFunction, pathParts)(ctx.copy(request = request))
+  (rewrite: HttpRequest => Try[(HttpRequest, ParsedRequest)]): RequestContext => Unit = { ctx: RequestContext =>
+    rewrite(ctx.request).map { case (request, parsed) =>
+      serve(resource, processFunction, r => parsed.continue)(ctx.copy(request = request))
     }.recover {
       case e: Throwable =>
         ctx.complete(HttpResponse(BadRequest, HttpEntity(ContentTypes.`application/json`, e.getMessage)))
@@ -167,17 +165,16 @@ object ResourceDriver extends LoggingSugar {
    * Run the request on this resource. This should not be overridden.
    * @param resource this resource
    * @param processFunction the function to be executed to process the request
-   * @param pathParts the parsed path
    * @tparam ParsedRequest the request after parsing
    * @tparam AuthInfo the authorization container
    * @return the request execution
    */
-  final def serve[ParsedRequest, AuthInfo, PostBody, PutBody]
-  (resource: AbstractResource[ParsedRequest, AuthInfo],
+  final def serve[ParsedRequest, AuthInfo]
+  (resource: AbstractResource[AuthInfo],
    processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-   pathParts: Map[String, String] = Map()): RequestContext => Unit = { ctx: RequestContext => {
+   requestParser: HttpRequest => Future[ParsedRequest] = {(x:HttpRequest) => ().continue}): RequestContext => Unit = { ctx: RequestContext => {
     implicit val ec = resource.context
-    ctx.complete(serveSync(ctx.request, resource, processFunction, pathParts))
+    ctx.complete(serveSync(ctx.request, resource, processFunction, requestParser))
   }}
 
 
@@ -186,15 +183,14 @@ object ResourceDriver extends LoggingSugar {
    * @param request the incoming request
    * @param resource this resource
    * @param processFunction the function to be executed to process the request
-   * @param pathParts the parsed path
    * @tparam ParsedRequest the request after parsing
    * @tparam AuthInfo the authorization container
    * @return a Future containing an HttpResponse
    */
   final def serveSync[ParsedRequest, AuthInfo](request: HttpRequest,
-                                         resource: AbstractResource[ParsedRequest, AuthInfo],
+                                         resource: AbstractResource[AuthInfo],
                                          processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                         pathParts: Map[String, String]): Future[HttpResponse] = {
+                                         requestParser: HttpRequest => Future[ParsedRequest]): Future[HttpResponse] = {
 
     import resource.context
 
@@ -202,10 +198,10 @@ object ResourceDriver extends LoggingSugar {
       _ <- ensureAvailable(resource)
       _ <- ensureMethodSupported(resource, request.method)
 
-      parsedRequest <- resource.parseRequest(request, pathParts)
+      parsedRequest <- requestParser(request)
 
-      authInfo <- ensureAuthorized(resource, parsedRequest)
-      _ <- ensureNotForbidden(resource, parsedRequest, authInfo)
+      authInfo <- ensureAuthorized(resource, request)
+      _ <- ensureNotForbidden(resource, request, authInfo)
       _ <- ensureContentTypeSupported(resource, request)
       _ <- ensureResponseContentTypeAcceptable(resource, request)
 

@@ -19,15 +19,11 @@ import org.slf4j.LoggerFactory
  * See https://confluence.paypal.com/cnfl/display/stingray/AbstractResource%2C+ResourceDriver%2C+and+ResourceService
  * for more information.
  *
- * @tparam ParsedRequest A representation of the request as this resource sees it. This should contain all the data
- *                       from the request needed by this resource to produce the response (except the body).
- *                       Use the type [[spray.http.HttpRequest]] and
- *                       trait [[com.paypal.stingray.http.resource.NoParsing]] to skip parsing
  * @tparam AuthInfo a structure for information gained during authorization.
  *                  Use the type [[com.paypal.stingray.http.resource.NoAuth]]
  *                  and trait [[com.paypal.stingray.http.resource.AlwaysAuthorized]] to skip authorization
  */
-abstract class AbstractResource[ParsedRequest, AuthInfo] extends LoggingSugar {
+abstract class AbstractResource[AuthInfo] extends LoggingSugar {
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -60,10 +56,20 @@ abstract class AbstractResource[ParsedRequest, AuthInfo] extends LoggingSugar {
   /**
    * Attempt to parse the incoming request. If this is CPU intensive, use a background thread,
    * actor running on a dedicated thread, etc
-   * @param r the request to parse into some data structure
+   * @param r the full request
+   * @param data the piece of data that should be converted to the suggested type
    * @return the parsed request, or a Failure response
    */
-  def parseRequest(r: HttpRequest, pathParts: Map[String, String]): Future[ParsedRequest]
+  def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Future[T] = {
+    parseType(r, data.getBytes("UTF-8"))
+  }
+
+  def parseType[T](r: HttpRequest, data: Array[Byte])(implicit m: Manifest[T]): Future[T] = {
+    JsonUtil.fromJson[T](new String(data)) match {
+      case TrySuccess(res) => Future.successful(res)
+      case TryFailure(t) => Future.failed(t)
+    }
+  }
 
   /**
    * The message to be sent back with the `WWW-Authenticate` header when the request is
@@ -77,18 +83,18 @@ abstract class AbstractResource[ParsedRequest, AuthInfo] extends LoggingSugar {
 
   /**
    * Determines the AuthInfo for a given request, if authorized
-   * @param p the parsed request
+   * @param r the parsed request
    * @return optionally, the AuthInfo for this request, or a Failure(halt)
    */
-  def isAuthorized(p: ParsedRequest): Future[Option[AuthInfo]]
+  def isAuthorized(r: HttpRequest): Future[Option[AuthInfo]]
 
   /**
    * Whether an incoming request is forbidden to execute, by default false
-   * @param p the parsed request
+   * @param r the parsed request
    * @return Failure(halt) if forbidden, false if not
    */
-  def isForbidden(p: ParsedRequest): Future[Boolean] = false.continue
-  def isForbidden(p: ParsedRequest, auth: AuthInfo): Future[Boolean] = isForbidden(p)
+  def isForbidden(r: HttpRequest): Future[Boolean] = false.continue
+  def isForbidden(r: HttpRequest, auth: AuthInfo): Future[Boolean] = isForbidden(r)
 
   /**
    * A list of content types that that this server can accept, by default `application/json`.
