@@ -5,8 +5,6 @@ import spray.http.HttpEntity._
 import spray.http.HttpMethods._
 import spray.http.HttpResponse
 import StatusCodes._
-import com.paypal.stingray.common.logging.LoggingSugar
-import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.json._
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.concurrent._
@@ -23,7 +21,7 @@ import org.slf4j.LoggerFactory
  *                  Use the type [[com.paypal.stingray.http.resource.NoAuth]]
  *                  and trait [[com.paypal.stingray.http.resource.AlwaysAuthorized]] to skip authorization
  */
-abstract class AbstractResource[AuthInfo] extends LoggingSugar {
+abstract class AbstractResource[AuthInfo] {
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -60,12 +58,12 @@ abstract class AbstractResource[AuthInfo] extends LoggingSugar {
    * @param data the piece of data that should be converted to the suggested type
    * @return the parsed request, or a Failure response
    */
-  def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Future[T] = {
-    parseType(r, data.getBytes("UTF-8"))
+  def parseType[T: Manifest](r: HttpRequest, data: String): Future[T] = {
+    parseType(r, data.getBytes(charsetUtf8))
   }
 
-  def parseType[T](r: HttpRequest, data: Array[Byte])(implicit m: Manifest[T]): Future[T] = {
-    JsonUtil.fromJson[T](new String(data)) match {
+  def parseType[T: Manifest](r: HttpRequest, data: Array[Byte]): Future[T] = {
+    JsonUtil.fromJson[T](new String(data, charsetUtf8)) match {
       case TrySuccess(res) => Future.successful(res)
       case TryFailure(t) => Future.failed(t)
     }

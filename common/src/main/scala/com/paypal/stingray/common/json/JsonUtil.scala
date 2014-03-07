@@ -7,7 +7,6 @@ import scala.util.Try
 import com.fasterxml.jackson.module.scala.introspect.ScalaClassIntrospectorModule
 import com.fasterxml.jackson.module.scala.deser.{OptionDeserializerModule, UntypedObjectDeserializerModule}
 import com.google.common.cache.{CacheBuilder, LoadingCache}
-import com.fasterxml.jackson.module.scala.util.Implicits._
 import com.fasterxml.jackson.annotation.JsonInclude
 
 /**

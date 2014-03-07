@@ -149,16 +149,17 @@ object ResourceDriver extends LoggingSugar {
    * @tparam AuthInfo the authorization container
    * @return the rewritten request execution
    */
-  final def serveWithRewrite[ParsedRequest, AuthInfo]
-  (resource: AbstractResource[AuthInfo],
-   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])])
-  (rewrite: HttpRequest => Try[(HttpRequest, ParsedRequest)]): RequestContext => Unit = { ctx: RequestContext =>
-    rewrite(ctx.request).map { case (request, parsed) =>
-      serve(resource, processFunction, r => parsed.continue)(ctx.copy(request = request))
-    }.recover {
-      case e: Throwable =>
-        ctx.complete(HttpResponse(BadRequest, HttpEntity(ContentTypes.`application/json`, e.getMessage)))
-    }
+  final def serveWithRewrite[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
+                                                      processFunction: ParsedRequest => Future[(HttpResponse, Option[String])])
+                                                     (rewrite: HttpRequest => Try[(HttpRequest, ParsedRequest)]): RequestContext => Unit = {
+    ctx: RequestContext =>
+      rewrite(ctx.request).map {
+        case (request, parsed) =>
+          serve(resource, processFunction, r => parsed.continue)(ctx.copy(request = request))
+      }.recover {
+        case e: Throwable =>
+          ctx.complete(HttpResponse(BadRequest, HttpEntity(ContentTypes.`application/json`, e.getMessage)))
+      }
   }
 
   /**
@@ -169,13 +170,14 @@ object ResourceDriver extends LoggingSugar {
    * @tparam AuthInfo the authorization container
    * @return the request execution
    */
-  final def serve[ParsedRequest, AuthInfo]
-  (resource: AbstractResource[AuthInfo],
-   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-   requestParser: HttpRequest => Future[ParsedRequest] = {(x:HttpRequest) => ().continue}): RequestContext => Unit = { ctx: RequestContext => {
-    implicit val ec = resource.context
-    ctx.complete(serveSync(ctx.request, resource, processFunction, requestParser))
-  }}
+  final def serve[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
+                                           processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                           requestParser: HttpRequest => Future[ParsedRequest] = (x: HttpRequest) => ().continue): RequestContext => Unit = {
+    ctx: RequestContext => {
+      implicit val ec = resource.context
+      ctx.complete(serveSync(ctx.request, resource, processFunction, requestParser))
+    }
+  }
 
 
   /**

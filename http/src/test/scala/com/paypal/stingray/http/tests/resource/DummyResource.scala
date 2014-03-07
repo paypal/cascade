@@ -21,8 +21,10 @@ class DummyResource
   with LoggingSugar {
 
   override def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Future[T] = {
-    if ( m == manifest[HttpRequest])
+    if ( m == manifest[HttpRequest] )
       r.asInstanceOf[T].continue
+    else if ( m == manifest[Unit] )
+      ().asInstanceOf[T].continue
     else
       super.parseType(r, data)(m)
   }
@@ -80,9 +82,7 @@ class DummyResource
    * @param r the request
    * @return the response for the put
    */
-  def doPut(r: Map[String, String]): Future[(HttpResponse, Option[String])] = for {
-    _ <- r.isEmpty.orHaltWith(BadRequest, "somehow got a body")
-  } yield (HttpResponse(OK, "pong"), None)
+  def doPut(r: Unit): Future[(HttpResponse, Option[String])] = (HttpResponse(OK, "pong"), None).continue
 
 
 }

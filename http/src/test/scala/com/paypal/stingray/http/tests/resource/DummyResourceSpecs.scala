@@ -44,15 +44,15 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
     def pingPost = {
       val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
-      (resource must resultInCodeAndBodyLike(request, resource.doPostAsCreate, resource.parseType[Map[String, String]](_, ""), StatusCodes.Created) {
+      (resource must resultInCodeAndBodyLike(request, resource.doPostAsCreate, resource.parseType[Map[String, String]](_, """{"foo": "bar"}"""), StatusCodes.Created) {
         case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
         case Empty => true must beFalse
-      }) and (resource must resultInResponseWithHeaderContaining(request, resource.doPostAsCreate,resource.parseType[Map[String, String]](_, ""), HttpHeaders.Location("http://foo.com/ping/foobar")))
+      }) and (resource must resultInResponseWithHeaderContaining(request, resource.doPostAsCreate,resource.parseType[Map[String, String]](_, """{"foo": "bar"}"""), HttpHeaders.Location("http://foo.com/ping/foobar")))
     }
 
     def pingPut = {
       val request = HttpRequest(method = HttpMethods.PUT, uri = "/ping").withHeaders(List(Accept(MediaTypes.`text/plain`)))
-      resource must resultInCodeAndBodyLike(request, resource.doPut, resource.parseType[Map[String, String]](_, ""), StatusCodes.OK) {
+      resource must resultInCodeAndBodyLike(request, resource.doPut, resource.parseType[Unit](_, ""), StatusCodes.OK) {
         case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
         case Empty => true must beFalse
       }
