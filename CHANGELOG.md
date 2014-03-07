@@ -1,4 +1,7 @@
 
+# 0.1.8 03/07/14 released by Alex
+* Changes to resourceDriver
+
 # 0.1.7 02/25/14 released by mpoconnell
 * Fix for SprayActor
 Simplified ResourceDriver
