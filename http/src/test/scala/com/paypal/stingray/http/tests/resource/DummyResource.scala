@@ -17,17 +17,16 @@ import com.paypal.stingray.common.json._
  * Useful when the action of a request through an HTTP server is important to model, as opposed to mocking a resource.
  */
 class DummyResource
-  extends AbstractResource[(HttpRequest, Option[Map[String, String]]), Unit]
+  extends AbstractResource[Unit]
   with LoggingSugar {
 
-  type ParsedRequest = (HttpRequest, Option[Map[String, String]])
-
-  override def parseRequest(r: HttpRequest, pathParts: Map[String, String]): Future[ParsedRequest] = {
-    if (r.method != HttpMethods.POST) {
-      (r, None).continue
-    } else {
-      (r, JsonUtil.fromJson[Map[String, String]](r.entity.asString).toOption).continue
-    }
+  override def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Future[T] = {
+    if ( m == manifest[HttpRequest] )
+      r.asInstanceOf[T].continue
+    else if ( m == manifest[Unit] )
+      ().asInstanceOf[T].continue
+    else
+      super.parseType(r, data)(m)
   }
 
   /** This logger */
@@ -38,9 +37,8 @@ class DummyResource
    * @param r the parsed request
    * @return optionally, the AuthInfo for this request, or a Failure(halt)
    */
-  override def isAuthorized(r: ParsedRequest): Future[Option[Unit]] = {
-    val p = r._1
-    if (p.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
+  override def isAuthorized(r: HttpRequest): Future[Option[Unit]] = {
+    if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
       Some(()).continue
     } else {
       halt(StatusCodes.Unauthorized)
@@ -59,23 +57,22 @@ class DummyResource
    * @param r the request
    * @return a response for the given request
    */
-  def doGet(r: ParsedRequest): Future[(HttpResponse, Option[String])] = for {
-    query <- r._1.uri.query.continue
+  def doGet(r: HttpRequest): Future[(HttpResponse, Option[String])] = for {
+    query <- r.uri.query.continue
     param <- query.get("foo").orHaltWith(BadRequest, "no query param")
     _ <- ("bar" == param).orHaltWith(BadRequest, "wrong query param")
     (foo, bar) <- ("foo", "bar").some.orHaltWith(BadRequest, "what")
-    accept <- r._1.header[HttpHeaders.Accept].orHaltWith(BadRequest, "no accept header")
+    accept <- r.header[HttpHeaders.Accept].orHaltWith(BadRequest, "no accept header")
     _ <- ((accept.mediaRanges.size == 1) && (accept.mediaRanges(0).value == MediaTypes.`text/plain`.value))
       .orHaltWith(BadRequest, "no accept header")
   } yield (HttpResponse(OK, "pong"), None)
 
   /**
    * A dummy POST request must have a body "{"foo":"bar"}"
-   * @param r the request
+   * @param body the request
    * @return the response for the post and the new location
    */
-  def doPostAsCreate(r: ParsedRequest): Future[(HttpResponse, Option[String])] = for {
-    body <- r._2.orHaltWith(BadRequest, "no body provided")
+  def doPostAsCreate(body: Map[String, String]): Future[(HttpResponse, Option[String])] = for {
     param <- body.get("foo").orHaltWith(BadRequest, "wrong json in body")
     _ <- ("bar" == param).orHaltWith(BadRequest, "wrong json in body")
   } yield (HttpResponse(Created, "pong"), "foobar".some)
@@ -85,9 +82,7 @@ class DummyResource
    * @param r the request
    * @return the response for the put
    */
-  def doPut(r: ParsedRequest): Future[(HttpResponse, Option[String])] = for {
-    _ <- r._2.isEmpty.orHaltWith(BadRequest, "somehow got a body")
-  } yield (HttpResponse(OK, "pong"), None)
+  def doPut(r: Unit): Future[(HttpResponse, Option[String])] = (HttpResponse(OK, "pong"), None).continue
 
 
 }
