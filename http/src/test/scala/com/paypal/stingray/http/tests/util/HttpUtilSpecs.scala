@@ -5,6 +5,7 @@ import org.specs2.execute.{Result => SpecsResult}
 import com.paypal.stingray.common.logging.LoggingSugar
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
+import org.scalacheck.Arbitrary._
 import org.scalacheck.Gen._
 import java.net.URLDecoder
 import com.paypal.stingray.http.url.StrPair
@@ -13,25 +14,26 @@ import com.paypal.stingray.http.util.HttpUtil
 /**
  * Tests features of [[com.paypal.stingray.http.util.HttpUtil]]
  */
-class HttpUtilSpecs extends Specification with ScalaCheck { def is =
-  "HttpUtilSpecs".title                                                                                                 ^
-  """
+class HttpUtilSpecs extends Specification with ScalaCheck { def is = s2"""
+
   HttpUtil contains a variety of different methods for doing common HTTP related tasks, such as parsing query strings
-  """                                                                                                                   ^
-  "HttpUtil#parseQueryStringToPairs should"                                                                             ^
-    "parse a well formed query string to valid pairs"                                                                   ! ParseQueryStringToPairs().succeedsForWellFormedString ^
-    "parse a well formed query string with url encoded values to valid pairs"                                           ! ParseQueryStringToPairs().succeedsForURLEncodedString ^
-    "parse a null string"                                                                                               ! ParseQueryStringToPairs().succeedsForNullString ^
-    "omit malformed query string key-value pairs"                                                                       ! ParseQueryStringToPairs().omitsMalformedKVPs ^
-                                                                                                                        end ^
-  "HttpUtil#parseQueryStringToMap should"                                                                               ^
-    "parse a well formed query string to valid pairs"                                                                   ! ParseQueryStringToMap().succeedsForWellFormedString ^
-                                                                                                                        end ^
-  "HttpUtil#mergeParameters should"                                                                                     ^
-    "merge two valid maps together when keys don't overlap"                                                             ! MergeParameters().mergesNonOverlappingKeys ^
-    "merge two valid maps together when keys overlap"                                                                   ! MergeParameters().mergesOverlappingKeys ^
-    "merge an empty map with a non-empty one"                                                                           ! MergeParameters().mergesEmptyMap ^
-                                                                                                                        end
+
+  HttpUtil#parseQueryStringToPairs should
+    parse a well formed query string to valid pairs                                                                   ${ParseQueryStringToPairs().succeedsForWellFormedString}
+    parse a well formed query string with url encoded values to valid pairs                                           ${ParseQueryStringToPairs().succeedsForURLEncodedString}
+    parse a null string                                                                                               ${ParseQueryStringToPairs().succeedsForNullString}
+    omit malformed query string key-value pairs                                                                       ${ParseQueryStringToPairs().omitsMalformedKVPs}
+
+  HttpUtil#parseQueryStringToMap should
+    parse a well formed query string to valid pairs                                                                   ${ParseQueryStringToMap().succeedsForWellFormedString}
+
+  HttpUtil#mergeParameters should
+    merge two valid maps together when keys don't overlap                                                             ${MergeParameters().mergesNonOverlappingKeys}
+    merge two valid maps together when keys overlap                                                                   ${MergeParameters().mergesOverlappingKeys}
+    merge an empty map with a non-empty one                                                                           ${MergeParameters().mergesEmptyMap}
+
+ """
+
   trait Context extends LoggingSugar {
     protected lazy val genNonEmptyAlphaStr = alphaStr.suchThat(_.length > 0)
     protected lazy val genMalformedQueryStringPair = genNonEmptyAlphaStr.suchThat { s =>
