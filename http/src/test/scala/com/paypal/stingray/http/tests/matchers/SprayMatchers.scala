@@ -21,6 +21,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code
    * @param req the request to run the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param code the response code required
    * @tparam ParsedRequest the parsed request type
@@ -36,6 +37,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
@@ -51,6 +53,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
@@ -66,6 +69,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
@@ -81,6 +85,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
@@ -96,6 +101,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param code the response code required
    * @param f the comparison function
@@ -113,6 +119,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param code the response code required
    * @param f the comparison function
@@ -130,6 +137,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given header in its response
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param header the header
    * @tparam ParsedRequest the parsed request type
@@ -145,6 +153,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given header and header value in its response
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param header the header
    * @tparam ParsedRequest the parsed request type
@@ -160,6 +169,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given `Content-Type` header in its response
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param cType the content type
    * @tparam ParsedRequest the parsed request type
@@ -175,6 +185,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code
    * @param req the request to run the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param code the response code required
    * @tparam ParsedRequest the parsed request type
@@ -200,6 +211,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
@@ -225,6 +237,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param body the body required
    * @tparam ParsedRequest the parsed request type
@@ -250,6 +263,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param code the response code required
    * @param f the comparison function
@@ -281,6 +295,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param code the response code required
    * @param f the comparison function
@@ -312,6 +327,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
@@ -338,6 +354,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param f the comparison function
    * @tparam ParsedRequest the parsed request type
@@ -361,6 +378,14 @@ trait SprayMatchers {
     }
   }
 
+  /**
+   * Requires that a run request must have a response body that passes a given comparison function
+   * @param req the request to run
+   * @param processFunction the function which processes the request
+   * @param pathParts the path
+   * @tparam ParsedRequest the parsed request type
+   * @tparam AuthInfo the auth container type
+   */
   class ResponseHasHeaderContainingValue[ParsedRequest, AuthInfo](req: HttpRequest,
                                                                                      processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                                                      pathParts: Map[String, String],
@@ -383,6 +408,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given header and header value in its response
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param header the header
    * @tparam ParsedRequest the parsed request type
@@ -410,6 +436,7 @@ trait SprayMatchers {
   /**
    * Requires that a run request must have a given `Content-Type` header in its response
    * @param req the request to run
+   * @param processFunction the function which processes the request
    * @param pathParts the path
    * @param cType the content type
    * @tparam ParsedRequest the parsed request type

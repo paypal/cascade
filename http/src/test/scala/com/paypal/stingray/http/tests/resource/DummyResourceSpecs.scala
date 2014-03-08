@@ -25,6 +25,7 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
   PUT /ping =>
     should return pong                                                    ${Test().pingPut}
+
   """
 
   case class Test() extends context {
