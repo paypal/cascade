@@ -136,7 +136,7 @@ abstract class AbstractResource[AuthInfo] {
     // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
     JsonUtil.toJson(t) match {
       case Success(j) => HttpEntity(responseContentType, j)
-      case Failure(e) => coerceError(e.getMessage.getBytes(charsetUtf8))
+      case Failure(e) => coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8))
     }
   }
 
