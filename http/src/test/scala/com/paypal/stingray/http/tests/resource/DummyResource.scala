@@ -7,8 +7,7 @@ import com.paypal.stingray.common.option._
 import spray.http.HttpResponse
 import scala.concurrent._
 import com.paypal.stingray.http.resource._
-import scala.util.Try
-import com.paypal.stingray.common.json._
+import scala.util.{Failure, Success, Try}
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type
@@ -20,11 +19,11 @@ class DummyResource
   extends AbstractResource[Unit]
   with LoggingSugar {
 
-  override def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Future[T] = {
-    if ( m == manifest[HttpRequest] )
-      r.asInstanceOf[T].continue
-    else if ( m == manifest[Unit] )
-      ().asInstanceOf[T].continue
+  override def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Try[T] = {
+    if (m == manifest[HttpRequest])
+      Success(r.asInstanceOf[T])
+    else if (m == manifest[Unit])
+      Success(().asInstanceOf[T])
     else
       super.parseType(r, data)(m)
   }
@@ -37,11 +36,11 @@ class DummyResource
    * @param r the parsed request
    * @return optionally, the AuthInfo for this request, or a Failure(halt)
    */
-  override def isAuthorized(r: HttpRequest): Future[Option[Unit]] = {
+  override def isAuthorized(r: HttpRequest): Try[Option[Unit]] = {
     if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
-      Some(()).continue
+      Success(Some(()))
     } else {
-      halt(StatusCodes.Unauthorized)
+      Failure(new HaltException(HttpResponse(StatusCodes.Unauthorized)))
     }
   }
 

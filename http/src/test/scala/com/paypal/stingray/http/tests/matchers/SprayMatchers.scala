@@ -11,7 +11,7 @@ import scala.util.Try
 
 /**
  * Utility match cases for testing [[com.paypal.stingray.http.resource.AbstractResource]]
- * and [[com.paypal.stingray.http.resource.ResourceService]] implementations
+ * and [[com.paypal.stingray.http.resource.ResourceServiceComponent.ResourceService]] implementations
  */
 trait SprayMatchers {
 
@@ -28,9 +28,9 @@ trait SprayMatchers {
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
   def resultInCodeGivenData[ParsedRequest, AuthInfo](req: HttpRequest,
-                                                                        processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                                        requestParser: HttpRequest => Future[ParsedRequest],
-                                                                        code: StatusCode) =
+                                                     processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                     requestParser: HttpRequest => Try[ParsedRequest],
+                                                     code: StatusCode) =
     new ResponseHasCode[ParsedRequest, AuthInfo](req, processFunction, requestParser, code)
 
   /**
@@ -43,9 +43,9 @@ trait SprayMatchers {
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
   def resultInBodyGivenData[ParsedRequest, AuthInfo](req: HttpRequest,
-                                                                        processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                                        requestParser: HttpRequest => Future[ParsedRequest],
-                                                                        body: HttpEntity) =
+                                                     processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                     requestParser: HttpRequest => Try[ParsedRequest],
+                                                     body: HttpEntity) =
     new ResponseHasBody[ParsedRequest, AuthInfo](req, processFunction, requestParser, body)
 
   /**
@@ -58,9 +58,9 @@ trait SprayMatchers {
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
   def resultInBodyStringGivenData[ParsedRequest, AuthInfo](req: HttpRequest,
-                                                                              processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                                              requestParser: HttpRequest => Future[ParsedRequest],
-                                                                              body: String) =
+                                                           processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                           requestParser: HttpRequest => Try[ParsedRequest],
+                                                           body: String) =
     new ResponseHasBodyString[ParsedRequest, AuthInfo](req, processFunction, requestParser, body)
 
   /**
@@ -74,7 +74,7 @@ trait SprayMatchers {
    */
   def resultInBodyLike[ParsedRequest, AuthInfo](req: HttpRequest,
                                                 processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                requestParser: HttpRequest => Future[ParsedRequest])
+                                                requestParser: HttpRequest => Try[ParsedRequest])
                                                (f: HttpEntity => MatchResult[Any]) =
     new ResponseHasBodyLike[ParsedRequest, AuthInfo](req, processFunction, requestParser, f)
 
@@ -89,7 +89,7 @@ trait SprayMatchers {
    */
   def resultInBodyStringLike[ParsedRequest, AuthInfo](req: HttpRequest,
                                                       processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                      requestParser: HttpRequest => Future[ParsedRequest])
+                                                      requestParser: HttpRequest => Try[ParsedRequest])
                                                      (f: String => MatchResult[Any]) =
     new ResponseHasBodyStringLike[ParsedRequest, AuthInfo](req, processFunction, requestParser, f)
 
@@ -105,7 +105,7 @@ trait SprayMatchers {
    */
   def resultInCodeAndBodyLike[ParsedRequest, AuthInfo](req: HttpRequest,
                                                        processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                       requestParser: HttpRequest => Future[ParsedRequest],
+                                                       requestParser: HttpRequest => Try[ParsedRequest],
                                                        code: StatusCode)
                                                       (f: HttpEntity => MatchResult[Any]) =
     new ResponseHasCodeAndBodyLike[ParsedRequest, AuthInfo](req, processFunction, requestParser, code, f)
@@ -122,7 +122,7 @@ trait SprayMatchers {
    */
   def resultInCodeAndBodyStringLike[ParsedRequest, AuthInfo](req: HttpRequest,
                                                              processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                             requestParser: HttpRequest => Future[ParsedRequest],
+                                                             requestParser: HttpRequest => Try[ParsedRequest],
                                                              code: StatusCode)
                                                             (f: String => MatchResult[Any]) =
     new ResponseHasCodeAndBodyStringLike[ParsedRequest, AuthInfo](req, processFunction, requestParser, code, f)
@@ -138,7 +138,7 @@ trait SprayMatchers {
    */
   def resultInResponseWithHeaderContaining[ParsedRequest, AuthInfo](req: HttpRequest,
                                                                     processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                                    requestParser: HttpRequest => Future[ParsedRequest],
+                                                                    requestParser: HttpRequest => Try[ParsedRequest],
                                                                     header: HttpHeader) =
     new ResponseHasHeaderContainingValue[ParsedRequest, AuthInfo](req, processFunction, requestParser, header)
 
@@ -153,7 +153,7 @@ trait SprayMatchers {
    */
   def resultInResponseWithNonEmptyHeader[ParsedRequest, AuthInfo](req: HttpRequest,
                                                                   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                                  requestParser: HttpRequest => Future[ParsedRequest],
+                                                                  requestParser: HttpRequest => Try[ParsedRequest],
                                                                   header: String) =
     new ResponseHasNonEmptyHeader[ParsedRequest, AuthInfo](req, processFunction, requestParser, header)
 
@@ -168,7 +168,7 @@ trait SprayMatchers {
    */
   def resultInContentType[ParsedRequest, AuthInfo](req: HttpRequest,
                                                    processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                   requestParser: HttpRequest => Future[ParsedRequest],
+                                                   requestParser: HttpRequest => Try[ParsedRequest],
                                                    cType: ContentType) =
     new ResponseHasContentType[ParsedRequest, AuthInfo](req, processFunction, requestParser, cType)
 
@@ -181,9 +181,9 @@ trait SprayMatchers {
    * @tparam AuthInfo the auth container type
    */
   class ResponseHasCode[ParsedRequest, AuthInfo](req: HttpRequest,
-                                                  processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                  requestParser: HttpRequest => Future[ParsedRequest],
-                                                  code: StatusCode)
+                                                 processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                                 requestParser: HttpRequest => Try[ParsedRequest],
+                                                 code: StatusCode)
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
@@ -207,7 +207,7 @@ trait SprayMatchers {
    */
   class ResponseHasBody[ParsedRequest, AuthInfo](req: HttpRequest,
                                                  processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                 requestParser: HttpRequest => Future[ParsedRequest],
+                                                 requestParser: HttpRequest => Try[ParsedRequest],
                                                  body: HttpEntity)
     extends Matcher[AbstractResource[AuthInfo]] {
 
@@ -232,7 +232,7 @@ trait SprayMatchers {
    */
   class ResponseHasBodyString[ParsedRequest, AuthInfo](req: HttpRequest,
                                                        processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                       requestParser: HttpRequest => Future[ParsedRequest],
+                                                       requestParser: HttpRequest => Try[ParsedRequest],
                                                        body: String)
     extends Matcher[AbstractResource[AuthInfo]] {
 
@@ -258,7 +258,7 @@ trait SprayMatchers {
    */
   class ResponseHasCodeAndBodyLike[ParsedRequest, AuthInfo](req: HttpRequest,
                                                             processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                            requestParser: HttpRequest => Future[ParsedRequest],
+                                                            requestParser: HttpRequest => Try[ParsedRequest],
                                                             code: StatusCode,
                                                             f: HttpEntity => MatchResult[Any])
     extends Matcher[AbstractResource[AuthInfo]] {
@@ -289,7 +289,7 @@ trait SprayMatchers {
    */
   class ResponseHasCodeAndBodyStringLike[ParsedRequest, AuthInfo](req: HttpRequest,
                                                                   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                                  requestParser: HttpRequest => Future[ParsedRequest],
+                                                                  requestParser: HttpRequest => Try[ParsedRequest],
                                                                   code: StatusCode,
                                                                   f: String => MatchResult[Any])
     extends Matcher[AbstractResource[AuthInfo]] {
@@ -319,7 +319,7 @@ trait SprayMatchers {
    */
   class ResponseHasBodyLike[ParsedRequest, AuthInfo](req: HttpRequest,
                                                      processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                     requestParser: HttpRequest => Future[ParsedRequest],
+                                                     requestParser: HttpRequest => Try[ParsedRequest],
                                                      f: HttpEntity => MatchResult[Any])
     extends Matcher[AbstractResource[AuthInfo]] {
 
@@ -345,7 +345,7 @@ trait SprayMatchers {
    */
   class ResponseHasBodyStringLike[ParsedRequest, AuthInfo](req: HttpRequest,
                                                            processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                           requestParser: HttpRequest => Future[ParsedRequest],
+                                                           requestParser: HttpRequest => Try[ParsedRequest],
                                                            f: String => MatchResult[Any])
     extends Matcher[AbstractResource[AuthInfo]] {
 
@@ -363,7 +363,7 @@ trait SprayMatchers {
 
   class ResponseHasHeaderContainingValue[ParsedRequest, AuthInfo](req: HttpRequest,
                                                                   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                                  requestParser: HttpRequest => Future[ParsedRequest],
+                                                                  requestParser: HttpRequest => Try[ParsedRequest],
                                                                   header: HttpHeader)
     extends Matcher[AbstractResource[AuthInfo]] {
 
@@ -390,7 +390,7 @@ trait SprayMatchers {
    */
   class ResponseHasNonEmptyHeader[ParsedRequest, AuthInfo](req: HttpRequest,
                                                            processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                           requestParser: HttpRequest => Future[ParsedRequest],
+                                                           requestParser: HttpRequest => Try[ParsedRequest],
                                                            header: String)
     extends Matcher[AbstractResource[AuthInfo]] {
 
@@ -417,7 +417,7 @@ trait SprayMatchers {
    */
   class ResponseHasContentType[ParsedRequest, AuthInfo](req: HttpRequest,
                                                         processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                        requestParser: HttpRequest => Future[ParsedRequest],
+                                                        requestParser: HttpRequest => Try[ParsedRequest],
                                                         cType: ContentType)
     extends Matcher[AbstractResource[AuthInfo]] {
 
