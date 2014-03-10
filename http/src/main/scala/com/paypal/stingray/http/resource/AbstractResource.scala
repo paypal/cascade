@@ -58,11 +58,11 @@ abstract class AbstractResource[AuthInfo] {
    * @return the parsed request, or a Failure response
    */
   def parseType[T : Manifest](r: HttpRequest, data: String): Try[T] = {
-    parseType(r, data.getBytes(charsetUtf8))
+    JsonUtil.fromJson[T](data)
   }
 
   def parseType[T : Manifest](r: HttpRequest, data: Array[Byte]): Try[T] = {
-    JsonUtil.fromJson[T](new String(data, charsetUtf8))
+    parseType(r, new String(data, charsetUtf8))
   }
 
   /**
