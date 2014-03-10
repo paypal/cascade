@@ -26,19 +26,10 @@ object ResourceDriver extends LoggingSugar {
   protected lazy val logger = getLogger[ResourceDriver.type]
 
   /**
-   * Continues execution if this resource is available, or halts
-   * @param resource this resource
-   * @return an empty Future
-   */
-  def ensureAvailable(resource: AbstractResource[_]): Try[Unit] = {
-    resource.available.orHaltWithT(ServiceUnavailable)
-  }
-
-  /**
    * Continues execution if this method is supported, or halts
    * @param resource this resource
    * @param method the method sent
-   * @return an empty Future
+   * @return an empty Try
    */
   def ensureMethodSupported(resource: AbstractResource[_],
                             method: HttpMethod): Try[Unit] = {
@@ -51,7 +42,7 @@ object ResourceDriver extends LoggingSugar {
    * @param method the method sent
    * @param f a function to parse this request body
    * @tparam T the `ParsedRequest` type
-   * @return a Future with an optional parsed body, or None if parsing fails
+   * @return a Try with an optional parsed body, or None if parsing fails
    */
   def parseBody[T](request: HttpRequest, method: HttpMethod)
                   (f: HttpRequest => Try[Option[T]]): Try[Option[T]] = {
@@ -70,35 +61,19 @@ object ResourceDriver extends LoggingSugar {
    * @return a Future containing an `AuthInfo` object, or a failure
    */
   def ensureAuthorized[AI](resource: AbstractResource[AI],
-                           request: HttpRequest): Try[AI] = {
+                           request: HttpRequest): Future[AI] = {
+    import resource.context
     for {
       authInfoOpt <- resource.isAuthorized(request)
-      authInfo <- authInfoOpt.orHaltWithT(Unauthorized)
+      authInfo <- authInfoOpt.orHaltWith(Unauthorized)
     } yield authInfo
-  }
-
-  /**
-   * Continues execution if this resource is not forbidden to the requester, or halts
-   * @param resource this resource
-   * @param parsedRequest the request after parsing
-   * @param authInfo the `AuthInfo` after authorization
-   * @tparam AI the `AuthInfo` theype
-   * @return an empty Future
-   */
-  def ensureNotForbidden[AI](resource: AbstractResource[AI],
-                             parsedRequest: HttpRequest,
-                             authInfo: AI): Try[Unit] = {
-    for {
-      isForbidden <- resource.isForbidden(parsedRequest, authInfo)
-      _ <- (!isForbidden).orHaltWithT(Forbidden)
-    } yield ()
   }
 
   /**
    * Continues execution if this resource supports the content type sent in the request, or halts
    * @param resource this resource
    * @param request the request
-   * @return an empty Future
+   * @return an empty Try
    */
   def ensureContentTypeSupported(resource: AbstractResource[_],
                                  request: HttpRequest): Try[Unit] = {
@@ -112,7 +87,7 @@ object ResourceDriver extends LoggingSugar {
    * Continues execution if this resource can respond in a format that the requester can accept, or halts
    * @param resource this resource
    * @param request the request
-   * @return a Future containing the acceptable content type found, or a failure
+   * @return a Try containing the acceptable content type found, or a failure
    */
   def ensureResponseContentTypeAcceptable(resource: AbstractResource[_],
                                           request: HttpRequest): Try[ContentType] = {
@@ -212,11 +187,8 @@ object ResourceDriver extends LoggingSugar {
     import resource.context
 
     val parsedRequest = for {
-      _ <- ensureAvailable(resource)
       _ <- ensureMethodSupported(resource, request.method)
       parsedReq <- requestParser(request)
-      authInfo <- ensureAuthorized(resource, request)
-      _ <- ensureNotForbidden(resource, request, authInfo)
       _ <- ensureContentTypeSupported(resource, request)
       _ <- ensureResponseContentTypeAcceptable(resource, request)
     } yield parsedReq
@@ -224,6 +196,7 @@ object ResourceDriver extends LoggingSugar {
     parsedRequest match {
       case Success(req) =>
         val result = for {
+          _ <- ensureAuthorized(resource, request)
           (httpResponse, location) <- processFunction(req)
         } yield {
           val responseWithLocation = addHeaderOnCode(httpResponse, Created) {

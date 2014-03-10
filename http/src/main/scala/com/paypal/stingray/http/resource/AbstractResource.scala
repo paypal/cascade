@@ -80,7 +80,7 @@ abstract class AbstractResource[AuthInfo] {
    * @param r the parsed request
    * @return optionally, the AuthInfo for this request, or a Failure(halt)
    */
-  def isAuthorized(r: HttpRequest): Try[Option[AuthInfo]]
+  def isAuthorized(r: HttpRequest): Future[Option[AuthInfo]]
 
   /**
    * Whether an incoming request is forbidden to execute, by default false

@@ -36,11 +36,11 @@ class DummyResource
    * @param r the parsed request
    * @return optionally, the AuthInfo for this request, or a Failure(halt)
    */
-  override def isAuthorized(r: HttpRequest): Try[Option[Unit]] = {
+  override def isAuthorized(r: HttpRequest): Future[Option[Unit]] = {
     if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
-      Success(Some(()))
+      Some().continue
     } else {
-      Failure(new HaltException(HttpResponse(StatusCodes.Unauthorized)))
+      halt(StatusCodes.Unauthorized)
     }
   }
 
