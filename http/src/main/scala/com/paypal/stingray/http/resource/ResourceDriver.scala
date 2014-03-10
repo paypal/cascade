@@ -223,7 +223,7 @@ object ResourceDriver extends LoggingSugar {
 
     parsedRequest match {
       case Success(req) =>
-        (for {
+        val result = for {
           (httpResponse, location) <- processFunction(req)
         } yield {
           val responseWithLocation = addHeaderOnCode(httpResponse, Created) {
@@ -240,7 +240,8 @@ object ResourceDriver extends LoggingSugar {
           // Just force the request to the right content type
           responseWithLocation.withEntity(responseWithLocation.entity.flatMap((entity: NonEmpty) =>
             HttpEntity(resource.responseContentType, entity.data)))
-        }).recover(handleError)
+        }
+        result.recover(handleError)
       case Failure(t) =>
         logger.error(s"Unexpected error: request: $request error: ${t.getMessage}", t)
         Future.successful(handleError.apply(t))
