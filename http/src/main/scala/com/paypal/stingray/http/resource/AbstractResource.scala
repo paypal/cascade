@@ -8,7 +8,7 @@ import StatusCodes._
 import com.paypal.stingray.common.json._
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.concurrent._
-import scala.util.{Success => TrySuccess, Failure => TryFailure}
+import scala.util.{Success, Failure, Try}
 import org.slf4j.LoggerFactory
 
 /**
@@ -27,11 +27,10 @@ abstract class AbstractResource[AuthInfo] {
 
   /** Default context used by futures created in this resource */
   lazy val executionContext: ExecutionContext = new ExecutionContext {
-    def reportFailure(t: Throwable) {
+    override def reportFailure(t: Throwable) {
       logger.warn(t.getMessage, t)
     }
-
-    def execute(runnable: Runnable) {
+    override def execute(runnable: Runnable) {
       runnable.run()
     }
   }
@@ -58,15 +57,12 @@ abstract class AbstractResource[AuthInfo] {
    * @param data the piece of data that should be converted to the suggested type
    * @return the parsed request, or a Failure response
    */
-  def parseType[T: Manifest](r: HttpRequest, data: String): Future[T] = {
-    parseType(r, data.getBytes(charsetUtf8))
+  def parseType[T : Manifest](r: HttpRequest, data: String): Try[T] = {
+    JsonUtil.fromJson[T](data)
   }
 
-  def parseType[T: Manifest](r: HttpRequest, data: Array[Byte]): Future[T] = {
-    JsonUtil.fromJson[T](new String(data, charsetUtf8)) match {
-      case TrySuccess(res) => Future.successful(res)
-      case TryFailure(t) => Future.failed(t)
-    }
+  def parseType[T : Manifest](r: HttpRequest, data: Array[Byte]): Try[T] = {
+    parseType(r, new String(data, charsetUtf8))
   }
 
   /**
@@ -91,8 +87,8 @@ abstract class AbstractResource[AuthInfo] {
    * @param r the parsed request
    * @return Failure(halt) if forbidden, false if not
    */
-  def isForbidden(r: HttpRequest): Future[Boolean] = false.continue
-  def isForbidden(r: HttpRequest, auth: AuthInfo): Future[Boolean] = isForbidden(r)
+  def isForbidden(r: HttpRequest): Try[Boolean] = Success(false)
+  def isForbidden(r: HttpRequest, auth: AuthInfo): Try[Boolean] = isForbidden(r)
 
   /**
    * A list of content types that that this server can accept, by default `application/json`.
@@ -139,8 +135,8 @@ abstract class AbstractResource[AuthInfo] {
   def toJsonBody[T : Manifest](t: T): HttpEntity = {
     // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
     JsonUtil.toJson(t) match {
-      case TrySuccess(j) => HttpEntity(responseContentType, j)
-      case TryFailure(e) => coerceError(e.getMessage.getBytes(charsetUtf8))
+      case Success(j) => HttpEntity(responseContentType, j)
+      case Failure(e) => coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8))
     }
   }
 

@@ -1,7 +1,3 @@
-import io.Source
-import java.io.PrintWriter
-import java.text.SimpleDateFormat
-import java.util.Calendar
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
