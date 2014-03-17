@@ -176,8 +176,8 @@ package object resource {
    *
    * {{{
    *   import com.paypal.stingray.http.resource._
-   *   Try { "hi" }.orErrorWithMessage                      // Future("hi")
-   *   Try { throw new Throwable("no") }.orErrorWithMessage // Future(HaltException(HttpResponse(500, "no", List())))
+   *   Try { "hi" }.orErrorWithMessage()                      // Future("hi")
+   *   Try { throw new Throwable("no") }.orErrorWithMessage() // Future(HaltException(HttpResponse(500, "no", List())))
    * }}}
    *
    * @param t the try to wrap
@@ -191,7 +191,7 @@ package object resource {
    * {{{
    *   import com.paypal.stingray.http.resource._
    *   Right("hi").orError                                                             // Future("hi")
-   *   Left(CustomError("no")).orError { c => HttpResponse(500, c.getMessage, List() } // Future(HaltException(...))
+   *   Left(CustomError("no")).orError { c => HttpResponse(500, c.getMessage, List()) } // Future(HaltException(...))
    * }}}
    *
    * @param either the either to wrap
@@ -367,7 +367,7 @@ package object resource {
    *
    * {{{
    *   import com.paypal.stingray.http.resource._
-   *   (new Throwable("no")).haltWith(InternalServiceError)  // Future(HaltException(HttpResponse(500, "no", List())))
+   *   (new Throwable("no")).haltWith(InternalServiceError)()  // Future(HaltException(HttpResponse(500, "no", List())))
    * }}}
    *
    * @param t the throwable to wrap
