@@ -2,7 +2,6 @@ package com.paypal.stingray.http.resource
 
 import spray.http._
 import spray.http.HttpEntity._
-import spray.http.HttpMethods._
 import spray.http.StatusCodes._
 import spray.http.HttpHeaders._
 import com.paypal.stingray.common.logging.LoggingSugar
@@ -10,7 +9,7 @@ import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.concurrent.Future
 import spray.http.Uri.Path
-import scala.util.Try
+import scala.util.{Success, Failure, Try}
 import spray.routing.RequestContext
 
 /**
@@ -27,25 +26,14 @@ object ResourceDriver extends LoggingSugar {
   protected lazy val logger = getLogger[ResourceDriver.type]
 
   /**
-   * Continues execution if this resource is available, or halts
-   * @param resource this resource
-   * @return an empty Future
-   */
-  def ensureAvailable(resource: AbstractResource[_, _]): Future[Unit] = {
-    import resource.context
-    resource.available.orHaltWith(ServiceUnavailable)
-  }
-
-  /**
    * Continues execution if this method is supported, or halts
    * @param resource this resource
    * @param method the method sent
-   * @return an empty Future
+   * @return an empty Try
    */
-  def ensureMethodSupported(resource: AbstractResource[_, _],
-                            method: HttpMethod): Future[Unit] = {
-    import resource.context
-    resource.supportedHttpMethods.contains(method).orHaltWith(MethodNotAllowed)
+  def ensureMethodSupported(resource: AbstractResource[_],
+                            method: HttpMethod): Try[Unit] = {
+    resource.supportedHttpMethods.contains(method).orHaltWithT(MethodNotAllowed)
   }
 
   /**
@@ -54,64 +42,44 @@ object ResourceDriver extends LoggingSugar {
    * @param method the method sent
    * @param f a function to parse this request body
    * @tparam T the `ParsedRequest` type
-   * @return a Future with an optional parsed body, or None if parsing fails
+   * @return a Try with an optional parsed body, or None if parsing fails
    */
   def parseBody[T](request: HttpRequest, method: HttpMethod)
-                  (f: HttpRequest => Future[Option[T]]): Future[Option[T]] = {
+                  (f: HttpRequest => Try[Option[T]]): Try[Option[T]] = {
     if(request.method == method) {
       f(request)
     } else {
-      none[T].continue
+      Success(none[T])
     }
   }
 
   /**
    * Continues execution and yields an `AuthInfo` if this method is authorized, or halts
    * @param resource this resource
-   * @param parsedRequest the request after parsing
-   * @tparam PR the `ParsedRequest` type
+   * @param request the request
    * @tparam AI the `AuthInfo` type
    * @return a Future containing an `AuthInfo` object, or a failure
    */
-  def ensureAuthorized[PR, AI](resource: AbstractResource[PR, AI],
-                               parsedRequest: PR): Future[AI] = {
+  def ensureAuthorized[AI](resource: AbstractResource[AI],
+                           request: HttpRequest): Future[AI] = {
     import resource.context
     for {
-      authInfoOpt <- resource.isAuthorized(parsedRequest)
+      authInfoOpt <- resource.isAuthorized(request)
       authInfo <- authInfoOpt.orHaltWith(Unauthorized)
     } yield authInfo
-  }
-
-  /**
-   * Continues execution if this resource is not forbidden to the requester, or halts
-   * @param resource this resource
-   * @param parsedRequest the request after parsing
-   * @param authInfo the `AuthInfo` after authorization
-   * @tparam PR the `ParsedRequest` type
-   * @tparam AI the `AuthInfo` theype
-   * @return an empty Future
-   */
-  def ensureNotForbidden[PR, AI](resource: AbstractResource[PR, AI],
-                                 parsedRequest: PR,
-                                 authInfo: AI): Future[Unit] = {
-    import resource.context
-    for {
-      isForbidden <- resource.isForbidden(parsedRequest, authInfo)
-      _ <- (!isForbidden).orHaltWith(Forbidden)
-    } yield ()
   }
 
   /**
    * Continues execution if this resource supports the content type sent in the request, or halts
    * @param resource this resource
    * @param request the request
-   * @return an empty Future
+   * @return an empty Try
    */
-  def ensureContentTypeSupported(resource: AbstractResource[_, _],
-                                 request: HttpRequest): Future[Unit] = {
+  def ensureContentTypeSupported(resource: AbstractResource[_],
+                                 request: HttpRequest): Try[Unit] = {
     request.entity match {
-      case Empty => ().continue
-      case NonEmpty(ct, _) => resource.acceptableContentTypes.contains(ct).orHaltWith(UnsupportedMediaType)
+      case Empty => Success()
+      case NonEmpty(ct, _) => resource.acceptableContentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
     }
   }
 
@@ -119,12 +87,11 @@ object ResourceDriver extends LoggingSugar {
    * Continues execution if this resource can respond in a format that the requester can accept, or halts
    * @param resource this resource
    * @param request the request
-   * @return a Future containing the acceptable content type found, or a failure
+   * @return a Try containing the acceptable content type found, or a failure
    */
-  def ensureResponseContentTypeAcceptable(resource: AbstractResource[_, _],
-                                          request: HttpRequest): Future[ContentType] = {
-    import resource.context
-    request.acceptableContentType(List(resource.responseContentType)).orHaltWith(NotAcceptable)
+  def ensureResponseContentTypeAcceptable(resource: AbstractResource[_],
+                                          request: HttpRequest): Try[ContentType] = {
+    request.acceptableContentType(List(resource.responseContentType)).orHaltWithT(NotAcceptable)
   }
 
   /**
@@ -141,8 +108,8 @@ object ResourceDriver extends LoggingSugar {
     } else {
       response
     }
-
   }
+
   /**
    * Run the request on this resource, first applying a rewrite. This should not be overridden.
    * @param resource this resource
@@ -151,34 +118,35 @@ object ResourceDriver extends LoggingSugar {
    * @tparam AuthInfo the authorization container
    * @return the rewritten request execution
    */
-  final def serveWithRewrite[ParsedRequest, AuthInfo]
-  (resource: AbstractResource[ParsedRequest, AuthInfo],
-   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])])
-  (rewrite: HttpRequest => Try[(HttpRequest, Map[String, String])]): RequestContext => Unit = { ctx: RequestContext =>
-    rewrite(ctx.request).map { case (request, pathParts) =>
-      serve(resource, processFunction, pathParts)(ctx.copy(request = request))
-    }.recover {
-      case e: Throwable =>
-        ctx.complete(HttpResponse(BadRequest, HttpEntity(ContentTypes.`application/json`, e.getMessage)))
-    }
+  final def serveWithRewrite[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
+                                                      processFunction: ParsedRequest => Future[(HttpResponse, Option[String])])
+                                                     (rewrite: HttpRequest => Try[(HttpRequest, ParsedRequest)]): RequestContext => Unit = {
+    ctx: RequestContext =>
+      rewrite(ctx.request).map {
+        case (request, parsed) =>
+          serve(resource, processFunction, r => Success(parsed))(ctx.copy(request = request))
+      }.recover {
+        case e: Exception =>
+          ctx.complete(HttpResponse(InternalServerError, resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8))))
+      }
   }
 
   /**
    * Run the request on this resource. This should not be overridden.
    * @param resource this resource
    * @param processFunction the function to be executed to process the request
-   * @param pathParts the parsed path
    * @tparam ParsedRequest the request after parsing
    * @tparam AuthInfo the authorization container
    * @return the request execution
    */
-  final def serve[ParsedRequest, AuthInfo, PostBody, PutBody]
-  (resource: AbstractResource[ParsedRequest, AuthInfo],
-   processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-   pathParts: Map[String, String] = Map()): RequestContext => Unit = { ctx: RequestContext => {
-    implicit val ec = resource.context
-    ctx.complete(serveSync(ctx.request, resource, processFunction, pathParts))
-  }}
+  final def serve[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
+                                           processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                           requestParser: HttpRequest => Try[ParsedRequest] = (x: HttpRequest) => Success(())): RequestContext => Unit = {
+    ctx: RequestContext => {
+      import resource.context
+      ctx.complete(serveSync(ctx.request, resource, processFunction, requestParser))
+    }
+  }
 
 
   /**
@@ -186,46 +154,16 @@ object ResourceDriver extends LoggingSugar {
    * @param request the incoming request
    * @param resource this resource
    * @param processFunction the function to be executed to process the request
-   * @param pathParts the parsed path
    * @tparam ParsedRequest the request after parsing
    * @tparam AuthInfo the authorization container
    * @return a Future containing an HttpResponse
    */
   final def serveSync[ParsedRequest, AuthInfo](request: HttpRequest,
-                                         resource: AbstractResource[ParsedRequest, AuthInfo],
-                                         processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                         pathParts: Map[String, String]): Future[HttpResponse] = {
+                                               resource: AbstractResource[AuthInfo],
+                                               processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                               requestParser: HttpRequest => Try[ParsedRequest]): Future[HttpResponse] = {
 
-    import resource.context
-
-    (for {
-      _ <- ensureAvailable(resource)
-      _ <- ensureMethodSupported(resource, request.method)
-
-      parsedRequest <- resource.parseRequest(request, pathParts)
-
-      authInfo <- ensureAuthorized(resource, parsedRequest)
-      _ <- ensureNotForbidden(resource, parsedRequest, authInfo)
-      _ <- ensureContentTypeSupported(resource, request)
-      _ <- ensureResponseContentTypeAcceptable(resource, request)
-
-      (httpResponse, location) <- processFunction(parsedRequest)
-    } yield {
-      val responseWithLocation = addHeaderOnCode(httpResponse, Created) {
-        // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
-        val newScheme = request.headers.find(_.name == "X-Forwarded-Proto").map(_.value).getOrElse(request.uri.scheme)
-
-        // if we created something, `location` will have more information to append to the response path
-        val newPath = Path(request.uri.path.toString + location.map("/" + _).getOrElse(""))
-
-        // copy the request uri, replacing scheme and path as needed, and return a `Location` header with the new uri
-        val newUri = request.uri.copy(scheme = newScheme, path = newPath)
-        Location(newUri)
-      }
-      // Just force the request to the right content type
-      responseWithLocation.withEntity(responseWithLocation.entity.flatMap((entity: NonEmpty) =>
-        HttpEntity(resource.responseContentType, entity.data)))
-    }).recover {
+    def handleError: PartialFunction[Throwable, HttpResponse] = {
       case e: HaltException =>
         val response = addHeaderOnCode(e.response, Unauthorized) {
           `WWW-Authenticate`(resource.unauthorizedChallenge(request))
@@ -241,11 +179,45 @@ object ResourceDriver extends LoggingSugar {
           logger.warn(s"Request finished unsuccessfully: request: $request response: $finalResponse")
         }
         finalResponse
-      case t: Throwable => {
-        logger.error(s"Unexpected error: request: $request error: ${t.getMessage}", t)
-        HttpResponse(InternalServerError, resource.coerceError(Option(t.getMessage).getOrElse("").getBytes(charsetUtf8)))
-      }
+      case e: Exception =>
+        logger.error(s"Unexpected error: request: $request error: ${e.getMessage}", e)
+        HttpResponse(InternalServerError, resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8)))
+    }
 
+    import resource.context
+
+    val parsedRequest = for {
+      _ <- ensureMethodSupported(resource, request.method)
+      parsedReq <- requestParser(request)
+      _ <- ensureContentTypeSupported(resource, request)
+      _ <- ensureResponseContentTypeAcceptable(resource, request)
+    } yield parsedReq
+
+    parsedRequest match {
+      case Success(req) =>
+        val result = for {
+          _ <- ensureAuthorized(resource, request)
+          (httpResponse, location) <- processFunction(req)
+        } yield {
+          val responseWithLocation = addHeaderOnCode(httpResponse, Created) {
+            // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
+            val newScheme = request.headers.find(_.name == "X-Forwarded-Proto").map(_.value).getOrElse(request.uri.scheme)
+
+            // if we created something, `location` will have more information to append to the response path
+            val newPath = Path(request.uri.path.toString + location.map("/" + _).getOrElse(""))
+
+            // copy the request uri, replacing scheme and path as needed, and return a `Location` header with the new uri
+            val newUri = request.uri.copy(scheme = newScheme, path = newPath)
+            Location(newUri)
+          }
+          // Just force the request to the right content type
+          responseWithLocation.withEntity(responseWithLocation.entity.flatMap((entity: NonEmpty) =>
+            HttpEntity(resource.responseContentType, entity.data)))
+        }
+        result.recover(handleError)
+      case Failure(t) =>
+        logger.error(s"Unexpected error: request: $request error: ${t.getMessage}", t)
+        Future.successful(handleError.apply(t))
     }
 
   }

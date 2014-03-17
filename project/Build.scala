@@ -1,7 +1,3 @@
-import io.Source
-import java.io.PrintWriter
-import java.text.SimpleDateFormat
-import java.util.Calendar
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
@@ -64,8 +60,8 @@ object Dependencies {
 
   val slf4jVersion = "1.7.5"
   val fasterXmlJacksonVersion = "2.3.1-STINGRAY" //custom version until our fixes are released
-  val sprayVersion = "1.2.0"
-  val akkaVersion = "2.2.3"
+  val sprayVersion = "1.3.0"
+  val akkaVersion = "2.3.0"
   val parboiledVersion = "1.1.6"
 
   lazy val commonsCodec        = "commons-codec"                % "commons-codec"               % "1.7"

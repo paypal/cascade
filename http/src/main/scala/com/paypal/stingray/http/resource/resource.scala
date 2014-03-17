@@ -1,6 +1,5 @@
 package com.paypal.stingray.http
 
-import akka.actor.Status
 import spray.http._
 import spray.http.HttpEntity._
 import spray.http.StatusCodes._
@@ -8,13 +7,12 @@ import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.trys._
 import scala.concurrent._
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Success, Failure, Try}
 
 /**
- * Utility methods for turning everyday datatypes into Futures that can possibly return (or throw) a
+ * Utility methods for turning everyday datatypes into Trys and Futures that can possibly return a
  * [[com.paypal.stingray.http.resource.HaltException]]. Methods of the form `orHalt` create a Future.
- * Methods of the form `orThrowHaltException` throw an Exception immediately and should only be used
- * when already inside a Future.
+ * Methods of the form `orHaltT` return a Try.
  */
 
 package object resource {
@@ -48,31 +46,56 @@ package object resource {
    * @param v the option to wrap
    * @tparam A the type of the wrapped option
    */
-  implicit class RichOptionHalt[A](v: Option[A]) {
+  implicit class RichOptionTryHalt[A](v: Option[A]) {
 
     /**
-     * Return the value inside this option, or throw a HaltException
-     * @param halt the HttpResonse to use for the HaltException
-     * @return the value inside this option
-     * @throws HaltException if None
+     * Return the value inside this option, or fail
+     * @param halt the HttpResponse to use for the failure
+     * @return the value inside this option, or a failed Future
      */
-    def orThrowHaltException(halt: => HttpResponse): A = {
-      v.orThrow(new HaltException(halt))
+    def orHaltT(halt: => HttpResponse): Try[A] = v match {
+      case Some(a) => Success(a)
+      case None => Failure(new HaltException(halt))
     }
 
     /**
-     * Return the value inside ths option, or throw a HaltException
+     * Return the value inside this option, or fail
      * @param status the response code to return on failure
      * @param entity the response body to return on failure, if any
      * @param headers headers to return on failure, if any
-     * @return the value inside this option
-     * @throws HaltException if None
+     * @return the value inside this option, or a failed Future
      */
-    def orThrowHaltException(status: => StatusCode,
-                             entity: => HttpEntity = Empty,
-                             headers: => List[HttpHeader] = Nil): A = {
-      orThrowHaltException(HttpResponse(status, entity, headers))
+    def orHaltWithT(status: => StatusCode,
+                    entity: => HttpEntity = Empty,
+                    headers: => List[HttpHeader] = Nil): Try[A] = {
+      orHaltT(HttpResponse(status, entity, headers))
     }
+
+    /**
+     * Return the value inside this option, or fail with a 500 Internal Server Error
+     * @param entity the response body to return on failure, if any
+     * @param headers headers to return on failure, if any
+     * @return the value inside this option, or a failed Future with a 500 error
+     */
+    def orErrorT(entity: => HttpEntity = Empty,
+                 headers: => List[HttpHeader] = Nil): Try[A] = {
+      orHaltWithT(InternalServerError, entity, headers)
+    }
+
+  }
+
+  /**
+   * Implicit wrapper to allow optional values to halt or throw
+   *
+   * {{{
+   *   import com.paypal.stingray.http.resource._
+   *   Option("hi").orError()  // Future("hi")
+   * }}}
+   *
+   * @param v the option to wrap
+   * @tparam A the type of the wrapped option
+   */
+  implicit class RichOptionFutureHalt[A](v: Option[A]) {
 
     /**
      * Return the value inside this option, or fail
@@ -107,6 +130,7 @@ package object resource {
                 headers: => List[HttpHeader] = Nil): Future[A] = {
       orHaltWith(InternalServerError, entity, headers)
     }
+
   }
 
   /**
@@ -249,35 +273,61 @@ package object resource {
    *
    * {{{
    *   import com.paypal.stingray.http.resource._
+   *   true.orError  // Try({})
+   *   false.orError // Try(HaltException(HttpResponse(500, Empty, List())))
+   * }}}
+   *
+   * @param v the boolean to wrap
+   */
+  implicit class RichBooleanTryHalt(v: Boolean) {
+
+    /**
+     * If false, halt
+     * @param halt the HttpResponse to use for the failure
+     * @return an empty successful Future, or a failed Future
+     */
+    def orHaltT(halt: => HttpResponse): Try[Unit] = {
+      if (v) Success() else Failure(new HaltException(halt))
+    }
+
+    /**
+     * If false, halt
+     * @param status the response code to return on false
+     * @param entity the response body to return on false, if any
+     * @param headers headers to return on false, if any
+     * @return an empty successful Future, or a failed Future
+     */
+    def orHaltWithT(status: => StatusCode,
+                   entity: => HttpEntity = Empty,
+                   headers: => List[HttpHeader] = Nil): Try[Unit] = {
+      orHaltT(HttpResponse(status, entity, headers))
+    }
+
+    /**
+     * If false, halt with an error code of 500 Internal Server Error
+     * @param entity the response body to return on false, if any
+     * @param headers headers to return on false, if any
+     * @return an empty successful Future, or a failed Future with a 500 error
+     */
+    def orErrorT(entity: => HttpEntity = Empty,
+                headers: => List[HttpHeader] = Nil): Try[Unit] = {
+      orHaltWithT(InternalServerError, entity, headers)
+    }
+
+  }
+
+  /**
+   * Implicit wrapper to allow Booleans to halt or throw
+   *
+   * {{{
+   *   import com.paypal.stingray.http.resource._
    *   true.orError  // Future({})
    *   false.orError // Future(HaltException(HttpResponse(500, Empty, List())))
    * }}}
    *
    * @param v the boolean to wrap
    */
-  implicit class RichBooleanHalt(v: Boolean) {
-
-    /**
-     * If false, throw a HaltException
-     * @param halt the HttpResponse to use for the HaltException
-     * @throws HaltException if false
-     */
-    def orThrowHaltException(halt: => HttpResponse) {
-      if (v) ().continue else throw new HaltException(halt)
-    }
-
-    /**
-     * If false, throw a HaltException
-     * @param status the response code to return on false
-     * @param entity the response body to return on false, if any
-     * @param headers headers to return on false, if any
-     * @throws HaltException if false
-     */
-    def orThrowHaltException(status: => StatusCode,
-                             entity: => HttpEntity = Empty,
-                             headers: => List[HttpHeader] = Nil) {
-      orThrowHaltException(HttpResponse(status, entity, headers))
-    }
+  implicit class RichBooleanFutureHalt(v: Boolean) {
 
     /**
      * If false, halt
@@ -311,6 +361,7 @@ package object resource {
                 headers: => List[HttpHeader] = Nil): Future[Unit] = {
       orHaltWith(InternalServerError, entity, headers)
     }
+
   }
 
   /**
