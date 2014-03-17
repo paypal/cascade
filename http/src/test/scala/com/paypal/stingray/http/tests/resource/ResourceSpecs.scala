@@ -16,13 +16,13 @@ class ResourceSpecs extends Specification { def is = s2"""
 
   Tests that exercise implicit classes of resource.scala
 
-  RichOptionHalt#orThrowHaltException should
-    return the value if Some                                    ${ROptionHalt.orThrowHaltException().some}
-    throw a HaltException if None                               ${ROptionHalt.orThrowHaltException().none}
+  RichOptionTryHalt#orErrorT should
+    return the value if Some                                    ${ROptionTryHalt.orErrorT().some}
+    throw a HaltException if None                               ${ROptionTryHalt.orErrorT().none}
 
-  RichOptionHalt#orError should
-    return the value if Some                                    ${ROptionHalt.orError().some}
-    return a failed future if None                              ${ROptionHalt.orError().none}
+  RichOptionFutureHalt#orError should
+    wrap value in successful future if Some                     ${ROptionFutureHalt.orError().some}
+    return a failed future if None                              ${ROptionFutureHalt.orError().none}
 
   RichEitherThrowableHalt#orThrowHaltExceptionWithErrorMessage should
     return the value if right                                   ${REitherThrowableHalt.orThrowHaltExceptionWithErrorMessage().ok}
@@ -48,11 +48,11 @@ class ResourceSpecs extends Specification { def is = s2"""
     return value if right                                       ${REitherHalt.orErrorNow().ok}
     throw halt exception if left                                ${REitherHalt.orErrorNow().failure}
 
-  RichBooleanHalt#orThrowHaltException should
-    return value if true                                        ${RBooleanHalt.orThrowHaltException().ok}
-    throw Halt Exception if false                               ${RBooleanHalt.orThrowHaltException().failure}
+  RichBooleanTryHalt#orErrorT should
+    return value if true                                        ${RBooleanHalt.orErrorT().ok}
+    return halted future if false                               ${RBooleanHalt.orErrorT().failure}
 
-  RichBooleanHalt#orError should
+  RichBooleanFutureHalt#orError should
     wrap value in successful future if true                     ${RBooleanHalt.orError().ok}
     return halted future if false                               ${RBooleanHalt.orError().failure}
 
@@ -73,17 +73,22 @@ class ResourceSpecs extends Specification { def is = s2"""
 
   }
 
-  object ROptionHalt {
-    case class orThrowHaltException() {
+  object ROptionTryHalt {
+    case class orErrorT() {
       def some = {
         val someOption = Option(3)
-        someOption.orThrowHaltException(BadRequest) must beEqualTo(3)
+        val success = someOption.orErrorT()
+        success must beSuccessfulTry[Int].withValue(3)
       }
       def none = {
         val noneOption = Option.empty[Int]
-         noneOption.orThrowHaltException(BadRequest) must throwAn[HaltException]
+        val failure = noneOption.orErrorT()
+        failure must beFailedTry[Int].withThrowable[HaltException]
       }
     }
+  }
+
+  object ROptionFutureHalt {
     case class orError() {
       def some = {
         val someOption = Option(3)
@@ -162,12 +167,12 @@ class ResourceSpecs extends Specification { def is = s2"""
   }
 
   object RBooleanHalt {
-    case class orThrowHaltException() {
+    case class orErrorT() {
       def ok = {
-        true.orThrowHaltException(BadRequest) must beEqualTo()
+        true.orErrorT() must beASuccessfulTry[Unit]
       }
       def failure = {
-        false.orThrowHaltException(BadRequest) must throwA[HaltException]
+        false.orErrorT() must beAFailedTry[Unit].withThrowable[HaltException]
       }
     }
     case class orError() {

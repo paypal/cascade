@@ -40,7 +40,7 @@ package object resource {
    *
    * {{{
    *   import com.paypal.stingray.http.resource._
-   *   Option("hi").orError()  // Future("hi")
+   *   Option("hi").orError()  // Success("hi")
    * }}}
    *
    * @param v the option to wrap
