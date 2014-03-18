@@ -32,7 +32,6 @@ trait ResourceServiceComponent {
     this: ServiceNameComponent
     with ActorSystemComponent =>
 
-
   /**
    * Configuration value provided
    * The routing rules for this service

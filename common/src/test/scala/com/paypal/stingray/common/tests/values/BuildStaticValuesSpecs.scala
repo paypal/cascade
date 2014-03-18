@@ -3,7 +3,6 @@ package com.paypal.stingray.common.tests.values
 import org.specs2._
 import org.specs2.mock.Mockito
 import com.paypal.stingray.common.values.BuildStaticValues
-import com.paypal.stingray.common.values.StaticValues
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import java.util.Date
 
@@ -28,8 +27,7 @@ class BuildStaticValuesSpecs extends Specification with Mockito { def is = s2"""
 
     case class Default() extends ConstructorsContext {
       def ok = this {
-        val sv = new StaticValues
-        val bsv = spy(new BuildStaticValues(sv))
+        val bsv = spy(new BuildStaticValues)
         bsv.get("some.date") returns Some("140226091500PST")
         val value = bsv.getDate("some.date")
         value must beSome[Date]
