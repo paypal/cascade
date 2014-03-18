@@ -25,56 +25,50 @@ package object config {
   implicit class RichConfig(val underlying: Config) extends AnyVal {
 
     /**
-     * Optional wrapper for string getter.
+     * Private helper which wraps Config getter logic
      *
-     * @param path path expression
-     * @return Some(string value) or None if the path doesn't exist or is set to null
+     * @param f function which performs Config getter
+     * @tparam T return type
+     * @return Some(typed value) or None if the path doesn't exist or is set to null
      */
-    def getOptionalString(path: String): Option[String] = try {
-      Some(underlying.getString(path))
+    private def getOptionalHelper[T](f: => T): Option[T] = try {
+      Some(f)
     } catch {
       case e: ConfigException.Missing =>
         None
     }
 
     /**
-     * Optional wrapper for boolean getter.
+     * Optional wrapper for String getter.
      *
      * @param path path expression
-     * @return Some(boolean value) or None if the path doesn't exist or is set to null
+     * @return Some(String value) or None if the path doesn't exist or is set to null
      */
-    def getOptionalBoolean(path: String): Option[Boolean] = try {
-      Some(underlying.getBoolean(path))
-    } catch {
-      case e: ConfigException.Missing =>
-        None
-    }
+    def getOptionalString(path: String): Option[String] = getOptionalHelper(underlying.getString(path))
 
     /**
-     * Optional wrapper for int getter.
+     * Optional wrapper for Boolean getter.
      *
      * @param path path expression
-     * @return Some(int value) or None if the path doesn't exist or is set to null
+     * @return Some(Boolean value) or None if the path doesn't exist or is set to null
      */
-    def getOptionalInt(path: String): Option[Int] = try {
-      Some(underlying.getInt(path))
-    } catch {
-      case e: ConfigException.Missing =>
-        None
-    }
+    def getOptionalBoolean(path: String): Option[Boolean] = getOptionalHelper(underlying.getBoolean(path))
 
     /**
-     * Optional wrapper for long getter.
+     * Optional wrapper for Int getter.
      *
      * @param path path expression
-     * @return Some(long value) or None if the path doesn't exist or is set to null
+     * @return Some(Int value) or None if the path doesn't exist or is set to null
      */
-    def getOptionalLong(path: String): Option[Long] = try {
-      Some(underlying.getLong(path))
-    } catch {
-      case e: ConfigException.Missing =>
-        None
-    }
+    def getOptionalInt(path: String): Option[Int] = getOptionalHelper(underlying.getInt(path))
+
+    /**
+     * Optional wrapper for Long getter.
+     *
+     * @param path path expression
+     * @return Some(Long value) or None if the path doesn't exist or is set to null
+     */
+    def getOptionalLong(path: String): Option[Long] = getOptionalHelper(underlying.getLong(path))
 
   }
 
