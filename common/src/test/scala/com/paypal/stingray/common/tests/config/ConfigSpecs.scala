@@ -32,6 +32,9 @@ class ConfigSpecs extends Specification { def is = s2"""
       return None if path does not exist          ${RConfig.boolean().notFound}
       throw if value cannot be converted          ${RConfig.boolean().failure}
 
+    getOptionalList should
+      return Some(value) if path exists           ${RConfig.simpleList().ok}
+
 """
 
   trait Context extends CommonImmutableSpecificationContext {
@@ -84,6 +87,15 @@ class ConfigSpecs extends Specification { def is = s2"""
       }
       def failure = apply {
         config.getOptionalBoolean("service.name") must throwA[ConfigException.WrongType]
+      }
+    }
+
+    case class simpleList() {
+      def ok = apply {
+        val aValue = config.getOptionalList("service.fruit")
+        val list: List[String] = List("apples", "bananas", "oranges")
+        // TODO add proper matcher
+        1==1 must beTrue
       }
     }
   }

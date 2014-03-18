@@ -1,17 +1,28 @@
 package com.paypal.stingray.common.values
 
 import java.net.URL
-import java.util.Date
+import java.util.{Properties, Date}
 import java.text.SimpleDateFormat
+import com.paypal.stingray.common.logging.LoggingSugar
 import scala.util.Try
 
 /**
- * Extension of [[com.paypal.stingray.common.values.StaticValues]] that adds a dependency list accessor
- * and a date value reader.
+ * Static Values class specifically for build.properties dependency list accessor
+ * and date value reader.
  *
- * @param svs a basic StaticValues that is used for all other SVs
  */
-class BuildStaticValues(svs: StaticValues) extends StaticValues(BuildStaticValues.getBuildUrl) {
+class BuildStaticValues extends LoggingSugar {
+
+  private val mbUrl = BuildStaticValues.getBuildUrl
+
+  val logger = getLogger[BuildStaticValues]
+
+  /**
+   * Retrieves an optional value from a [[java.util.Properties]] object
+   * @param key the key to retrieve
+   * @return an optional String value for the given `key`
+   */
+  def get(key: String): Option[String] = props.flatMap(p => Option(p.getProperty(key)))
 
   /**
    * Retrieves an optional value and attempts to parse it as a [[java.text.SimpleDateFormat]]
@@ -21,6 +32,18 @@ class BuildStaticValues(svs: StaticValues) extends StaticValues(BuildStaticValue
    */
   def getDate(s: String): Option[Date] = {
     get(s).flatMap(value => Try { new SimpleDateFormat("yyMMddHHmmssZ").parse(value) }.toOption)
+  }
+
+  // at first use, try to retrieve a Properties object
+  private lazy val props: Option[Properties] = {
+    lazy val p = new Properties
+    for {
+      url <- mbUrl
+      stream <- Try(url.openStream()).toOption
+    } yield {
+      p.load(stream)
+      p
+    }
   }
 
   private val Artifact = """groupId=(\S+), artifactId=(\S+), version=(\S+), type=([^\s\}]+)""".r

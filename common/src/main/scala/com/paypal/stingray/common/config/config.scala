@@ -70,6 +70,9 @@ package object config {
      */
     def getOptionalLong(path: String): Option[Long] = getOptionalHelper(underlying.getLong(path))
 
+
+    def getOptionalList(path: String): Option[ConfigList] = getOptionalHelper(underlying.getList(path))
+
   }
 
 }

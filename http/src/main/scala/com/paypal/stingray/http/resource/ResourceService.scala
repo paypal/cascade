@@ -8,7 +8,7 @@ import spray.http.HttpEntity
 import spray.http.StatusCodes._
 import spray.routing._
 import com.paypal.stingray.common.service.ServiceNameComponent
-import com.paypal.stingray.common.values.{StaticValuesComponent, BuildStaticValues}
+import com.paypal.stingray.common.values.BuildStaticValues
 import com.paypal.stingray.common.json._
 import com.paypal.stingray.http.server.StatusResponse
 import scala.concurrent.ExecutionContext
@@ -29,8 +29,7 @@ import com.paypal.stingray.http.actor.ActorSystemComponent
  * for more information.
  */
 trait ResourceServiceComponent {
-  this: StaticValuesComponent
-    with ServiceNameComponent
+    this: ServiceNameComponent
     with ActorSystemComponent =>
 
 
@@ -48,7 +47,7 @@ trait ResourceServiceComponent {
     extends HttpService {
 
     /** A source of build-specific values for this service */
-    protected lazy val bsvs = new BuildStaticValues(svs)
+    protected lazy val bsvs = new BuildStaticValues
 
     private lazy val statusResponse = StatusResponse.getStatusResponse(bsvs, serviceName)
 
