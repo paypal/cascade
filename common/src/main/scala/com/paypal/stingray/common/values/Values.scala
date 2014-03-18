@@ -4,11 +4,11 @@ import com.paypal.stingray.common.enumeration._
 import scala.util.Try
 
 /**
- * Base trait for creating Values producers, e.g. [[com.paypal.stingray.common.values.DynamicValues]] and
+ * Base trait for creating Values producers, e.g.
  * [[com.paypal.stingray.common.values.StaticValues]].
  *
  * Values producers that require asynchronous calls should implement their own async-safe wrappers that tie into
- * this interface. See [[com.paypal.stingray.common.values.DynamicValues]] for an example, or simply extend that.
+ * this interface.
  *
  * Expected return values can be treated as a bare String, primitives such as Int or Bool,
  * a value of a given Enumeration, a comma-separated List, or parsed JSON.
