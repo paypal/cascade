@@ -18,9 +18,14 @@ class ConfigSpecs extends Specification { def is = s2"""
       return None if path does not exist          ${RConfig.string().notFound}
 
     getOptionalInt should
-      return Some(value) if path exists           {RConfig.int().ok}
+      return Some(value) if path exists           ${RConfig.int().ok}
       return None if path does not exist          ${RConfig.int().notFound}
       throw if value cannot be converted          ${RConfig.int().failure}
+
+    getOptionalLong should
+      return Some(value) if path exists           ${RConfig.long().ok}
+      return None if path does not exist          ${RConfig.long().notFound}
+      throw if value cannot be converted          ${RConfig.long().failure}
 
     getOptionalBoolean should
       return Some(value) if path exists           ${RConfig.boolean().ok}
@@ -46,13 +51,26 @@ class ConfigSpecs extends Specification { def is = s2"""
 
     case class int() {
       def ok = apply {
-        config.getOptionalInt("service.num") must beSome(1)
+        config.getOptionalInt("service.num.success") must beSome(1)
       }
       def notFound = apply {
         config.getOptionalInt("service.nonum") must beNone
       }
       def failure = apply {
         config.getOptionalInt("service.num.failure") must throwA[ConfigException.WrongType]
+
+      }
+    }
+
+    case class long() {
+      def ok = apply {
+        config.getOptionalLong("service.num.success") must beSome(1L)
+      }
+      def notFound = apply {
+        config.getOptionalLong("service.nonum") must beNone
+      }
+      def failure = apply {
+        config.getOptionalLong("service.num.failure") must throwA[ConfigException.WrongType]
 
       }
     }
