@@ -34,6 +34,8 @@ class ConfigSpecs extends Specification { def is = s2"""
 
     getOptionalList should
       return Some(value) if path exists           ${RConfig.simpleList().ok}
+      return None if path does not exist          ${RConfig.simpleList().notFound}
+      throw if value cannot be converted          ${RConfig.simpleList().failure}
 
 """
 
@@ -54,26 +56,26 @@ class ConfigSpecs extends Specification { def is = s2"""
 
     case class int() {
       def ok = apply {
-        config.getOptionalInt("service.num.success") must beSome(1)
+        config.getOptionalInt("service.num") must beSome(1)
       }
       def notFound = apply {
         config.getOptionalInt("service.nonum") must beNone
       }
       def failure = apply {
-        config.getOptionalInt("service.num.failure") must throwA[ConfigException.WrongType]
+        config.getOptionalInt("service.name") must throwA[ConfigException.WrongType]
 
       }
     }
 
     case class long() {
       def ok = apply {
-        config.getOptionalLong("service.num.success") must beSome(1L)
+        config.getOptionalLong("service.num") must beSome(1L)
       }
       def notFound = apply {
         config.getOptionalLong("service.nonum") must beNone
       }
       def failure = apply {
-        config.getOptionalLong("service.num.failure") must throwA[ConfigException.WrongType]
+        config.getOptionalLong("service.name") must throwA[ConfigException.WrongType]
 
       }
     }
@@ -94,8 +96,13 @@ class ConfigSpecs extends Specification { def is = s2"""
       def ok = apply {
         val aValue = config.getOptionalList("service.fruit")
         val list: List[String] = List("apples", "bananas", "oranges")
-        // TODO add proper matcher
-        1==1 must beTrue
+        aValue must beEqualTo(Some(list))
+      }
+      def notFound = apply {
+        config.getOptionalList("service.veggies") must beNone
+      }
+      def failure = apply {
+        config.getOptionalList("service.name") must throwA[ConfigException.WrongType]
       }
     }
   }

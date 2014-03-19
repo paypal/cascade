@@ -1,6 +1,8 @@
 package com.paypal.stingray.common
 
 import com.typesafe.config._
+import scala.collection.JavaConverters._
+import com.paypal.stingray.common.util.casts._
 
 /**
  * Convenience methods and implicit wrappers for working with [[com.typesafe.config]]
@@ -71,7 +73,17 @@ package object config {
     def getOptionalLong(path: String): Option[Long] = getOptionalHelper(underlying.getLong(path))
 
 
-    def getOptionalList(path: String): Option[ConfigList] = getOptionalHelper(underlying.getList(path))
+    /**
+     * Optional wrapper for List getter.
+     * Assumes and returns only list objects of String type
+     *
+     * @param path path expression
+     * @return Some(List[String] value) or None if the path doesn't exist or is set to null
+     */
+    def getOptionalList(path: String): Option[List[String]] = {
+      val list = getOptionalHelper(underlying.getList(path))
+      list.map(_.unwrapped().asScala.toList.cast[String])
+    }
 
   }
 
