@@ -8,7 +8,7 @@ import com.paypal.stingray.common.properties.BuildProperties
 /**
  * Tests [[com.paypal.stingray.common.properties.BuildProperties]]
  */
-class BuildPropertiesSpecs extends Specification with Mockito { def is = s2"""
+class BuildPropertiesSpecs extends Specification with Mockito { override def is = s2"""
 
   BuildProperties loads the build.properties files.
 
@@ -21,8 +21,8 @@ class BuildPropertiesSpecs extends Specification with Mockito { def is = s2"""
   }
 
   case class GetValue() extends Context {
-    def ok = this {
-      val bp = spy(new BuildProperties)
+    def ok = apply {
+      val bp = mock[BuildProperties]
       bp.get("some.property") returns Some("somevalue")
       bp.get("some.property") must beSome("somevalue")
     }

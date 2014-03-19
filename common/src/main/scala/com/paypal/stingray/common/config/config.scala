@@ -16,6 +16,12 @@ import com.paypal.stingray.common.util.casts._
  *    application.json (all resources on classpath with this name)
  *    application.properties (all resources on classpath with this name)
  *    reference.conf (all resources on classpath with this name)
+ *
+ * From inside an actor, you can retrieve the config with
+ *
+ * {{{
+ *   val config = context.system.settings.config
+ * }}}
  */
 package object config {
 
@@ -24,7 +30,7 @@ package object config {
    *
    * @param underlying Config instance
    */
-  implicit class RichConfig(val underlying: Config) extends AnyVal {
+  implicit class RichConfig(val underlying: Config) {
 
     /**
      * Private helper which wraps Config getter logic
@@ -33,11 +39,14 @@ package object config {
      * @tparam T return type
      * @return Some(typed value) or None if the path doesn't exist or is set to null
      */
-    private def getOptionalHelper[T](f: => T): Option[T] = try {
-      Some(f)
-    } catch {
-      case e: ConfigException.Missing =>
-        None
+    private def getOptionalHelper[T](f: => T): Option[T] = {
+
+      try {
+        Some(f)
+      } catch {
+        case e: ConfigException.Missing => None
+      }
+
     }
 
     /**
@@ -72,7 +81,6 @@ package object config {
      */
     def getOptionalLong(path: String): Option[Long] = getOptionalHelper(underlying.getLong(path))
 
-
     /**
      * Optional wrapper for List getter.
      * Assumes and returns only list objects of String type
@@ -82,7 +90,7 @@ package object config {
      */
     def getOptionalList(path: String): Option[List[String]] = {
       val list = getOptionalHelper(underlying.getList(path))
-      list.map(_.unwrapped().asScala.toList.cast[String])
+      list.map(_.unwrapped.asScala.toList.cast[String])
     }
 
   }

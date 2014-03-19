@@ -6,7 +6,7 @@ import org.specs2._
 /**
  * Tests for [[com.paypal.stingray.common.logging.LoggingSugar]]
  */
-class LoggingSugarSpecs extends Specification { def is = s2"""
+class LoggingSugarSpecs extends Specification { override def is = s2"""
 
   Convenience methods for interacting with org.slf4j.Logger and other SLF4J objects.
 

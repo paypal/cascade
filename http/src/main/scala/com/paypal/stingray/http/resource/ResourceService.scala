@@ -9,6 +9,7 @@ import spray.http.StatusCodes._
 import spray.routing._
 import com.paypal.stingray.common.service.ServiceNameComponent
 import com.paypal.stingray.common.properties.BuildProperties
+import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.json._
 import com.paypal.stingray.http.server.StatusResponse
 import scala.concurrent.ExecutionContext
@@ -52,7 +53,7 @@ trait ResourceServiceComponent {
 
     private lazy val statusError = """{"status":"error"}"""
 
-    private lazy val statusRoute: Route = path("status") { _ =>
+    private lazy val statusRoute: Route = (path("status") & headerValueByName("x-ups-status")) { _ =>
       val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
       complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusRespJson)))
     }

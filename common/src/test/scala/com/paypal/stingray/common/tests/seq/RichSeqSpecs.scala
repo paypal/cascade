@@ -9,7 +9,7 @@ import com.paypal.stingray.common.seq.RichSeq
  * Tests for implicit [[com.paypal.stingray.common.seq.RichSeq]]
  */
 
-class RichSeqSpecs extends Specification { def is = s2"""
+class RichSeqSpecs extends Specification { override def is = s2"""
 
   RichSeq is a wrapper for Seq[T]. It contains stuff that is good.
 

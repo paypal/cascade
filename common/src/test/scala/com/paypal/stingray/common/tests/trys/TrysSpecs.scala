@@ -11,7 +11,7 @@ import com.paypal.stingray.common.trys._
 /**
  * Tests [[com.paypal.stingray.common.trys]]
  */
-class TrysSpecs extends Specification with ScalaCheck { def is = s2"""
+class TrysSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   Convenience wrappers and methods for working with [[scala.util.Try]].
 

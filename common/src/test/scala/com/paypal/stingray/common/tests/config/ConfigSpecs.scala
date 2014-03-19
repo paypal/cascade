@@ -8,7 +8,7 @@ import com.typesafe.config._
 /**
  * Tests for [[com.paypal.stingray.common.config]]
  */
-class ConfigSpecs extends Specification { def is = s2"""
+class ConfigSpecs extends Specification { override def is = s2"""
 
   RichConfig is an implicit optional wrapper on config getters.
 

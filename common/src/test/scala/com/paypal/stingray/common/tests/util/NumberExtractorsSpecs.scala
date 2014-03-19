@@ -9,7 +9,7 @@ import com.paypal.stingray.common.util.{IntExtractor, LongExtractor}
 /**
  * Tests number extractor methods [[com.paypal.stingray.common.util]]
  */
-class NumberExtractorsSpecs extends Specification with ScalaCheck { def is = s2"""
+class NumberExtractorsSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   Convenience methods for converting String to Int/Long.
 

@@ -11,7 +11,10 @@ import scala.util.Try
  */
 class BuildProperties extends LoggingSugar {
 
-  private val buildUrl = BuildProperties.getBuildUrl
+  /**
+   * A new default properties file location, at `build.properties`, or None if no resource exists with that name
+   */
+  private val buildUrl = Try(getClass.getResource("build.properties")).toOption
 
   val logger = getLogger[BuildProperties]
 
@@ -33,17 +36,5 @@ class BuildProperties extends LoggingSugar {
    * @return an optional String value for the given `key`
    */
   def get(key: String): Option[String] = props.flatMap(p => Option(p.getProperty(key)))
-
-}
-
-object BuildProperties {
-
-  /**
-   * A new default properties file location, at `build.properties`
-   * @return optionally, an SV URL pointing to `build.properties`, or None if no resource exists with that name
-   */
-  private def getBuildUrl: Option[URL] = {
-    Try { getClass.getResource("build.properties") }.toOption
-  }
 
 }

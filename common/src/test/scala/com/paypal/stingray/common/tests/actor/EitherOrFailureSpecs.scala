@@ -12,7 +12,7 @@ import akka.actor._
  */
 class EitherOrFailureSpecs
   extends Specification
-  with ScalaCheck { def is = s2"""
+  with ScalaCheck { override def is = s2"""
 
   EitherOrFailure is an implicit wrapper for Either objects to interoperate with Actors
 

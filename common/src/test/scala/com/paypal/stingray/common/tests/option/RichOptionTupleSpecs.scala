@@ -10,7 +10,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
  * Tests for implicit [[com.paypal.stingray.common.option.RichOptionTuple]]
  */
 
-class RichOptionTupleSpecs extends Specification { def is = s2"""
+class RichOptionTupleSpecs extends Specification { override def is = s2"""
 
   RichOptionTuple is a wrapper for (Option[T], Option[U]) types (ie: 2-tuples of options)
 
