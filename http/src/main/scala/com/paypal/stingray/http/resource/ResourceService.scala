@@ -8,7 +8,7 @@ import spray.http.HttpEntity
 import spray.http.StatusCodes._
 import spray.routing._
 import com.paypal.stingray.common.service.ServiceNameComponent
-import com.paypal.stingray.common.values.BuildStaticValues
+import com.paypal.stingray.common.properties.BuildProperties
 import com.paypal.stingray.common.json._
 import com.paypal.stingray.http.server.StatusResponse
 import scala.concurrent.ExecutionContext
@@ -46,9 +46,9 @@ trait ResourceServiceComponent {
     extends HttpService {
 
     /** A source of build-specific values for this service */
-    protected lazy val bsvs = new BuildStaticValues
+    protected lazy val buildProps = new BuildProperties
 
-    private lazy val statusResponse = StatusResponse.getStatusResponse(bsvs, serviceName)
+    private lazy val statusResponse = StatusResponse.getStatusResponse(buildProps, serviceName)
 
     private lazy val statusError = """{"status":"error"}"""
 
