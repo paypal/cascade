@@ -22,7 +22,7 @@ class BuildPropertiesSpecs extends Specification with Mockito { override def is 
 
   case class GetValue() extends Context {
     def ok = apply {
-      val bp = mock[BuildProperties]
+      val bp = spy(new BuildProperties)
       bp.get("some.property") returns Some("somevalue")
       bp.get("some.property") must beSome("somevalue")
     }

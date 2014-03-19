@@ -3,6 +3,7 @@ package com.paypal.stingray.common
 import com.typesafe.config._
 import scala.collection.JavaConverters._
 import com.paypal.stingray.common.util.casts._
+import com.paypal.stingray.common.logging._
 
 /**
  * Convenience methods and implicit wrappers for working with [[com.typesafe.config]]
@@ -30,7 +31,9 @@ package object config {
    *
    * @param underlying Config instance
    */
-  implicit class RichConfig(val underlying: Config) {
+  implicit class RichConfig(val underlying: Config) extends LoggingSugar {
+
+    private val logger = getLogger[RichConfig]
 
     /**
      * Private helper which wraps Config getter logic
@@ -40,13 +43,15 @@ package object config {
      * @return Some(typed value) or None if the path doesn't exist or is set to null
      */
     private def getOptionalHelper[T](f: => T): Option[T] = {
-
       try {
         Some(f)
       } catch {
-        case e: ConfigException.Missing => None
+        case _: ConfigException.Missing => None
+        case e: ConfigException.WrongType => {
+          logger.error("Config value does not match the request type", e)
+          throw e
+        }
       }
-
     }
 
     /**
