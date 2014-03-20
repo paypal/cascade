@@ -54,8 +54,10 @@ trait ResourceServiceComponent {
     private lazy val statusError = """{"status":"error"}"""
 
     private lazy val statusRoute: Route = (path("status") & headerValueByName("x-ups-status")) { _ =>
-      val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
-      complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusRespJson)))
+      (ctx: RequestContext) => {
+        val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
+        ctx.complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusRespJson)))
+      }
     }
 
     private lazy val serverActor: ActorSelection = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
