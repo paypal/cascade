@@ -1,4 +1,7 @@
 
+# 0.1.9 03/20/14 released by awharris
+* spray 1.3.1, akka 2.3.0, other resource driver improvements
+
 # 0.1.8 03/07/14 released by Alex
 * Changes to resourceDriver
 
