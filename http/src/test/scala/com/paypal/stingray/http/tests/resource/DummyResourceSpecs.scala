@@ -4,9 +4,11 @@ import org.specs2.Specification
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import org.specs2.mock.Mockito
 import spray.http._
-import spray.http.HttpEntity._
 import HttpHeaders._
 import com.paypal.stingray.http.tests.matchers.SprayMatchers
+import spray.http._
+import spray.http.HttpEntity._
+import java.net.URL
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResource]] abstract class,
@@ -26,7 +28,16 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
   PUT /ping =>
     should return pong                                                    ${Test().pingPut}
 
+  Additional AbstractResource methods
+    isForbidden returns Success(false)                                    ${AResource().forbidden}
+    isForbidden which takes AuthInfo returns Success(false)               ${AResource().forbiddenWithAuthInfo}
+
   """
+
+  trait context extends CommonImmutableSpecificationContext with SprayMatchers {
+
+    val resource = new DummyResource
+  }
 
   case class Test() extends context {
     def ping = {
@@ -60,8 +71,18 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
     }
   }
 
-  trait context extends CommonImmutableSpecificationContext with SprayMatchers {
+  case class AResource() extends context {
+    def forbidden = {
+      val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
+      resource.isForbidden(request) must beSuccessfulTry[Boolean].withValue(false)
+    }
 
-    val resource = new DummyResource
+    def forbiddenWithAuthInfo = {
+      val authInfo = new AuthInfo(new URL("http://api.nothing.com"), "user", "pass")
+      val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
+      resource.isForbidden(request, authInfo) must beSuccessfulTry[Boolean].withValue(false)
+    }
   }
+
+
 }
