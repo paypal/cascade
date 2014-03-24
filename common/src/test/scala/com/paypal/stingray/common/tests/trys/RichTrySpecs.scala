@@ -12,7 +12,7 @@ import com.paypal.stingray.common.tests.scalacheck._
  */
 class RichTrySpecs
   extends Specification
-  with ScalaCheck { def is = s2"""
+  with ScalaCheck { override def is = s2"""
 
   RichTry is an implicit wrapper for Try objects
 

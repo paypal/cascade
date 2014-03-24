@@ -9,7 +9,7 @@ import com.paypal.stingray.common.random.RandomUtil
 /**
  * Tests for [[com.paypal.stingray.common.random]]
  */
-class RandomUtilSpecs extends Specification with ScalaCheck { def is = s2"""
+class RandomUtilSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   RandomUtil provides convenience for choosing random values from a list.
 

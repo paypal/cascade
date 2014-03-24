@@ -9,7 +9,7 @@ import org.scalacheck.Arbitrary._
 /**
  * Tests for [[com.paypal.stingray.common.string]]
  */
-class StringSpecs extends Specification with ScalaCheck { def is = s2"""
+class StringSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   string.scala provides convenience methods and implicit wrappers for working with Strings
 

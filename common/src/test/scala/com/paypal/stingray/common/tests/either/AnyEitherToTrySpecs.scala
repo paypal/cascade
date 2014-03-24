@@ -10,7 +10,7 @@ import com.paypal.stingray.common.either._
  */
 class AnyEitherToTrySpecs
   extends Specification
-  with ScalaCheck { def is = s2"""
+  with ScalaCheck { override def is = s2"""
 
   AnyEitherToTry is an implicit wrapper to convert Either[E, A] to Try[A]
 

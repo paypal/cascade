@@ -13,7 +13,7 @@ import akka.actor._
  */
 class TryOrFailureSpecs
   extends Specification
-  with ScalaCheck { def is = s2"""
+  with ScalaCheck { override def is = s2"""
 
   TryOrFailure is an implicit wrapper for Try objects to interoperate with Actors
 

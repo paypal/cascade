@@ -18,7 +18,7 @@ class CommonActorSpecs
   extends TestKit(ActorSystem("CommonActorSpecs"))
   with SpecificationLike
   with ScalaCheck
-  with ActorSpecification { def is = s2"""
+  with ActorSpecification { override def is = s2"""
 
   Passing an unhandled exception results in an UnhandledMessageException ${Message().failureCase}
 

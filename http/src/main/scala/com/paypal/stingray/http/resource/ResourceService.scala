@@ -8,7 +8,8 @@ import spray.http.HttpEntity
 import spray.http.StatusCodes._
 import spray.routing._
 import com.paypal.stingray.common.service.ServiceNameComponent
-import com.paypal.stingray.common.values.{StaticValuesComponent, BuildStaticValues}
+import com.paypal.stingray.common.properties.BuildProperties
+import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.json._
 import com.paypal.stingray.http.server.StatusResponse
 import scala.concurrent.ExecutionContext
@@ -29,10 +30,8 @@ import com.paypal.stingray.http.actor.ActorSystemComponent
  * for more information.
  */
 trait ResourceServiceComponent {
-  this: StaticValuesComponent
-    with ServiceNameComponent
+    this: ServiceNameComponent
     with ActorSystemComponent =>
-
 
   /**
    * Configuration value provided
@@ -48,15 +47,17 @@ trait ResourceServiceComponent {
     extends HttpService {
 
     /** A source of build-specific values for this service */
-    protected lazy val bsvs = new BuildStaticValues(svs)
+    protected lazy val buildProps = new BuildProperties
 
-    private lazy val statusResponse = StatusResponse.getStatusResponse(bsvs, serviceName)
+    private lazy val statusResponse = StatusResponse.getStatusResponse(buildProps, serviceName)
 
     private lazy val statusError = """{"status":"error"}"""
 
-    private lazy val statusRoute: Route = path("status") { _ =>
-      val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
-      complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusRespJson)))
+    private lazy val statusRoute: Route = (path("status") & headerValueByName("x-ups-status")) { _ =>
+      (ctx: RequestContext) => {
+        val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
+        ctx.complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusRespJson)))
+      }
     }
 
     private lazy val serverActor: ActorSelection = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
