@@ -8,10 +8,12 @@ import com.paypal.stingray.common.properties.BuildProperties
  * @param status the status
  * @param serviceName the name
  * @param dependencies the dependencies used
+ * @param gitInfo the repo info for this build
  */
 case class StatusResponse(status: String,
                           serviceName: String,
-                          dependencies: List[String])
+                          dependencies: List[String],
+                          gitInfo: List[String])
 
 object StatusResponse {
 
@@ -25,8 +27,9 @@ object StatusResponse {
    */
   def getStatusResponse(props: BuildProperties, serviceName: String): StatusResponse = {
     val dependencies = props.get("service.dependencies").map(_.split(",")).getOrElse(Array())
-    val status = StatusResponse("ok", serviceName, dependencies.toList)
-    logger.debug(s"Status Response - status: ${status.status}, dependencies: ${dependencies.mkString(",")}")
+    val gitInfo = List("git.branch", "git.branch.clean", "git.commit.sha", "git.commit.date").flatMap(props.get)
+    val status = StatusResponse("ok", serviceName, dependencies.toList, gitInfo)
+    logger.debug(s"Status Response - status: ${status.status}, dependencies: ${dependencies.mkString(",")}, Git Info: ${gitInfo.mkString(",")}")
     status
   }
 
