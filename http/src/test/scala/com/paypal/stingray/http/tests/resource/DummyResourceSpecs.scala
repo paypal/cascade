@@ -4,11 +4,10 @@ import org.specs2.Specification
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import org.specs2.mock.Mockito
 import spray.http._
+import spray.http.HttpEntity._
 import HttpHeaders._
 import com.paypal.stingray.http.tests.matchers.SprayMatchers
-import spray.http._
-import spray.http.HttpEntity._
-import java.net.URL
+import com.paypal.stingray.http.resource.AlwaysAuthorized
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResource]] abstract class,
@@ -78,7 +77,7 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
     }
 
     def forbiddenWithAuthInfo = {
-      val authInfo = new AuthInfo(new URL("http://api.nothing.com"), "user", "pass")
+      val authInfo = new AlwaysAuthorized {}
       val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
       resource.isForbidden(request, authInfo) must beSuccessfulTry[Boolean].withValue(false)
     }
