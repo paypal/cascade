@@ -23,6 +23,13 @@ object StatusResponse {
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
+  private val gitPropertyMappings = Map(
+    "git.branch" -> "branch",
+    "git.branch.clean" -> "branch-is-clean",
+    "git.commit.sha" -> "commit-sha",
+    "git.commit.date" -> "commit-date"
+  )
+
   /**
    * Generate a StatusResponse based on current information
    * @param props the BuildProperties instance to read
@@ -31,9 +38,9 @@ object StatusResponse {
    */
   def getStatusResponse(props: BuildProperties, serviceName: String): StatusResponse = {
     val dependencies = props.get("service.dependencies").map(_.split(",")).getOrElse(Array())
-    val gitInfo = List("branch", "branch.clean", "commit.sha", "commit.date").foldLeft(Map[String,String]()) { (m, k) =>
-        props.get(s"git.$k") match {
-        case Some(v) => m ++ Map(k -> v)
+    val gitInfo = gitPropertyMappings.keys.foldLeft(Map[String,String]()) { (m, k) =>
+        props.get(k) match {
+        case Some(v) => m ++ Map(gitPropertyMappings(k) -> v)
         case None => m
       }
     }
