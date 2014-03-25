@@ -10,7 +10,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 /**
  * Tests for [[com.paypal.stingray.http.server.StatusResponse]].
  */
-class StatusResponseSpecs extends Specification with Mockito { def is = s2"""
+class StatusResponseSpecs extends Specification with Mockito { override def is = s2"""
 
   getStatusResponse
     properly creates json response                      ${Response().ok}
