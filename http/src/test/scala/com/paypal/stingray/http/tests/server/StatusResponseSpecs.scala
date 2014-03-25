@@ -33,7 +33,7 @@ class StatusResponseSpecs extends Specification with Mockito { def is = s2"""
 
       val resp = StatusResponse.getStatusResponse(bp, "tests")
       val jsonResp = JsonUtil.toJson(resp).getOrElse("""{"status":"error"}""")
-      jsonResp must beEqualTo("""{"status":"ok","serviceName":"tests","dependencies":["dep1","dep2","dep3"],"gitInfo":["test-branch","true","1234","today"]}""")
+      jsonResp must beEqualTo("""{"status":"ok","service-name":"tests","dependencies":["dep1","dep2","dep3"],"git-info":{"branch":"test-branch","branch.clean":"true","commit.sha":"1234","commit.date":"today"}}""")
     }
     def okWithMissing = apply {
       bp.get("git.commit.sha") returns Option.empty[String]
@@ -41,7 +41,7 @@ class StatusResponseSpecs extends Specification with Mockito { def is = s2"""
 
       val resp = StatusResponse.getStatusResponse(bp, "tests")
       val jsonResp = JsonUtil.toJson(resp).getOrElse("""{"status":"error"}""")
-      jsonResp must beEqualTo("""{"status":"ok","serviceName":"tests","dependencies":["dep1","dep2","dep3"],"gitInfo":["test-branch","true"]}""")
+      jsonResp must beEqualTo("""{"status":"ok","service-name":"tests","dependencies":["dep1","dep2","dep3"],"git-info":{"branch":"test-branch","branch.clean":"true"}}""")
     }
   }
 
