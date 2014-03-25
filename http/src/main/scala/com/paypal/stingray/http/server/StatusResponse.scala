@@ -21,7 +21,7 @@ case class StatusResponse(
 
 object StatusResponse extends LoggingSugar {
 
-  private lazy val logger = getLogger[StatusResponse]
+  private lazy val logger = getLogger[StatusResponse.type]
 
   private val gitPropertyMappings = Map(
     "git.branch" -> "branch",
