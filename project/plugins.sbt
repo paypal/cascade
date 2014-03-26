@@ -10,5 +10,5 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.3.2")
 
 addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.4")
 
-addSbtPlugin("com.paypal.stingray" % "sbt-build-utilities" % "0.2.0")
+addSbtPlugin("com.paypal.stingray" % "sbt-build-utilities" % "0.3.0")
 

@@ -10,7 +10,7 @@ import com.paypal.stingray.common.either._
  */
 class ThrowableEitherToTrySpecs
   extends Specification
-  with ScalaCheck { def is = s2"""
+  with ScalaCheck { override def is = s2"""
 
   ThrowableEitherToTry is an implicit wrapper to convert Either[Throwable, A] to Try[A]
 

@@ -9,7 +9,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
  * Tests for implicit [[com.paypal.stingray.common.option.RichOption]]
  */
 
-class RichOptionSpecs extends Specification { def is = s2"""
+class RichOptionSpecs extends Specification { override def is = s2"""
   RichOption is a wrapper for Option[T] types
 
   executeIfNone should
@@ -34,7 +34,7 @@ class RichOptionSpecs extends Specification { def is = s2"""
   }
 
   case class ExecuteIfNone() extends Context {
-    def executesOnlyIfNone = this {
+    def executesOnlyIfNone = apply {
       val int = new AtomicInteger(0)
       val wrappedNone = Option.empty[Int]
       val wrappedSome = Option(someValue)
@@ -45,7 +45,7 @@ class RichOptionSpecs extends Specification { def is = s2"""
   }
 
   case class SideEffectNone() extends Context {
-    def executesOnlyIfNone = this {
+    def executesOnlyIfNone = apply {
       val int = new AtomicInteger(0)
       val wrappedNone = Option.empty[Int]
       val wrappedSome = Option(someValue)
@@ -56,7 +56,7 @@ class RichOptionSpecs extends Specification { def is = s2"""
   }
 
   case class SideEffectSome() extends Context {
-    def executesOnlyIfSome = this {
+    def executesOnlyIfSome = apply {
       val int = new AtomicInteger(0)
       val wrappedNone = Option.empty[Int]
       val wrappedSome = Option(someValue)
@@ -67,7 +67,7 @@ class RichOptionSpecs extends Specification { def is = s2"""
   }
 
   case class OrThrow() extends Context {
-    def throwsOnlyIfNone = this {
+    def throwsOnlyIfNone = apply {
       val wrappedNone = Option.empty[Int]
       val wrappedSome = Option(someValue)
       val exception = new Exception(getClass.getCanonicalName)
@@ -78,13 +78,13 @@ class RichOptionSpecs extends Specification { def is = s2"""
   }
 
   case class ToFuture() extends Context {
-    def returnsValue = this {
+    def returnsValue = apply {
       val wrappedSome = Option(someValue)
       val successState = wrappedSome.toFuture(new Exception("test exception"))
       successState must beEqualTo(someValue).await
     }
 
-    def returnsThrowable = this {
+    def returnsThrowable = apply {
       val wrappedNone = Option.empty[Int]
       val ex = new Exception("test exception")
       val failureState = wrappedNone.toFuture(ex)
@@ -94,7 +94,7 @@ class RichOptionSpecs extends Specification { def is = s2"""
   }
 
   case class None() extends Context {
-    def works = this {
+    def works = apply {
       import com.paypal.stingray.common.option.{none => StingrayNone}
       val stringNone = StingrayNone[String]
       stringNone must beEqualTo(Option.empty[String])

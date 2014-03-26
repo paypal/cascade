@@ -1,6 +1,5 @@
 package com.paypal.stingray.http.tests.resource
 
-import com.paypal.stingray.common.values.StaticValuesFromServiceNameComponent
 import com.paypal.stingray.common.service.ServiceNameComponent
 import spray.routing.Directives._
 import com.paypal.stingray.http.resource.{ResourceServiceComponent, ResourceDriver}
@@ -13,8 +12,7 @@ import com.paypal.stingray.http.actor.ActorSystemComponent
 trait DummyResourceService
   extends ServiceNameComponent
   with ResourceServiceComponent
-  with ActorSystemComponent
-  with StaticValuesFromServiceNameComponent {
+  with ActorSystemComponent {
 
   /** This resource */
   val dummy = new DummyResource

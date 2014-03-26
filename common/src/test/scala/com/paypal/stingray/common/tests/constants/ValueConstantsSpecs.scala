@@ -9,7 +9,7 @@ import org.scalacheck.Arbitrary._
 /**
  * Tests for [[com.paypal.stingray.common.constants.ValueConstants]]
  */
-class ValueConstantsSpecs extends Specification with ScalaCheck { def is = s2"""
+class ValueConstantsSpecs extends Specification with ScalaCheck { override def is = s2"""
 
 ValueConstants are for commonly used constants and strings
 

@@ -10,7 +10,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 /**
  * Tests for implicit [[com.paypal.stingray.common.option.Any2Option]]
  */
-class Any2OptionSpecs extends Specification with ScalaCheck { def is = s2"""
+class Any2OptionSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   Any2OptionSpecs adds helpful Option methods to any object in scope
 

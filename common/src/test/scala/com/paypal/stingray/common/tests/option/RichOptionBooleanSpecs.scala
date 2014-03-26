@@ -8,7 +8,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 /**
  * Tests for implicit [[com.paypal.stingray.common.option.RichOptionBoolean]]
  */
-class RichOptionBooleanSpecs extends Specification { def is = s2"""
+class RichOptionBooleanSpecs extends Specification { override def is = s2"""
 
   RichOptionBoolean adds helpful methods to Option[Boolean]
 

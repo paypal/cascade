@@ -8,7 +8,7 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 /**
  * Tests for [[com.paypal.stingray.common.enumeration.Enumeration]]
  */
-class EnumerationSpecs extends Specification { def is = s2"""
+class EnumerationSpecs extends Specification { override def is = s2"""
 
   Tests our own type-safe Enumeration framework
 
@@ -31,21 +31,21 @@ class EnumerationSpecs extends Specification { def is = s2"""
   }
 
   case class readEnum() extends Context {
-    def returnsSome = this {
+    def returnsSome = apply {
       MyEnum1.stringVal.readEnum[MyEnum] must beSome.like {
         case e => e must beEqualTo(MyEnum1)
       }
     }
-    def returnsNone = this {
+    def returnsNone = apply {
       s"${MyEnum1.stringVal}-INVALID".readEnum[MyEnum] must beNone
     }
   }
 
   case class toEnum() extends Context {
-    def returns = this {
+    def returns = apply {
       MyEnum1.stringVal.toEnum[MyEnum] must beEqualTo(MyEnum1)
     }
-    def throws = this {
+    def throws = apply {
       Try(s"${MyEnum1.stringVal}-INVALID".toEnum[MyEnum]).toOption must beNone
     }
   }

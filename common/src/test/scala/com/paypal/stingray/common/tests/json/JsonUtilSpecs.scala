@@ -13,7 +13,7 @@ import org.scalacheck.Gen
  */
 class JsonUtilSpecs
   extends Specification
-  with ScalaCheck { def is = s2"""
+  with ScalaCheck { override def is = s2"""
 
   JsonUtil is an interface to Jackson that allows for simple serialization/deserialization of case classes, etc
 
