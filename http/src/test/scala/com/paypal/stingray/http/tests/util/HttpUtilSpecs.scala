@@ -14,7 +14,7 @@ import com.paypal.stingray.http.util.HttpUtil
 /**
  * Tests features of [[com.paypal.stingray.http.util.HttpUtil]]
  */
-class HttpUtilSpecs extends Specification with ScalaCheck { def is = s2"""
+class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   HttpUtil contains a variety of different methods for doing common HTTP related tasks, such as parsing query strings
 

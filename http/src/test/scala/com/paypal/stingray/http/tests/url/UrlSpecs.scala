@@ -7,7 +7,7 @@ import java.net.URL
 /**
  * Tests [[com.paypal.stingray.http.url]]
  */
-class UrlSpecs extends Specification { def is = s2"""
+class UrlSpecs extends Specification { override def is = s2"""
 
   RichURL provides methods to convert query strings to lists/maps
 

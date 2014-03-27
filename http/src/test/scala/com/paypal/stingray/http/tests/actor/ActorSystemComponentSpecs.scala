@@ -5,7 +5,6 @@ import com.paypal.stingray.http.actor._
 import com.paypal.stingray.http.server._
 import com.paypal.stingray.http.resource._
 import com.paypal.stingray.common.service.ServiceNameComponent
-import com.paypal.stingray.common.values._
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import spray.routing.Route
 import org.specs2.mock.Mockito
@@ -16,7 +15,7 @@ import org.specs2.mock.Mockito
 class ActorSystemComponentSpecs
   extends SpecificationLike
   with ScalaCheck
-  with Mockito { def is = s2"""
+  with Mockito { override def is = s2"""
 
   Initializing a class which extends ActorSystemComponent should
     Provide an actor system                  ${Initialize.ActorSystem().ok}
@@ -31,8 +30,7 @@ class ActorSystemComponentSpecs
     class TestActorSystem extends ActorSystemComponent
       with ResourceServiceComponent
       with ServiceNameComponent
-      with SprayConfigurationComponent
-      with StaticValuesFromServiceNameComponent {
+      with SprayConfigurationComponent {
 
       override val backlog: Int = 0
       override val port: Int = 0

@@ -7,7 +7,6 @@ import spray.http._
 import spray.http.HttpEntity._
 import HttpHeaders._
 import com.paypal.stingray.http.tests.matchers.SprayMatchers
-import com.paypal.stingray.http.resource.AlwaysAuthorized
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResource]] abstract class,
@@ -26,10 +25,6 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
   PUT /ping =>
     should return pong                                                    ${Test().pingPut}
-
-  Additional AbstractResource methods
-    isForbidden returns Success(false)                                    ${AResource().forbidden}
-    isForbidden which takes AuthInfo returns Success(false)               ${AResource().forbiddenWithAuthInfo}
 
   """
 
@@ -69,19 +64,5 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
       }
     }
   }
-
-  case class AResource() extends context {
-    def forbidden = {
-      val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
-      resource.isForbidden(request) must beSuccessfulTry[Boolean].withValue(false)
-    }
-
-    def forbiddenWithAuthInfo = {
-      val authInfo = new AlwaysAuthorized {}
-      val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
-      resource.isForbidden(request, authInfo) must beSuccessfulTry[Boolean].withValue(false)
-    }
-  }
-
 
 }

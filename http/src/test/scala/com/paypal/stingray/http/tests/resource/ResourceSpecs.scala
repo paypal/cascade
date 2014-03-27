@@ -12,7 +12,7 @@ import scala.util.Try
 /**
  * Tests resource.scala in [[com.paypal.stingray.http.resource]]
  */
-class ResourceSpecs extends Specification { def is = s2"""
+class ResourceSpecs extends Specification { override def is = s2"""
 
   Tests that exercise implicit classes of resource.scala
 
