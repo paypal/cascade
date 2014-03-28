@@ -12,7 +12,7 @@ import com.paypal.stingray.sbt.BuildUtilities._
 object BuildSettings {
 
   val org = "com.paypal.stingray"
-  val scalaVsn = "2.10.3"
+  val scalaVsn = "2.10.4"
   val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
 
   val defaultArgs = Seq(

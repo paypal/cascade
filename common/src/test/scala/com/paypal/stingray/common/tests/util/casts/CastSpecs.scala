@@ -219,11 +219,11 @@ class CastSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   }
 
-  val genFoo: Gen[Foo] = for(msg <- arbitrary[String]) yield Foo(msg)
-  val genBar: Gen[Bar] = for(msg <- arbitrary[String]) yield Bar(msg)
+  lazy val genFoo: Gen[Foo] = for(msg <- arbitrary[String]) yield Foo(msg)
+  lazy val genBar: Gen[Bar] = for(msg <- arbitrary[String]) yield Bar(msg)
 
-  val genOptionFoo: Gen[Option[Foo]] = Gen.oneOf(for(msg <- arbitrary[String]) yield Foo(msg).some, Gen.const(None))
-  val genOptionBar: Gen[Option[Bar]] = Gen.oneOf(for(msg <- arbitrary[String]) yield Bar(msg).some, Gen.const(None))
+  lazy val genOptionFoo: Gen[Option[Foo]] = Gen.oneOf(for(msg <- arbitrary[String]) yield Foo(msg).some, Gen.const(None))
+  lazy val genOptionBar: Gen[Option[Bar]] = Gen.oneOf(for(msg <- arbitrary[String]) yield Bar(msg).some, Gen.const(None))
 
   case class Foo(msg: String = "foo")
   case class Bar(msg: String = "bar")
