@@ -29,6 +29,8 @@ class ConfigSpecs extends Specification { override def is = s2"""
 
     getOptionalBoolean should
       return Some(value) if path exists           ${RConfig.boolean().ok}
+      return Some(true) with value "on"           ${RConfig.boolean().okOn}
+      return Some(false) with value "off"         ${RConfig.boolean().okOff}
       return None if path does not exist          ${RConfig.boolean().notFound}
       throw if value cannot be converted          ${RConfig.boolean().failure}
 
@@ -88,6 +90,12 @@ class ConfigSpecs extends Specification { override def is = s2"""
     case class boolean() {
       def ok = apply {
         config.getOptionalBoolean("service.bool") must beSome(true)
+      }
+      def okOn = apply {
+        config.getOptionalBoolean("service.bool-on") must beSome(true)
+      }
+      def okOff = apply {
+        config.getOptionalBoolean("service.bool-off") must beSome(false)
       }
       def notFound = apply {
         config.getOptionalBoolean("service.nobool") must beNone
