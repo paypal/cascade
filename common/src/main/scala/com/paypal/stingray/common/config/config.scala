@@ -4,6 +4,8 @@ import com.typesafe.config._
 import scala.collection.JavaConverters._
 import com.paypal.stingray.common.util.casts._
 import com.paypal.stingray.common.logging._
+import scala.concurrent.duration._
+import scala.Some
 
 /**
  * Convenience methods and implicit wrappers for working with [[com.typesafe.config]]
@@ -47,9 +49,13 @@ package object config {
         Some(f)
       } catch {
         case _: ConfigException.Missing => None
-        case e: ConfigException.WrongType => {
-          logger.error("Config value does not match the request type", e)
-          throw e
+        case wt: ConfigException.WrongType => {
+          logger.error("Config value does not match the request type", wt)
+          throw wt
+        }
+        case bv: ConfigException.BadValue => {
+          logger.error("Config value cannot be parsed correctly", bv)
+          throw bv
         }
       }
     }
@@ -97,6 +103,15 @@ package object config {
       val list = getOptionalHelper(underlying.getList(path))
       list.map(_.unwrapped.asScala.toList.cast[String])
     }
+
+    /**
+     * Optional wrapper for Duration getter
+     *
+     * @param path path expression
+     * @param tUnit convert the return value to this time unit
+     * @return Some(Long value) or None if the path doesn't exist or is set to null
+     */
+    def getOptionalDuration(path: String, tUnit: TimeUnit ): Option[Long] = getOptionalHelper(underlying.getDuration(path, tUnit))
 
   }
 

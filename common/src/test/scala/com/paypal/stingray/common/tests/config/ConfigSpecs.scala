@@ -29,6 +29,8 @@ class ConfigSpecs extends Specification { override def is = s2"""
 
     getOptionalBoolean should
       return Some(value) if path exists           ${RConfig.boolean().ok}
+      return Some(true) with value "on"           ${RConfig.boolean().okOn}
+      return Some(false) with value "off"         ${RConfig.boolean().okOff}
       return None if path does not exist          ${RConfig.boolean().notFound}
       throw if value cannot be converted          ${RConfig.boolean().failure}
 
@@ -36,6 +38,11 @@ class ConfigSpecs extends Specification { override def is = s2"""
       return Some(value) if path exists           ${RConfig.simpleList().ok}
       return None if path does not exist          ${RConfig.simpleList().notFound}
       throw if value cannot be converted          ${RConfig.simpleList().failure}
+
+    getOptionalDuration should
+      return Some(value) if path exists           ${RConfig.duration().ok}
+      return None if path does not exist          ${RConfig.duration().notFound}
+      throw if value cannot be converted          ${RConfig.duration().failure}
 
 """
 
@@ -84,6 +91,12 @@ class ConfigSpecs extends Specification { override def is = s2"""
       def ok = apply {
         config.getOptionalBoolean("service.bool") must beSome(true)
       }
+      def okOn = apply {
+        config.getOptionalBoolean("service.bool-on") must beSome(true)
+      }
+      def okOff = apply {
+        config.getOptionalBoolean("service.bool-off") must beSome(false)
+      }
       def notFound = apply {
         config.getOptionalBoolean("service.nobool") must beNone
       }
@@ -103,6 +116,20 @@ class ConfigSpecs extends Specification { override def is = s2"""
       }
       def failure = apply {
         config.getOptionalList("service.name") must throwA[ConfigException.WrongType]
+      }
+    }
+
+    case class duration() {
+      import scala.concurrent.duration._
+
+      def ok = apply {
+        config.getOptionalDuration("service.dur", SECONDS) must beSome(5)
+      }
+      def notFound = apply {
+        config.getOptionalDuration("service.duration", SECONDS) must beNone
+      }
+      def failure = apply {
+        config.getOptionalDuration("service.name", SECONDS) must throwA[ConfigException.BadValue]
       }
     }
   }
