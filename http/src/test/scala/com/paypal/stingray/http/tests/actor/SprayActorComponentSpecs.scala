@@ -22,20 +22,20 @@ class SprayActorComponentSpecs
 
 """
 
-  trait Context
-    extends CommonImmutableSpecificationContext {
-
-    class TestActorSystem extends SprayActorComponent
+  class TestActorSystem extends SprayActorComponent
     with ActorSystemComponent
     with ResourceServiceComponent
     with ServiceNameComponent
     with SprayConfigurationComponent {
 
-      override val backlog: Int = 0
-      override val port: Int = 0
-      override lazy val serviceName = "http"
-      override lazy val route: Route = mock[Route]
-    }
+    override val backlog: Int = 0
+    override val port: Int = 0
+    override lazy val serviceName = "http"
+    override lazy val route: Route = mock[Route]
+  }
+
+  trait Context
+    extends CommonImmutableSpecificationContext {
 
     val actorSystem = new TestActorSystem
     actorSystem.start()
