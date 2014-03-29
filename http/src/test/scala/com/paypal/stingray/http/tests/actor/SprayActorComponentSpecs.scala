@@ -27,7 +27,6 @@ class SprayActorComponentSpecs
     with ResourceServiceComponent
     with ServiceNameComponent
     with SprayConfigurationComponent {
-
     override val backlog: Int = 0
     override val port: Int = 0
     override lazy val serviceName = "http"
@@ -36,7 +35,6 @@ class SprayActorComponentSpecs
 
   trait Context
     extends CommonImmutableSpecificationContext {
-
     val actorSystem = new TestActorSystem
     actorSystem.start()
     val sprayActor = actorSystem.sprayActor
