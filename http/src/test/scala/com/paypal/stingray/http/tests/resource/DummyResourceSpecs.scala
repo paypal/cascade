@@ -25,7 +25,13 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
   PUT /ping =>
     should return pong                                                    ${Test().pingPut}
+
   """
+
+  trait context extends CommonImmutableSpecificationContext with SprayMatchers {
+
+    val resource = new DummyResource
+  }
 
   case class Test() extends context {
     def ping = {
@@ -59,8 +65,4 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
     }
   }
 
-  trait context extends CommonImmutableSpecificationContext with SprayMatchers {
-
-    val resource = new DummyResource
-  }
 }

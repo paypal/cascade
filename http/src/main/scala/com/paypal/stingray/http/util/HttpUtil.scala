@@ -53,33 +53,6 @@ object HttpUtil {
     }
   }
 
-  /** Convenience value for `application/x-www-form-urlencoded` */
-  val FormURLEncodedContentType = "application/x-www-form-urlencoded"
-
-  /**
-   * Parse the parameters from a query string, and append the parameters
-   * specified in a POST message body if the Content-Type is
-   * "application/x-www-form-urlencoded"
-   *
-   * @param queryString Query string part of the url
-   * @param body Post message body
-   * @param headers request headers
-   * @return Map of parameter names to list of given values.
-   */
-  def parseQueryStringAndBody(queryString: String,
-                              body: String,
-                              headers: Map[String, String]): Map[String, List[String]] = {
-    val params: Map[String, List[String]] = parseQueryStringToMap(queryString)
-    Option(headers).map(_.get("content-type")).flatten match {
-      case Some(contentType) if(contentType.startsWith(FormURLEncodedContentType)) => {
-        mergeParameters(params, parseQueryStringToMap(body))
-      }
-      case _ => {
-        params
-      }
-    }
-  }
-
   /**
    * Merge two parameter maps into one
    * @param m1 the first map
