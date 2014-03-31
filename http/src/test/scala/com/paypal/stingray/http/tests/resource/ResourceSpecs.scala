@@ -69,10 +69,6 @@ class ResourceSpecs extends Specification { override def is = s2"""
 
 """
 
-  trait Context extends CommonImmutableSpecificationContext {
-
-  }
-
   object ROptionTryHalt {
     case class orErrorT() {
       def some = {
@@ -191,7 +187,6 @@ class ResourceSpecs extends Specification { override def is = s2"""
     case class orHalt() {
       implicit val ec: ExecutionContext = new ExecutionContext {
         def execute(runnable: Runnable): Unit = runnable.run()
-
         def reportFailure(t: Throwable): Unit = t.printStackTrace()
       }
       def ok = {
