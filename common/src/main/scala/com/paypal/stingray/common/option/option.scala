@@ -1,6 +1,7 @@
 package com.paypal.stingray.common
 
 import scala.concurrent.Future
+import java.lang
 
 /**
  * Convenience methods and implicit wrappers for working with [[scala.Option]]
@@ -92,6 +93,7 @@ package object option {
      * @return the value inside the wrapped Option
      * @throws Throwable if the Option is None
      */
+    @throws[Throwable]
     def orThrow(t: => Throwable): T = option.getOrElse(throw t)
 
     /**

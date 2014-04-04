@@ -18,6 +18,7 @@ trait EnumReader[T] {
    * @return an Enumeration subtype
    * @throws EnumerationException if no match is made
    */
+  @throws[EnumerationException]
   def withName(s: String): T = read(s) match {
     case Some(v) => v
     case None => throw new EnumerationException(s)

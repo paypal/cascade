@@ -62,8 +62,10 @@ trait ServiceActor extends CommonActor {
    * 1) Publishes an unhandled message to the actor system's event stream.
    * 2) Replies with a [[akka.actor.Status.Failure]] message to the sender.
    * 3) Throws an [[com.paypal.stingray.common.actor.UnhandledMessageException]] for delegation to the supervisor.
+   * @param message The unhandled message
+   * @throws UnhandledMessageException
    */
-  @throws(classOf[UnhandledMessageException])
+  @throws[UnhandledMessageException]
   override def unhandled(message: Any) {
     super.unhandled(message)
     val ex = new UnhandledMessageException(s"Unhandled message recieved by actor: ${self.path}, message: $message")
