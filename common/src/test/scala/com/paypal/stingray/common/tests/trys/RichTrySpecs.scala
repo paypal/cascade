@@ -24,6 +24,10 @@ class RichTrySpecs
     on a Try[A] Success, return an Either[LeftT, A] Right with the Success value          ${ToEitherWithConversion.SuccessCase().ok}
     on a Try[A] Failure, return an Either[LeftT, A] Left with the converted Failure value ${ToEitherWithConversion.FailureCase().fails}
 
+  toFuture should
+    on a Try[A] Success, return a Future.successful(value)                                ${ToFuture.SuccessCase().ok}
+    on a Try[A] Failure, return a Future.failed(value)                                    ${ToFuture.FailureCase().fails}
+
   """
 
   object ToEither {
@@ -58,6 +62,22 @@ class RichTrySpecs
         Try[String] { throw e }.toEither[Int](_ => i) must beLeft.like { case v: Int =>
           v must beEqualTo(i)
         }
+      }
+    }
+  }
+
+  object ToFuture {
+
+    case class SuccessCase() {
+      def ok = forAll(arbitrary[String]) { s =>
+        val res = Try { s }.toFuture
+        res.value.get must beASuccessfulTry
+      }
+    }
+    case class FailureCase() {
+      def fails = forAll(arbitrary[Exception]) { e =>
+        val res = Try { throw e }.toFuture
+        res.value.get must beAFailedTry
       }
     }
   }
