@@ -129,7 +129,7 @@ package object config {
      */
     @throws[ConfigException.WrongType]
     @throws[ConfigException.BadValue]
-    def getOptionalDuration(path: String, tUnit: TimeUnit ): Option[Long] = getOptionalHelper(underlying.getDuration(path, tUnit))
+    def getOptionalDuration(path: String, tUnit: TimeUnit): Option[Long] = getOptionalHelper(underlying.getDuration(path, tUnit))
 
   }
 
