@@ -1,7 +1,6 @@
 package com.paypal.stingray.common
 
 import scala.concurrent.Future
-import java.lang
 
 /**
  * Convenience methods and implicit wrappers for working with [[scala.Option]]
