@@ -154,6 +154,7 @@ package object resource {
      * @return the value on the right
      * @throws HaltException containing the message on the left, if Left
      */
+    @throws[HaltException]
     def orThrowHaltExceptionWithMessage(status: StatusCode)
                                        (f: String => String = identity): A = {
       either.fold(
@@ -169,6 +170,7 @@ package object resource {
      * @return the value on the right
      * @throws HaltException containing the message on the left and a 500 error, if Left
      */
+    @throws[HaltException]
     def orThrowHaltExceptionWithErrorMessage(f: String => String = identity): A =
       orThrowHaltExceptionWithMessage(InternalServerError)(f)
 
@@ -230,6 +232,7 @@ package object resource {
      * @return the value on the right
      * @throws HaltException containing a message based on the left, if Left
      */
+    @throws[HaltException]
     def orThrowHaltException(haltFn: T => HttpResponse): A = {
       either.fold(
         t => throw new HaltException(haltFn(t)),
@@ -244,6 +247,7 @@ package object resource {
      * @return the value on the right
      * @throws HaltException with a 500 error and, optionally, a message based on the left
      */
+    @throws[HaltException]
     def orErrorNow(errorFn: T => HttpEntity = { _ => Empty }): A =
       orThrowHaltException(e => HttpResponse(InternalServerError, errorFn(e)))
 

@@ -92,6 +92,7 @@ package object option {
      * @return the value inside the wrapped Option
      * @throws Throwable if the Option is None
      */
+    @throws[Throwable]
     def orThrow(t: => Throwable): T = option.getOrElse(throw t)
 
     /**

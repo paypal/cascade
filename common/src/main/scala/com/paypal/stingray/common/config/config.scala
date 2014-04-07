@@ -43,7 +43,11 @@ package object config {
      * @param f function which performs Config getter
      * @tparam T return type
      * @return Some(typed value) or None if the path doesn't exist or is set to null
+     * @throws ConfigException.WrongType if the config value does not match the request type
+     * @throws ConfigException.BadValue if the config value cannot be parsed correctly
      */
+    @throws[ConfigException.WrongType]
+    @throws[ConfigException.BadValue]
     private def getOptionalHelper[T](f: => T): Option[T] = {
       try {
         Some(f)
@@ -65,7 +69,9 @@ package object config {
      *
      * @param path path expression
      * @return Some(String value) or None if the path doesn't exist or is set to null
+     * @throws ConfigException.WrongType if the config value does not match the request type
      */
+    @throws[ConfigException.WrongType]
     def getOptionalString(path: String): Option[String] = getOptionalHelper(underlying.getString(path))
 
     /**
@@ -73,7 +79,9 @@ package object config {
      *
      * @param path path expression
      * @return Some(Boolean value) or None if the path doesn't exist or is set to null
+     * @throws ConfigException.WrongType if the config value does not match the request type
      */
+    @throws[ConfigException.WrongType]
     def getOptionalBoolean(path: String): Option[Boolean] = getOptionalHelper(underlying.getBoolean(path))
 
     /**
@@ -81,7 +89,9 @@ package object config {
      *
      * @param path path expression
      * @return Some(Int value) or None if the path doesn't exist or is set to null
+     * @throws ConfigException.WrongType if the config value does not match the request type
      */
+    @throws[ConfigException.WrongType]
     def getOptionalInt(path: String): Option[Int] = getOptionalHelper(underlying.getInt(path))
 
     /**
@@ -89,7 +99,9 @@ package object config {
      *
      * @param path path expression
      * @return Some(Long value) or None if the path doesn't exist or is set to null
+     * @throws ConfigException.WrongType if the config value does not match the request type
      */
+    @throws[ConfigException.WrongType]
     def getOptionalLong(path: String): Option[Long] = getOptionalHelper(underlying.getLong(path))
 
     /**
@@ -98,7 +110,9 @@ package object config {
      *
      * @param path path expression
      * @return Some(List[String] value) or None if the path doesn't exist or is set to null
+     * @throws ConfigException.WrongType if the config value does not match the request type
      */
+    @throws[ConfigException.WrongType]
     def getOptionalList(path: String): Option[List[String]] = {
       val list = getOptionalHelper(underlying.getList(path))
       list.map(_.unwrapped.asScala.toList.cast[String])
@@ -110,8 +124,12 @@ package object config {
      * @param path path expression
      * @param tUnit convert the return value to this time unit
      * @return Some(Long value) or None if the path doesn't exist or is set to null
+     * @throws ConfigException.WrongType if the config value does not match the request type
+     * @throws ConfigException.BadValue if the config value cannot be parsed correctly
      */
-    def getOptionalDuration(path: String, tUnit: TimeUnit ): Option[Long] = getOptionalHelper(underlying.getDuration(path, tUnit))
+    @throws[ConfigException.WrongType]
+    @throws[ConfigException.BadValue]
+    def getOptionalDuration(path: String, tUnit: TimeUnit): Option[Long] = getOptionalHelper(underlying.getDuration(path, tUnit))
 
   }
 

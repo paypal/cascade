@@ -1,6 +1,7 @@
 package com.paypal.stingray.common
 
-import scala.util.{Try, Either}
+import scala.util.{Failure, Success, Try, Either}
+import scala.concurrent.Future
 
 /**
  * Convenience wrappers and methods for working with [[scala.util.Try]].
@@ -38,6 +39,18 @@ package object trys {
         Right(self.get)
       } catch {
         case e: Throwable => Left(f(e))
+      }
+    }
+
+    /**
+     * Converts this `Try[A]` to a [[scala.concurrent.Future]]
+     *
+     * @return a Future based on this Try
+     */
+    def toFuture: Future[A] = {
+      self match {
+        case Success(s) => Future.successful(s)
+        case Failure(e) => Future.failed(e)
       }
     }
   }

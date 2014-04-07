@@ -100,6 +100,7 @@ package object enumeration {
      * @return an instance of the Enumeration type
      * @throws EnumerationException if no mapping to an Enumeration type can be found
      */
+    @throws[EnumerationException]
     def toEnum[T <: Enumeration](implicit reader: EnumReader[T]): T = reader.withName(value)
   }
 

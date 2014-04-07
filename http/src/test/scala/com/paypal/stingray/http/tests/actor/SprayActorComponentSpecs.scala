@@ -42,7 +42,7 @@ class SprayActorComponentSpecs
 
   object Initialize {
     case class SprayActor() extends Context {
-      def ok = this {
+      def ok = apply {
         (sprayActor must not beNull) and
           (sprayActor must beAnInstanceOf[akka.actor.ActorRef])
       }
