@@ -104,6 +104,14 @@ abstract class AbstractResource[AuthInfo] {
   lazy val responseContentType: ContentType = ContentTypes.`application/json`
 
   /**
+   * The language of the data in the response, to for the Content-Language header
+   *
+   * @return a spray.http.Language value in an Option, or None, if the Content-Language header
+   *         does not need to be set for this resource
+   */
+  lazy val responseLanguage: Option[Language] = Option(Language("en", "US"))
+
+  /**
    * Convenience method to return an exception as a 500 Internal Error with the body being the message
    * of the exception
    */
