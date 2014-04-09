@@ -1,19 +1,19 @@
 package com.paypal.stingray.http.resource
 
 import akka.actor._
-import spray.http.HttpEntity
-import spray.http.StatusCodes._
-import com.paypal.stingray.common.actor._
 import akka.pattern.pipe
-import scala.util.Try
-import scala.concurrent.Future
+import scala.util.{Success, Try}
+import scala.concurrent.{ExecutionContext, Future}
+import spray.http._
+import spray.http.StatusCodes._
 import spray.http.Uri.Path
 import spray.http.HttpHeaders.{`WWW-Authenticate`, Location}
-import com.paypal.stingray.common.constants.ValueConstants._
-import spray.http.HttpRequest
+import spray.http.HttpEntity.{Empty, NonEmpty}
+import spray.http.{HttpRequest, HttpResponse}
 import spray.routing.RequestContext
-import spray.http.HttpEntity.NonEmpty
-import spray.http.HttpResponse
+import com.paypal.stingray.common.actor._
+import com.paypal.stingray.common.constants.ValueConstants._
+import com.paypal.stingray.common.option._
 
 class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo],
                                              reqContext: RequestContext,
@@ -22,45 +22,24 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
                                              mbReturnActor: Option[ActorRef]) extends ServiceActor {
 
   import context.dispatcher
-
   import ResourceActor._
 
-  private def handleError: PartialFunction[Throwable, HttpResponse] = {
-    case e: HaltException =>
-      val response = ResourceDriver.addHeaderOnCode(e.response, Unauthorized) {
-        `WWW-Authenticate`(resource.unauthorizedChallenge(request))
-      }
-      // If the error already has the right content type, let it through, otherwise coerce it
-      val finalResponse = response.withEntity(response.entity.flatMap { entity: NonEmpty =>
-        entity.contentType match {
-          case resource.responseContentType => entity
-          case _ => resource.coerceError(entity.data.toByteArray)
-        }
-      })
-      if (finalResponse.status.intValue >= 500) {
-        log.warning(s"Request finished unsuccessfully: request: $request response: $finalResponse")
-      }
-      finalResponse
-    case e: Exception =>
-      log.error(s"Unexpected error: request: $request error: ${e.getMessage}", e)
-      HttpResponse(InternalServerError, resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8)))
-  }
+  sealed trait ResourceMessage
+  case class MessageIsSupported(a: HttpRequest) extends ResourceMessage
+  case class RequestIsParsed(p: ParsedRequest) extends ResourceMessage
+  case class ContentTypeIsSupported(p: ParsedRequest) extends ResourceMessage
+  case class ResponseContentTypeIsAcceptable(p: ParsedRequest) extends ResourceMessage
+  case class RequestIsAuthorized(p: ParsedRequest) extends ResourceMessage
+  case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String]) extends ResourceMessage
 
   private val request = reqContext.request
 
-  case class MessageIsSupported(a: HttpRequest)
-  case class RequestIsParsed(p: ParsedRequest)
-  case class ContentTypeIsSupported(p: ParsedRequest)
-  case class ResponseContentTypeIsAcceptable(p: ParsedRequest)
-  case class RequestIsAuthorized(p: ParsedRequest)
-  case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
-
-  override def receive = {
+  override def receive: Actor.Receive = {
 
     //begin processing the request
     case Start =>
-      self ! ResourceDriver.ensureMethodSupported(resource, request.method).map { a =>
-          MessageIsSupported(request)
+      self ! ensureMethodSupported(resource, request.method).map { _ =>
+        MessageIsSupported(request)
       }.orFailure
 
     //the HTTP method is supported, now parse the request
@@ -71,31 +50,31 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
     //the request has been parsed, now check if the content type is supported
     case RequestIsParsed(p) =>
-      self ! ResourceDriver.ensureContentTypeSupported(resource, request).map { a =>
+      self ! ensureContentTypeSupported(resource, request).map { _ =>
         ContentTypeIsSupported(p)
       }.orFailure
 
     //the content type is supported, now check if the response content type is acceptable
     case ContentTypeIsSupported(p) =>
-      self ! ResourceDriver.ensureResponseContentTypeAcceptable(resource, request).map { a =>
+      self ! ensureResponseContentTypeAcceptable(resource, request).map { _ =>
         ResponseContentTypeIsAcceptable(p)
       }.orFailure
 
     //the response content type is acceptable, now check if the request is authorized
     case ResponseContentTypeIsAcceptable(p) =>
-      ResourceDriver.ensureAuthorized(resource, request).map { a =>
+      ensureAuthorized(resource, request).map { _ =>
         RequestIsAuthorized(p)
-      }.pipeTo(self)
+      }.recover(handleError).pipeTo(self)
 
     //the request is authorized, now process the request
     case RequestIsAuthorized(p) =>
-      reqProcessor.apply(p).map { tup =>
-        RequestIsProcessed(tup._1, tup._2)
+      reqProcessor.apply(p).map { case (response, mbLocation) =>
+        RequestIsProcessed(response, mbLocation)
       }.recover(handleError).pipeTo(self)
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
-      val responseWithLocation = ResourceDriver.addHeaderOnCode(resp, Created) {
+      val responseWithLocation = addHeaderOnCode(resp, Created) {
         // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
         val newScheme = request.headers.find(_.name == "X-Forwarded-Proto").map(_.value).getOrElse(request.uri.scheme)
 
@@ -118,7 +97,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       context.stop(self)
 
     //there was an error somewhere along the way, so translate it to an HttpResponse (using handleError), send the exception to returnActor and stop
-    case s@ Status.Failure(t) =>
+    case s @ Status.Failure(t) =>
       log.error(t, s"Unexpected error: request: $request error: ${t.getMessage}")
       reqContext.complete(handleError.apply(t))
       mbReturnActor.foreach { returnActor =>
@@ -126,6 +105,113 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       }
       context.stop(self)
   }
+
+  /**
+   * Continues execution if this method is supported, or halts
+   * @param resource this resource
+   * @param method the method sent
+   * @return an empty Try
+   */
+  private def ensureMethodSupported(resource: AbstractResource[_],
+                            method: HttpMethod): Try[Unit] = {
+    resource.supportedHttpMethods.contains(method).orHaltWithT(MethodNotAllowed)
+  }
+
+  /**
+   * Attempts to parse this request body, if one exists
+   * @param request the request
+   * @param method the method sent
+   * @param f a function to parse this request body
+   * @tparam T the `ParsedRequest` type
+   * @return a Try with an optional parsed body, or None if parsing fails
+   */
+  private def parseBody[T](request: HttpRequest, method: HttpMethod)
+                  (f: HttpRequest => Try[Option[T]]): Try[Option[T]] = {
+    if(request.method == method) {
+      f(request)
+    } else {
+      Success(none[T])
+    }
+  }
+
+  /**
+   * Continues execution and yields an `AuthInfo` if this method is authorized, or halts
+   * @param resource this resource
+   * @param request the request
+   * @tparam AI the `AuthInfo` type
+   * @return a Future containing an `AuthInfo` object, or a failure
+   */
+  private def ensureAuthorized[AI](resource: AbstractResource[AI],
+                           request: HttpRequest)
+                          (implicit ctx: ExecutionContext): Future[AI] = {
+    for {
+      authInfoOpt <- resource.isAuthorized(request)
+      authInfo <- authInfoOpt.orHaltWith(Unauthorized)
+    } yield authInfo
+  }
+
+  /**
+   * Continues execution if this resource supports the content type sent in the request, or halts
+   * @param resource this resource
+   * @param request the request
+   * @return an empty Try
+   */
+  private def ensureContentTypeSupported(resource: AbstractResource[_],
+                                 request: HttpRequest): Try[Unit] = {
+    request.entity match {
+      case Empty => Success()
+      case NonEmpty(ct, _) => resource.acceptableContentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
+    }
+  }
+
+  /**
+   * Continues execution if this resource can respond in a format that the requester can accept, or halts
+   * @param resource this resource
+   * @param request the request
+   * @return a Try containing the acceptable content type found, or a failure
+   */
+  private def ensureResponseContentTypeAcceptable(resource: AbstractResource[_],
+                                          request: HttpRequest): Try[ContentType] = {
+    request.acceptableContentType(List(resource.responseContentType)).orHaltWithT(NotAcceptable)
+  }
+
+  /**
+   * Given a matching HTTP response code, add the given header to that response
+   * @param response the initial response
+   * @param status the response status code
+   * @param header the header to conditionally add
+   * @return a possibly modified response
+   */
+  private def addHeaderOnCode(response: HttpResponse, status: StatusCode)
+                     (header: => HttpHeader): HttpResponse = {
+    if(response.status == status) {
+      response.withHeaders(header :: response.headers)
+    } else {
+      response
+    }
+  }
+
+  private def handleError: PartialFunction[Throwable, HttpResponse] = {
+    case e: HaltException =>
+      val response = addHeaderOnCode(e.response, Unauthorized) {
+        `WWW-Authenticate`(resource.unauthorizedChallenge(request))
+      }
+      // If the error already has the right content type, let it through, otherwise coerce it
+      val finalResponse = response.withEntity(response.entity.flatMap { entity: NonEmpty =>
+        entity.contentType match {
+          case resource.responseContentType => entity
+          case _ => resource.coerceError(entity.data.toByteArray)
+        }
+      })
+      if (finalResponse.status.intValue >= 500) {
+        log.warning(s"Request finished unsuccessfully: request: $request response: $finalResponse")
+      }
+      finalResponse
+    case e: Exception =>
+      log.error(s"Unexpected error: request: $request error: ${e.getMessage}", e)
+      HttpResponse(InternalServerError, resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8)))
+  }
+
 }
 
 object ResourceActor {
@@ -141,4 +227,5 @@ object ResourceActor {
                                      mbResponseActor: Option[ActorRef]) = {
     Props.apply(new ResourceActor(resource, reqContext, reqParser, reqProcessor, mbResponseActor))
   }
+
 }
