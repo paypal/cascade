@@ -5,7 +5,6 @@ import scala.collection.JavaConverters._
 import com.paypal.stingray.common.util.casts._
 import com.paypal.stingray.common.logging._
 import scala.concurrent.duration._
-import scala.Some
 
 /**
  * Convenience methods and implicit wrappers for working with [[com.typesafe.config]]
