@@ -60,6 +60,10 @@ package object config {
           logger.error("Config value cannot be parsed correctly", bv)
           throw bv
         }
+        case e: Exception => {
+          logger.error(e.getMessage, e)
+          throw e
+        }
       }
     }
 
