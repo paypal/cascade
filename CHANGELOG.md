@@ -1,4 +1,7 @@
 
+# 0.3.0 04/10/14 released by mvaznaian
+* Scala 2.10.4, ConfigComponent, Content-Language header, additional implicit defs, http specs
+
 # 0.2.0 03/25/14 released by mvaznaian
 * Remove Static and Dynamic Values in favor of Typesafe config, update status endpoint response
 
