@@ -89,21 +89,22 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       val entity = responseWithLocation.entity.flatMap { entity: NonEmpty =>
         HttpEntity(resource.responseContentType, entity.data)
       }
-      val finalResp = responseWithLocation.withEntity(entity)
-      reqContext.complete(finalResp)
+      self ! responseWithLocation.withEntity(entity)
+
+
+    //we got a response to return (either through successful processing or an error handling), so return it to the spray context and return actor and then stop
+    case r: HttpResponse =>
+      reqContext.complete(r)
       mbReturnActor.foreach { returnActor =>
-        returnActor ! finalResp
+        returnActor ! r
       }
       context.stop(self)
 
     //there was an error somewhere along the way, so translate it to an HttpResponse (using handleError), send the exception to returnActor and stop
     case s @ Status.Failure(t) =>
       log.error(t, s"Unexpected error: request: $request error: ${t.getMessage}")
-      reqContext.complete(handleError.apply(t))
-      mbReturnActor.foreach { returnActor =>
-        returnActor ! s
-      }
-      context.stop(self)
+      //TODO: handleError is a partial function. should we care if we pass a throwable that it doesn't cover?
+      self ! handleError(t)
   }
 
   /**
@@ -115,23 +116,6 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
   private def ensureMethodSupported(resource: AbstractResource[_],
                             method: HttpMethod): Try[Unit] = {
     resource.supportedHttpMethods.contains(method).orHaltWithT(MethodNotAllowed)
-  }
-
-  /**
-   * Attempts to parse this request body, if one exists
-   * @param request the request
-   * @param method the method sent
-   * @param f a function to parse this request body
-   * @tparam T the `ParsedRequest` type
-   * @return a Try with an optional parsed body, or None if parsing fails
-   */
-  private def parseBody[T](request: HttpRequest, method: HttpMethod)
-                  (f: HttpRequest => Try[Option[T]]): Try[Option[T]] = {
-    if(request.method == method) {
-      f(request)
-    } else {
-      Success(none[T])
-    }
   }
 
   /**
