@@ -64,7 +64,7 @@ trait ResourceServiceComponent {
 
     private lazy val statsError = """{"stats":"error"}"""
 
-    private lazy val statsRoute: Route = path("stats") { _ =>
+    private lazy val statsRoute: Route = (path("stats") & headerValueByName("x-ups-stats")) { _ =>
       (ctx: RequestContext) => {
         (serverActor ? GetStats)(1.second).mapTo[Stats].onComplete {
           case Success(stats) => {
