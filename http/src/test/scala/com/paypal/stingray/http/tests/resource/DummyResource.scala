@@ -8,6 +8,7 @@ import spray.http.HttpResponse
 import scala.concurrent._
 import com.paypal.stingray.http.resource._
 import scala.util.{Failure, Success, Try}
+import spray.http.HttpHeaders.RawHeader
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type
@@ -65,6 +66,10 @@ class DummyResource
     _ <- ((accept.mediaRanges.size == 1) && (accept.mediaRanges(0).value == MediaTypes.`text/plain`.value))
       .orHaltWith(BadRequest, "no accept header")
   } yield (HttpResponse(OK, "pong"), None)
+
+  def setContentLanguage(r: HttpRequest): Future[(HttpResponse, Option[String])] = {
+    (HttpResponse(OK, "Gutentag!", List(RawHeader("Content-Language", "de"))), None).continue
+  }
 
   /**
    * A dummy POST request must have a body "{"foo":"bar"}"

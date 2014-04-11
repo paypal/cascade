@@ -11,6 +11,7 @@ import scala.concurrent.Future
 import spray.http.Uri.Path
 import scala.util.{Success, Failure, Try}
 import spray.routing.RequestContext
+import com.paypal.stingray.http.util.HttpUtil
 
 /**
  * Implementation of a basic HTTP request handling pipeline.
@@ -110,6 +111,26 @@ object ResourceDriver extends LoggingSugar {
     }
   }
 
+
+  /**
+   * Adds a `Content-Language` header to the current header list if the given `responseLanguage` is not None, and the
+   * given `headers` list does not yet have a `Content-Language` header set
+   * @param responseLanguage the value to assign the `Content-Language` header, or None, if not required
+   * @param headers the current list of headers
+   * @return augmented list of `HttpHeader` object, or the same list as `response.headers` if no modifications needed
+   */
+  private def addLanguageHeader(responseLanguage: Option[Language], headers: List[HttpHeader]) : List[HttpHeader] = {
+    responseLanguage match {
+      case Some(lang) =>
+        if (headers.exists(_.lowercaseName == HttpUtil.CONTENT_LANGUAGE_LC)) {
+          headers
+        } else {
+          RawHeader(HttpUtil.CONTENT_LANGUAGE, lang.toString()) :: headers
+        }
+      case None => headers
+    }
+  }
+
   /**
    * Run the request on this resource, first applying a rewrite. This should not be overridden.
    * @param resource this resource
@@ -168,8 +189,9 @@ object ResourceDriver extends LoggingSugar {
         val response = addHeaderOnCode(e.response, Unauthorized) {
           `WWW-Authenticate`(resource.unauthorizedChallenge(request))
         }
+        val headers = addLanguageHeader(resource.responseLanguage, response.headers)
         // If the error already has the right content type, let it through, otherwise coerce it
-        val finalResponse = response.withEntity(response.entity.flatMap { entity: NonEmpty =>
+        val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap { entity: NonEmpty =>
           entity.contentType match {
             case resource.responseContentType => entity
             case _ => resource.coerceError(entity.data.toByteArray)
@@ -181,7 +203,9 @@ object ResourceDriver extends LoggingSugar {
         finalResponse
       case e: Exception =>
         logger.error(s"Unexpected error: request: $request error: ${e.getMessage}", e)
-        HttpResponse(InternalServerError, resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8)))
+        HttpResponse(InternalServerError,
+          resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8)),
+          addLanguageHeader(resource.responseLanguage, Nil))
     }
 
     import resource.context
@@ -210,8 +234,11 @@ object ResourceDriver extends LoggingSugar {
             val newUri = request.uri.copy(scheme = newScheme, path = newPath)
             Location(newUri)
           }
+
+          val headers = addLanguageHeader(resource.responseLanguage, responseWithLocation.headers)
+
           // Just force the request to the right content type
-          responseWithLocation.withEntity(responseWithLocation.entity.flatMap((entity: NonEmpty) =>
+          responseWithLocation.withHeadersAndEntity(headers, responseWithLocation.entity.flatMap((entity: NonEmpty) =>
             HttpEntity(resource.responseContentType, entity.data)))
         }
         result.recover(handleError)

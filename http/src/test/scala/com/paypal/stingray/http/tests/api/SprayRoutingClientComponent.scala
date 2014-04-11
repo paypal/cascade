@@ -35,9 +35,7 @@ trait SprayRoutingClientComponent {
      * @param headers Headers in the request
      * @param body Body of the request, None if no body; defaults to None
      * @return A spray HttpResponse with the server's response
-     * @throws IllegalStateException if the request times out
      */
-    @throws[IllegalStateException]
     def makeRequest(method: HttpMethod, url: String, headers: List[HttpHeader], body: Option[HttpEntity] = None): HttpResponse
   }
 
