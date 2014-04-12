@@ -5,7 +5,6 @@ import scala.util.Random
 /**
  * Convenience methods for accessing random values inside of certain datatypes
  */
-
 object RandomUtil {
 
   private val r = new Random(System.currentTimeMillis)
@@ -37,10 +36,10 @@ object RandomUtil {
     (for {
       _ <- Option(map)
       _ <- map.headOption
-      value <- (Random.shuffle(map.values) filter { convert(_).isDefined }).headOption
+      value <- Random.shuffle(map.values).find(convert(_).isDefined)
     } yield {
       value
-    }) flatMap { convert(_) }
+    }).flatMap(convert)
   }
 
 }

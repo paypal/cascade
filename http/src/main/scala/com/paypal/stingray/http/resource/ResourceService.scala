@@ -9,11 +9,9 @@ import spray.http.StatusCodes._
 import spray.routing._
 import com.paypal.stingray.common.service.ServiceNameComponent
 import com.paypal.stingray.common.properties.BuildProperties
-import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.json._
 import com.paypal.stingray.http.server.StatusResponse
-import scala.concurrent.ExecutionContext
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success}
 import scala.concurrent.duration._
 import akka.actor.ActorSelection
 import akka.pattern.ask

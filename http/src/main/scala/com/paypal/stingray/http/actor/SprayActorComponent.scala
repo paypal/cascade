@@ -54,4 +54,5 @@ trait SprayActorComponent {
   private object SprayActor {
     val props = Props(new SprayActor)
   }
+
 }

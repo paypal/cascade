@@ -33,8 +33,8 @@ package object future {
    *   f.mapFailure { case e: SomeThrowable => ... }
    * }}}
    *
-   * @param v
-   * @tparam T
+   * @param v the future
+   * @tparam T the type of the future
    */
   implicit class RichFutureHelpers[T](v: Future[T]) {
 

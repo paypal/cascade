@@ -63,7 +63,7 @@ trait ServiceActor extends CommonActor {
    * 2) Replies with a [[akka.actor.Status.Failure]] message to the sender.
    * 3) Throws an [[com.paypal.stingray.common.actor.UnhandledMessageException]] for delegation to the supervisor.
    * @param message The unhandled message
-   * @throws UnhandledMessageException
+   * @throws UnhandledMessageException The unhandled message exception.
    */
   @throws[UnhandledMessageException]
   override def unhandled(message: Any) {
@@ -87,4 +87,3 @@ class UnhandledMessageException(message: String) extends ActorException(message)
  */
 abstract class ActorException(message: String, cause: Option[Throwable] = None)
   extends Exception(message, cause.orNull)
-

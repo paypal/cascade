@@ -1,6 +1,6 @@
 package com.paypal.stingray.http.actor
 
-import akka.actor.{Props, ActorRefFactory, ActorSystem}
+import akka.actor.{ActorRefFactory, ActorSystem}
 import com.paypal.stingray.common.service.ServiceNameComponent
 import scala.concurrent.ExecutionContext
 import com.paypal.stingray.http.resource.ResourceServiceComponent

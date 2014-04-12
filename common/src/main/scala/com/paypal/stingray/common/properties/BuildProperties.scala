@@ -1,6 +1,5 @@
 package com.paypal.stingray.common.properties
 
-import java.net.URL
 import java.util.Properties
 import com.paypal.stingray.common.logging.LoggingSugar
 import scala.util.Try

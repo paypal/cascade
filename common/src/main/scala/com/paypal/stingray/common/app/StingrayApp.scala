@@ -11,7 +11,7 @@ import org.slf4j.MDC
 trait StingrayApp extends App {
 
   /** The name of this service */
-  def serviceName: String
+  val serviceName: String
 
   MDC.put("service", serviceName)
 

@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger
  * Refer to documentation on [[java.lang.Thread]] for distinctions between daemon/non-daemon threads.
  * Short version: daemon threads die immediately when their parent dies; non-daemon threads are allowed to finish.
  */
-
 trait NamedThreadFactory {
 
   /**
@@ -79,9 +78,8 @@ trait NamedThreadFactory {
    */
   private def rootThreadGroup(): ThreadGroup = {
     def getRootThreadGroup(node: ThreadGroup): ThreadGroup = {
-      Option(node.getParent).map(getRootThreadGroup(_)).getOrElse(node)
+      Option(node.getParent).map(getRootThreadGroup).getOrElse(node)
     }
-
     getRootThreadGroup(Thread.currentThread.getThreadGroup)
   }
 
