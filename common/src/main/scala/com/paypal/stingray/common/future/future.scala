@@ -15,11 +15,10 @@ package object future {
    * @return the new [[scala.concurrent.ExecutionContext]]
    */
   def sequentialExecutionContext(logger: Logger): ExecutionContext = new ExecutionContext {
-    def reportFailure(t: Throwable) {
+    override def reportFailure(t: Throwable) {
       logger.error(t.getMessage, t)
     }
-
-    def execute(runnable: Runnable) {
+    override def execute(runnable: Runnable) {
       runnable.run()
     }
   }

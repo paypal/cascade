@@ -8,6 +8,7 @@ import spray.util.LoggingContext
 import spray.can.Http
 import akka.io.{IO => AkkaIO}
 import com.paypal.stingray.http.server.SprayConfigurationComponent
+import com.paypal.stingray.akka.actor.ActorSystemComponent
 
 /**
  * Provides the root actor implementation used by spray

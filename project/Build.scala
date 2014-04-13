@@ -86,13 +86,10 @@ object Dependencies {
   lazy val parboiledJava       = "org.parboiled"                % "parboiled-java"              % parboiledVersion  % "test"
   lazy val parboiledScala      = "org.parboiled"                %% "parboiled-scala"            % parboiledVersion  % "test"
 
-  lazy val sprayTest           = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.10")
+  lazy val sprayTestKit        = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.10")
   lazy val akkaTestKit         = "com.typesafe.akka"            %% "akka-testkit"               % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
-    akka,
-    jacksonDataBind,
-    jacksonScalaModule,
     slf4j,
     slf4jJul,
     slf4jJcl,
@@ -100,26 +97,42 @@ object Dependencies {
     logback
   )
 
+  lazy val jsonDependencies = Seq(
+    jacksonDataBind,
+    jacksonScalaModule
+  )
+
+  lazy val akkaDependencies = Seq(
+    akka
+  )
+
   lazy val httpDependencies = Seq(
     sprayCan,
     sprayRouting
   )
 
-  lazy val testDependencies = Seq(
+  lazy val commonTestDependencies = Seq(
     scalacheck,
     mockito,
     hamcrest,
     pegdown,
     parboiledJava,
     parboiledScala,
-    specs2,
-    sprayTest,
+    specs2
+  )
+
+  lazy val akkaTestDependencies = Seq(
     akkaTestKit
+  )
+
+  lazy val httpTestDependencies = Seq(
+    sprayTestKit
   )
 
 }
 
 object CommonBuild extends Build {
+
   import BuildSettings._
   import Dependencies._
 
@@ -128,31 +141,56 @@ object CommonBuild extends Build {
       name := "parent",
       publish := {}
     ),
-    aggregate = Seq(common, http)
+    aggregate = Seq(common, examples, json, akka, http)
   )
 
   lazy val common = Project("stingray-common", file("common"),
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-common",
-      libraryDependencies ++= commonDependencies ++ testDependencies,
+      libraryDependencies ++= commonDependencies ++ commonTestDependencies,
+      publishArtifact in Test := true
+    )
+  )
+
+  lazy val json = Project("stingray-json", file("json"),
+    dependencies = Seq(common % "compile->compile;test->test"),
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+      name := "stingray-json",
+      libraryDependencies ++= jsonDependencies,
+      publishArtifact in Test := true
+    )
+  )
+
+  lazy val akka = Project("stingray-akka", file("akka"),
+    dependencies = Seq(common % "compile->compile;test->test"),
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+      name := "stingray-akka",
+      libraryDependencies ++= akkaDependencies ++ akkaTestDependencies,
       publishArtifact in Test := true
     )
   )
 
   lazy val http = Project("stingray-http", file("http"),
-    dependencies = Seq(common % "compile->compile;test->test"),
+    dependencies = Seq(
+      common % "compile->compile;test->test",
+      json   % "compile->compile;test->test",
+      akka   % "compile->compile;test->test"
+    ),
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-http",
-      libraryDependencies ++= httpDependencies ++ testDependencies,
+      libraryDependencies ++= httpDependencies ++ httpTestDependencies,
       publishArtifact in Test := true
     )
   )
 
   lazy val examples = Project("stingray-examples", file("examples"),
-    dependencies = Seq(common % "compile->compile;test->test"),
+    dependencies = Seq(
+      common % "compile->compile;test->test",
+      json   % "compile->compile;test->test"
+    ),
     settings = standardSettings ++ Seq(
       name := "stingray-examples",
-      libraryDependencies ++= httpDependencies ++ testDependencies,
+      libraryDependencies ++= httpDependencies,
       publish := {}
     )
   )

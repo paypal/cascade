@@ -1,7 +1,7 @@
 package com.paypal.stingray.examples.common.enumeration
 
 import com.paypal.stingray.common.enumeration._
-import com.paypal.stingray.common.json._
+import com.paypal.stingray.json._
 import com.fasterxml.jackson.core._
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.annotation._

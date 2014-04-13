@@ -15,7 +15,7 @@ trait StingrayApp extends App {
 
   MDC.put("service", serviceName)
 
-  // Install the Java util logging to SFL4J bridge and delegate all management to SLF4J.
+  // Install the Java Util Logging to SFL4J bridge and delegate all management to SLF4J.
   SLF4JBridgeHandler.removeHandlersForRootLogger()
   SLF4JBridgeHandler.install()
 

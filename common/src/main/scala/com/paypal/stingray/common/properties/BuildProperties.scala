@@ -15,8 +15,6 @@ class BuildProperties extends LoggingSugar {
    */
   private val buildUrl = Try(getClass.getResource("/build.properties")).toOption
 
-  val logger = getLogger[BuildProperties]
-
   // at first use, try to retrieve a Properties object
   private lazy val props: Option[Properties] = {
     lazy val p = new Properties
