@@ -3,10 +3,10 @@ package com.paypal.stingray.http.tests.resource
 import org.specs2.Specification
 import com.paypal.stingray.http.resource._
 import spray.http.StatusCodes.BadRequest
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import spray.http.HttpResponse
-import scala.concurrent.ExecutionContext
 import scala.util.Try
+import scala.concurrent.duration.Duration
 
 /**
  * Tests resource.scala in [[com.paypal.stingray.http.resource]]
@@ -66,7 +66,7 @@ class ResourceSpecs extends Specification { override def is = s2"""
     wrap the throwable in a future halt exception               ${RThrowableHalt.haltWith().ok}
 
 
-"""
+  """
 
   object ROptionTryHalt {
     case class orErrorT() {
@@ -184,17 +184,13 @@ class ResourceSpecs extends Specification { override def is = s2"""
 
   object RFuture {
     case class orHalt() {
-      implicit val ec: ExecutionContext = new ExecutionContext {
-        def execute(runnable: Runnable): Unit = runnable.run()
-        def reportFailure(t: Throwable): Unit = t.printStackTrace()
-      }
       def ok = {
-        val successfulFuture = Future { "hi" }.orHalt { case e: Throwable => HttpResponse(BadRequest) }
-        successfulFuture.value.get must beSuccessfulTry[String].withValue("hi")
+        val successfulFuture = Future("hi").orHalt { case e: Throwable => HttpResponse(BadRequest) }
+        Try { Await.result(successfulFuture, Duration.Inf) } must beSuccessfulTry[String].withValue("hi")
       }
       def failure = {
         val haltedFuture = Future[Unit] { throw new Throwable("fail")}.orHalt { case e: Throwable => HttpResponse(BadRequest) }
-        haltedFuture.value.get must beFailedTry[Unit].withThrowable[HaltException]
+        Try { Await.result(haltedFuture, Duration.Inf) } must beFailedTry[Unit].withThrowable[HaltException]
       }
     }
   }

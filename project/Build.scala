@@ -58,16 +58,13 @@ object BuildSettings {
 
 object Dependencies {
 
-  val slf4jVersion = "1.7.5"
+  val slf4jVersion = "1.7.7"
   val fasterXmlJacksonVersion = "2.3.1-STINGRAY" //custom version until our fixes are released
   val sprayVersion = "1.3.1"
-  val akkaVersion = "2.3.0"
+  val akkaVersion = "2.3.2"
   val parboiledVersion = "1.1.6"
 
-  lazy val commonsCodec        = "commons-codec"                % "commons-codec"               % "1.7"
-  lazy val commonsLang         = "commons-lang"                 % "commons-lang"                % "2.6"
-  lazy val commonsValidator    = "commons-validator"            % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
-  lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.0.13"
+  lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
   lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"            % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations")
   lazy val jacksonScalaModule  = "com.fasterxml.jackson.module" %% "jackson-module-scala"       % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
@@ -81,7 +78,7 @@ object Dependencies {
   lazy val sprayRouting        = "io.spray"                     % "spray-routing"               % sprayVersion
   lazy val akka                = "com.typesafe.akka"            %% "akka-actor"                 % akkaVersion
 
-  lazy val specs2              = "org.specs2"                   %% "specs2"                     % "2.3.8"           % "test"
+  lazy val specs2              = "org.specs2"                   %% "specs2"                     % "2.3.11"          % "test"
   lazy val scalacheck          = "org.scalacheck"               %% "scalacheck"                 % "1.11.3"          % "test"
   lazy val mockito             = "org.mockito"                  % "mockito-all"                 % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"                 % "hamcrest-all"                % "1.3"             % "test"
@@ -89,17 +86,14 @@ object Dependencies {
   lazy val parboiledJava       = "org.parboiled"                % "parboiled-java"              % parboiledVersion  % "test"
   lazy val parboiledScala      = "org.parboiled"                %% "parboiled-scala"            % parboiledVersion  % "test"
 
-  lazy val sprayTest           = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test"
+  lazy val sprayTest           = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.10")
   lazy val akkaTestKit         = "com.typesafe.akka"            %% "akka-testkit"               % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
     akka,
-    slf4j,
-    commonsCodec,
-    commonsLang,
-    commonsValidator,
     jacksonDataBind,
     jacksonScalaModule,
+    slf4j,
     slf4jJul,
     slf4jJcl,
     slf4jLog4j,
@@ -108,8 +102,7 @@ object Dependencies {
 
   lazy val httpDependencies = Seq(
     sprayCan,
-    sprayRouting,
-    logback
+    sprayRouting
   )
 
   lazy val testDependencies = Seq(
