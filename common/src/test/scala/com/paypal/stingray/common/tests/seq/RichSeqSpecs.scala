@@ -1,7 +1,6 @@
 package com.paypal.stingray.common.tests.seq
 
 import org.specs2.Specification
-import org.specs2.execute.{Result => SpecsResult}
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.common.seq.RichSeq
 
@@ -17,7 +16,7 @@ class RichSeqSpecs extends Specification { override def is = s2"""
     return Some(t) if the index was in bounds                                ${Get().inBoundsReturnsSome}
     return None if the index was out of bounds                               ${Get().outOfBoundsReturnsNone}
 
-"""
+  """
 
   trait Context extends CommonImmutableSpecificationContext {
     protected lazy val s = Seq(1, 2, 3)

@@ -3,7 +3,6 @@ package com.paypal.stingray.common.tests.option
 import org.specs2.Specification
 import com.paypal.stingray.common.option._
 import java.util.concurrent.atomic.AtomicInteger
-import org.specs2.execute.{Result => SpecsResult}
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
@@ -17,7 +16,7 @@ class RichOptionTupleSpecs extends Specification { override def is = s2"""
   fold should
     execute exactly one function according to the defined permutation of Options             ${Fold().accordingToCorrectPermutation}
 
-"""
+  """
 
   trait Context extends CommonImmutableSpecificationContext {
     protected def makeRichOptionTuple[T, U](opt1: Option[T], opt2: Option[U]) = new RichOptionTuple[T, U](opt1 -> opt2)
@@ -73,4 +72,5 @@ class RichOptionTupleSpecs extends Specification { override def is = s2"""
       int.get.must(beEqualTo(4))
     }
   }
+
 }

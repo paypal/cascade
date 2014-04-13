@@ -51,7 +51,7 @@ class EitherOrFailureSpecs
     }
     case class FailureCase() {
       def fails = forAll(arbitrary[String]) { s =>
-        Left[String, Int](s).orFailureWith(ConvertedException(_)) must beEqualTo(Status.Failure(ConvertedException(s)))
+        Left[String, Int](s).orFailureWith(ConvertedException) must beEqualTo(Status.Failure(ConvertedException(s)))
       }
     }
   }

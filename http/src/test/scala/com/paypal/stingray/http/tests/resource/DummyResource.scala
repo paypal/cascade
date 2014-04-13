@@ -7,7 +7,7 @@ import com.paypal.stingray.common.option._
 import spray.http.HttpResponse
 import scala.concurrent._
 import com.paypal.stingray.http.resource._
-import scala.util.{Failure, Success, Try}
+import scala.util.{Success, Try}
 import spray.http.HttpHeaders.RawHeader
 
 /**
@@ -87,6 +87,5 @@ class DummyResource
    * @return the response for the put
    */
   def doPut(r: Unit): Future[(HttpResponse, Option[String])] = (HttpResponse(OK, "pong"), None).continue
-
 
 }

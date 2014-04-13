@@ -22,7 +22,7 @@ class ActorSystemComponentSpecs
     Provide an ActorRefFactory               ${Initialize.ActorRefFactory().ok}
     Provide an execution context             ${Initialize.ExecutionContext().ok}
 
-"""
+  """
 
   class TestActorSystem extends ActorSystemComponent
     with ResourceServiceComponent
@@ -61,6 +61,5 @@ class ActorSystemComponentSpecs
       }
     }
   }
-
 
 }

@@ -2,10 +2,9 @@ package com.paypal.stingray.http.tests.resource
 
 import org.specs2.Specification
 import com.paypal.stingray.http.resource._
-import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import spray.http.StatusCodes.BadRequest
 import scala.concurrent.Future
-import spray.http.{HttpEntity, HttpResponse}
+import spray.http.HttpResponse
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
@@ -212,7 +211,7 @@ class ResourceSpecs extends Specification { override def is = s2"""
   object RThrowableHalt {
     case class haltWith() {
       def ok = {
-        val failedFuture = (new Throwable("no")).haltWith(BadRequest)()
+        val failedFuture = new Throwable("no").haltWith(BadRequest)()
         failedFuture.value.get must beFailedTry[Unit].withThrowable[HaltException]
       }
     }

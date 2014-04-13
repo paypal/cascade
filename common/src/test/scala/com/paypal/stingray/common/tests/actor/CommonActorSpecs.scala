@@ -22,7 +22,7 @@ class CommonActorSpecs
 
   Passing an unhandled exception results in an UnhandledMessageException ${Message().failureCase}
 
-"""
+  """
 
   trait Context
     extends CommonImmutableSpecificationContext {

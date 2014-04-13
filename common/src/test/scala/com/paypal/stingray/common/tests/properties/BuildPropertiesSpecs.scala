@@ -15,7 +15,8 @@ class BuildPropertiesSpecs extends Specification with Mockito { override def is 
   Get should:
     get the value when the path exists      ${GetValue().ok}
 
-"""
+  """
+
   trait Context extends CommonImmutableSpecificationContext {
     // Nothing for now
   }

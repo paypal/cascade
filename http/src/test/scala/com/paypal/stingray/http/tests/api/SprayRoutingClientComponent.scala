@@ -64,7 +64,7 @@ trait SprayRoutingClientComponent {
       response getOrElse (throw new IllegalStateException("Request timed out"))
     }
 
-    def receive = {
+    override def receive: Actor.Receive = {
       case resp: HttpResponse => {
         response = resp.some
         latch.countDown()

@@ -97,6 +97,7 @@ trait ActorSpecification extends SpecificationStructure {
      */
     def toEither(awaitFor: Duration = actorSpecAwaitDuration): Either[Throwable, T] = toTry(awaitFor).toEither
     def toEither: Either[Throwable, T] = this.toEither()
+
   }
 
 }

@@ -20,7 +20,7 @@ class SprayActorComponentSpecs
   Initializing a class which extends SprayActorComponent should
     Provide a spray actor                  ${Initialize.SprayActor().ok}
 
-"""
+  """
 
   class TestActorSystem extends SprayActorComponent
     with ActorSystemComponent

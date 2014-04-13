@@ -16,7 +16,7 @@ class StatusResponseSpecs extends Specification with Mockito { override def is =
     properly creates json response                      ${Response().ok}
     does not fail when some keys are missing            ${Response().okWithMissing}
 
-"""
+  """
 
   trait Context extends CommonImmutableSpecificationContext {
     val bp = mock[BuildProperties]
@@ -44,7 +44,5 @@ class StatusResponseSpecs extends Specification with Mockito { override def is =
       jsonResp must beEqualTo("""{"status":"ok","service-name":"tests","dependencies":["dep1","dep2","dep3"],"git-info":{"branch":"test-branch","branch-is-clean":"true"}}""")
     }
   }
-
-
 
 }

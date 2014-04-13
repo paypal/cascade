@@ -132,6 +132,7 @@ class ConfigSpecs extends Specification { override def is = s2"""
         config.getOptionalDuration("service.name", SECONDS) must throwA[ConfigException.BadValue]
       }
     }
+
   }
 
 

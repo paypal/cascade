@@ -44,7 +44,7 @@ trait SprayActorComponent {
    */
   protected class SprayActor extends Actor with ResourceService {
     override val actorRefFactory = context
-    override def receive = {
+    override def receive: Actor.Receive = {
       val loggingContext: LoggingContext = implicitly[LoggingContext]
       runRoute(fullRoute)(exceptionHandler, rejectionHandler, context, routingSettings, loggingContext)
     }
