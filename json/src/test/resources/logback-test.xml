@@ -1,0 +1,24 @@
+<configuration scan="true" scanPeriod="10 seconds">
+
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [${HOSTNAME}] [%mdc] %logger{32} %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- quiet logging in 3rd party libraries -->
+  <logger name="akka.event" level="WARN"/>
+  <logger name="akka.io" level="WARN"/>
+  <logger name="akka.actor" level="WARN"/>
+  <logger name="akka.cluster" level="WARN"/>
+  <logger name="akka.serialization" level="WARN"/>
+  <logger name="akka.remote" level="WARN"/>
+  <logger name="spray.can" level="WARN"/>
+
+  <root level="DEBUG">
+    <appender-ref ref="STDOUT"/>
+  </root>
+
+</configuration>
