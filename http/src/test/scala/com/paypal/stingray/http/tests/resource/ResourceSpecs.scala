@@ -1,12 +1,12 @@
 package com.paypal.stingray.http.tests.resource
 
 import org.specs2.Specification
-import com.paypal.stingray.http.resource._
 import spray.http.StatusCodes.BadRequest
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import spray.http.HttpResponse
 import scala.util.Try
-import scala.concurrent.duration.Duration
+import com.paypal.stingray.common.tests.future._
+import com.paypal.stingray.http.resource._
 
 /**
  * Tests resource.scala in [[com.paypal.stingray.http.resource]]
@@ -186,11 +186,11 @@ class ResourceSpecs extends Specification { override def is = s2"""
     case class orHalt() {
       def ok = {
         val successfulFuture = Future("hi").orHalt { case e: Throwable => HttpResponse(BadRequest) }
-        Try { Await.result(successfulFuture, Duration.Inf) } must beSuccessfulTry[String].withValue("hi")
+        successfulFuture.toTry must beSuccessfulTry[String].withValue("hi")
       }
       def failure = {
         val haltedFuture = Future[Unit] { throw new Throwable("fail")}.orHalt { case e: Throwable => HttpResponse(BadRequest) }
-        Try { Await.result(haltedFuture, Duration.Inf) } must beFailedTry[Unit].withThrowable[HaltException]
+        haltedFuture.toTry must beFailedTry[Unit].withThrowable[HaltException]
       }
     }
   }

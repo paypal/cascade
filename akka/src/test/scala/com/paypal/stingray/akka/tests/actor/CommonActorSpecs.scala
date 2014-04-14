@@ -6,13 +6,14 @@ import org.scalacheck.Arbitrary._
 import akka.pattern.ask
 import akka.actor._
 import akka.testkit._
-import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import akka.util.Timeout
 import java.util.concurrent.TimeUnit
 import com.paypal.stingray.akka.actor.{UnhandledMessageException, ServiceActor}
+import com.paypal.stingray.common.tests.future._
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
- * Tests [[CommonActor]]
+ * Tests [[com.paypal.stingray.akka.actor.CommonActor]]
  */
 class CommonActorSpecs
   extends TestKit(ActorSystem("CommonActorSpecs"))

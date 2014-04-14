@@ -4,7 +4,7 @@ import scala.concurrent._
 import org.slf4j.Logger
 
 /**
- * Convenience methods and implicits for working with Futures
+ * Convenience methods and implicits for working with Futures.
  */
 package object future {
 
@@ -35,7 +35,7 @@ package object future {
    * @param v the future
    * @tparam T the type of the future
    */
-  implicit class RichFutureHelpers[T](v: Future[T]) {
+  implicit class RichFuture[T](v: Future[T]) {
 
     /**
      * Converts a Future Failure Throwable into a different Throwable type
@@ -59,4 +59,5 @@ package object future {
     }
 
   }
+
 }

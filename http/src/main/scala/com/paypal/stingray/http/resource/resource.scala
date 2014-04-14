@@ -439,4 +439,5 @@ package object resource {
       Future.failed(new HaltException(HttpResponse(status, f(t.getMessage))))
     }
   }
+
 }
