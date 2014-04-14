@@ -28,7 +28,7 @@ object HttpUtil {
     val queryStringPieces: List[String] = Option(queryString).map(_.split("&").toList).getOrElse(List())
     queryStringPieces.flatMap { piece: String =>
       piece.split("=").toList match {
-        case key :: value :: Nil if key.length > 0 && value.length > 0 => List(URLDecoder.decode(key, UTF_8) -> URLDecoder.decode(value, UTF_8))
+        case key :: value :: Nil if (key.length > 0 && value.length > 0) => List(URLDecoder.decode(key, UTF_8) -> URLDecoder.decode(value, UTF_8))
         case _ => List()
       }
     }.toList
