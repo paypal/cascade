@@ -26,7 +26,7 @@ package object json {
      * @tparam T the type of the object into which the String will be mapped
      * @return a Try of either an object of type `T`, or a Throwable conversion failure
      */
-    def fromJson[T : Manifest](): Try[T] =  JsonUtil.fromJson[T](str)
+    def fromJson[T : Manifest]: Try[T] =  JsonUtil.fromJson[T](str)
   }
 
   /**

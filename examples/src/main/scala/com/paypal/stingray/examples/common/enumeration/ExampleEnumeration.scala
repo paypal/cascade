@@ -5,6 +5,7 @@ import com.paypal.stingray.json._
 import com.fasterxml.jackson.core._
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.annotation._
+import com.paypal.stingray.common.logging.LoggingSugar
 
 /**
  * An example implementation of [[com.paypal.stingray.common.enumeration.Enumeration]].
@@ -68,9 +69,9 @@ private[this] class MyEnumDeserializer extends JsonDeserializer[MyEnum] {
 
 /**
  * A simple example runner, demonstrating how to serialize and deserialize objects with Enumerations.
- * The `toJson` and `fromJson` calls are from implicits in [[com.paypal.stingray.common.json]].
+ * The `toJson` and `fromJson` calls are from implicits in [[com.paypal.stingray.json]].
  */
-object MyEnumRunner {
+object MyEnumRunner extends LoggingSugar {
 
   /**
    * Normally, case classes making use of an Enumeration would live outside of the file containing the Enumeration,
@@ -91,16 +92,18 @@ object MyEnumRunner {
 
   /** Run it! */
   def main(args: Array[String]) {
+    val logger = getLogger[MyEnumRunner.type]
 
-    println("custom Enumeration example")
+    logger.debug("custom Enumeration example")
 
     val cs = CS(MyEnum.CaseOne)
-    println(cs.toString)
+    logger.debug(cs.toString)
 
     val json = cs.toJson.get
-    println(json)
+    logger.debug(json)
 
     val cs2 = json.fromJson[CS].get
-    println(cs2)
+    logger.debug(cs2.toString)
   }
+
 }
