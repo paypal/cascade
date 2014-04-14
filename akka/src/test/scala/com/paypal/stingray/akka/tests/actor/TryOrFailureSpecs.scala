@@ -38,17 +38,17 @@ class TryOrFailureSpecs
 
     case class SuccessCase() {
       def ok = forAll(arbitrary[String]) { s =>
-        Try { s }.orFailure must beEqualTo(s)
+        Try(s).orFailure must beEqualTo(s)
       }
     }
     case class FailureCase() {
       def fails = forAll(arbitrary[Exception]) { e =>
-        Try { throw e }.orFailure must beEqualTo(Status.Failure(e))
+        Try(throw e).orFailure must beEqualTo(Status.Failure(e))
       }
     }
     case class ErrorCase() {
       def failsHard = forAll(arbitrary[Error]) { err =>
-        Try { throw err }.orFailure must throwA[Error]
+        Try(throw err).orFailure must throwA[Error]
       }
     }
   }
@@ -57,17 +57,17 @@ class TryOrFailureSpecs
 
     case class SuccessCase() {
       def ok = forAll(arbitrary[String], arbitrary[Exception]) { (s, e) =>
-        Try { s }.orFailureWith(e) must beEqualTo(s)
+        Try(s).orFailureWith(e) must beEqualTo(s)
       }
     }
     case class FailureCase() {
       def fails = forAll(arbitrary[Exception]) { e =>
-        Try { throw new Exception("incorrect") }.orFailureWith(e) must beEqualTo(Status.Failure(e))
+        Try(throw new Exception("incorrect")).orFailureWith(e) must beEqualTo(Status.Failure(e))
       }
     }
     case class ErrorCase() {
       def failsHard = forAll(arbitrary[Error], arbitrary[Exception]) { (err, e) =>
-        Try { throw err }.orFailureWith(e) must throwA[Error] 
+        Try(throw err).orFailureWith(e) must throwA[Error]
       }
     }
   }
@@ -78,19 +78,19 @@ class TryOrFailureSpecs
 
     case class SuccessCase() {
       def ok = forAll(arbitrary[String]) { s =>
-        Try { s }.orFailureWith(ConvertedException) must beEqualTo(s)
+        Try(s).orFailureWith(ConvertedException(_)) must beEqualTo(s)
       }
     }
 
     case class FailureCase() {
       def fails = forAll(arbitrary[String], arbitrary[Exception]) { (s, e) =>
-        Try { throw e }.orFailureWith(ConvertedException) must beEqualTo(Status.Failure(ConvertedException(e)))
+        Try(throw e).orFailureWith(ConvertedException(_)) must beEqualTo(Status.Failure(ConvertedException(e)))
       }
     }
 
     case class ErrorCase() {
       def failsHard = forAll(arbitrary[Error]) { err =>
-        Try { throw err }.orFailureWith(ConvertedException) must throwA[Error]
+        Try(throw err).orFailureWith(ConvertedException(_)) must throwA[Error]
       }
     }
 

@@ -78,7 +78,7 @@ trait NamedThreadFactory {
    */
   private def rootThreadGroup(): ThreadGroup = {
     def getRootThreadGroup(node: ThreadGroup): ThreadGroup = {
-      Option(node.getParent).map(getRootThreadGroup).getOrElse(node)
+      Option(node.getParent).map(getRootThreadGroup(_)).getOrElse(node)
     }
     getRootThreadGroup(Thread.currentThread.getThreadGroup)
   }

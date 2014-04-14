@@ -39,7 +39,7 @@ object RandomUtil {
       value <- Random.shuffle(map.values).find(convert(_).isDefined)
     } yield {
       value
-    }).flatMap(convert)
+    }).flatMap(convert(_))
   }
 
 }

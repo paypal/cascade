@@ -80,7 +80,7 @@ package object option {
      * @return the wrapped Option (identity)
      */
     def sideEffectSome(fn: T => Unit): Option[T] = {
-      option.foreach(fn)
+      option.foreach(fn(_))
       option
     }
 
@@ -100,7 +100,7 @@ package object option {
      * @return the Future-wrapped value of this Option, or a Future-wrapped failure Throwable
      */
     def toFuture(t: => Throwable): Future[T] = {
-      option.map(Future.successful).getOrElse(Future.failed(t))
+      option.map(Future.successful(_)).getOrElse(Future.failed(t))
     }
 
   }

@@ -40,7 +40,7 @@ package object scalacheck {
     Gen.nonEmptyListOf(Gen.frequency((52, Gen.alphaChar), (10, Gen.numChar))).map(_.mkString)
 
   // an optimization over letting Scalacheck try to create these objects
-  private lazy val unicodeChars = (Character.MIN_VALUE to Character.MAX_VALUE).filter(Character.isDefined).toArray
+  private lazy val unicodeChars = (Character.MIN_VALUE to Character.MAX_VALUE).filter(Character.isDefined(_)).toArray
 
   // all used inside `isAUnicodeControlChar`
   private lazy val unicodeC0C1ControlCodes = 0x007F :: (0x0000 to 0x001F).toList
