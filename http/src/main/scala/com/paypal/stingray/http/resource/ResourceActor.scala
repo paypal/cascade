@@ -15,6 +15,16 @@ import com.paypal.stingray.common.actor._
 import com.paypal.stingray.common.constants.ValueConstants._
 import com.paypal.stingray.common.option._
 
+/**
+ * the actor to manage the execution of an [[AbstractResource]]. create one of these per request
+ * @param resource the resource to execute
+ * @param reqContext the spray [[RequestContext]] for this request
+ * @param reqParser the function to parse the request into a valid scala type
+ * @param reqProcessor the function to process the actual request
+ * @param mbReturnActor the actor to send the successful [[HttpResponse]] or the failed [[Throwable]]. optional - pass None to not do this
+ * @tparam AuthInfo the authorization info type that [[AbstractResource]] uses
+ * @tparam ParsedRequest the type that the request gets parsed into
+ */
 class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo],
                                              reqContext: RequestContext,
                                              reqParser: ResourceActor.RequestParser[ParsedRequest],
@@ -201,16 +211,39 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 }
 
 object ResourceActor {
+  /**
+   * the function that parses an [[HttpRequest]] into a type, or fails
+   * @tparam T the type to parse the request into
+   */
   type RequestParser[T] = HttpRequest => Try[T]
+
+  /**
+   * the function to process the request and output a result future
+   * @tparam T the type to process
+   */
   type RequestProcessor[T] = T => Future[(HttpResponse, Option[String])]
 
+  /**
+   * the only message to send each [[ResourceActor]]. it begins processing the [[AbstractResource]] that it contains
+   */
   object Start
 
+  /**
+   * create the [[Props]] for a new [[ResourceActor]]
+   * @param resource the resource to pass to the [[ResourceActor]]
+   * @param reqContext the [[RequestContext]] to pass to the [[ResourceActor]]
+   * @param reqParser the parser function to pass to the [[ResourceActor]]
+   * @param reqProcessor the processor function to pass to the [[ResourceActor]]
+   * @param mbResponseActor the optional actor to pass to the [[ResourceActor]]
+   * @tparam AuthInfo the authorization info type for [[AbstractResource]]
+   * @tparam ParsedRequest the type of the parsed request
+   * @return the new [[Props]]
+   */
   def props[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo],
                                      reqContext: RequestContext,
                                      reqParser: ResourceActor.RequestParser[ParsedRequest],
                                      reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
-                                     mbResponseActor: Option[ActorRef]) = {
+                                     mbResponseActor: Option[ActorRef]): Props = {
     Props.apply(new ResourceActor(resource, reqContext, reqParser, reqProcessor, mbResponseActor))
   }
 
