@@ -7,13 +7,14 @@ import scala.concurrent.{ExecutionContext, Future}
 import spray.http._
 import spray.http.StatusCodes._
 import spray.http.Uri.Path
-import spray.http.HttpHeaders.{`WWW-Authenticate`, Location}
+import spray.http.HttpHeaders.{RawHeader, `WWW-Authenticate`, Location}
 import spray.http.HttpEntity.{Empty, NonEmpty}
 import spray.http.{HttpRequest, HttpResponse}
 import spray.routing.RequestContext
 import com.paypal.stingray.common.actor._
 import com.paypal.stingray.common.constants.ValueConstants._
 import com.paypal.stingray.common.option._
+import com.paypal.stingray.http.util.HttpUtil
 
 /**
  * the actor to manage the execution of an [[AbstractResource]]. create one of these per request
@@ -97,11 +98,14 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
         val newUri = request.uri.copy(scheme = newScheme, path = newPath)
         Location(newUri)
       }
+      val headers = addLanguageHeader(resource.responseLanguage, responseWithLocation.headers)
       // Just force the request to the right content type
-      val entity = responseWithLocation.entity.flatMap { entity: NonEmpty =>
+
+      val finalResponse = responseWithLocation.withHeadersAndEntity(headers, responseWithLocation.entity.flatMap { entity: NonEmpty =>
         HttpEntity(resource.responseContentType, entity.data)
-      }
-      self ! responseWithLocation.withEntity(entity)
+      })
+
+      self ! finalResponse
 
 
     //we got a response to return (either through successful processing or an error handling), so return it to the spray context and return actor and then stop
@@ -192,8 +196,9 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       val response = addHeaderOnCode(e.response, Unauthorized) {
         `WWW-Authenticate`(resource.unauthorizedChallenge(request))
       }
+      val headers = addLanguageHeader(resource.responseLanguage, response.headers)
       // If the error already has the right content type, let it through, otherwise coerce it
-      val finalResponse = response.withEntity(response.entity.flatMap { entity: NonEmpty =>
+      val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap { entity: NonEmpty =>
         entity.contentType match {
           case resource.responseContentType => entity
           case _ => resource.coerceError(entity.data.toByteArray)
@@ -205,7 +210,21 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       finalResponse
     case e: Exception =>
       log.error(s"Unexpected error: request: $request error: ${e.getMessage}", e)
-      HttpResponse(InternalServerError, resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8)))
+      HttpResponse(InternalServerError,
+        resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8)),
+        addLanguageHeader(resource.responseLanguage, Nil))
+  }
+
+  private def addLanguageHeader(responseLanguage: Option[Language], headers: List[HttpHeader]) : List[HttpHeader] = {
+    responseLanguage match {
+      case Some(lang) =>
+        if (headers.exists(_.lowercaseName == HttpUtil.CONTENT_LANGUAGE_LC)) {
+          headers
+        } else {
+          RawHeader(HttpUtil.CONTENT_LANGUAGE, lang.toString()) :: headers
+        }
+      case None => headers
+    }
   }
 
 }

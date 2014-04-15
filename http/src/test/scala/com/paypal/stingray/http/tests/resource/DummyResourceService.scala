@@ -2,7 +2,7 @@ package com.paypal.stingray.http.tests.resource
 
 import com.paypal.stingray.common.service.ServiceNameComponent
 import spray.routing.Directives._
-import com.paypal.stingray.http.resource.{ResourceServiceComponent, ResourceDriver}
+import com.paypal.stingray.http.resource.{ResourceActor, ResourceServiceComponent, ResourceDriver}
 import com.paypal.stingray.http.actor.ActorSystemComponent
 import scala.concurrent.Future
 import spray.http.{HttpRequest, HttpResponse}
@@ -20,13 +20,13 @@ trait DummyResourceService
   /** This resource */
   val dummy = new DummyResource
 
-  val processRequest: ResourceDriver.ProcessFunction[Unit] = { _: Unit =>
+  val processRequest: ResourceActor.RequestProcessor[Unit] = { _: Unit =>
     Future.successful {
       HttpResponse() -> None
     }
   }
 
-  val parseRequest: ResourceDriver.ParseRequest[Unit] = { _ : HttpRequest =>
+  val parseRequest: ResourceActor.RequestParser[Unit] = { _ : HttpRequest =>
     Success(())
   }
 
