@@ -52,10 +52,10 @@ object ResourceDriver {
    * @return the request execution
    */
   def serve[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
-                                           processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                           requestParser: HttpRequest => Try[ParsedRequest],
-                                           mbResponseActor: Option[ActorRef] = None)
-                                          (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
+                                     processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
+                                     requestParser: HttpRequest => Try[ParsedRequest],
+                                     mbResponseActor: Option[ActorRef] = None)
+                                    (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     ctx: RequestContext => {
       val actor = actorRefFactory.actorOf(ResourceActor.props(resource, ctx, requestParser, processFunction, mbResponseActor))
       actor ! ResourceActor.Start
