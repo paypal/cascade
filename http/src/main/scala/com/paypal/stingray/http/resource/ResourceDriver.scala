@@ -41,6 +41,8 @@ object ResourceDriver {
     }
   }
 
+  type RewriteFunction[ParsedRequest] = HttpRequest => Try[(HttpRequest, ParsedRequest)]
+
   /**
    * Run the request on this resource, first applying a rewrite. This should not be overridden.
    * @param resource this resource
@@ -50,10 +52,10 @@ object ResourceDriver {
    * @return the rewritten request execution
    */
   def serveWithRewrite[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
-                                                      processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                                      mbResponseActor: Option[ActorRef] = None)
-                                                     (rewrite: HttpRequest => Try[(HttpRequest, ParsedRequest)])
-                                                     (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
+                                                processFunction: ResourceActor.RequestProcessor[ParsedRequest],
+                                                mbResponseActor: Option[ActorRef] = None)
+                                               (rewrite: RewriteFunction[ParsedRequest])
+                                               (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     ctx: RequestContext =>
       rewrite(ctx.request).map {
         case (request, parsed) =>
@@ -74,11 +76,11 @@ object ResourceDriver {
    * @return the request execution
    */
   def serve[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
-                                     processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
-                                     requestParser: HttpRequest => Try[ParsedRequest],
+                                     processFunction: ResourceActor.RequestProcessor[ParsedRequest],
+                                     requestParser: ResourceActor.RequestParser[ParsedRequest],
                                      mbResponseActor: Option[ActorRef] = None)
                                     (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
-    ctx: RequestContext => {
+    { ctx: RequestContext =>
       val actor = actorRefFactory.actorOf(ResourceActor.props(resource, ctx, requestParser, processFunction, mbResponseActor))
       actor ! ResourceActor.Start
     }

@@ -3,15 +3,12 @@ package com.paypal.stingray.http.tests.matchers
 import org.specs2.matcher.{Matcher, Expectable, MatchResult}
 import spray.http._
 import spray.http.HttpEntity._
-import com.paypal.stingray.http.resource.{AbstractResource, ResourceDriver}
+import com.paypal.stingray.http.resource.AbstractResource
 import com.paypal.stingray.common.option._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.Try
-import akka.actor.Actor.Receive
-import akka.actor.{Status, Actor, ActorSystem}
-import akka.testkit.TestActorRef
-import com.paypal.stingray.http.tests.resource.ResponseHandlerActor
+import akka.actor.ActorSystem
 
 /**
  * Utility match cases for testing [[com.paypal.stingray.http.resource.AbstractResource]]
@@ -20,9 +17,6 @@ import com.paypal.stingray.http.tests.resource.ResponseHandlerActor
 trait SprayMatchers {
 
   implicit val actorSystem: ActorSystem
-
-
-
 
   /** Default timeout for SprayMatcher responses. Default of 2 seconds; override if necessary. */
   lazy val sprayMatcherAwaitDuration: Duration = 2.seconds
@@ -207,7 +201,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       result(
         code == resp.status,
@@ -234,7 +228,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       result(
         body == resp.entity,
@@ -261,7 +255,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       result(
         body == resp.entity.asString,
@@ -290,7 +284,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity)
       result(
@@ -323,7 +317,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity.asString)
       result(
@@ -354,7 +348,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity)
       result(
@@ -382,7 +376,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity.asString)
       result(
@@ -409,7 +403,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val hdr = resp.headers.find(_.lowercaseName == header.lowercaseName)
       result(
@@ -438,7 +432,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val hdr = resp.headers.find(_.lowercaseName == header)
       result(
@@ -467,7 +461,7 @@ trait SprayMatchers {
     extends Matcher[AbstractResource[AuthInfo]] {
 
     override def apply[S <: AbstractResource[AuthInfo]](r: Expectable[S]): MatchResult[S] = {
-      val respFuture = executeResourceDriver(r.value, processFunction, requestParser)
+      val respFuture = executeResourceDriver(req, r.value, processFunction, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val resultCType = resp.entity.some collect {
         case NonEmpty(c, _) => c

@@ -4,6 +4,9 @@ import com.paypal.stingray.common.service.ServiceNameComponent
 import spray.routing.Directives._
 import com.paypal.stingray.http.resource.{ResourceServiceComponent, ResourceDriver}
 import com.paypal.stingray.http.actor.ActorSystemComponent
+import scala.concurrent.Future
+import spray.http.{HttpRequest, HttpResponse}
+import scala.util.Success
 
 /**
  * A dummy resource service implementation for use with [[com.paypal.stingray.http.tests.resource.DummyResource]].
@@ -17,11 +20,21 @@ trait DummyResourceService
   /** This resource */
   val dummy = new DummyResource
 
+  val processRequest: ResourceDriver.ProcessFunction[Unit] = { _: Unit =>
+    Future.successful {
+      HttpResponse() -> None
+    }
+  }
+
+  val parseRequest: ResourceDriver.ParseRequest[Unit] = { _ : HttpRequest =>
+    Success(())
+  }
+
   /** The route for this resource */
   override val route = {
     path("ping") {
       get {
-        ResourceDriver.serve(dummy, Map())
+        ResourceDriver.serve[Unit, Unit](dummy, processRequest, parseRequest)
       }
     }
   }

@@ -34,6 +34,8 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
   private val request = reqContext.request
 
+  log.debug(s"started $self with request $request and resource ${resource.getClass.getSimpleName}")
+
   override def receive: Actor.Receive = {
 
     //begin processing the request
@@ -114,7 +116,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
    * @return an empty Try
    */
   private def ensureMethodSupported(resource: AbstractResource[_],
-                            method: HttpMethod): Try[Unit] = {
+                                    method: HttpMethod): Try[Unit] = {
     resource.supportedHttpMethods.contains(method).orHaltWithT(MethodNotAllowed)
   }
 
@@ -126,8 +128,8 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
    * @return a Future containing an `AuthInfo` object, or a failure
    */
   private def ensureAuthorized[AI](resource: AbstractResource[AI],
-                           request: HttpRequest)
-                          (implicit ctx: ExecutionContext): Future[AI] = {
+                                   request: HttpRequest)
+                                  (implicit ctx: ExecutionContext): Future[AI] = {
     for {
       authInfoOpt <- resource.isAuthorized(request)
       authInfo <- authInfoOpt.orHaltWith(Unauthorized)
@@ -141,7 +143,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
    * @return an empty Try
    */
   private def ensureContentTypeSupported(resource: AbstractResource[_],
-                                 request: HttpRequest): Try[Unit] = {
+                                         request: HttpRequest): Try[Unit] = {
     request.entity match {
       case Empty => Success()
       case NonEmpty(ct, _) => resource.acceptableContentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
@@ -155,7 +157,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
    * @return a Try containing the acceptable content type found, or a failure
    */
   private def ensureResponseContentTypeAcceptable(resource: AbstractResource[_],
-                                          request: HttpRequest): Try[ContentType] = {
+                                                  request: HttpRequest): Try[ContentType] = {
     request.acceptableContentType(List(resource.responseContentType)).orHaltWithT(NotAcceptable)
   }
 
@@ -167,7 +169,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
    * @return a possibly modified response
    */
   private def addHeaderOnCode(response: HttpResponse, status: StatusCode)
-                     (header: => HttpHeader): HttpResponse = {
+                             (header: => HttpHeader): HttpResponse = {
     if(response.status == status) {
       response.withHeaders(header :: response.headers)
     } else {
