@@ -12,7 +12,7 @@ import com.paypal.stingray.common.actor.ServiceActor
  * @param respPromise the promise that it fulfills when it receives a message. fulfills it with success when it receives an [[HttpResponse]]
  *                    and failure when it receives a [[Throwable]] or a [[Status.Failure]]
  */
-class ResponseHandlerActor(respPromise: Promise[HttpResponse]) extends ServiceActor {
+class ResponseHandlerActor(val respPromise: Promise[HttpResponse]) extends ServiceActor {
 
   override def receive: Receive = {
     case t: Throwable =>
@@ -35,9 +35,8 @@ object ResponseHandlerActor {
    * @param actorSystem the actor system that implicitly gets passed to the [[TestActorRef]]
    * @return the new [[TestActorRef]] for the [[ResponseHandlerActor]] and the promise that the new actor will fulfill
    */
-  def apply(implicit actorSystem: ActorSystem): (TestActorRef[ResponseHandlerActor], Promise[HttpResponse]) = {
+  def apply(implicit actorSystem: ActorSystem): TestActorRef[ResponseHandlerActor] = {
     val promise = Promise[HttpResponse]()
-    val ref = TestActorRef(new ResponseHandlerActor(promise))
-    ref -> promise
+    TestActorRef(new ResponseHandlerActor(promise))
   }
 }
