@@ -7,6 +7,8 @@ import scala.concurrent.Future
 import scala.util._
 import spray.routing.RequestContext
 import akka.actor.{ActorRef, ActorRefFactory}
+import com.paypal.stingray.http.util.HttpUtil
+import spray.http.HttpHeaders.RawHeader
 
 /**
  * Implementation of a basic HTTP request handling pipeline.
@@ -18,6 +20,26 @@ import akka.actor.{ActorRef, ActorRefFactory}
  */
 
 object ResourceDriver {
+
+
+  /**
+   * Adds a `Content-Language` header to the current header list if the given `responseLanguage` is not None, and the
+   * given `headers` list does not yet have a `Content-Language` header set
+   * @param responseLanguage the value to assign the `Content-Language` header, or None, if not required
+   * @param headers the current list of headers
+   * @return augmented list of `HttpHeader` object, or the same list as `response.headers` if no modifications needed
+   */
+  private def addLanguageHeader(responseLanguage: Option[Language], headers: List[HttpHeader]) : List[HttpHeader] = {
+    responseLanguage match {
+      case Some(lang) =>
+        if (headers.exists(_.lowercaseName == HttpUtil.CONTENT_LANGUAGE_LC)) {
+          headers
+        } else {
+          RawHeader(HttpUtil.CONTENT_LANGUAGE, lang.toString()) :: headers
+        }
+      case None => headers
+    }
+  }
 
   /**
    * Run the request on this resource, first applying a rewrite. This should not be overridden.
@@ -61,5 +83,4 @@ object ResourceDriver {
       actor ! ResourceActor.Start
     }
   }
-
 }

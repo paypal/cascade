@@ -15,6 +15,9 @@ object HttpUtil {
   /** Convenience value for `utf-8` */
   val UTF_8 = "utf-8"
 
+  val CONTENT_LANGUAGE = "Content-Language"
+  val CONTENT_LANGUAGE_LC = CONTENT_LANGUAGE.toLowerCase
+
   /**
    * Parse a query string into a List of key-value String pairs
    *

@@ -19,6 +19,8 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
   GET /ping =>
     should return pong                                                    ${Test().ping}
     should have the right headers set if unauthorized                     ${Test().unauthorized}
+    should have content language set                                      ${Test().language}
+    should not override the language if set in resource                   ${Test().languageSetInResource}
 
   POST /ping =>
     should return pong                                                    ${Test().pingPost}
@@ -40,6 +42,18 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
         case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
         case Empty => true must beFalse
       }
+    }
+
+    def language = {
+      val request = HttpRequest(uri = "/ping?foo=bar")
+      resource must resultInResponseWithHeaderContaining(request, resource.doGet, resource.parseType[HttpRequest](_, ""),
+        RawHeader("Content-Language", "en-US"))
+    }
+
+    def languageSetInResource = {
+      val request = HttpRequest(uri = "/moo")
+      resource must resultInResponseWithHeaderContaining(request, resource.setContentLanguage, resource.parseType[HttpRequest](_, ""),
+        RawHeader("Content-Language", "de"))
     }
 
     def unauthorized = {
