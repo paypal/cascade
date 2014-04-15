@@ -2,7 +2,7 @@ package com.paypal.stingray.http.tests.resource
 
 import scala.concurrent.Promise
 import spray.http.HttpResponse
-import akka.actor.{ActorSystem, Status, Actor}
+import akka.actor.{ActorSystem, Status}
 import akka.testkit.TestActorRef
 import com.paypal.stingray.common.actor.ServiceActor
 
