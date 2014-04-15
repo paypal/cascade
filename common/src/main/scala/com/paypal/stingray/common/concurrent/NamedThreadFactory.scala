@@ -62,19 +62,8 @@ trait NamedThreadFactory {
   }
 
   /**
-   * Spawned threads have the same thread group as the root group.
-   *  This is the magic that will prevent custom code from spawning new threads.
-   *
-   * See java.lang.SecurityManager.checkAccess(...) for below:
-   *
-   * ...
-   * if (g == rootGroup) {
-   * checkPermission(SecurityConstants.MODIFY_THREADGROUP_PERMISSION);
-   * } else {
-   * // just return
-   * }
-   * ...
-   *
+   * Returns the root thread group.
+   * @return the root thread group
    */
   private def rootThreadGroup(): ThreadGroup = {
     def getRootThreadGroup(node: ThreadGroup): ThreadGroup = {

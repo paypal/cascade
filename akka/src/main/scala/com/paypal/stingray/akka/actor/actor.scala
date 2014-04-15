@@ -35,7 +35,7 @@ package object actor {
   implicit class TryOrFailure[A](t: Try[A]) {
 
     /**
-     * Returns the value of the Try if successful, or a [[Status.Failure]] message wrapping the exception if failed
+     * Returns the value of the Try if successful, or a [[akka.actor.Status.Failure]] message wrapping the exception if failed
      * @return the value or a failure
      */
     def orFailure: Any = t.recover {
@@ -43,7 +43,7 @@ package object actor {
     }.get
 
     /**
-     * Returns the value of the Try if successful, or a [[Status.Failure]] message wrapping a given exception if failed
+     * Returns the value of the Try if successful, or a [[akka.actor.Status.Failure]] message wrapping a given exception if failed
      * @param e the given exception
      * @return the value or a failure with the given exception
      */
@@ -52,7 +52,7 @@ package object actor {
     }.get
 
     /**
-     * Returns the value of the Try if successful, or a [[Status.Failure]] message wrapping the result of applying the
+     * Returns the value of the Try if successful, or a [[akka.actor.Status.Failure]] message wrapping the result of applying the
      * given function to the failure exception
      * @param f the function
      * @return the value or a failure with the converted exception

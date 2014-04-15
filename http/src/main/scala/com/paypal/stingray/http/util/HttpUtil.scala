@@ -7,7 +7,7 @@ import java.net.URLDecoder
  *
  * Methods found within [[spray.http]] objects should be preferred over these, wherever Spray objects are already
  * in use. For example, if working with a [[spray.http.Uri]], prefer to access its query string pairs using
- * [[spray.http.Uri.Query.toMap]] instead of using `parseQueryStringToMap` found here.
+ * [spray.http.Uri.Query$.toMap] instead of using `parseQueryStringToMap` found here
  */
 object HttpUtil {
   import com.paypal.stingray.http.url.StrPair

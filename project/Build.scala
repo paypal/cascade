@@ -11,6 +11,8 @@ import com.paypal.stingray.sbt.BuildUtilities._
 
 object BuildSettings {
 
+  import Dependencies._
+
   val org = "com.paypal.stingray"
   val scalaVsn = "2.10.4"
   val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
@@ -36,10 +38,26 @@ object BuildSettings {
     fork := true,
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
+    scalacOptions in (Compile, doc) ++= Seq(
+      "-groups",
+      "-implicits",
+      "-external-urls:" +
+        s"scala=http://www.scala-lang.org/api/${scalaVersion.value}/," +
+        s"akka=http://doc.akka.io/api/akka/$akkaVersion/," +
+        "java=http://docs.oracle.com/javase/6/docs/api/," +
+        // this is the only scaladoc location listed on the spray site
+        "spray=http://spray.io/documentation/1.1-SNAPSHOT/api/," +
+        "org.slf4j=http://www.slf4j.org/api/,"+
+        // make the version here dynamic once we stop using the stingray jackson fork
+        "com.fasterxml.jackson=http://fasterxml.github.io/jackson-core/javadoc/2.3.0/," +
+        "com.typesafe=http://typesafehub.github.io/config/latest/api/"
+    ),
     javaOptions in run ++= runArgs,
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
+    // Add apiURL := Some(url(...)) once the scaladocs start being published
+    autoAPIMappings := true,
     publishTo <<= version { version: String =>
       val stingrayNexus = s"http://$stingrayNexusHost/nexus/content/repositories/"
       if (version.trim.endsWith("SNAPSHOT")) {
@@ -54,6 +72,7 @@ object BuildSettings {
     tagName <<= (version in ThisBuild).map(a => a),
     releaseProcess := defaultStingrayRelease
   )
+
 }
 
 object Dependencies {
