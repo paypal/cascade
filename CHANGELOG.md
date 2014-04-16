@@ -1,4 +1,10 @@
 
+# 0.4.0 04/16/14 released by Taylor
+* Added stingray-akka subproject
+* Added stingray-json subproject
+* stingray-common now only depends on SLF4J and Logback
+* Cleaned up additional dependencies
+
 # 0.3.0 04/10/14 released by mvaznaian
 * Scala 2.10.4, ConfigComponent, Content-Language header, additional implicit defs, http specs
 
