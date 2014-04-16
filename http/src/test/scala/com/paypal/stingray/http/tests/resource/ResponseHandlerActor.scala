@@ -4,7 +4,7 @@ import scala.concurrent.Promise
 import spray.http.HttpResponse
 import akka.actor.{ActorSystem, Status}
 import akka.testkit.TestActorRef
-import com.paypal.stingray.common.actor.ServiceActor
+import com.paypal.stingray.akka.actor.ServiceActor
 
 /**
  * an actor that's designed to listen for responses that [[com.paypal.stingray.http.resource.ResourceActor]] completes.

@@ -3,7 +3,6 @@ package com.paypal.stingray.http.tests.resource
 import org.specs2.SpecificationLike
 import akka.testkit.{TestActorRef, TestKit}
 import akka.actor.ActorSystem
-import com.paypal.stingray.common.tests.actor.ActorSpecification
 import com.paypal.stingray.http.resource.ResourceActor
 import spray.http.{StatusCodes, HttpResponse, HttpRequest}
 import scala.util.{Failure, Success}
@@ -11,6 +10,7 @@ import scala.concurrent.{Promise, Future}
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.http.tests.actor.RefAndProbe
 import com.paypal.stingray.http.tests.matchers.RefAndProbeMatchers
+import com.paypal.stingray.akka.tests.actor.ActorSpecification
 
 class ResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
