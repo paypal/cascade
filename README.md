@@ -66,7 +66,7 @@ http also provides two endpoints for projects that use it, implemented in the `R
           "commit-date":"Wed Apr 16 12:01:28 PDT 2014"}
         }
 
-- `/stats` returns the current monitoring information for the build.
+- `/stats` returns internal Spray monitoring information for the build.
   Must include the `x-service-stats` reader in request, For example, running user-platform-serv locally:
 
         curl -H "x-service-stats:true" "http://localhost:9090/stats
