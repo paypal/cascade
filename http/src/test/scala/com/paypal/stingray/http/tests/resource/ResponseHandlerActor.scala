@@ -18,14 +18,17 @@ class ResponseHandlerActor(val respPromise: Promise[HttpResponse]) extends Servi
     case t: Throwable =>
       log.error(s"failed with $t")
       respPromise.failure(t)
+      context.stop(self)
 
     case Status.Failure(t) =>
       log.error(s"failed with $t")
       respPromise.failure(t)
+      context.stop(self)
 
     case resp: HttpResponse =>
       log.debug(s"succeeded with $resp")
       respPromise.success(resp)
+      context.stop(self)
   }
 }
 
