@@ -3,7 +3,7 @@ package com.paypal.stingray.http.tests.resource
 import com.paypal.stingray.common.service.ServiceNameComponent
 import spray.routing.Directives._
 import com.paypal.stingray.http.resource.{ResourceServiceComponent, ResourceDriver}
-import com.paypal.stingray.http.actor.ActorSystemComponent
+import com.paypal.stingray.akka.actor.ActorSystemComponent
 
 /**
  * A dummy resource service implementation for use with [[com.paypal.stingray.http.tests.resource.DummyResource]].

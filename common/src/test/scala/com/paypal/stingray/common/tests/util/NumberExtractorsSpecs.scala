@@ -21,7 +21,7 @@ class NumberExtractorsSpecs extends Specification with ScalaCheck { override def
     Long is returned when String is successfully converted      ${LongExtract().successCase}
     0 is returned when conversion returned None                 ${LongExtract().failureCase}
 
-"""
+  """
 
   case class IntExtract() {
     def successCase = forAll(Gen.posNum[Int]) { num =>

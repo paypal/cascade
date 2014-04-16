@@ -14,7 +14,7 @@ class UrlSpecs extends Specification { override def is = s2"""
   queryList properly translates query string to a list            ${QueryString().listOk}
   queryPairs properly translates query string to a map            ${QueryString().mapOk}
 
-"""
+  """
 
   case class QueryString() {
     def listOk = {
@@ -23,7 +23,7 @@ class UrlSpecs extends Specification { override def is = s2"""
     }
     def mapOk = {
       val u = new URL("http://www.paypal.com/endpoint?key=value")
-      u.queryPairs  must beEqualTo(Map(("key" -> List("value"))))
+      u.queryPairs  must beEqualTo(Map("key" -> List("value")))
     }
   }
 

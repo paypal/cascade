@@ -29,9 +29,9 @@ class RandomUtilSpecs extends Specification with ScalaCheck { override def is = 
   case class RandomValueFromMap() {
 
     def pickValueAndConvert = forAll(nonEmptyMap(arbitrary[(String, String)])) { genMap =>
-      val allValues = genMap.map(_._2.toUpperCase())
+      val allValues = genMap.map(_._2.toUpperCase)
       val convert = { value: String =>
-        Option(value.toUpperCase())
+        Option(value.toUpperCase)
       }
       val randomPick = RandomUtil.pickRandomValue(genMap, convert)
 

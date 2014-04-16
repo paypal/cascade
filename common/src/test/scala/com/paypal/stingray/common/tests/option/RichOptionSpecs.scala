@@ -71,9 +71,9 @@ class RichOptionSpecs extends Specification { override def is = s2"""
       val wrappedNone = Option.empty[Int]
       val wrappedSome = Option(someValue)
       val exception = new Exception(getClass.getCanonicalName)
-      (wrappedNone orThrow(exception) must throwA(exception)) and
-      (wrappedSome orThrow(exception) must not throwA(exception)) and
-      (wrappedSome orThrow(exception) must beEqualTo(someValue))
+      (wrappedNone.orThrow(exception) must throwA(exception)) and
+      (wrappedSome.orThrow(exception) must not throwA(exception)) and
+      (wrappedSome.orThrow(exception) must beEqualTo(someValue))
     }
   }
 

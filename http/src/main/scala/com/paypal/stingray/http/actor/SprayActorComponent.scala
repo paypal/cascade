@@ -8,6 +8,7 @@ import spray.util.LoggingContext
 import spray.can.Http
 import akka.io.{IO => AkkaIO}
 import com.paypal.stingray.http.server.SprayConfigurationComponent
+import com.paypal.stingray.akka.actor.ActorSystemComponent
 
 /**
  * Provides the root actor implementation used by spray
@@ -44,7 +45,7 @@ trait SprayActorComponent {
    */
   protected class SprayActor extends Actor with ResourceService {
     override val actorRefFactory = context
-    override def receive = {
+    override def receive: Actor.Receive = {
       val loggingContext: LoggingContext = implicitly[LoggingContext]
       runRoute(fullRoute)(exceptionHandler, rejectionHandler, context, routingSettings, loggingContext)
     }
@@ -54,4 +55,5 @@ trait SprayActorComponent {
   private object SprayActor {
     val props = Props(new SprayActor)
   }
+
 }
