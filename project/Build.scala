@@ -1,3 +1,5 @@
+import com.paypal.stingray.sbt.BuildUtilities
+import com.typesafe.sbt.SbtSite.site
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
@@ -139,7 +141,7 @@ object CommonBuild extends Build {
   )
 
   lazy val common = Project("stingray-common", file("common"),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ BuildUtilities.settings ++ site.includeScaladoc("latest/api/common") ++ Seq(
       name := "stingray-common",
       libraryDependencies ++= commonDependencies ++ testDependencies,
       publishArtifact in Test := true
@@ -148,7 +150,7 @@ object CommonBuild extends Build {
 
   lazy val http = Project("stingray-http", file("http"),
     dependencies = Seq(common % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ BuildUtilities.settings ++ site.includeScaladoc("latest/api/http") ++ Seq(
       name := "stingray-http",
       libraryDependencies ++= httpDependencies ++ testDependencies,
       publishArtifact in Test := true
