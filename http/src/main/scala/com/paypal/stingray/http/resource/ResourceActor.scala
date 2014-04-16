@@ -13,7 +13,6 @@ import spray.http.{HttpRequest, HttpResponse}
 import spray.routing.RequestContext
 import com.paypal.stingray.common.actor._
 import com.paypal.stingray.common.constants.ValueConstants._
-import com.paypal.stingray.common.option._
 import com.paypal.stingray.http.util.HttpUtil
 
 /**

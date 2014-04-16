@@ -9,6 +9,7 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.Try
 import akka.actor.ActorSystem
+import com.paypal.stingray.http.tests.resource.executeResourceDriver
 
 /**
  * Utility match cases for testing [[com.paypal.stingray.http.resource.AbstractResource]]

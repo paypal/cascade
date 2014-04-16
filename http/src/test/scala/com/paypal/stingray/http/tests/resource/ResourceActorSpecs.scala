@@ -1,14 +1,16 @@
 package com.paypal.stingray.http.tests.resource
 
 import org.specs2.SpecificationLike
-import akka.testkit.{TestProbe, TestActorRef, TestKit}
-import akka.actor.{Actor, ActorSystem}
+import akka.testkit.{TestActorRef, TestKit}
+import akka.actor.ActorSystem
 import com.paypal.stingray.common.tests.actor.ActorSpecification
 import com.paypal.stingray.http.resource.ResourceActor
 import spray.http.{StatusCodes, HttpResponse, HttpRequest}
-import scala.util.{Failure, Try, Success}
+import scala.util.{Failure, Success}
 import scala.concurrent.{Promise, Future}
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.http.tests.actor.RefAndProbe
+import com.paypal.stingray.http.tests.matchers.RefAndProbeMatchers
 
 class ResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
@@ -26,15 +28,7 @@ class ResourceActorSpecs
 
   private val resource = new DummyResource
 
-  case class RefAndProbe[T <: Actor](ref: TestActorRef[T], probe: TestProbe = TestProbe()) {
-    probe.watch(ref)
-
-    def hasStopped = {
-      Try(probe.expectTerminated(ref)) must beSuccessfulTry
-    }
-  }
-
-  sealed trait Context extends CommonImmutableSpecificationContext {
+  sealed trait Context extends CommonImmutableSpecificationContext with RefAndProbeMatchers {
 
     protected lazy val reqParser: ResourceActor.RequestParser[Unit] = { req: HttpRequest =>
       Success(())
@@ -67,7 +61,7 @@ class ResourceActorSpecs
         case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.OK)
       }.await
 
-      val stoppedRes = resourceActorRefAndProbe.hasStopped
+      val stoppedRes = resourceActorRefAndProbe must beStopped
 
       recvRes and stoppedRes
     }
@@ -77,7 +71,7 @@ class ResourceActorSpecs
         case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.OK)
       }.await
 
-      val stoppedRes = resourceActorRefAndProbe.hasStopped
+      val stoppedRes = resourceActorRefAndProbe must beStopped
 
       recvRes and stoppedRes
     }
@@ -91,13 +85,13 @@ class ResourceActorSpecs
 
     def writesToReturnActor = apply {
       val recvRes = returnActorFuture must beAnInstanceOf[HttpResponse].await
-      val stoppedRes = resourceActorRefAndProbe.hasStopped
+      val stoppedRes = resourceActorRefAndProbe must beStopped
       recvRes and stoppedRes
     }
 
     def writesToRequestContext = apply {
       val recvRes = reqCtxHandlerActorFuture must beAnInstanceOf[HttpResponse].await
-      val stoppedRes = resourceActorRefAndProbe.hasStopped
+      val stoppedRes = resourceActorRefAndProbe must beStopped
       recvRes and stoppedRes
     }
 
