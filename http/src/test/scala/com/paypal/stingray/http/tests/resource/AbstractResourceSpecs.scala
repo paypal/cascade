@@ -37,7 +37,7 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
     Success returns proper http response                          ${JsonBody().ok}
     Failure returns error in json format                          ${JsonBody().error}
 
-"""
+  """
 
   trait Context extends CommonImmutableSpecificationContext with SprayMatchers {
 

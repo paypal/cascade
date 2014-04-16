@@ -11,6 +11,8 @@ import com.paypal.stingray.sbt.BuildUtilities._
 
 object BuildSettings {
 
+  import Dependencies._
+
   val org = "com.paypal.stingray"
   val scalaVsn = "2.10.4"
   val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
@@ -36,10 +38,26 @@ object BuildSettings {
     fork := true,
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
+    scalacOptions in (Compile, doc) ++= Seq(
+      "-groups",
+      "-implicits",
+      "-external-urls:" +
+        s"scala=http://www.scala-lang.org/api/${scalaVersion.value}/," +
+        s"akka=http://doc.akka.io/api/akka/$akkaVersion/," +
+        "java=http://docs.oracle.com/javase/6/docs/api/," +
+        // this is the only scaladoc location listed on the spray site
+        "spray=http://spray.io/documentation/1.1-SNAPSHOT/api/," +
+        "org.slf4j=http://www.slf4j.org/api/,"+
+        // make the version here dynamic once we stop using the stingray jackson fork
+        "com.fasterxml.jackson=http://fasterxml.github.io/jackson-core/javadoc/2.3.0/," +
+        "com.typesafe=http://typesafehub.github.io/config/latest/api/"
+    ),
     javaOptions in run ++= runArgs,
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
+    // Add apiURL := Some(url(...)) once the scaladocs start being published
+    autoAPIMappings := true,
     publishTo <<= version { version: String =>
       val stingrayNexus = s"http://$stingrayNexusHost/nexus/content/repositories/"
       if (version.trim.endsWith("SNAPSHOT")) {
@@ -54,20 +72,18 @@ object BuildSettings {
     tagName <<= (version in ThisBuild).map(a => a),
     releaseProcess := defaultStingrayRelease
   )
+
 }
 
 object Dependencies {
 
-  val slf4jVersion = "1.7.5"
+  val slf4jVersion = "1.7.7"
   val fasterXmlJacksonVersion = "2.3.1-STINGRAY" //custom version until our fixes are released
   val sprayVersion = "1.3.1"
-  val akkaVersion = "2.3.0"
+  val akkaVersion = "2.3.2"
   val parboiledVersion = "1.1.6"
 
-  lazy val commonsCodec        = "commons-codec"                % "commons-codec"               % "1.7"
-  lazy val commonsLang         = "commons-lang"                 % "commons-lang"                % "2.6"
-  lazy val commonsValidator    = "commons-validator"            % "commons-validator"           % "1.4.0" exclude("commons-beanutils", "commons-beanutils")
-  lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.0.13"
+  lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
   lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"            % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations")
   lazy val jacksonScalaModule  = "com.fasterxml.jackson.module" %% "jackson-module-scala"       % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
@@ -81,7 +97,7 @@ object Dependencies {
   lazy val sprayRouting        = "io.spray"                     % "spray-routing"               % sprayVersion
   lazy val akka                = "com.typesafe.akka"            %% "akka-actor"                 % akkaVersion
 
-  lazy val specs2              = "org.specs2"                   %% "specs2"                     % "2.3.8"           % "test"
+  lazy val specs2              = "org.specs2"                   %% "specs2"                     % "2.3.11"          % "test"
   lazy val scalacheck          = "org.scalacheck"               %% "scalacheck"                 % "1.11.3"          % "test"
   lazy val mockito             = "org.mockito"                  % "mockito-all"                 % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"                 % "hamcrest-all"                % "1.3"             % "test"
@@ -89,44 +105,53 @@ object Dependencies {
   lazy val parboiledJava       = "org.parboiled"                % "parboiled-java"              % parboiledVersion  % "test"
   lazy val parboiledScala      = "org.parboiled"                %% "parboiled-scala"            % parboiledVersion  % "test"
 
-  lazy val sprayTest           = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test"
+  lazy val sprayTestKit        = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.10")
   lazy val akkaTestKit         = "com.typesafe.akka"            %% "akka-testkit"               % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
-    akka,
     slf4j,
-    commonsCodec,
-    commonsLang,
-    commonsValidator,
-    jacksonDataBind,
-    jacksonScalaModule,
     slf4jJul,
     slf4jJcl,
     slf4jLog4j,
     logback
   )
 
-  lazy val httpDependencies = Seq(
-    sprayCan,
-    sprayRouting,
-    logback
+  lazy val jsonDependencies = Seq(
+    jacksonDataBind,
+    jacksonScalaModule
   )
 
-  lazy val testDependencies = Seq(
+  lazy val akkaDependencies = Seq(
+    akka
+  )
+
+  lazy val httpDependencies = Seq(
+    sprayCan,
+    sprayRouting
+  )
+
+  lazy val commonTestDependencies = Seq(
     scalacheck,
     mockito,
     hamcrest,
     pegdown,
     parboiledJava,
     parboiledScala,
-    specs2,
-    sprayTest,
+    specs2
+  )
+
+  lazy val akkaTestDependencies = Seq(
     akkaTestKit
+  )
+
+  lazy val httpTestDependencies = Seq(
+    sprayTestKit
   )
 
 }
 
 object CommonBuild extends Build {
+
   import BuildSettings._
   import Dependencies._
 
@@ -135,31 +160,56 @@ object CommonBuild extends Build {
       name := "parent",
       publish := {}
     ),
-    aggregate = Seq(common, http)
+    aggregate = Seq(common, examples, json, akka, http)
   )
 
   lazy val common = Project("stingray-common", file("common"),
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-common",
-      libraryDependencies ++= commonDependencies ++ testDependencies,
+      libraryDependencies ++= commonDependencies ++ commonTestDependencies,
+      publishArtifact in Test := true
+    )
+  )
+
+  lazy val json = Project("stingray-json", file("json"),
+    dependencies = Seq(common % "compile->compile;test->test"),
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+      name := "stingray-json",
+      libraryDependencies ++= jsonDependencies,
+      publishArtifact in Test := true
+    )
+  )
+
+  lazy val akka = Project("stingray-akka", file("akka"),
+    dependencies = Seq(common % "compile->compile;test->test"),
+    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+      name := "stingray-akka",
+      libraryDependencies ++= akkaDependencies ++ akkaTestDependencies,
       publishArtifact in Test := true
     )
   )
 
   lazy val http = Project("stingray-http", file("http"),
-    dependencies = Seq(common % "compile->compile;test->test"),
+    dependencies = Seq(
+      common % "compile->compile;test->test",
+      json   % "compile->compile;test->test",
+      akka   % "compile->compile;test->test"
+    ),
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-http",
-      libraryDependencies ++= httpDependencies ++ testDependencies,
+      libraryDependencies ++= httpDependencies ++ httpTestDependencies,
       publishArtifact in Test := true
     )
   )
 
   lazy val examples = Project("stingray-examples", file("examples"),
-    dependencies = Seq(common % "compile->compile;test->test"),
+    dependencies = Seq(
+      common % "compile->compile;test->test",
+      json   % "compile->compile;test->test"
+    ),
     settings = standardSettings ++ Seq(
       name := "stingray-examples",
-      libraryDependencies ++= httpDependencies ++ testDependencies,
+      libraryDependencies ++= httpDependencies,
       publish := {}
     )
   )

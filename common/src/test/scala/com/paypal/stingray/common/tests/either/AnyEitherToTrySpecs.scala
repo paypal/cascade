@@ -32,4 +32,5 @@ class AnyEitherToTrySpecs
       (Right(s): Either[Int, String]).toTry(intV => CustomException(intV.toString)) must beSuccessfulTry.withValue(s)
     }
   }
+
 }

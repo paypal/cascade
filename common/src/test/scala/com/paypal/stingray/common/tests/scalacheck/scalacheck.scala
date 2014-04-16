@@ -96,7 +96,7 @@ package object scalacheck {
    * @param min fewest to generate
    * @param max most to generate
    * @param gen the char generator to use for this String
-   * @return a String of length between `min` and `max
+   * @return a String of length between `min` and `max`
    */
   def genStringWithSizeInRange(min: Int, max: Int, gen: Gen[Char]): Gen[String] = {
     genListWithSizeInRange(min, max, gen).map(_.mkString)

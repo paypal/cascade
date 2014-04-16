@@ -3,7 +3,6 @@ package com.paypal.stingray.common
 /**
  * Convenience methods and implicit wrappers for working with [[scala.collection.Seq]]
  */
-
 package object seq {
 
   /**

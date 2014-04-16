@@ -1,13 +1,12 @@
 package com.paypal.stingray.http.tests.resource
 
 import org.specs2.Specification
-import com.paypal.stingray.http.resource._
-import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import spray.http.StatusCodes.BadRequest
 import scala.concurrent.Future
-import spray.http.{HttpEntity, HttpResponse}
-import scala.concurrent.ExecutionContext
+import spray.http.HttpResponse
 import scala.util.Try
+import com.paypal.stingray.common.tests.future._
+import com.paypal.stingray.http.resource._
 
 /**
  * Tests resource.scala in [[com.paypal.stingray.http.resource]]
@@ -67,7 +66,7 @@ class ResourceSpecs extends Specification { override def is = s2"""
     wrap the throwable in a future halt exception               ${RThrowableHalt.haltWith().ok}
 
 
-"""
+  """
 
   object ROptionTryHalt {
     case class orErrorT() {
@@ -185,17 +184,13 @@ class ResourceSpecs extends Specification { override def is = s2"""
 
   object RFuture {
     case class orHalt() {
-      implicit val ec: ExecutionContext = new ExecutionContext {
-        def execute(runnable: Runnable): Unit = runnable.run()
-        def reportFailure(t: Throwable): Unit = t.printStackTrace()
-      }
       def ok = {
-        val successfulFuture = Future { "hi" }.orHalt { case e: Throwable => HttpResponse(BadRequest) }
-        successfulFuture.value.get must beSuccessfulTry[String].withValue("hi")
+        val successfulFuture = Future("hi").orHalt { case e: Throwable => HttpResponse(BadRequest) }
+        successfulFuture.toTry must beSuccessfulTry[String].withValue("hi")
       }
       def failure = {
         val haltedFuture = Future[Unit] { throw new Throwable("fail")}.orHalt { case e: Throwable => HttpResponse(BadRequest) }
-        haltedFuture.value.get must beFailedTry[Unit].withThrowable[HaltException]
+        haltedFuture.toTry must beFailedTry[Unit].withThrowable[HaltException]
       }
     }
   }
@@ -212,7 +207,7 @@ class ResourceSpecs extends Specification { override def is = s2"""
   object RThrowableHalt {
     case class haltWith() {
       def ok = {
-        val failedFuture = (new Throwable("no")).haltWith(BadRequest)()
+        val failedFuture = new Throwable("no").haltWith(BadRequest)()
         failedFuture.value.get must beFailedTry[Unit].withThrowable[HaltException]
       }
     }

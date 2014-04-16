@@ -1,7 +1,6 @@
 package com.paypal.stingray.common.tests.option
 
 import org.specs2.Specification
-import org.specs2.execute.{Result => SpecsResult}
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
@@ -22,7 +21,7 @@ class RichOptionBooleanSpecs extends Specification { override def is = s2"""
       return true given Some(true)                                            ${OrTrue().someFalse}
       return true given None                                                  ${OrTrue().noneBoolean}
 
-"""
+  """
 
   case class OrFalse() extends CommonImmutableSpecificationContext {
     def someTrue = {

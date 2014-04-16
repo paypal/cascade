@@ -35,6 +35,7 @@ package object url {
      * @return a map of String pairs
      */
     def queryPairs: Map[String, List[String]] = HttpUtil.parseQueryStringToMap(url.getQuery)
+
   }
 
 }

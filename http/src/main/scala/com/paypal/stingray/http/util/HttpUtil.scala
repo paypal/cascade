@@ -7,7 +7,7 @@ import java.net.URLDecoder
  *
  * Methods found within [[spray.http]] objects should be preferred over these, wherever Spray objects are already
  * in use. For example, if working with a [[spray.http.Uri]], prefer to access its query string pairs using
- * [[spray.http.Uri.Query.toMap]] instead of using `parseQueryStringToMap` found here.
+ * [spray.http.Uri.Query$.toMap] instead of using `parseQueryStringToMap` found here
  */
 object HttpUtil {
   import com.paypal.stingray.http.url.StrPair
@@ -28,7 +28,7 @@ object HttpUtil {
     val queryStringPieces: List[String] = Option(queryString).map(_.split("&").toList).getOrElse(List())
     queryStringPieces.flatMap { piece: String =>
       piece.split("=").toList match {
-        case key :: value :: Nil if(key.length > 0 && value.length > 0) => List(URLDecoder.decode(key, UTF_8) -> URLDecoder.decode(value, UTF_8))
+        case key :: value :: Nil if (key.length > 0 && value.length > 0) => List(URLDecoder.decode(key, UTF_8) -> URLDecoder.decode(value, UTF_8))
         case _ => List()
       }
     }.toList

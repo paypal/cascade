@@ -2,11 +2,12 @@ package com.paypal.stingray.http.tests.actor
 
 import org.specs2._
 import org.specs2.mock.Mockito
+import com.paypal.stingray.akka.actor.ActorSystemComponent
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.common.service.ServiceNameComponent
 import com.paypal.stingray.http.actor._
 import com.paypal.stingray.http.server._
 import com.paypal.stingray.http.resource._
-import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
-import com.paypal.stingray.common.service.ServiceNameComponent
 import spray.routing._
 
 /**
@@ -20,7 +21,7 @@ class SprayActorComponentSpecs
   Initializing a class which extends SprayActorComponent should
     Provide a spray actor                  ${Initialize.SprayActor().ok}
 
-"""
+  """
 
   class TestActorSystem extends SprayActorComponent
     with ActorSystemComponent

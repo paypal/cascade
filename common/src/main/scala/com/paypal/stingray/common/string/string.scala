@@ -5,7 +5,6 @@ import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 /**
  * Convenience methods and implicit wrappers for working with Strings
  */
-
 package object string {
 
   /**
@@ -22,4 +21,5 @@ package object string {
       inner.getBytes(charsetUtf8)
     }
   }
+
 }

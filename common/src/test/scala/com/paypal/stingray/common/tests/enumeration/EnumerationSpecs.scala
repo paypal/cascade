@@ -17,7 +17,7 @@ class EnumerationSpecs extends Specification { override def is = s2"""
   toEnum should return the enum value if the string is a valid enum   ${toEnum().returns}
   toEnum should throw if the string is an invalid enum value          ${toEnum().throws}
 
-"""
+  """
 
   class Context extends CommonImmutableSpecificationContext {
     sealed abstract class MyEnum extends Enumeration
