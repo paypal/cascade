@@ -7,7 +7,7 @@ import akka.testkit.TestActorRef
 import java.util.concurrent.{TimeUnit, CountDownLatch}
 import spray.routing.RequestContext
 import com.paypal.stingray.http.resource.ResourceServiceComponent
-import com.paypal.stingray.http.actor.ActorSystemComponent
+import com.paypal.stingray.akka.actor.ActorSystemComponent
 import com.paypal.stingray.common.option._
 
 /**
@@ -65,7 +65,7 @@ trait SprayRoutingClientComponent {
       response getOrElse (throw new IllegalStateException("Request timed out"))
     }
 
-    def receive = {
+    override def receive: Actor.Receive = {
       case resp: HttpResponse => {
         response = resp.some
         latch.countDown()

@@ -5,7 +5,7 @@ import spray.http.HttpEntity._
 import spray.http.HttpMethods._
 import spray.http.HttpResponse
 import StatusCodes._
-import com.paypal.stingray.common.json._
+import com.paypal.stingray.json._
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.concurrent._
 import scala.util.{Success, Failure, Try}

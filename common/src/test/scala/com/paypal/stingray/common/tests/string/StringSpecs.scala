@@ -15,7 +15,7 @@ class StringSpecs extends Specification with ScalaCheck { override def is = s2""
 
   string.getBytes should invoke implicit class RichString getBytesUTF8 method   ${GetBytes().ok}
 
-"""
+  """
 
   case class GetBytes() {
     def ok = forAll(arbitrary[String]) { str =>

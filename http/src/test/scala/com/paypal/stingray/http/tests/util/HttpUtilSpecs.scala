@@ -5,7 +5,6 @@ import org.specs2.execute.{Result => SpecsResult}
 import com.paypal.stingray.common.logging.LoggingSugar
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
-import org.scalacheck.Arbitrary._
 import org.scalacheck.Gen._
 import java.net.URLDecoder
 import com.paypal.stingray.http.url.StrPair
@@ -32,7 +31,7 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
     merge two valid maps together when keys overlap                                                                   ${MergeParameters().mergesOverlappingKeys}
     merge an empty map with a non-empty one                                                                           ${MergeParameters().mergesEmptyMap}
 
- """
+  """
 
   trait Context extends LoggingSugar {
     protected lazy val genNonEmptyAlphaStr = alphaStr.suchThat(_.length > 0)
@@ -72,7 +71,7 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
     }
 
     def omitsMalformedKVPs = forAll(genQueryPairs, genMalformedQueryStringPair) { (list, malformedStr) =>
-      val qStringWithMalformed = s"${getQueryString(list)}&${malformedStr}"
+      val qStringWithMalformed = s"${getQueryString(list)}&$malformedStr"
       HttpUtil.parseQueryStringToPairs(qStringWithMalformed) must containTheSameElementsAs(list)
     }
   }
@@ -123,4 +122,5 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
       mergesEmptyMap(empty, nonEmpty) and mergesEmptyMap(nonEmpty, empty)
     }
   }
+
 }

@@ -21,7 +21,6 @@ import spray.http.HttpHeaders.RawHeader
 
 object ResourceDriver {
 
-
   /**
    * Adds a `Content-Language` header to the current header list if the given `responseLanguage` is not None, and the
    * given `headers` list does not yet have a `Content-Language` header set

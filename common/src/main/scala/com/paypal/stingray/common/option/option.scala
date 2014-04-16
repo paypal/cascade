@@ -80,9 +80,7 @@ package object option {
      * @return the wrapped Option (identity)
      */
     def sideEffectSome(fn: T => Unit): Option[T] = {
-      option.foreach {
-        fn(_)
-      }
+      option.foreach(fn(_))
       option
     }
 

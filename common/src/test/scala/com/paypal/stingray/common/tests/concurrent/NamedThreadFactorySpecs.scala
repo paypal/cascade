@@ -49,6 +49,7 @@ class NamedThreadFactorySpecs extends Specification { override def is = s2"""
       val t2 = f.newThread(noopRunnable)
       (t1.getName must startWith(prefix)) and (t2.getName must startWith(prefix))
     }
+
   }
 
 }

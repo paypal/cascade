@@ -4,8 +4,8 @@ import org.specs2._
 import org.specs2.mock.Mockito
 import com.paypal.stingray.http.server.StatusResponse
 import com.paypal.stingray.common.properties.BuildProperties
-import com.paypal.stingray.common.json.JsonUtil
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.json.JsonUtil
 
 /**
  * Tests for [[com.paypal.stingray.http.server.StatusResponse]].
@@ -16,7 +16,7 @@ class StatusResponseSpecs extends Specification with Mockito { override def is =
     properly creates json response                      ${Response().ok}
     does not fail when some keys are missing            ${Response().okWithMissing}
 
-"""
+  """
 
   trait Context extends CommonImmutableSpecificationContext {
     val bp = mock[BuildProperties]
@@ -44,7 +44,5 @@ class StatusResponseSpecs extends Specification with Mockito { override def is =
       jsonResp must beEqualTo("""{"status":"ok","service-name":"tests","dependencies":["dep1","dep2","dep3"],"git-info":{"branch":"test-branch","branch-is-clean":"true"}}""")
     }
   }
-
-
 
 }

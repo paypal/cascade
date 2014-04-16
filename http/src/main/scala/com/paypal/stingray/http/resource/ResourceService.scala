@@ -7,17 +7,15 @@ import spray.http.ContentTypes
 import spray.http.HttpEntity
 import spray.http.StatusCodes._
 import spray.routing._
+import com.paypal.stingray.akka.actor.ActorSystemComponent
 import com.paypal.stingray.common.service.ServiceNameComponent
 import com.paypal.stingray.common.properties.BuildProperties
-import com.paypal.stingray.common.option._
-import com.paypal.stingray.common.json._
+import com.paypal.stingray.json._
 import com.paypal.stingray.http.server.StatusResponse
-import scala.concurrent.ExecutionContext
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success}
 import scala.concurrent.duration._
 import akka.actor.ActorSelection
 import akka.pattern.ask
-import com.paypal.stingray.http.actor.ActorSystemComponent
 
 /**
  * Base type for implementing resource-based services. Contains several often-used patterns, e.g. stats and status
