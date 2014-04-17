@@ -19,7 +19,7 @@ class ResourceActorSpecs
 
     ResourceActor is the individual actor that executes an entire request against an AbstractResource. One is created per request.
 
-    After the ResourceActor succeeds, it writes the appropriate failure HttpResponse to the return actor and stops                     ${Succeeds().writesToReturnActor}
+    After the ResourceActor succeeds, it writes the appropriate HttpResponse to the return actor and stops                             ${Succeeds().writesToReturnActor}
     After the ResourceActor fails, it writes the appropriate failure HttpResponse to the return actor and stops                        ${Fails().writesToReturnActor}
     After the ResourceActor succeeds, it writes the appropriate HttpResponse to the DummyRequestContext and stops                      ${Succeeds().writesToRequestContext}
     After the ResourceActor fails, it writes the appropriate HttpResponse to the DummyRequestContext and stops                         ${Fails().writesToRequestContext}
