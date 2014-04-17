@@ -4,7 +4,7 @@ import scala.concurrent._
 import org.slf4j.Logger
 
 /**
- * Convenience methods and implicits for working with Futures
+ * Convenience methods and implicits for working with Futures.
  */
 package object future {
 
@@ -15,11 +15,10 @@ package object future {
    * @return the new [[scala.concurrent.ExecutionContext]]
    */
   def sequentialExecutionContext(logger: Logger): ExecutionContext = new ExecutionContext {
-    def reportFailure(t: Throwable) {
+    override def reportFailure(t: Throwable) {
       logger.error(t.getMessage, t)
     }
-
-    def execute(runnable: Runnable) {
+    override def execute(runnable: Runnable) {
       runnable.run()
     }
   }
@@ -33,10 +32,10 @@ package object future {
    *   f.mapFailure { case e: SomeThrowable => ... }
    * }}}
    *
-   * @param v
-   * @tparam T
+   * @param v the future
+   * @tparam T the type of the future
    */
-  implicit class RichFutureHelpers[T](v: Future[T]) {
+  implicit class RichFuture[T](v: Future[T]) {
 
     /**
      * Converts a Future Failure Throwable into a different Throwable type
@@ -60,4 +59,5 @@ package object future {
     }
 
   }
+
 }

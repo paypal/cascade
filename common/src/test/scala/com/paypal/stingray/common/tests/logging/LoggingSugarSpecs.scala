@@ -10,20 +10,15 @@ class LoggingSugarSpecs extends Specification { override def is = s2"""
 
   Convenience methods for interacting with org.slf4j.Logger and other SLF4J objects.
 
-  getLogger should retrieve an instance for the specified class       ${Logger.GetLogger().ok}
+  getLogger should retrieve an instance for the specified class       ${GetLogger().ok}
 
   """
 
-  object Logger {
-
-    case class GetLogger() extends LoggingSugar {
-
-      def ok = {
-        val logger = getLogger[GetLogger]
-        (logger must not beNull) and
-          (logger must beAnInstanceOf[org.slf4j.Logger])
-      }
-
+  case class GetLogger() extends LoggingSugar {
+    def ok = {
+      val logger = getLogger[GetLogger]
+      (logger must not beNull) and (logger must beAnInstanceOf[org.slf4j.Logger])
     }
   }
+
 }

@@ -27,9 +27,11 @@ class ThrowableEitherToTrySpecs
       Left(CustomException(s)).toTry must beFailedTry.withThrowable[CustomException]
     }
   }
+
   case class RightSuccess() {
     def ok = forAll(arbitrary[String]) { s =>
       Right(s).toTry must beSuccessfulTry.withValue(s)
     }
   }
+
 }

@@ -61,4 +61,5 @@ class Any2OptionSpecs extends Specification with ScalaCheck { override def is = 
       s.opt must beNone
     }
   }
+
 }
