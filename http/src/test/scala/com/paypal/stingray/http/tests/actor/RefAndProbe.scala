@@ -14,12 +14,20 @@ class RefAndProbe[T <: Actor](val ref: TestActorRef[T], val probe: TestProbe) {
 
   probe.watch(ref)
 
+  /**
+   * send a message from the probe to the actor ref. after you call this, you'll
+   * be able to call expectMsg, etc... on the probe
+   * @param msg the message to send
+   */
   def tell(msg: Any) {
     probe.send(ref, msg)
   }
 }
 
 object RefAndProbe {
+  /**
+   * convenience constructor on [[RefAndProbe]]
+   */
   def apply[T <: Actor](ref: TestActorRef[T])(implicit actorSystem: ActorSystem) = {
     new RefAndProbe(ref, TestProbe())
   }
