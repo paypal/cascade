@@ -1,4 +1,5 @@
 import com.paypal.stingray.sbt.BuildUtilities
+import com.typesafe.sbt.SbtSite.site
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
@@ -9,6 +10,8 @@ import ReleaseKeys._
 import sbt._
 import Keys._
 import com.paypal.stingray.sbt.BuildUtilities._
+import sbtunidoc.Plugin._
+import sbtunidoc.Plugin.UnidocKeys._
 
 object BuildSettings {
 
@@ -157,7 +160,9 @@ object CommonBuild extends Build {
   import Dependencies._
 
   lazy val parent = Project("parent", file("."),
-    settings = standardSettings ++ Seq(
+    settings = standardSettings ++ BuildUtilities.settings ++ Seq(
+      site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api"),
+      unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(examples),
       name := "parent",
       publish := {}
     ),
