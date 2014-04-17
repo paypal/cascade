@@ -75,13 +75,13 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
     case ResponseContentTypeIsAcceptable(p) =>
       ensureAuthorized(resource, request).map { _ =>
         RequestIsAuthorized(p)
-      }.recover(handleError).pipeTo(self)
+      }.recover(handleErrorPF).pipeTo(self)
 
     //the request is authorized, now process the request
     case RequestIsAuthorized(p) =>
       reqProcessor.apply(p).map { case (response, mbLocation) =>
         RequestIsProcessed(response, mbLocation)
-      }.recover(handleError).pipeTo(self)
+      }.recover(handleErrorPF).pipeTo(self)
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
@@ -117,8 +117,10 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
     //there was an error somewhere along the way, so translate it to an HttpResponse (using handleError), send the exception to returnActor and stop
     case s @ Status.Failure(t) =>
       log.error(t, s"Unexpected error: request: $request error: ${t.getMessage}")
-      //TODO: handleError is a partial function. should we care if we pass a throwable that it doesn't cover?
-      self ! handleError(t)
+      t match {
+        case e: Exception => self ! handleError(e)
+        case t: Throwable => throw t
+      }
   }
 
   /**
@@ -189,30 +191,43 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
     }
   }
 
-  private def handleError: PartialFunction[Throwable, HttpResponse] = {
-    case e: HaltException =>
-      val response = addHeaderOnCode(e.response, Unauthorized) {
-        `WWW-Authenticate`(resource.unauthorizedChallenge(request))
-      }
-      val headers = addLanguageHeader(resource.responseLanguage, response.headers)
-      // If the error already has the right content type, let it through, otherwise coerce it
-      val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap { entity: NonEmpty =>
-        entity.contentType match {
-          case resource.responseContentType => entity
-          case _ => resource.coerceError(entity.data.toByteArray)
+  private val handleErrorPF: PartialFunction[Throwable, HttpResponse] = {
+    case e: Exception => handleError(e)
+  }
+  private def handleError(exception: Exception) = {
+    exception match {
+      case h: HaltException =>
+        val response = addHeaderOnCode(h.response, Unauthorized) {
+          `WWW-Authenticate`(resource.unauthorizedChallenge(request))
         }
-      })
-      if (finalResponse.status.intValue >= 500) {
-        log.warning(s"Request finished unsuccessfully: request: $request response: $finalResponse")
-      }
-      finalResponse
-    case e: Exception =>
-      log.error(s"Unexpected error: request: $request error: ${e.getMessage}", e)
-      HttpResponse(InternalServerError,
-        resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8)),
-        addLanguageHeader(resource.responseLanguage, Nil))
+        val headers = addLanguageHeader(resource.responseLanguage, response.headers)
+        // If the error already has the right content type, let it through, otherwise coerce it
+        val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap {
+          entity: NonEmpty =>
+            entity.contentType match {
+              case resource.responseContentType => entity
+              case _ => resource.coerceError(entity.data.toByteArray)
+            }
+        })
+        if (finalResponse.status.intValue >= 500) {
+          log.warning(s"Request finished unsuccessfully: request: $request response: $finalResponse")
+        }
+        finalResponse
+      case otherException =>
+        log.error(s"Unexpected error: request: $request error: ${otherException.getMessage}", otherException)
+        HttpResponse(InternalServerError,
+          resource.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
+          addLanguageHeader(resource.responseLanguage, Nil))
+    }
   }
 
+  /**
+   * Adds a `Content-Language` header to the current header list if the given `responseLanguage` is not None, and the
+   * given `headers` list does not yet have a `Content-Language` header set
+   * @param responseLanguage the value to assign the `Content-Language` header, or None, if not required
+   * @param headers the current list of headers
+   * @return augmented list of `HttpHeader` object, or the same list as `response.headers` if no modifications needed
+   */
   private def addLanguageHeader(responseLanguage: Option[Language], headers: List[HttpHeader]) : List[HttpHeader] = {
     responseLanguage match {
       case Some(lang) =>
