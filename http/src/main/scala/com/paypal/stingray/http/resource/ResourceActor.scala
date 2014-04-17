@@ -249,6 +249,7 @@ object ResourceActor {
   object Start
 
   val dispatcherName = "resource-actor-dispatcher"
+
   /**
    * create the [[Props]] for a new [[ResourceActor]]
    * @param resource the resource to pass to the [[ResourceActor]]
