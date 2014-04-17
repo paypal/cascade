@@ -15,7 +15,7 @@ trait MockActor {
   implicit def actorSystem: ActorSystem
 
   /**
-   * A stubbed actor generator, yielding actors that extend [[TestProbe]] with configurable message logic
+   * A stubbed actor generator, yielding actors that extend [[akka.testkit.TestProbe]] with configurable message logic
    * @param expect a partial function that specifies logic for incoming messages
    * @tparam T the response message type
    * @return a TestProbe with `expect` logic embedded, ready for testing

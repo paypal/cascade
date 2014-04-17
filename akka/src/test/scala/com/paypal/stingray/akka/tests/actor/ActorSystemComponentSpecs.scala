@@ -7,7 +7,7 @@ import com.paypal.stingray.common.service.ServiceNameComponent
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 
 /**
- * Tests for [[ActorSystemComponent]]
+ * Tests for [[com.paypal.stingray.akka.actor.ActorSystemComponent]]
  */
 class ActorSystemComponentSpecs
   extends SpecificationLike
