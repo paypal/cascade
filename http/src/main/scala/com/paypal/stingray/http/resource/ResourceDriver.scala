@@ -31,7 +31,7 @@ object ResourceDriver {
    * @tparam AuthInfo the authorization container
    * @return the rewritten request execution
    */
-  def serveWithRewrite[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
+  final def serveWithRewrite[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
                                                 processFunction: ResourceActor.RequestProcessor[ParsedRequest],
                                                 mbResponseActor: Option[ActorRef] = None)
                                                (rewrite: RewriteFunction[ParsedRequest])
@@ -48,18 +48,18 @@ object ResourceDriver {
   }
 
   /**
-   * Run the request on this resource. This should not be overridden.
+   * Run the request on this resource
    * @param resource this resource
    * @param processFunction the function to be executed to process the request
    * @tparam ParsedRequest the request after parsing
    * @tparam AuthInfo the authorization container
    * @return the request execution
    */
-  def serve[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
-                                     processFunction: ResourceActor.RequestProcessor[ParsedRequest],
-                                     requestParser: ResourceActor.RequestParser[ParsedRequest],
-                                     mbResponseActor: Option[ActorRef] = None)
-                                    (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
+  final def serve[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
+                                           processFunction: ResourceActor.RequestProcessor[ParsedRequest],
+                                           requestParser: ResourceActor.RequestParser[ParsedRequest],
+                                           mbResponseActor: Option[ActorRef] = None)
+                                          (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     { ctx: RequestContext =>
       val actor = actorRefFactory.actorOf(ResourceActor.props(resource, ctx, requestParser, processFunction, mbResponseActor))
       actor ! ResourceActor.Start
