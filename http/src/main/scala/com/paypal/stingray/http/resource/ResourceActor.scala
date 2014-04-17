@@ -34,13 +34,12 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
   import context.dispatcher
   import ResourceActor._
 
-  sealed trait ResourceMessage
-  case class MessageIsSupported(a: HttpRequest) extends ResourceMessage
-  case class RequestIsParsed(p: ParsedRequest) extends ResourceMessage
-  case class ContentTypeIsSupported(p: ParsedRequest) extends ResourceMessage
-  case class ResponseContentTypeIsAcceptable(p: ParsedRequest) extends ResourceMessage
-  case class RequestIsAuthorized(p: ParsedRequest) extends ResourceMessage
-  case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String]) extends ResourceMessage
+  case class MessageIsSupported(a: HttpRequest)
+  case class RequestIsParsed(p: ParsedRequest)
+  case class ContentTypeIsSupported(p: ParsedRequest)
+  case class ResponseContentTypeIsAcceptable(p: ParsedRequest)
+  case class RequestIsAuthorized(p: ParsedRequest)
+  case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
 
   private val request = reqContext.request
 
