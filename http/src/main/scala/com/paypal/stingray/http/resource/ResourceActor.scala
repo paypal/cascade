@@ -100,7 +100,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       val headers = addLanguageHeader(resource.responseLanguage, responseWithLocation.headers)
       // Just force the request to the right content type
 
-      val finalResponse = responseWithLocation.withHeadersAndEntity(headers, responseWithLocation.entity.flatMap { entity: NonEmpty =>
+      val finalResponse: HttpResponse = responseWithLocation.withHeadersAndEntity(headers, responseWithLocation.entity.flatMap { entity: NonEmpty =>
         HttpEntity(resource.responseContentType, entity.data)
       })
 
