@@ -11,10 +11,13 @@ stingray-common consists of several sub-projects. The current projects are:
 * stingray-akka
 * stingray-json
 
-To include any/all of the following in your project,
-add the dependency in your `build.sbt` or `Build.scala` in the following format:
+To use a project, add the dependency in `build.sbt` or `Build.scala` with the following format:
 
     "com.paypal.stingray" %% "project-name" % "root-common-version"
+
+For example,
+
+    "com.paypal.stingray" %% "stingray-akka" % "0.4.0"
 
 
 The following is an overview of what is included in each sub-project:
@@ -27,6 +30,7 @@ Contains basic patterns, objects, and utilities for any project:
 - `LoggingSugar` provides easy access to SLF4J.
 - `trys` package object contains implicit classes/methods to convert Try objects to Either and Future objects.
 - `option` package object contains implicit classes/methods to wrap any object in an Option.
+- `casts` package object contains implicit classes/methods to cast objects to the class type provided.
 
 Useful test objects include:
 
@@ -40,8 +44,7 @@ Contains base objects and traits for creating Spray HTTP resources:
 - `AbstractResource` is a starting point for HTTP resources.
 - `ResourceDriver` provides an implementation of a basic HTTP request handling pipeline.
 - `ResourceService` is a routing base for HTTP services.
-- `resource` package object contains implicit classes for converting objects into Futures and Trys that can return a
-  `HaltException`.
+- `resource` package object contains implicit classes for converting objects into Futures and Trys that return an exception on error.
 - `SprayActorComponent` provides the root actor implementation used by Spray.
 - `SprayConfigurationComponent` defines basic config for a Spray service.
 - `url` package object contains methods to break a query parameter list into a list or map.
@@ -51,7 +54,7 @@ Contains base objects and traits for creating Spray HTTP resources:
 http also provides two endpoints for projects that use it, implemented in the `ResourceServiceComponent`:
 
 - `/status` returns current build information for the project. This includes the service name, dependencies, and Git branch and commit information.
-  Must include the `x-service-status` header in request. For example, running user-platform-serv locally:
+  Must include the `x-service-status` header in request. For example, after running your project locally:
 
         curl -H "x-service-status:true" "http://localhost:9090/status
 
@@ -59,15 +62,18 @@ http also provides two endpoints for projects that use it, implemented in the `R
 
         {
           "status":"ok",
-          "service-name":"userplatformserv",
+          "service-name":"your-service",
           "dependencies":["all dependencies"],
-          "git-info":{"branch":"develop","branch-is-clean":"true",
-          "commit-sha":"ae86509970ed3d19bf578b6f6b66e00ca696adf0",
-          "commit-date":"Wed Apr 16 12:01:28 PDT 2014"}
+          "git-info": {
+            "branch":"develop",
+            "branch-is-clean":"true",
+            "commit-sha":"some-sha",
+            "commit-date":"Wed Apr 16 12:01:28 PDT 2014"
+          }
         }
 
 - `/stats` returns internal Spray monitoring information for the build.
-  Must include the `x-service-stats` reader in request, For example, running user-platform-serv locally:
+  Must include the `x-service-stats` header in request, For example, after running your project locally:
 
         curl -H "x-service-stats:true" "http://localhost:9090/stats
 
@@ -88,6 +94,8 @@ Useful test objects include:
 
 - `DummyResource` for testing request logic.
 - `SprayMatchers` for confirming request/response patterns.
+- `SprayRoutingClient` for use in integration tests to test the full service stack, including Spray routes.
+  Provides the `makeRequest` methodfor interacting with a Spray service as if via HTTP, using the declared routes.
 
 ## akka
 
