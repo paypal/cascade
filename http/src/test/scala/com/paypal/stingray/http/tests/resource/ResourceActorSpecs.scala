@@ -2,10 +2,10 @@ package com.paypal.stingray.http.tests.resource
 
 import org.specs2.SpecificationLike
 import akka.testkit.{TestActorRef, TestKit}
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import com.paypal.stingray.http.resource.ResourceActor
 import spray.http.{StatusCodes, HttpResponse, HttpRequest}
-import scala.util.{Failure, Success}
+import scala.util.{Try, Failure, Success}
 import scala.concurrent.{Promise, Future}
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.http.tests.actor.RefAndProbe
@@ -23,6 +23,8 @@ class ResourceActorSpecs
     After the ResourceActor fails, it writes the appropriate failure HttpResponse to the return actor and stops                        ${Fails().writesToReturnActor}
     After the ResourceActor succeeds, it writes the appropriate HttpResponse to the DummyRequestContext and stops                      ${Succeeds().writesToRequestContext}
     After the ResourceActor fails, it writes the appropriate HttpResponse to the DummyRequestContext and stops                         ${Fails().writesToRequestContext}
+
+    The ResourceActor should be start-able from the reference.conf file                                                                ${Start().succeeds}
 
   """
 
@@ -52,6 +54,18 @@ class ResourceActorSpecs
 
     override def before() {
       resourceActorRefAndProbe.ref ! ResourceActor.Start
+    }
+  }
+
+  case class Start() extends Context {
+
+    def succeeds = {
+      val props = ResourceActor.props(resource, dummyReqCtx, reqParser, reqProcessor, None)
+      val started = Try(system.actorOf(props))
+      started.map { a =>
+          system.stop(a)
+      }
+      started must beASuccessfulTry
     }
   }
 

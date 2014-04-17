@@ -246,6 +246,7 @@ object ResourceActor {
    */
   object Start
 
+  val dispatcherName = "resource-actor-dispatcher"
   /**
    * create the [[Props]] for a new [[ResourceActor]]
    * @param resource the resource to pass to the [[ResourceActor]]
@@ -262,7 +263,7 @@ object ResourceActor {
                                      reqParser: ResourceActor.RequestParser[ParsedRequest],
                                      reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
                                      mbResponseActor: Option[ActorRef]): Props = {
-    Props.apply(new ResourceActor(resource, reqContext, reqParser, reqProcessor, mbResponseActor))
+    Props.apply(new ResourceActor(resource, reqContext, reqParser, reqProcessor, mbResponseActor)).withDispatcher(dispatcherName)
   }
 
 }
