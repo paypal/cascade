@@ -8,7 +8,22 @@ import com.paypal.stingray.akka.actor.ServiceActor
 
 /**
  * an actor that's designed to listen for responses that [[com.paypal.stingray.http.resource.ResourceActor]] completes.
- * when it receives a response, it will fulfill the promise that it's passed
+ * when it receives a response, it will fulfill the promise that it takes in.
+ *
+ * example usage:
+ *
+ * {{{
+ *   //create the promise to be fulfilled and the appropriate handlers
+ *   val prom = Promise[HttpResponse]()
+ *   val respHandler = system.actorOf(new ResponseHandlerActor(prom)) //the actor that receives messages from ResourceActor
+ *   val reqHandler = system.actorOf(new ResourceActor(resource, ctx, parser, processor, Some(respHandler))) //the actor that runs the AbstractResource
+ *
+ *   //start processing the request
+ *   reqHandler ! ResourceHandler.Start
+ *
+ *   //wait for the response and verify it the right response code
+ *   Await.result(prom.future, Duration.Inf).status must beEqualTo(StatusCodes.OK)
+ * }}}
  * @param respPromise the promise that it fulfills when it receives a message. fulfills it with success when it receives an [[HttpResponse]]
  *                    and failure when it receives a [[Throwable]] or a [[Status.Failure]]
  */
