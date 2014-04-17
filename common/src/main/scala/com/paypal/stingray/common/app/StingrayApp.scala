@@ -7,7 +7,6 @@ import org.slf4j.MDC
  * Starting point for runnable applications and services. Sets up logging and MDC values.
  * Otherwise functions like [[scala.App]].
  */
-
 trait StingrayApp extends App {
 
   /** The name of this service */
