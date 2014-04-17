@@ -236,7 +236,9 @@ object ResourceActor {
   type RequestParser[T] = HttpRequest => Try[T]
 
   /**
-   * the function to process the request and output a result future
+   * the function to process the request and output a result future. the return of this function is a tuple.
+   * the first element is the [[HttpResponse]] to return to the client.
+   * the second element is the (optional) value of the location header to return to the client.
    * @tparam T the type to process
    */
   type RequestProcessor[T] = T => Future[(HttpResponse, Option[String])]
