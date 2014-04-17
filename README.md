@@ -42,9 +42,9 @@ Useful test objects include:
 Contains base objects and traits for creating Spray HTTP resources:
 
 - `AbstractResource` is a starting point for HTTP resources.
-- `ResourceDriver` provides an implementation of a basic HTTP request handling pipeline.
+- `ResourceActor` provides an implementation of a basic HTTP request handling pipeline.
+- `ResourceDriver` spawns a ResourceActor, which should happen per request.
 - `ResourceService` is a routing base for HTTP services.
-- `ResourceActor` provides an actor to manage the execution of an AbstractResource. One of these should be created per request.
 - `resource` package object contains implicit classes for converting objects into Futures and Trys that return an exception on error.
 - `SprayActorComponent` provides the root actor implementation used by Spray.
 - `SprayConfigurationComponent` defines basic config for a Spray service.
