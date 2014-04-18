@@ -1,4 +1,3 @@
-import com.paypal.stingray.sbt.BuildUtilities
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
@@ -73,7 +72,7 @@ object BuildSettings {
     conflictManager := ConflictManager.strict,
     dependencyOverrides <+= scalaVersion { vsn => "org.scala-lang" % "scala-library" % vsn },
     tagName <<= (version in ThisBuild).map(a => a),
-    releaseProcess := defaultStingrayRelease
+    releaseProcess := defaultReleaseProcess
   )
 
 }
@@ -159,7 +158,7 @@ object CommonBuild extends Build {
   import Dependencies._
 
   lazy val parent = Project("parent", file("."),
-    settings = standardSettings ++ BuildUtilities.docSettings ++ Seq(
+    settings = standardSettings ++ docSettings ++ Seq(
       unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(examples),
       name := "parent",
       publish := {}
