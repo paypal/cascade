@@ -99,7 +99,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
     //the request is authorized, now process the request
     case RequestIsAuthorized(p) =>
       //account for extremely long processing times
-      context.setReceiveTimeout(5.seconds)
+      context.setReceiveTimeout(processRecvTimeout)
       reqProcessor.apply(p).map { case (response, mbLocation) =>
         RequestIsProcessed(response, mbLocation)
       }.recover(handleErrorPF).pipeTo(self)
