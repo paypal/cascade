@@ -48,6 +48,11 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
   case class RequestIsAuthorized(p: ParsedRequest)
   case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
 
+  private var pendingStep: Class[_] = ResourceActor.Start.getClass
+  private def setNextStep(cls: Class[_]) {
+    pendingStep = cls
+  }
+
   private val request = reqContext.request
 
   log.debug(s"started $self with request $request and resource ${resource.getClass.getSimpleName}")
@@ -61,30 +66,35 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       self ! ensureMethodSupported(resource, request.method).map { _ =>
         MessageIsSupported(request)
       }.orFailure
+      setNextStep(MessageIsSupported.getClass)
 
     //the HTTP method is supported, now parse the request
     case MessageIsSupported(a) =>
       self ! reqParser(a).map { p =>
         RequestIsParsed(p)
       }.orFailure
+      setNextStep(RequestIsParsed.getClass)
 
     //the request has been parsed, now check if the content type is supported
     case RequestIsParsed(p) =>
       self ! ensureContentTypeSupported(resource, request).map { _ =>
         ContentTypeIsSupported(p)
       }.orFailure
+      setNextStep(ContentTypeIsSupported.getClass)
 
     //the content type is supported, now check if the response content type is acceptable
     case ContentTypeIsSupported(p) =>
       self ! ensureResponseContentTypeAcceptable(resource, request).map { _ =>
         ResponseContentTypeIsAcceptable(p)
       }.orFailure
+      setNextStep(ResponseContentTypeIsAcceptable.getClass)
 
     //the response content type is acceptable, now check if the request is authorized
     case ResponseContentTypeIsAcceptable(p) =>
       ensureAuthorized(resource, request).map { _ =>
         RequestIsAuthorized(p)
       }.recover(handleErrorPF).pipeTo(self)
+      setNextStep(RequestIsAuthorized.getClass)
 
     //the request is authorized, now process the request
     case RequestIsAuthorized(p) =>
@@ -93,6 +103,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       reqProcessor.apply(p).map { case (response, mbLocation) =>
         RequestIsProcessed(response, mbLocation)
       }.recover(handleErrorPF).pipeTo(self)
+      setNextStep(RequestIsProcessed.getClass)
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
@@ -117,6 +128,8 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
       self ! finalResponse
 
+      setNextStep(HttpResponse.getClass)
+
 
     //we got a response to return (either through successful processing or an error handling), so return it to the spray context and return actor and then stop
     case r: HttpResponse =>
@@ -136,10 +149,11 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
           context.setReceiveTimeout(Duration.Undefined)
           throw t
       }
+      setNextStep(HttpResponse.getClass)
 
     //the actor didn't receive a method before startTimeout
     case ReceiveTimeout =>
-      log.error(s"$self didn't receive a next message within $recvTimeout of the last one")
+      log.error(s"$self didn't receive a next message within $recvTimeout of the last one. next expected message was ${pendingStep.getName}")
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
   }
 
