@@ -23,9 +23,10 @@ import scala.concurrent.duration._
  * @param reqParser the function to parse the request into a valid scala type
  * @param reqProcessor the function to process the actual request
  * @param mbReturnActor the actor to send the successful [[HttpResponse]] or the failed [[Throwable]]. optional - pass None to not do this
- * @param recvTimeout the longest time this actor can go without receiving a message. this restricts processing to ensure that each step
- *                    executes quickly or this actor otherwise
- *                    including the reqParser and reqProcessor functions
+ * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
+ *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[HttpResponse]] indicating the error to the
+ *                    context and return actor.
+ * @param processRecvTimeout the longest time this actor will wait for `reqProcessor` to complete
  * @tparam AuthInfo the authorization info type that [[AbstractResource]] uses
  * @tparam ParsedRequest the type that the request gets parsed into
  */
@@ -34,7 +35,8 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
                                              reqParser: ResourceActor.RequestParser[ParsedRequest],
                                              reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
                                              mbReturnActor: Option[ActorRef],
-                                             recvTimeout: Duration = ResourceActor.defaultRecvTimeout) extends ServiceActor {
+                                             recvTimeout: Duration = ResourceActor.defaultRecvTimeout,
+                                             processRecvTimeout: Duration = ResourceActor.processRecvTimeout) extends ServiceActor {
 
   import context.dispatcher
   import ResourceActor._
@@ -281,7 +283,15 @@ object ResourceActor {
    */
   object Start
 
+  /**
+   * the default receive timeout for most steps in ResourceActor
+   */
   val defaultRecvTimeout = 250.milliseconds
+
+  /**
+   * the receive timeout for the process function step in ResourceActor
+   */
+  val processRecvTimeout = 2.seconds
 
   val dispatcherName = "resource-actor-dispatcher"
 
