@@ -14,6 +14,7 @@ import spray.routing.RequestContext
 import com.paypal.stingray.akka.actor._
 import com.paypal.stingray.common.constants.ValueConstants._
 import com.paypal.stingray.http.util.HttpUtil
+import scala.concurrent.duration._
 
 /**
  * the actor to manage the execution of an [[AbstractResource]]. create one of these per request
@@ -22,6 +23,8 @@ import com.paypal.stingray.http.util.HttpUtil
  * @param reqParser the function to parse the request into a valid scala type
  * @param reqProcessor the function to process the actual request
  * @param mbReturnActor the actor to send the successful [[HttpResponse]] or the failed [[Throwable]]. optional - pass None to not do this
+ * @param startTimeout the time between when this actor is started and has to receive the [[ResourceActor.Start]]. if it gets
+ *                     the message late, it will fail
  * @tparam AuthInfo the authorization info type that [[AbstractResource]] uses
  * @tparam ParsedRequest the type that the request gets parsed into
  */
@@ -29,7 +32,8 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
                                              reqContext: RequestContext,
                                              reqParser: ResourceActor.RequestParser[ParsedRequest],
                                              reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
-                                             mbReturnActor: Option[ActorRef]) extends ServiceActor {
+                                             mbReturnActor: Option[ActorRef],
+                                             startTimeout: Duration = 50.milliseconds) extends ServiceActor {
 
   import context.dispatcher
   import ResourceActor._
@@ -45,6 +49,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
   log.debug(s"started $self with request $request and resource ${resource.getClass.getSimpleName}")
 
+  context.setReceiveTimeout(startTimeout)
   override def receive: Actor.Receive = {
 
     //begin processing the request
@@ -121,6 +126,11 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
         case e: Exception => self ! handleError(e)
         case t: Throwable => throw t
       }
+
+    //the actor didn't receive the start method before startTimeout
+    case ReceiveTimeout =>
+      log.error(s"$self didn't receive Start method within $startTimeout of being spawned")
+      self ! halt(StatusCodes.ServiceUnavailable)
   }
 
   /**
