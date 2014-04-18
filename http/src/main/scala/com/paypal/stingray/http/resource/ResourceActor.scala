@@ -133,7 +133,6 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
     //we got a response to return (either through successful processing or an error handling), so return it to the spray context and return actor and then stop
     case r: HttpResponse =>
-      context.setReceiveTimeout(Duration.Undefined)
       reqContext.complete(r)
       mbReturnActor.foreach { returnActor =>
         returnActor ! r
@@ -146,7 +145,6 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       t match {
         case e: Exception => self ! handleError(e)
         case t: Throwable =>
-          context.setReceiveTimeout(Duration.Undefined)
           throw t
       }
       setNextStep(HttpResponse.getClass)
