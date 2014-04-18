@@ -58,7 +58,6 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
     //begin processing the request
     case Start =>
-      context.setReceiveTimeout(Duration.Undefined)
       self ! ensureMethodSupported(resource, request.method).map { _ =>
         MessageIsSupported(request)
       }.orFailure
