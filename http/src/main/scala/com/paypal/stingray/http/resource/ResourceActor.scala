@@ -23,8 +23,9 @@ import scala.concurrent.duration._
  * @param reqParser the function to parse the request into a valid scala type
  * @param reqProcessor the function to process the actual request
  * @param mbReturnActor the actor to send the successful [[HttpResponse]] or the failed [[Throwable]]. optional - pass None to not do this
- * @param startTimeout the time between when this actor is started and has to receive the [[ResourceActor.Start]]. if it gets
- *                     the message late, it will fail
+ * @param recvTimeout the longest time this actor can go without receiving a message. this restricts processing to ensure that each step
+ *                    executes quickly or this actor otherwise
+ *                    including the reqParser and reqProcessor functions
  * @tparam AuthInfo the authorization info type that [[AbstractResource]] uses
  * @tparam ParsedRequest the type that the request gets parsed into
  */
@@ -33,7 +34,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
                                              reqParser: ResourceActor.RequestParser[ParsedRequest],
                                              reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
                                              mbReturnActor: Option[ActorRef],
-                                             startTimeout: Duration = 50.milliseconds) extends ServiceActor {
+                                             recvTimeout: Duration = ResourceActor.defaultRecvTimeout) extends ServiceActor {
 
   import context.dispatcher
   import ResourceActor._
@@ -49,11 +50,13 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
   log.debug(s"started $self with request $request and resource ${resource.getClass.getSimpleName}")
 
-  context.setReceiveTimeout(startTimeout)
+  context.setReceiveTimeout(recvTimeout)
+
   override def receive: Actor.Receive = {
 
     //begin processing the request
     case Start =>
+      context.setReceiveTimeout(Duration.Undefined)
       self ! ensureMethodSupported(resource, request.method).map { _ =>
         MessageIsSupported(request)
       }.orFailure
@@ -84,12 +87,15 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
     //the request is authorized, now process the request
     case RequestIsAuthorized(p) =>
+      //account for extremely long processing times
+      context.setReceiveTimeout(5.seconds)
       reqProcessor.apply(p).map { case (response, mbLocation) =>
         RequestIsProcessed(response, mbLocation)
       }.recover(handleErrorPF).pipeTo(self)
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
+      context.setReceiveTimeout(recvTimeout)
       val responseWithLocation = addHeaderOnCode(resp, Created) {
         // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
         val newScheme = request.headers.find(_.name == "X-Forwarded-Proto").map(_.value).getOrElse(request.uri.scheme)
@@ -113,6 +119,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
     //we got a response to return (either through successful processing or an error handling), so return it to the spray context and return actor and then stop
     case r: HttpResponse =>
+      context.setReceiveTimeout(Duration.Undefined)
       reqContext.complete(r)
       mbReturnActor.foreach { returnActor =>
         returnActor ! r
@@ -124,13 +131,15 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       log.error(t, s"Unexpected error: request: $request error: ${t.getMessage}")
       t match {
         case e: Exception => self ! handleError(e)
-        case t: Throwable => throw t
+        case t: Throwable =>
+          context.setReceiveTimeout(Duration.Undefined)
+          throw t
       }
 
-    //the actor didn't receive the start method before startTimeout
+    //the actor didn't receive a method before startTimeout
     case ReceiveTimeout =>
-      log.error(s"$self didn't receive Start method within $startTimeout of being spawned")
-      self ! halt(StatusCodes.ServiceUnavailable)
+      log.error(s"$self didn't receive a next message within $recvTimeout of the last one")
+      self ! HttpResponse(StatusCodes.ServiceUnavailable)
   }
 
   /**
@@ -272,6 +281,8 @@ object ResourceActor {
    */
   object Start
 
+  val defaultRecvTimeout = 250.milliseconds
+
   val dispatcherName = "resource-actor-dispatcher"
 
   /**
@@ -289,8 +300,9 @@ object ResourceActor {
                                      reqContext: RequestContext,
                                      reqParser: ResourceActor.RequestParser[ParsedRequest],
                                      reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
-                                     mbResponseActor: Option[ActorRef]): Props = {
-    Props.apply(new ResourceActor(resource, reqContext, reqParser, reqProcessor, mbResponseActor)).withDispatcher(dispatcherName)
+                                     mbResponseActor: Option[ActorRef],
+                                     recvTimeout: Duration = defaultRecvTimeout): Props = {
+    Props.apply(new ResourceActor(resource, reqContext, reqParser, reqProcessor, mbResponseActor, recvTimeout)).withDispatcher(dispatcherName)
   }
 
 }

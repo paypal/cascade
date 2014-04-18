@@ -1,7 +1,7 @@
 package com.paypal.stingray.http.tests.resource
 
 import org.specs2.SpecificationLike
-import akka.testkit.{TestActorRef, TestKit}
+import akka.testkit.{TestProbe, TestActorRef, TestKit}
 import akka.actor.{ActorRef, ActorSystem}
 import com.paypal.stingray.http.resource.ResourceActor
 import spray.http.{StatusCodes, HttpResponse, HttpRequest}
@@ -11,6 +11,8 @@ import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.http.tests.actor.RefAndProbe
 import com.paypal.stingray.http.tests.matchers.RefAndProbeMatchers
 import com.paypal.stingray.akka.tests.actor.ActorSpecification
+import scala.concurrent.duration.Duration
+import com.paypal.stingray.common.tests.future._
 
 class ResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
@@ -25,6 +27,9 @@ class ResourceActorSpecs
     After the ResourceActor fails, it writes the appropriate HttpResponse to the DummyRequestContext and stops                         ${Fails().writesToRequestContext}
 
     The ResourceActor should be start-able from the reference.conf file                                                                ${Start().succeeds}
+
+    The ResourceActor should time out properly                                                                                         ${Start().timesOut}
+
 
   """
 
@@ -66,6 +71,15 @@ class ResourceActorSpecs
           system.stop(a)
       }
       started must beASuccessfulTry
+    }
+
+    def timesOut = {
+      val refAndProbe = RefAndProbe(TestActorRef(new ResourceActor(resource, dummyReqCtx, reqParser, reqProcessor, None, Duration.Zero)))
+      val stoppedRes = refAndProbe must beStopped
+      val failedRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
+        case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.ServiceUnavailable)
+      }
+      stoppedRes and failedRes
     }
   }
 
