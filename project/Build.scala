@@ -14,7 +14,7 @@ object BuildSettings {
   import Dependencies._
 
   val org = "com.paypal.stingray"
-  val scalaVsn = "2.10.4"
+  val scalaVsn = "2.11.0"
   val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
 
   val defaultArgs = Seq(
@@ -36,6 +36,7 @@ object BuildSettings {
     scalaVersion := scalaVsn,
     exportJars := true,
     fork := true,
+    incOptions := incOptions.value.withNameHashing(true),
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     scalacOptions in (Compile, doc) ++= Seq(
