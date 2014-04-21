@@ -25,19 +25,6 @@ abstract class AbstractResource[AuthInfo] {
 
   protected lazy val logger = LoggerFactory.getLogger(this.getClass)
 
-  /** Default context used by futures created in this resource */
-  lazy val executionContext: ExecutionContext = new ExecutionContext {
-    override def reportFailure(t: Throwable) {
-      logger.warn(t.getMessage, t)
-    }
-    override def execute(runnable: Runnable) {
-      runnable.run()
-    }
-  }
-
-  /** Provide your own, or the default will be used */
-  implicit lazy val context: ExecutionContext = executionContext
-
   /**
    * Whether this service is available, by default true
    * @return true if available, false otherwise
