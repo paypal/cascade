@@ -9,6 +9,7 @@ import com.paypal.stingray.http.actor._
 import com.paypal.stingray.http.server._
 import com.paypal.stingray.http.resource._
 import spray.routing._
+import com.paypal.infra.protectedpkg.ProtectedProvider
 
 /**
  * Tests for [[com.paypal.stingray.http.actor.SprayActorComponent]]
@@ -27,7 +28,13 @@ class SprayActorComponentSpecs
     with ActorSystemComponent
     with ResourceServiceComponent
     with ServiceNameComponent
-    with SprayConfigurationComponent {
+    with SprayConfigurationComponent
+    with ProtectedPackagesComponent
+    with SslConfigurationComponent {
+
+    override val cfgFilename = "generic_protected.cfg"
+    override val protectedPath = "protected"
+    override val protectedProvider = mock[ProtectedProvider]
     override val backlog: Int = 0
     override val port: Int = 0
     override lazy val serviceName = "http"

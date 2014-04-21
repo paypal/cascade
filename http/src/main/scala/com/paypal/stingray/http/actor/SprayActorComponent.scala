@@ -7,7 +7,7 @@ import com.paypal.stingray.common.service.ServiceNameComponent
 import spray.util.LoggingContext
 import spray.can.Http
 import akka.io.{IO => AkkaIO}
-import com.paypal.stingray.http.server.SprayConfigurationComponent
+import com.paypal.stingray.http.server.{ProtectedPackagesComponent, SslConfigurationComponent, SprayConfigurationComponent}
 import com.paypal.stingray.akka.actor.ActorSystemComponent
 
 /**
@@ -17,7 +17,9 @@ trait SprayActorComponent {
   this: ActorSystemComponent
     with ResourceServiceComponent
     with ServiceNameComponent
-    with SprayConfigurationComponent =>
+    with SprayConfigurationComponent
+    with ProtectedPackagesComponent
+    with SslConfigurationComponent =>
 
   /**
    * Service Provided
