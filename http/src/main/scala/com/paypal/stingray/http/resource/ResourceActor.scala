@@ -323,7 +323,9 @@ object ResourceActor {
                                      reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
                                      mbResponseActor: Option[ActorRef],
                                      recvTimeout: Duration = defaultRecvTimeout): Props = {
-    Props.apply(new ResourceActor(resource, reqContext, reqParser, reqProcessor, mbResponseActor, recvTimeout)).withDispatcher(dispatcherName)
+    Props.apply(new ResourceActor(resource, reqContext, reqParser, reqProcessor, mbResponseActor, recvTimeout))
+      .withDispatcher(dispatcherName)
+      .withMailbox("single-consumer-mailbox")
   }
 
 }
