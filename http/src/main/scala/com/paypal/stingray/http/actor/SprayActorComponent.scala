@@ -9,6 +9,7 @@ import spray.can.Http
 import akka.io.{IO => AkkaIO}
 import com.paypal.stingray.http.server.SprayConfigurationComponent
 import com.paypal.stingray.akka.actor.ActorSystemComponent
+import spray.io.ServerSSLEngineProvider
 
 /**
  * Provides the root actor implementation used by spray
@@ -29,7 +30,7 @@ trait SprayActorComponent {
    * Convenience method to start the spray actor
    * This should be called at startup by the application
    */
-  def start() {
+  def start(implicit sslEngineProvider: ServerSSLEngineProvider) {
     AkkaIO(Http) ! Http.Bind(sprayActor, interface = "0.0.0.0", port = port, backlog = backlog)
   }
 
