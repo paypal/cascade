@@ -108,8 +108,6 @@ object Dependencies {
   lazy val sprayTestKit        = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.10")
   lazy val akkaTestKit         = "com.typesafe.akka"            %% "akka-testkit"               % akkaVersion       % "test"
 
-  lazy val protectedPkgs       = "com.paypal.appsecurity"       % "infra-protected-pkg"         % "1.3.10"
-
   lazy val commonDependencies = Seq(
     slf4j,
     slf4jJul,
@@ -129,8 +127,7 @@ object Dependencies {
 
   lazy val httpDependencies = Seq(
     sprayCan,
-    sprayRouting,
-    protectedPkgs
+    sprayRouting
   )
 
   lazy val commonTestDependencies = Seq(
