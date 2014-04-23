@@ -15,6 +15,7 @@ import com.paypal.stingray.akka.actor._
 import com.paypal.stingray.common.constants.ValueConstants._
 import com.paypal.stingray.http.util.HttpUtil
 import scala.concurrent.duration._
+import scala.reflect.ClassTag
 
 /**
  * the actor to manage the execution of an [[AbstractResource]]. create one of these per request
@@ -49,8 +50,8 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
   case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
 
   private var pendingStep: Class[_] = ResourceActor.Start.getClass
-  private def setNextStep(cls: Class[_]) {
-    pendingStep = cls
+  private def setNextStep[T](implicit classTag: ClassTag[T]): Unit = {
+    pendingStep = classTag.runtimeClass
   }
 
   private val request = reqContext.request
@@ -66,35 +67,35 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       self ! ensureMethodSupported(resource, request.method).map { _ =>
         MessageIsSupported(request)
       }.orFailure
-      setNextStep(MessageIsSupported.getClass)
+      setNextStep[MessageIsSupported]
 
     //the HTTP method is supported, now parse the request
     case MessageIsSupported(a) =>
       self ! reqParser(a).map { p =>
         RequestIsParsed(p)
       }.orFailure
-      setNextStep(RequestIsParsed.getClass)
+      setNextStep[RequestIsParsed]
 
     //the request has been parsed, now check if the content type is supported
     case RequestIsParsed(p) =>
       self ! ensureContentTypeSupported(resource, request).map { _ =>
         ContentTypeIsSupported(p)
       }.orFailure
-      setNextStep(ContentTypeIsSupported.getClass)
+      setNextStep[ContentTypeIsSupported]
 
     //the content type is supported, now check if the response content type is acceptable
     case ContentTypeIsSupported(p) =>
       self ! ensureResponseContentTypeAcceptable(resource, request).map { _ =>
         ResponseContentTypeIsAcceptable(p)
       }.orFailure
-      setNextStep(ResponseContentTypeIsAcceptable.getClass)
+      setNextStep[ResponseContentTypeIsAcceptable]
 
     //the response content type is acceptable, now check if the request is authorized
     case ResponseContentTypeIsAcceptable(p) =>
       ensureAuthorized(resource, request).map { _ =>
         RequestIsAuthorized(p)
       }.recover(handleErrorPF).pipeTo(self)
-      setNextStep(RequestIsAuthorized.getClass)
+      setNextStep[RequestIsAuthorized]
 
     //the request is authorized, now process the request
     case RequestIsAuthorized(p) =>
@@ -103,7 +104,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       reqProcessor.apply(p).map { case (response, mbLocation) =>
         RequestIsProcessed(response, mbLocation)
       }.recover(handleErrorPF).pipeTo(self)
-      setNextStep(RequestIsProcessed.getClass)
+      setNextStep[RequestIsProcessed]
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
@@ -128,7 +129,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
       self ! finalResponse
 
-      setNextStep(HttpResponse.getClass)
+      setNextStep[HttpResponse]
 
 
     //we got a response to return (either through successful processing or an error handling), so return it to the spray context and return actor and then stop
@@ -147,7 +148,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
         case t: Throwable =>
           throw t
       }
-      setNextStep(HttpResponse.getClass)
+      setNextStep[HttpResponse]
 
     //the actor didn't receive a method before startTimeout
     case ReceiveTimeout =>
