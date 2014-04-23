@@ -60,52 +60,96 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
   context.setReceiveTimeout(recvTimeout)
 
   override def receive: Actor.Receive = {
+    start orElse
+      messageIsSupported orElse
+      requestIsParsed orElse
+      contentTypeIsSupported orElse
+      responseContentTypeIsAcceptable orElse
+      requestIsAuthorized orElse
+      requestIsProcessed orElse
+      httpResponse orElse
+      statusFailure orElse
+      receiveTimeout
+  }
 
-    //begin processing the request
+  //actor message handlers. each of these methods is an Actor.Receive so that the receive method stays simple.
+  //scalastyle complains about the cyclomatic complexity and number of lines in the receive method if you consolidate each
+  //PartialFunction into one.
+
+  /**
+   * begin processing the request
+   */
+  private def start: Actor.Receive = {
     case Start =>
       self ! ensureMethodSupported(resource, request.method).map { _ =>
         MessageIsSupported(request)
       }.orFailure
       setNextStep(MessageIsSupported.getClass)
+  }
 
-    //the HTTP method is supported, now parse the request
+  /**
+   * the HTTP method is supported, now parse the request
+   */
+  private def messageIsSupported: Actor.Receive = {
     case MessageIsSupported(a) =>
       self ! reqParser(a).map { p =>
         RequestIsParsed(p)
       }.orFailure
       setNextStep(RequestIsParsed.getClass)
+  }
 
-    //the request has been parsed, now check if the content type is supported
+  /**
+   * the request has been parsed, now check if the content type is supported
+   * @return
+   */
+  private def requestIsParsed: Actor.Receive = {
     case RequestIsParsed(p) =>
       self ! ensureContentTypeSupported(resource, request).map { _ =>
         ContentTypeIsSupported(p)
       }.orFailure
       setNextStep(ContentTypeIsSupported.getClass)
+  }
 
-    //the content type is supported, now check if the response content type is acceptable
+  /**
+   * the content type is supported, now check if the response content type is acceptable
+   */
+  private def contentTypeIsSupported: Actor.Receive = {
     case ContentTypeIsSupported(p) =>
       self ! ensureResponseContentTypeAcceptable(resource, request).map { _ =>
         ResponseContentTypeIsAcceptable(p)
       }.orFailure
       setNextStep(ResponseContentTypeIsAcceptable.getClass)
+  }
 
-    //the response content type is acceptable, now check if the request is authorized
+  /**
+   * the response content type is acceptable, now check if the request is authorized
+   */
+  private def responseContentTypeIsAcceptable: Actor.Receive = {
     case ResponseContentTypeIsAcceptable(p) =>
       ensureAuthorized(resource, request).map { _ =>
         RequestIsAuthorized(p)
       }.recover(handleErrorPF).pipeTo(self)
       setNextStep(RequestIsAuthorized.getClass)
+  }
 
-    //the request is authorized, now process the request
+  /**
+   * the request is authorized, now process the request
+   */
+  private def requestIsAuthorized: Actor.Receive = {
     case RequestIsAuthorized(p) =>
       //account for extremely long processing times
       context.setReceiveTimeout(processRecvTimeout)
-      reqProcessor.apply(p).map { case (response, mbLocation) =>
-        RequestIsProcessed(response, mbLocation)
+      reqProcessor.apply(p).map {
+        case (response, mbLocation) =>
+          RequestIsProcessed(response, mbLocation)
       }.recover(handleErrorPF).pipeTo(self)
       setNextStep(RequestIsProcessed.getClass)
+  }
 
-    //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
+  /**
+   * the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
+   */
+  private def requestIsProcessed: Actor.Receive = {
     case RequestIsProcessed(resp, mbLocation) =>
       context.setReceiveTimeout(recvTimeout)
       val responseWithLocation = addHeaderOnCode(resp, Created) {
@@ -122,25 +166,33 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       val headers = addLanguageHeader(resource.responseLanguage, responseWithLocation.headers)
       // Just force the request to the right content type
 
-      val finalResponse: HttpResponse = responseWithLocation.withHeadersAndEntity(headers, responseWithLocation.entity.flatMap { entity: NonEmpty =>
-        HttpEntity(resource.responseContentType, entity.data)
+      val finalResponse: HttpResponse = responseWithLocation.withHeadersAndEntity(headers, responseWithLocation.entity.flatMap {
+        entity: NonEmpty =>
+          HttpEntity(resource.responseContentType, entity.data)
       })
 
       self ! finalResponse
 
       setNextStep(HttpResponse.getClass)
+  }
 
-
-    //we got a response to return (either through successful processing or an error handling), so return it to the spray context and return actor and then stop
+  /**
+   * we got a response to return (either through successful processing or an error handling), so return it to the spray context and return actor and then stop
+   */
+  private def httpResponse: Actor.Receive = {
     case r: HttpResponse =>
       reqContext.complete(r)
       mbReturnActor.foreach { returnActor =>
         returnActor ! r
       }
       context.stop(self)
+  }
 
-    //there was an error somewhere along the way, so translate it to an HttpResponse (using handleError), send the exception to returnActor and stop
-    case s @ Status.Failure(t) =>
+  /**
+   * there was an error somewhere along the way, so translate it to an HttpResponse (using handleError), send the exception to returnActor and stop
+   */
+  private def statusFailure: Actor.Receive = {
+    case s@Status.Failure(t) =>
       log.error(t, s"Unexpected error: request: $request error: ${t.getMessage}")
       t match {
         case e: Exception => self ! handleError(e)
@@ -148,12 +200,19 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
           throw t
       }
       setNextStep(HttpResponse.getClass)
+  }
 
-    //the actor didn't receive a method before startTimeout
+  /**
+   * the actor didn't receive a method before startTimeout
+   * @return
+   */
+  private def receiveTimeout: Actor.Receive = {
     case ReceiveTimeout =>
       log.error(s"$self didn't receive a next message within $recvTimeout of the last one. next expected message was ${pendingStep.getName}")
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
   }
+
+  //utility methods
 
   /**
    * Continues execution if this method is supported, or halts
