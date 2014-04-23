@@ -42,7 +42,7 @@ package object casts {
    */
   implicit class CastableAny(any: Any) {
 
-    private def getSource(a: Any) = {
+    private def getSource(a: Any): ClassTag[_] = {
       any match {
         case _: Boolean => classTag[Boolean]
         case _: Byte => classTag[Byte]

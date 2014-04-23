@@ -192,7 +192,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
    * there was an error somewhere along the way, so translate it to an HttpResponse (using handleError), send the exception to returnActor and stop
    */
   private def statusFailure: Actor.Receive = {
-    case s@Status.Failure(t) =>
+    case s @ Status.Failure(t) =>
       log.error(t, s"Unexpected error: request: $request error: ${t.getMessage}")
       t match {
         case e: Exception => self ! handleError(e)
