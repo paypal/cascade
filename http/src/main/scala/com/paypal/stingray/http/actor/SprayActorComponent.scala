@@ -30,7 +30,7 @@ trait SprayActorComponent {
    * Convenience method to start the spray actor
    * This should be called at startup by the application
    */
-  def start(implicit sslEngineProvider: ServerSSLEngineProvider) {
+  def start(implicit sslEngineProvider: ServerSSLEngineProvider): Unit = {
     AkkaIO(Http) ! Http.Bind(sprayActor, interface = "0.0.0.0", port = port, backlog = backlog)
   }
 

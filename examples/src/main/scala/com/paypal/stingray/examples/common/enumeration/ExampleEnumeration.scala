@@ -52,7 +52,7 @@ object MyEnum {
  * but in most cases it is sufficient to simply return the stringVal of the enum.
  */
 private[this] class MyEnumSerializer extends JsonSerializer[MyEnum] {
-  override def serialize(value: MyEnum, jgen: JsonGenerator, provider: SerializerProvider) {
+  override def serialize(value: MyEnum, jgen: JsonGenerator, provider: SerializerProvider): Unit = {
     jgen.writeString(value.stringVal)
   }
 }
@@ -91,7 +91,7 @@ object MyEnumRunner extends LoggingSugar {
   case class CS(v1: MyEnum)
 
   /** Run it! */
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     val logger = getLogger[MyEnumRunner.type]
 
     logger.debug("custom Enumeration example")
