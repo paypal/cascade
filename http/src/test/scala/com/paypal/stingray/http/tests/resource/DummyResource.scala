@@ -33,6 +33,19 @@ class DummyResource
   override protected lazy val logger = getLogger[DummyResource]
 
   /**
+   * the synchronous context this resource uses to construct futures in its methods
+   */
+  implicit val executionContext: ExecutionContext = new ExecutionContext {
+    override def reportFailure(t: Throwable) {
+      logger.warn(t.getMessage, t)
+    }
+    override def execute(runnable: Runnable) {
+      runnable.run()
+    }
+  }
+
+
+  /**
    * Authorized if a header marked `Unauthorized` is not sent.
    * @param r the parsed request
    * @return optionally, the AuthInfo for this request, or a Failure(halt)
@@ -57,15 +70,17 @@ class DummyResource
    * @param r the request
    * @return a response for the given request
    */
-  def doGet(r: HttpRequest): Future[(HttpResponse, Option[String])] = for {
-    query <- r.uri.query.continue
-    param <- query.get("foo").orHaltWith(BadRequest, "no query param")
-    _ <- ("bar" == param).orHaltWith(BadRequest, "wrong query param")
-    (foo, bar) <- ("foo", "bar").some.orHaltWith(BadRequest, "what")
-    accept <- r.header[HttpHeaders.Accept].orHaltWith(BadRequest, "no accept header")
-    _ <- ((accept.mediaRanges.size == 1) && (accept.mediaRanges(0).value == MediaTypes.`text/plain`.value))
-      .orHaltWith(BadRequest, "no accept header")
-  } yield (HttpResponse(OK, "pong"), None)
+  def doGet(r: HttpRequest): Future[(HttpResponse, Option[String])] = {
+    for {
+      query <- r.uri.query.continue
+      param <- query.get("foo").orHaltWith(BadRequest, "no query param")
+      _ <- ("bar" == param).orHaltWith(BadRequest, "wrong query param")
+      (foo, bar) <- ("foo", "bar").some.orHaltWith(BadRequest, "what")
+      accept <- r.header[HttpHeaders.Accept].orHaltWith(BadRequest, "no accept header")
+      _ <- ((accept.mediaRanges.size == 1) && (accept.mediaRanges(0).value == MediaTypes.`text/plain`.value))
+        .orHaltWith(BadRequest, "no accept header")
+    } yield (HttpResponse(OK, "pong"), None)
+  }
 
   def setContentLanguage(r: HttpRequest): Future[(HttpResponse, Option[String])] = {
     (HttpResponse(OK, "Gutentag!", List(RawHeader("Content-Language", "de"))), None).continue

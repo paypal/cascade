@@ -7,6 +7,7 @@ import spray.http._
 import spray.http.HttpEntity._
 import HttpHeaders._
 import com.paypal.stingray.http.tests.matchers.SprayMatchers
+import akka.actor.ActorSystem
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResource]] abstract class,
@@ -30,12 +31,14 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
   """
 
-  trait context extends CommonImmutableSpecificationContext with SprayMatchers {
+  trait Context extends CommonImmutableSpecificationContext with SprayMatchers {
 
     val resource = new DummyResource
+
+    implicit val actorSystem = ActorSystem("dummy-resource-specs")
   }
 
-  case class Test() extends context {
+  case class Test() extends Context {
     def ping = {
       val request = HttpRequest(uri = "/ping?foo=bar").withHeaders(List(Accept(MediaTypes.`text/plain`)))
       resource must resultInCodeAndBodyLike(request, resource.doGet, resource.parseType[HttpRequest](_, ""), StatusCodes.OK) {
