@@ -37,7 +37,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
                                              reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
                                              mbReturnActor: Option[ActorRef],
                                              recvTimeout: Duration = ResourceActor.defaultRecvTimeout,
-                                             processRecvTimeout: Duration = ResourceActor.processRecvTimeout) extends ServiceActor {
+                                             processRecvTimeout: Duration = ResourceActor.defaultProcessRecvTimeout) extends ServiceActor {
 
   import context.dispatcher
   import ResourceActor._
@@ -316,7 +316,7 @@ object ResourceActor {
   /**
    * the receive timeout for the process function step in ResourceActor
    */
-  val processRecvTimeout = 2.seconds
+  val defaultProcessRecvTimeout = 2.seconds
 
   val dispatcherName = "resource-actor-dispatcher"
 
