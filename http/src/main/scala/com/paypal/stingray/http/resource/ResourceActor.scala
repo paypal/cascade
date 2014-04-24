@@ -73,7 +73,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
     //the HTTP method is supported, now parse the request
     case MessageIsSupported(a) =>
       setNextStep[RequestIsParsed]
-      self ! reqParser(a).map { p =>
+      self ! reqParser.apply(a).map { p =>
         RequestIsParsed(p)
       }.orFailure
 
@@ -104,9 +104,9 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       setNextStep[RequestIsProcessed]
       //account for extremely long processing times
       context.setReceiveTimeout(processRecvTimeout)
-      reqProcessor.apply(p).map {
-        case (response, mbLocation) =>
-          RequestIsProcessed(response, mbLocation)
+      reqProcessor.apply(p).map { tup =>
+        val (response, mbLocation) = tup
+        RequestIsProcessed(response, mbLocation)
       }.recover(handleErrorPF).pipeTo(self)
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
@@ -157,14 +157,12 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       log.error(t, s"Unexpected error: request: $request error: ${t.getMessage}")
       t match {
         case e: Exception => self ! handleError(e)
-        case t: Throwable =>
-          throw t
+        case t: Throwable => throw t
       }
-
 
     //the actor didn't receive a method before startTimeout
     case ReceiveTimeout =>
-      log.error(s"$self didn't receive a next message within $recvTimeout of the last one. next expected message was ${pendingStep.getName}")
+      log.error(s"$self didn't receive a next message within ${recvTimeout.toMillis} milliseconds of the last one. next expected message was ${pendingStep.getName}")
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
 
 
