@@ -33,7 +33,6 @@ import scala.reflect._
  *     li.cast[String]
  * }}}
  */
-
 package object casts {
 
   /**
@@ -55,6 +54,7 @@ package object casts {
         case _ => ClassTag(any.getClass)
       }
     }
+
     /**
      * Cast the wrapped object as type `T`, optionally returning the newly cast object if the cast was successful
      * @param target the ClassTag of type `T`
@@ -81,6 +81,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): Option[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
   /**
@@ -110,6 +111,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): Option[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
   /**
@@ -142,6 +144,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): Traversable[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
   /**
@@ -174,6 +177,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): List[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
   /**
@@ -206,6 +210,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): Array[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
 }

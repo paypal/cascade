@@ -95,8 +95,8 @@ object Dependencies {
 
   lazy val slf4j               = "org.slf4j"                    % "slf4j-api"                   % slf4jVersion
   lazy val slf4jJul            = "org.slf4j"                    % "jul-to-slf4j"                % slf4jVersion
-  lazy val slf4jJcl            = "org.slf4j"                    % "jcl-over-slf4j"              % slf4jVersion      % "runtime"
-  lazy val slf4jLog4j          = "org.slf4j"                    % "log4j-over-slf4j"            % slf4jVersion      % "runtime"
+  lazy val slf4jJcl            = "org.slf4j"                    % "jcl-over-slf4j"              % slf4jVersion
+  lazy val slf4jLog4j          = "org.slf4j"                    % "log4j-over-slf4j"            % slf4jVersion
 
   lazy val sprayCan            = "io.spray"                     % "spray-can"                   % sprayVersion
   lazy val sprayRouting        = "io.spray"                     % "spray-routing"               % sprayVersion
