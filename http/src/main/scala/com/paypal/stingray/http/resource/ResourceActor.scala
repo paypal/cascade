@@ -15,6 +15,7 @@ import com.paypal.stingray.akka.actor._
 import com.paypal.stingray.common.constants.ValueConstants._
 import com.paypal.stingray.http.util.HttpUtil
 import scala.concurrent.duration._
+import scala.reflect.ClassTag
 
 /**
  * the actor to manage the execution of an [[AbstractResource]]. create one of these per request
@@ -49,8 +50,8 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
   case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
 
   private var pendingStep: Class[_] = ResourceActor.Start.getClass
-  private def setNextStep(cls: Class[_]) {
-    pendingStep = cls
+  private def setNextStep[T](implicit classTag: ClassTag[T]): Unit = {
+    pendingStep = classTag.runtimeClass
   }
 
   private val request = reqContext.request
@@ -84,7 +85,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       self ! ensureMethodSupported(resource, request.method).map { _ =>
         MessageIsSupported(request)
       }.orFailure
-      setNextStep(MessageIsSupported.getClass)
+      setNextStep[MessageIsSupported]
   }
 
   /**
@@ -95,7 +96,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       self ! reqParser(a).map { p =>
         RequestIsParsed(p)
       }.orFailure
-      setNextStep(RequestIsParsed.getClass)
+      setNextStep[RequestIsParsed]
   }
 
   /**
@@ -107,7 +108,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       self ! ensureContentTypeSupported(resource, request).map { _ =>
         ContentTypeIsSupported(p)
       }.orFailure
-      setNextStep(ContentTypeIsSupported.getClass)
+      setNextStep[ContentTypeIsSupported]
   }
 
   /**
@@ -118,7 +119,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       self ! ensureResponseContentTypeAcceptable(resource, request).map { _ =>
         ResponseContentTypeIsAcceptable(p)
       }.orFailure
-      setNextStep(ResponseContentTypeIsAcceptable.getClass)
+      setNextStep[ResponseContentTypeIsAcceptable]
   }
 
   /**
@@ -129,7 +130,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       ensureAuthorized(resource, request).map { _ =>
         RequestIsAuthorized(p)
       }.recover(handleErrorPF).pipeTo(self)
-      setNextStep(RequestIsAuthorized.getClass)
+      setNextStep[RequestIsAuthorized]
   }
 
   /**
@@ -143,7 +144,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
         case (response, mbLocation) =>
           RequestIsProcessed(response, mbLocation)
       }.recover(handleErrorPF).pipeTo(self)
-      setNextStep(RequestIsProcessed.getClass)
+      setNextStep[RequestIsProcessed]
   }
 
   /**
@@ -154,10 +155,17 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       context.setReceiveTimeout(recvTimeout)
       val responseWithLocation = addHeaderOnCode(resp, Created) {
         // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
-        val newScheme = request.headers.find(_.name == "X-Forwarded-Proto").map(_.value).getOrElse(request.uri.scheme)
+        val newScheme = request.headers.find(_.name == "X-Forwarded-Proto") match {
+          case Some(hdr) => hdr.value
+          case None => request.uri.scheme
+        }
 
         // if we created something, `location` will have more information to append to the response path
-        val newPath = Path(request.uri.path.toString + mbLocation.map("/" + _).getOrElse(""))
+        val finalLocation = mbLocation match {
+          case Some(loc) => s"/$loc"
+          case None => ""
+        }
+        val newPath = Path(request.uri.path.toString + finalLocation)
 
         // copy the request uri, replacing scheme and path as needed, and return a `Location` header with the new uri
         val newUri = request.uri.copy(scheme = newScheme, path = newPath)
@@ -172,8 +180,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       })
 
       self ! finalResponse
-
-      setNextStep(HttpResponse.getClass)
+      setNextStep[HttpResponse]
   }
 
   /**
@@ -199,7 +206,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
         case t: Throwable =>
           throw t
       }
-      setNextStep(HttpResponse.getClass)
+      setNextStep[HttpResponse]
   }
 
   /**
