@@ -42,6 +42,19 @@ package object casts {
    */
   implicit class CastableAny(any: Any) {
 
+    private def getSource(a: Any): ClassTag[_] = {
+      any match {
+        case _: Boolean => classTag[Boolean]
+        case _: Byte => classTag[Byte]
+        case _: Char => classTag[Char]
+        case _: Short => classTag[Short]
+        case _: Int => classTag[Int]
+        case _: Long => classTag[Long]
+        case _: Float => classTag[Float]
+        case _: Double => classTag[Double]
+        case _ => ClassTag(any.getClass)
+      }
+    }
     /**
      * Cast the wrapped object as type `T`, optionally returning the newly cast object if the cast was successful
      * @param target the ClassTag of type `T`
@@ -50,17 +63,7 @@ package object casts {
      */
     def cast[T](implicit target: ClassTag[T]): Option[T] = {
       Option(any).flatMap { _ =>
-        val source = any match {
-          case _: Boolean => classTag[Boolean]
-          case _: Byte => classTag[Byte]
-          case _: Char => classTag[Char]
-          case _: Short => classTag[Short]
-          case _: Int => classTag[Int]
-          case _: Long => classTag[Long]
-          case _: Float => classTag[Float]
-          case _: Double => classTag[Double]
-          case _ => ClassTag(any.getClass)
-        }
+        val source = getSource(any)
         if (target.runtimeClass.isAssignableFrom(source.runtimeClass)) {
           Some(any.asInstanceOf[T])
         } else {
