@@ -87,8 +87,13 @@ class ResourceActorSpecs
     def timesOutOnRequestProcessor = {
       val processRecvTimeout = Duration(250, TimeUnit.MILLISECONDS)
       val reqProcessor: ResourceActor.RequestProcessor[Unit] = { _: Unit =>
-        Thread.sleep(processRecvTimeout.toMillis * 4)
-        Future.successful(HttpResponse() -> None)
+        //the TestActorRef[ResourceActor] executes on a CallingThreadDispatcher,
+        //so the sleep needs to happen on a different thread so that the actor
+        //processes the ReceiveTimeout message before this future completes
+        Future {
+          Thread.sleep(processRecvTimeout.toMillis * 4)
+          HttpResponse() -> None
+        }
       }
       lazy val resourceActorCtor = new ResourceActor(resource = resource,
         reqContext = dummyReqCtx,
