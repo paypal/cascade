@@ -1,8 +1,8 @@
 package com.paypal.stingray.http.tests.resource
 
 import org.specs2.SpecificationLike
-import akka.testkit.{TestProbe, TestActorRef, TestKit}
-import akka.actor.{ActorRef, ActorSystem}
+import akka.testkit.{TestActorRef, TestKit}
+import akka.actor.ActorSystem
 import com.paypal.stingray.http.resource.ResourceActor
 import spray.http.{StatusCodes, HttpResponse, HttpRequest}
 import scala.util.{Try, Failure, Success}
@@ -13,6 +13,7 @@ import com.paypal.stingray.http.tests.matchers.RefAndProbeMatchers
 import com.paypal.stingray.akka.tests.actor.ActorSpecification
 import scala.concurrent.duration.Duration
 import com.paypal.stingray.common.tests.future._
+import java.util.concurrent.TimeUnit
 
 class ResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
@@ -30,6 +31,7 @@ class ResourceActorSpecs
 
     The ResourceActor should time out properly                                                                                         ${Start().timesOut}
 
+    The ResourceActor should time out if the request processor takes too long                                                          ${Start().timesOutOnRequestProcessor}
 
   """
 
@@ -80,6 +82,31 @@ class ResourceActorSpecs
         case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.ServiceUnavailable)
       }
       stoppedRes and failedRes
+    }
+
+    def timesOutOnRequestProcessor = {
+      val processRecvTimeout = Duration(250, TimeUnit.MILLISECONDS)
+      val reqProcessor: ResourceActor.RequestProcessor[Unit] = { _: Unit =>
+        //the TestActorRef[ResourceActor] executes on a CallingThreadDispatcher,
+        //so the sleep needs to happen on a different thread so that the actor
+        //processes the ReceiveTimeout message before this future completes
+        Future {
+          Thread.sleep(processRecvTimeout.toMillis * 4)
+          HttpResponse() -> None
+        }
+      }
+      lazy val resourceActorCtor = new ResourceActor(resource = resource,
+        reqContext = dummyReqCtx,
+        reqParser = reqParser,
+        reqProcessor = reqProcessor,
+        mbReturnActor = None,
+        processRecvTimeout = processRecvTimeout
+      )
+      val refAndProbe = RefAndProbe(TestActorRef(resourceActorCtor))
+      refAndProbe.ref ! ResourceActor.Start
+      reqCtxHandlerActorFuture must beLike[HttpResponse] {
+        case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.ServiceUnavailable)
+      }.await
     }
   }
 
