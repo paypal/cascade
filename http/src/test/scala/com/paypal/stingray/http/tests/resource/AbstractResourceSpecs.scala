@@ -11,6 +11,7 @@ import scala.concurrent.Future
 import spray.http.HttpRequest
 import scala.Some
 import scala.util.Try
+import akka.actor.ActorSystem
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResource]] abstract class
@@ -40,6 +41,7 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
   """
 
   trait Context extends CommonImmutableSpecificationContext with SprayMatchers {
+    implicit val actorSystem = ActorSystem("abstract-resource-specs")
 
     val fullResource = new DummyResource
 

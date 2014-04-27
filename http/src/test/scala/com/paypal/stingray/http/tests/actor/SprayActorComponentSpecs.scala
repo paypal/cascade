@@ -9,6 +9,7 @@ import com.paypal.stingray.http.actor._
 import com.paypal.stingray.http.server._
 import com.paypal.stingray.http.resource._
 import spray.routing._
+import spray.io.ServerSSLEngineProvider
 
 /**
  * Tests for [[com.paypal.stingray.http.actor.SprayActorComponent]]
@@ -28,6 +29,7 @@ class SprayActorComponentSpecs
     with ResourceServiceComponent
     with ServiceNameComponent
     with SprayConfigurationComponent {
+
     override val backlog: Int = 0
     override val port: Int = 0
     override lazy val serviceName = "http"
@@ -37,7 +39,7 @@ class SprayActorComponentSpecs
   trait Context
     extends CommonImmutableSpecificationContext {
     val actorSystem = new TestActorSystem
-    actorSystem.start()
+    actorSystem.start(mock[ServerSSLEngineProvider])
     val sprayActor = actorSystem.sprayActor
   }
 

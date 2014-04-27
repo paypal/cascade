@@ -33,7 +33,6 @@ import scala.reflect._
  *     li.cast[String]
  * }}}
  */
-
 package object casts {
 
   /**
@@ -41,6 +40,20 @@ package object casts {
    * @param any the class to be cast
    */
   implicit class CastableAny(any: Any) {
+
+    private def getSource(a: Any): ClassTag[_] = {
+      any match {
+        case _: Boolean => classTag[Boolean]
+        case _: Byte => classTag[Byte]
+        case _: Char => classTag[Char]
+        case _: Short => classTag[Short]
+        case _: Int => classTag[Int]
+        case _: Long => classTag[Long]
+        case _: Float => classTag[Float]
+        case _: Double => classTag[Double]
+        case _ => ClassTag(any.getClass)
+      }
+    }
 
     /**
      * Cast the wrapped object as type `T`, optionally returning the newly cast object if the cast was successful
@@ -50,17 +63,7 @@ package object casts {
      */
     def cast[T](implicit target: ClassTag[T]): Option[T] = {
       Option(any).flatMap { _ =>
-        val source = any match {
-          case _: Boolean => classTag[Boolean]
-          case _: Byte => classTag[Byte]
-          case _: Char => classTag[Char]
-          case _: Short => classTag[Short]
-          case _: Int => classTag[Int]
-          case _: Long => classTag[Long]
-          case _: Float => classTag[Float]
-          case _: Double => classTag[Double]
-          case _ => ClassTag(any.getClass)
-        }
+        val source = getSource(any)
         if (target.runtimeClass.isAssignableFrom(source.runtimeClass)) {
           Some(any.asInstanceOf[T])
         } else {
@@ -78,6 +81,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): Option[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
   /**
@@ -107,6 +111,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): Option[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
   /**
@@ -139,6 +144,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): Traversable[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
   /**
@@ -171,6 +177,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): List[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
   /**
@@ -203,6 +210,7 @@ package object casts {
     def castIf[T : ClassTag](pred: T => Boolean): Array[T] = {
       cast[T].flatMap(c => if(pred(c)) Some(c) else None)
     }
+
   }
 
 }
