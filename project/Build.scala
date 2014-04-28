@@ -83,8 +83,8 @@ object BuildSettings {
 object Dependencies {
 
   val slf4jVersion = "1.7.7"
-  val fasterXmlJacksonVersion = "2.3.1-STINGRAY" //custom version until our fixes are released
-  val sprayVersion = "1.3.1"
+  val fasterXmlJacksonVersion = "2.3.2-STINGRAY" //custom version until our fixes are released
+  val sprayVersion = "1.3.1-20140423"
   val akkaVersion = "2.3.2"
   val parboiledVersion = "1.1.6"
   val specs2Version = "2.3.11"
@@ -99,8 +99,8 @@ object Dependencies {
   lazy val slf4jJcl            = "org.slf4j"                    % "jcl-over-slf4j"              % slf4jVersion
   lazy val slf4jLog4j          = "org.slf4j"                    % "log4j-over-slf4j"            % slf4jVersion
 
-  lazy val sprayCan            = "io.spray"                     % "spray-can"                   % sprayVersion
-  lazy val sprayRouting        = "io.spray"                     % "spray-routing"               % sprayVersion
+  lazy val sprayCan            = "io.spray"                     %% "spray-can"                  % sprayVersion
+  lazy val sprayRouting        = "io.spray"                     %% "spray-routing"              % sprayVersion
   lazy val akka                = "com.typesafe.akka"            %% "akka-actor"                 % akkaVersion
 
   lazy val specs2              = "org.specs2"                   %% "specs2"                     % specs2Version     % "test"
@@ -111,7 +111,7 @@ object Dependencies {
   lazy val parboiledJava       = "org.parboiled"                % "parboiled-java"              % parboiledVersion  % "test"
   lazy val parboiledScala      = "org.parboiled"                %% "parboiled-scala"            % parboiledVersion  % "test"
 
-  lazy val sprayTestKit        = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.10")
+  lazy val sprayTestKit        = "io.spray"                     %% "spray-testkit"              % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.10")
   lazy val akkaTestKit         = "com.typesafe.akka"            %% "akka-testkit"               % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(

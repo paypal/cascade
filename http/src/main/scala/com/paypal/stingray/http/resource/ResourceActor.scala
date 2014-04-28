@@ -204,7 +204,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
   private def ensureContentTypeSupported(resource: AbstractResource[_],
                                          request: HttpRequest): Try[Unit] = {
     request.entity match {
-      case Empty => Success()
+      case Empty => Success(())
       case NonEmpty(ct, _) => resource.acceptableContentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
     }
   }
