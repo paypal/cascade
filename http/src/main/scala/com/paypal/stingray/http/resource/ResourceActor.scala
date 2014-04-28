@@ -239,7 +239,8 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
   private val handleErrorPF: PartialFunction[Throwable, HttpResponse] = {
     case e: Exception => handleError(e)
   }
-  private def handleError(exception: Exception) = {
+
+  private def handleError(exception: Exception): HttpResponse = {
     exception match {
       case h: HaltException =>
         val response = addHeaderOnCode(h.response, Unauthorized) {
