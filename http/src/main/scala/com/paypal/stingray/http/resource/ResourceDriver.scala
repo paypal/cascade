@@ -3,12 +3,9 @@ package com.paypal.stingray.http.resource
 import spray.http._
 import spray.http.StatusCodes.{Success => _, _}
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
-import scala.concurrent.Future
 import scala.util._
 import spray.routing.RequestContext
 import akka.actor.{ActorRef, ActorRefFactory}
-import com.paypal.stingray.http.util.HttpUtil
-import spray.http.HttpHeaders.RawHeader
 
 /**
  * Implementation of a basic HTTP request handling pipeline.
