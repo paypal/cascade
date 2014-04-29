@@ -23,4 +23,5 @@ trait EnumReader[T] {
     case Some(v) => v
     case None => throw new EnumerationException(s)
   }
+
 }

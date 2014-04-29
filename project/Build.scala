@@ -73,7 +73,11 @@ object BuildSettings {
     },
     resolvers += "Stingray Nexus" at s"http://$stingrayNexusHost/nexus/content/groups/public/",
     conflictManager := ConflictManager.strict,
-    dependencyOverrides <+= scalaVersion { vsn => "org.scala-lang" % "scala-library" % vsn },
+    dependencyOverrides <++= scalaVersion { vsn => Set(
+      "org.scala-lang" % "scala-library"  % vsn,
+      "org.scala-lang" % "scala-compiler" % vsn,
+      "org.scala-lang" % "scala-reflect"  % vsn
+    )},
     tagName <<= (version in ThisBuild).map(a => a),
     releaseProcess := defaultStingrayRelease
   )
@@ -166,7 +170,7 @@ object CommonBuild extends Build {
       name := "parent",
       publish := {}
     ),
-    aggregate = Seq(common, examples, json, akka, http)
+    aggregate = Seq(common, json, akka, http, examples)
   )
 
   lazy val common = Project("stingray-common", file("common"),
@@ -215,7 +219,6 @@ object CommonBuild extends Build {
     ),
     settings = standardSettings ++ Seq(
       name := "stingray-examples",
-      libraryDependencies ++= httpDependencies,
       publish := {}
     )
   )
