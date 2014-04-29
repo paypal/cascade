@@ -48,7 +48,7 @@ trait NamedThreadFactory {
     val threadNumber = new AtomicInteger(1)
 
     override def newThread(r: Runnable): Thread = {
-      val t = new Thread(group, r, "%s-%s" format(prefix, threadNumber.getAndIncrement), 0)
+      val t = new Thread(group, r, s"$prefix-${threadNumber.getAndIncrement}", 0)
       t.setDaemon(isDaemon)
       t.setPriority(priority)
       t
@@ -67,7 +67,7 @@ trait NamedThreadFactory {
    */
   private def rootThreadGroup(): ThreadGroup = {
     def getRootThreadGroup(node: ThreadGroup): ThreadGroup = {
-      Option(node.getParent).map(getRootThreadGroup(_)).getOrElse(node)
+      Option(node.getParent).map(getRootThreadGroup).getOrElse(node)
     }
     getRootThreadGroup(Thread.currentThread.getThreadGroup)
   }
