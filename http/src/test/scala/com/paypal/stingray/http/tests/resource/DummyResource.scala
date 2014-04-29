@@ -52,7 +52,7 @@ class DummyResource
    */
   override def isAuthorized(r: HttpRequest): Future[Option[Unit]] = {
     if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
-      Some().continue
+      Some(()).continue
     } else {
       halt(StatusCodes.Unauthorized)
     }

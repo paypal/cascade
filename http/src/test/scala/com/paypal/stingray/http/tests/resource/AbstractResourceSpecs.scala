@@ -50,7 +50,7 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
     class TestResource extends AbstractResource[Unit] {
       override def isAuthorized(r: HttpRequest): Future[Option[Unit]] = {
         if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
-          Some().continue
+          Some(()).continue
         } else {
           halt(StatusCodes.Unauthorized)
         }
