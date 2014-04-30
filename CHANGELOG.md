@@ -1,4 +1,7 @@
 
+# 0.7.0 04/30/14 released by Taylor
+* Adds NoConcurrentExecutionContext.
+
 # 0.6.1 04/24/14 released by Taylor
 * Fix logging
 
