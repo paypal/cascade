@@ -49,6 +49,28 @@ object BuildSettings {
     testOptions in Test += Tests.Argument("html", "console"),
     // Add apiURL := Some(url(...)) once the scaladocs start being published
     autoAPIMappings := true,
+    apiMappings ++= {
+      def findManagedDependency(organization: String, name: String): Option[File] = {
+        (for {
+          entry <- (fullClasspath in Runtime).value ++ (fullClasspath in Test).value
+          module <- entry.get(moduleID.key) if module.organization == organization && module.name.startsWith(name)
+        } yield entry.data).headOption
+      }
+      val links = Seq(
+        findManagedDependency("org.scala-lang", "scala-library").map(d => d -> url(s"http://www.scala-lang.org/api/$scalaVsn/")),
+        findManagedDependency("com.typesafe.akka", "akka-actor").map(d => d -> url(s"http://doc.akka.io/api/akka/$akkaVersion/")),
+        findManagedDependency("com.typesafe", "config").map(d => d -> url("http://typesafehub.github.io/config/latest/api/")),
+        // make the version here dynamic once we stop using the stingray jackson fork
+        findManagedDependency("com.fasterxml.jackson.core", "jackson-core").map(d => d -> url("http://fasterxml.github.io/jackson-core/javadoc/2.3.1/")),
+        // this is the only scaladoc location listed on the spray site
+        findManagedDependency("io.spray", "spray-http").map(d => d -> url("http://spray.io/documentation/1.1-SNAPSHOT/api/")),
+        findManagedDependency("io.spray", "spray-routing").map(d => d -> url("http://spray.io/documentation/1.1-SNAPSHOT/api/")),
+        findManagedDependency("org.slf4j", "slf4j-api").map(d => d -> url("http://www.slf4j.org/api/")),
+        findManagedDependency("com.typesafe.akka", "akka-testkit").map(d => d -> url(s"http://doc.akka.io/api/akka/$akkaVersion/")),
+        findManagedDependency("org.specs2", "specs2").map(d => d -> url(s"http://etorreborre.github.io/specs2/api/SPECS2-$specs2Version/"))
+      )
+      links.collect { case Some(d) => d }.toMap
+    },
     publishTo <<= version { version: String =>
       val stingrayNexus = s"http://$stingrayNexusHost/nexus/content/repositories/"
       if (version.trim.endsWith("SNAPSHOT")) {

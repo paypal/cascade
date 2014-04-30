@@ -20,12 +20,12 @@ import scala.reflect.ClassTag
 /**
  * the actor to manage the execution of an [[AbstractResource]]. create one of these per request
  * @param resource the resource to execute
- * @param reqContext the spray [[RequestContext]] for this request
+ * @param reqContext the spray [[spray.routing.RequestContext]] for this request
  * @param reqParser the function to parse the request into a valid scala type
  * @param reqProcessor the function to process the actual request
- * @param mbReturnActor the actor to send the successful [[HttpResponse]] or the failed [[Throwable]]. optional - pass None to not do this
+ * @param mbReturnActor the actor to send the successful [[spray.http.HttpResponse]] or the failed [[java.lang.Throwable]]. optional - pass None to not do this
  * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
- *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[HttpResponse]] indicating the error to the
+ *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[spray.http.HttpResponse]] indicating the error to the
  *                    context and return actor.
  * @param processRecvTimeout the longest time this actor will wait for `reqProcessor` to complete
  * @tparam AuthInfo the authorization info type that [[AbstractResource]] uses
@@ -290,14 +290,14 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
 object ResourceActor {
   /**
-   * the function that parses an [[HttpRequest]] into a type, or fails
+   * the function that parses an [[spray.http.HttpRequest]] into a type, or fails
    * @tparam T the type to parse the request into
    */
   type RequestParser[T] = HttpRequest => Try[T]
 
   /**
    * the function to process the request and output a result future. the return of this function is a tuple.
-   * the first element is the [[HttpResponse]] to return to the client.
+   * the first element is the [[spray.http.HttpResponse]] to return to the client.
    * the second element is the (optional) value of the location header to return to the client.
    * @tparam T the type to process
    */
@@ -321,15 +321,15 @@ object ResourceActor {
   val dispatcherName = "resource-actor-dispatcher"
 
   /**
-   * create the [[Props]] for a new [[ResourceActor]]
+   * create the [[akka.actor.Props]] for a new [[ResourceActor]]
    * @param resource the resource to pass to the [[ResourceActor]]
-   * @param reqContext the [[RequestContext]] to pass to the [[ResourceActor]]
+   * @param reqContext the [[spray.routing.RequestContext]] to pass to the [[ResourceActor]]
    * @param reqParser the parser function to pass to the [[ResourceActor]]
    * @param reqProcessor the processor function to pass to the [[ResourceActor]]
    * @param mbResponseActor the optional actor to pass to the [[ResourceActor]]
    * @tparam AuthInfo the authorization info type for [[AbstractResource]]
    * @tparam ParsedRequest the type of the parsed request
-   * @return the new [[Props]]
+   * @return the new [[akka.actor.Props]]
    */
   def props[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo],
                                      reqContext: RequestContext,
