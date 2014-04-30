@@ -31,6 +31,8 @@ object BuildSettings {
   val runArgs = defaultArgs
   val testArgs = defaultArgs
 
+  val docScalacOptions = Seq("-groups", "-implicits")
+
   lazy val standardSettings = Defaults.defaultSettings ++ releaseSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
@@ -39,8 +41,8 @@ object BuildSettings {
     incOptions := incOptions.value.withNameHashing(true),
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
-    scalacOptions in (Compile, doc) ++= Seq("-groups", "-implicits"),
-    scalacOptions in (Test, doc) ++= Seq("-groups", "-implicits"),
+    scalacOptions in (Compile, doc) ++= docScalacOptions,
+    scalacOptions in (Test, doc) ++= docScalacOptions,
     javaOptions in run ++= runArgs,
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
