@@ -31,22 +31,6 @@ object BuildSettings {
   val runArgs = defaultArgs
   val testArgs = defaultArgs
 
-  val docScalacOptions = Seq(
-    "-groups",
-    "-implicits",
-    "-external-urls:" +
-      s"scala=http://www.scala-lang.org/api/$scalaVsn}/," +
-      s"akka=http://doc.akka.io/api/akka/$akkaVersion/," +
-      "java=http://docs.oracle.com/javase/6/docs/api/," +
-      // this is the only scaladoc location listed on the spray site
-      "spray=http://spray.io/documentation/1.1-SNAPSHOT/api/," +
-      "org.slf4j=http://www.slf4j.org/api/,"+
-      // make the version here dynamic once we stop using the stingray jackson fork
-      "com.fasterxml.jackson=http://fasterxml.github.io/jackson-core/javadoc/2.3.0/," +
-      "com.typesafe=http://typesafehub.github.io/config/latest/api/," +
-      s"org.specs2=http://etorreborre.github.io/specs2/api/SPECS2-$specs2Version/"
-  )
-
   lazy val standardSettings = Defaults.defaultSettings ++ releaseSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
@@ -55,8 +39,8 @@ object BuildSettings {
     incOptions := incOptions.value.withNameHashing(true),
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
-    scalacOptions in (Compile, doc) ++= docScalacOptions,
-    scalacOptions in (Test, doc) ++= docScalacOptions,
+    scalacOptions in (Compile, doc) ++= Seq("-groups", "-implicits"),
+    scalacOptions in (Test, doc) ++= Seq("-groups", "-implicits"),
     javaOptions in run ++= runArgs,
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
