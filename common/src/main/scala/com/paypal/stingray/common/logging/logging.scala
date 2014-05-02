@@ -2,6 +2,7 @@ package com.paypal.stingray.common
 
 import org.slf4j.LoggerFactory
 import ch.qos.logback.classic.LoggerContext
+import com.paypal.stingray.common.util.casts._
 
 /**
  * Convenience methods and implicits for working with logging.
@@ -9,11 +10,11 @@ import ch.qos.logback.classic.LoggerContext
 package object logging {
 
   /**
-   * Flushes the buffer associated with the SLF4J logger. Useful right before explicit JVM termination.
+   * Flush all logs. Useful right before explicit JVM termination.
    */
   def flushAllLogs(): Unit = {
-    val factory = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
-    factory.stop()
+    val factory = LoggerFactory.getILoggerFactory.cast[LoggerContext]
+    factory.foreach(_.stop())
   }
 
 }
