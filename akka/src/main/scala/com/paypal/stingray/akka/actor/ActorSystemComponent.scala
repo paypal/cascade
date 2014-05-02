@@ -1,9 +1,9 @@
 package com.paypal.stingray.akka.actor
 
 import akka.actor.{ActorRefFactory, ActorSystem}
+import com.paypal.stingray.common.logging._
 import com.paypal.stingray.common.service.ServiceNameComponent
 import scala.concurrent.ExecutionContext
-import com.paypal.stingray.common.logging.flushLogger
 
 /**
  * Provides the root actor which supervises other actors and handles spray http requests
@@ -17,10 +17,11 @@ trait ActorSystemComponent {
     val newSystem = ActorSystem(serviceName)
     sys.addShutdownHook {
       newSystem.shutdown()
-      flushLogger()
+      flushAllLogs()
     }
     newSystem
   }
+
   implicit lazy val actorRefFactory: ActorRefFactory = system
   implicit lazy val ec: ExecutionContext = system.dispatcher
 

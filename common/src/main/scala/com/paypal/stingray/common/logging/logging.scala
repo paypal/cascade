@@ -11,7 +11,7 @@ package object logging {
   /**
    * Flushes out the buffer associated with the slf4j logger. Useful right before explicit process termination.
    */
-  def flushLogger(): Unit = {
+  def flushAllLogs(): Unit = {
     val factory = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
     factory.stop()
   }
