@@ -16,8 +16,8 @@ trait ActorSystemComponent {
   implicit lazy val system = {
     val newSystem = ActorSystem(serviceName)
     sys.addShutdownHook {
-      flushLogger()
       newSystem.shutdown()
+      flushLogger()
     }
     newSystem
   }
