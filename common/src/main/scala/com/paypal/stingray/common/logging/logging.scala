@@ -1,6 +1,6 @@
 package com.paypal.stingray.common
 
-import org.slf4j.{LoggerFactory, MDC}
+import org.slf4j.LoggerFactory
 import ch.qos.logback.classic.LoggerContext
 
 /**
@@ -15,4 +15,5 @@ package object logging {
     val factory = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
     factory.stop()
   }
+
 }
