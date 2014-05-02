@@ -3,6 +3,7 @@ package com.paypal.stingray.common.app
 import org.slf4j.bridge.SLF4JBridgeHandler
 import org.slf4j.{LoggerFactory, MDC}
 import ch.qos.logback.classic.LoggerContext
+import com.paypal.stingray.common.logging.flushLogger
 
 /**
  * Starting point for runnable applications and services. Sets up logging and MDC values.
@@ -13,7 +14,7 @@ trait StingrayApp extends App {
   // properly kill app for unhandled, unsupervised exceptions
   Thread.currentThread.setUncaughtExceptionHandler(
     new Thread.UncaughtExceptionHandler() {
-      def uncaughtException(thread: Thread, cause: Throwable): Unit = {
+      override def uncaughtException(thread: Thread, cause: Throwable): Unit = {
         val errMsg = s"Uncaught error from thread [${thread.getName}]. Shutting down JVM."
 
         // print to both logs and console
@@ -21,17 +22,17 @@ trait StingrayApp extends App {
         logger.error(errMsg, cause)
         System.err.println(errMsg)
         cause.printStackTrace(System.err)
+        System.err.flush()
 
         // flush logger and exit
-        val factory = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
-        factory.stop()
+        flushLogger()
         System.exit(-1)
       }
     }
   )
 
   /** The name of this service */
-  val serviceName: String
+  def serviceName: String
 
   MDC.put("service", serviceName)
 
