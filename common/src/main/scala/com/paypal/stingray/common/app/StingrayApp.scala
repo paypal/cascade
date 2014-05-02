@@ -1,15 +1,18 @@
 package com.paypal.stingray.common.app
 
 import org.slf4j.bridge.SLF4JBridgeHandler
-import org.slf4j.{LoggerFactory, MDC}
-import ch.qos.logback.classic.LoggerContext
-import com.paypal.stingray.common.logging.flushLogger
+import org.slf4j.LoggerFactory
+import com.paypal.stingray.common.logging._
 
 /**
  * Starting point for runnable applications and services. Sets up logging and MDC values.
  * Otherwise functions like [[scala.App]].
  */
 trait StingrayApp extends App {
+
+  // Install the Java Util Logging to SFL4J bridge and delegate all management to SLF4J.
+  SLF4JBridgeHandler.removeHandlersForRootLogger()
+  SLF4JBridgeHandler.install()
 
   // properly kill app for unhandled, unsupervised exceptions
   Thread.currentThread.setUncaughtExceptionHandler(
@@ -25,19 +28,10 @@ trait StingrayApp extends App {
         System.err.flush()
 
         // flush logger and exit
-        flushLogger()
+        flushAllLogs()
         System.exit(-1)
       }
     }
   )
-
-  /** The name of this service */
-  def serviceName: String
-
-  MDC.put("service", serviceName)
-
-  // Install the Java Util Logging to SFL4J bridge and delegate all management to SLF4J.
-  SLF4JBridgeHandler.removeHandlersForRootLogger()
-  SLF4JBridgeHandler.install()
 
 }
