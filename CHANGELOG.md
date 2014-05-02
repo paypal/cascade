@@ -1,4 +1,8 @@
 
+# 0.8.0 05/02/14 released by Taylor
+* Shutdown on unhandled exceptions in the main thread.
+* Remove service from MDC.
+
 # 0.7.0 04/30/14 released by Taylor
 * Adds NoConcurrentExecutionContext.
 
