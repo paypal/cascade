@@ -20,7 +20,7 @@ trait StingrayApp extends App {
         // print to both logs and console
         val logger = LoggerFactory.getLogger(this.getClass)
         logger.error(errMsg, cause)
-        System.err.println(errMsg)
+        System.err.println(errMsg) // scalastyle:ignore regex
         cause.printStackTrace(System.err)
         System.err.flush()
 
