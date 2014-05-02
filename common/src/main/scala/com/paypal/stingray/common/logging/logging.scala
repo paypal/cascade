@@ -9,7 +9,7 @@ import ch.qos.logback.classic.LoggerContext
 package object logging {
 
   /**
-   * Flushes the buffer associated with the SLF4J logger. Useful right before explicit process termination.
+   * Flushes the buffer associated with the SLF4J logger. Useful right before explicit JVM termination.
    */
   def flushAllLogs(): Unit = {
     val factory = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
