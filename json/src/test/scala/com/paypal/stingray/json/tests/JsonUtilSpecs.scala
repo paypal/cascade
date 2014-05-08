@@ -49,6 +49,10 @@ class JsonUtilSpecs
     deserialize json that is missing an AnyVal, with a default value         ${Badness.MissingAnyVal().ok}
     deserialize json that is missing an AnyRef, with a null value            ${Badness.MissingAnyRef().ok}
 
+  Implicit class tests
+
+  toJson and fromJson methods work directly on strings                       ${ImplicitClasses().success}
+
   """
 
   object BasicTypes {
@@ -351,6 +355,17 @@ class JsonUtilSpecs
       }
     }
 
+  }
+
+  case class ImplicitClasses() {
+    import com.paypal.stingray.json._
+    def success = forAll(genJsonString) { str =>
+      val to = str.toJson.get
+      val from = to.fromJson[String].get
+      // for whatever reason, the compiler balks on string interpolation here
+      // e.g. "\"$str\"" is not recognized as a valid string
+      (to must beEqualTo("\"%s\"".format(str))) and (from must beEqualTo(str))
+    }
   }
 }
 
