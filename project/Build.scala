@@ -33,6 +33,22 @@ object BuildSettings {
   val runArgs = defaultArgs
   val testArgs = defaultArgs
 
+  val docScalacOptions = Seq(
+    "-groups",
+    "-implicits",
+    "-external-urls:" +
+      s"scala=http://www.scala-lang.org/api/$scalaVsn}/," +
+      s"akka=http://doc.akka.io/api/akka/$akkaVersion/," +
+      "java=http://docs.oracle.com/javase/6/docs/api/," +
+      // this is the only scaladoc location listed on the spray site
+      "spray=http://spray.io/documentation/1.1-SNAPSHOT/api/," +
+      "org.slf4j=http://www.slf4j.org/api/,"+
+      // make the version here dynamic once we stop using the stingray jackson fork
+      "com.fasterxml.jackson=http://fasterxml.github.io/jackson-core/javadoc/2.3.0/," +
+      "com.typesafe=http://typesafehub.github.io/config/latest/api/," +
+      s"org.specs2=http://etorreborre.github.io/specs2/api/SPECS2-$specs2Version/"
+  )
+
   lazy val standardSettings = Defaults.defaultSettings ++ releaseSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
@@ -40,20 +56,8 @@ object BuildSettings {
     fork := true,
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
-    scalacOptions in (Compile, doc) ++= Seq(
-      "-groups",
-      "-implicits",
-      "-external-urls:" +
-        s"scala=http://www.scala-lang.org/api/${scalaVersion.value}/," +
-        s"akka=http://doc.akka.io/api/akka/$akkaVersion/," +
-        "java=http://docs.oracle.com/javase/6/docs/api/," +
-        // this is the only scaladoc location listed on the spray site
-        "spray=http://spray.io/documentation/1.1-SNAPSHOT/api/," +
-        "org.slf4j=http://www.slf4j.org/api/,"+
-        // make the version here dynamic once we stop using the stingray jackson fork
-        "com.fasterxml.jackson=http://fasterxml.github.io/jackson-core/javadoc/2.3.0/," +
-        "com.typesafe=http://typesafehub.github.io/config/latest/api/"
-    ),
+    scalacOptions in (Compile, doc) ++= docScalacOptions,
+    scalacOptions in (Test, doc) ++= docScalacOptions,
     javaOptions in run ++= runArgs,
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
@@ -84,6 +88,7 @@ object Dependencies {
   val sprayVersion = "1.3.1"
   val akkaVersion = "2.3.2"
   val parboiledVersion = "1.1.6"
+  val specs2Version = "2.3.11"
 
   lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
@@ -92,14 +97,14 @@ object Dependencies {
 
   lazy val slf4j               = "org.slf4j"                    % "slf4j-api"                   % slf4jVersion
   lazy val slf4jJul            = "org.slf4j"                    % "jul-to-slf4j"                % slf4jVersion
-  lazy val slf4jJcl            = "org.slf4j"                    % "jcl-over-slf4j"              % slf4jVersion      % "runtime"
-  lazy val slf4jLog4j          = "org.slf4j"                    % "log4j-over-slf4j"            % slf4jVersion      % "runtime"
+  lazy val slf4jJcl            = "org.slf4j"                    % "jcl-over-slf4j"              % slf4jVersion
+  lazy val slf4jLog4j          = "org.slf4j"                    % "log4j-over-slf4j"            % slf4jVersion
 
   lazy val sprayCan            = "io.spray"                     % "spray-can"                   % sprayVersion
   lazy val sprayRouting        = "io.spray"                     % "spray-routing"               % sprayVersion
   lazy val akka                = "com.typesafe.akka"            %% "akka-actor"                 % akkaVersion
 
-  lazy val specs2              = "org.specs2"                   %% "specs2"                     % "2.3.11"          % "test"
+  lazy val specs2              = "org.specs2"                   %% "specs2"                     % specs2Version     % "test"
   lazy val scalacheck          = "org.scalacheck"               %% "scalacheck"                 % "1.11.3"          % "test"
   lazy val mockito             = "org.mockito"                  % "mockito-all"                 % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"                 % "hamcrest-all"                % "1.3"             % "test"

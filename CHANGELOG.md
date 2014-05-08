@@ -1,4 +1,17 @@
 
+# 0.8.0 05/02/14 released by Taylor
+* Shutdown on unhandled exceptions in the main thread.
+* Remove service from MDC.
+
+# 0.7.0 04/30/14 released by Taylor
+* Adds NoConcurrentExecutionContext.
+
+# 0.6.1 04/24/14 released by Taylor
+* Fix logging
+
+# 0.5.0 04/21/14 released by Aaron Schlesinger
+* Making the ResourceDriver into an Akka Actor, to reduce the amount of operations on Futures
+
 # 0.4.0 04/16/14 released by Taylor
 * Added stingray-akka subproject
 * Added stingray-json subproject

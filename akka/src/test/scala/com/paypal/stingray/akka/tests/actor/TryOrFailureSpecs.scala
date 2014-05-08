@@ -78,19 +78,19 @@ class TryOrFailureSpecs
 
     case class SuccessCase() {
       def ok = forAll(arbitrary[String]) { s =>
-        Try(s).orFailureWith(ConvertedException(_)) must beEqualTo(s)
+        Try(s).orFailureWith(ConvertedException) must beEqualTo(s)
       }
     }
 
     case class FailureCase() {
       def fails = forAll(arbitrary[String], arbitrary[Exception]) { (s, e) =>
-        Try(throw e).orFailureWith(ConvertedException(_)) must beEqualTo(Status.Failure(ConvertedException(e)))
+        Try(throw e).orFailureWith(ConvertedException) must beEqualTo(Status.Failure(ConvertedException(e)))
       }
     }
 
     case class ErrorCase() {
       def failsHard = forAll(arbitrary[Error]) { err =>
-        Try(throw err).orFailureWith(ConvertedException(_)) must throwA[Error]
+        Try(throw err).orFailureWith(ConvertedException) must throwA[Error]
       }
     }
 

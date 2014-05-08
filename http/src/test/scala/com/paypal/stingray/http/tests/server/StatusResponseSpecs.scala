@@ -6,6 +6,7 @@ import com.paypal.stingray.http.server.StatusResponse
 import com.paypal.stingray.common.properties.BuildProperties
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.json.JsonUtil
+import com.paypal.stingray.http.tests.resource.DummyResource
 
 /**
  * Tests for [[com.paypal.stingray.http.server.StatusResponse]].
