@@ -39,6 +39,7 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
   }
 
   case class Test() extends Context {
+
     def ping = {
       val request = HttpRequest(uri = "/ping?foo=bar").withHeaders(List(Accept(MediaTypes.`text/plain`)))
       resource must resultInCodeAndBodyLike(request, resource.doGet, resource.parseType[HttpRequest](_, ""), StatusCodes.OK) {
