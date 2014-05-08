@@ -14,19 +14,19 @@ class EitherSpecs extends Specification with ScalaCheck { def is =s2"""
   AnyEitherToTry is an implicit wrapper to convert Either[E, A] to Try[A]
 
   toTry, given a conversion function E => Exception
-    on a Left, return a Try Failure containing the converted Left exception ${AnyEitherToLeft().fails}
-    on a Right, return a Try Success containing the Right value             ${AnyEitherToRight().ok}
+    on a Left, return a Try Failure containing the converted Left exception                 ${AnyEitherToLeft().fails}
+    on a Right, return a Try Success containing the Right value                             ${AnyEitherToRight().ok}
 
   EitherOps is an implicit wrapper to convert regular objects to [[scala.util.Either]]
 
-  toRight creates an either with the object as the right      ${EitherOpsToRight().success}
-  toLeft creates an either with the object as the left        ${EitherOpsToLeft().success}
+  toRight creates an either with the object as the right                                    ${EitherOpsToRight().success}
+  toLeft creates an either with the object as the left                                      ${EitherOpsToLeft().success}
 
   ThrowableEitherToTry is an implicit wrapper to convert Either[Throwable, A] to Try[A]
 
   toTry should
-    on a Left, return a Try Failure containing the Left exception ${ThrowableEitherToLeft().fails}
-    on a Right, return a Try Success containing the Right value   ${ThrowableEitherToRight().ok}
+    on a Left, return a Try Failure containing the Left exception                           ${ThrowableEitherToLeft().fails}
+    on a Right, return a Try Success containing the Right value                             ${ThrowableEitherToRight().ok}
 
   """
 
