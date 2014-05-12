@@ -9,6 +9,9 @@ import com.paypal.stingray.json._
 
 /**
  * Tests for [[com.paypal.stingray.http.resource.ResourceServiceComponent.ResourceService]]
+ *
+ * /stats success case is not tested because private server actor cannot start up
+ * without the correct environment. Thus we only test the fail case.
  */
 class ResourceServiceSpecs extends Specification with ScalaCheck { def is=s2"""
 
@@ -40,6 +43,7 @@ class ResourceServiceSpecs extends Specification with ScalaCheck { def is=s2"""
   case class Stats() extends Context {
     def fails = {
       val res = env.sprayRoutingClient.makeRequest(HttpMethods.GET, "/stats", List(RawHeader("x-service-stats", "true")), None)
+      // service actor will not start up, so this throws a 500
       val success = res.status must beEqualTo(StatusCodes.InternalServerError)
       success
     }
