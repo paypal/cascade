@@ -1,7 +1,5 @@
 resolvers += "Stingray Nexus" at "http://stingray-nexus.stratus.dev.ebay.com/nexus/content/groups/public/"
 
-resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
-
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.2")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
