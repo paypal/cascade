@@ -1,3 +1,4 @@
+import com.paypal.stingray.sbt.BuildUtilities
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
@@ -7,7 +8,6 @@ import ReleasePlugin._
 import ReleaseKeys._
 import sbt._
 import Keys._
-import com.paypal.stingray.sbt.BuildUtilities._
 import sbtunidoc.Plugin._
 import sbtunidoc.Plugin.UnidocKeys._
 
@@ -49,7 +49,12 @@ object BuildSettings {
       s"org.specs2=http://etorreborre.github.io/specs2/api/SPECS2-$specs2Version/"
   )
 
-  lazy val standardSettings = Defaults.defaultSettings ++ releaseSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
+  lazy val standardReleaseSettings = releaseSettings ++ Seq(
+    tagName <<= (version in ThisBuild).map(a => a),
+    releaseProcess := BuildUtilities.defaultReleaseProcess
+  )
+
+  lazy val standardSettings = Defaults.defaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
     exportJars := true,
@@ -74,9 +79,7 @@ object BuildSettings {
     },
     resolvers += "Stingray Nexus" at s"http://$stingrayNexusHost/nexus/content/groups/public/",
     conflictManager := ConflictManager.strict,
-    dependencyOverrides <+= scalaVersion { vsn => "org.scala-lang" % "scala-library" % vsn },
-    tagName <<= (version in ThisBuild).map(a => a),
-    releaseProcess := defaultReleaseProcess
+    dependencyOverrides <+= scalaVersion { vsn => "org.scala-lang" % "scala-library" % vsn }
   )
 
 }
@@ -163,9 +166,9 @@ object CommonBuild extends Build {
   import Dependencies._
 
   lazy val parent = Project("parent", file("."),
-    settings = standardSettings ++ docSettings ++ Seq(
-      unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(examples),
+    settings = standardSettings ++ BuildUtilities.docSettings ++ standardReleaseSettings ++ Seq(
       name := "parent",
+      unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(examples),
       publish := {}
     ),
     aggregate = Seq(common, examples, json, akka, http)
