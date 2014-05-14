@@ -102,7 +102,6 @@ package object option {
     def toFuture(t: => Throwable): Future[T] = {
       option.map(Future.successful).getOrElse(Future.failed(t))
     }
-
   }
 
   /**
