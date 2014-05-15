@@ -4,6 +4,7 @@ import com.paypal.stingray.akka.config._
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import org.specs2._
 import com.typesafe.config._
+import scala.util.Try
 
 /**
  * Tests for [[com.paypal.stingray.akka.config]]
@@ -43,6 +44,11 @@ class ConfigSpecs extends Specification { override def is = s2"""
       return Some(value) if path exists           ${RConfig.duration().ok}
       return None if path does not exist          ${RConfig.duration().notFound}
       throw if value cannot be converted          ${RConfig.duration().failure}
+
+  RichConfigOption
+    orThrowConfigError should
+      return value if Some                        ${RConfigOption.configError().ok}
+      throw ConfigError if None                   ${RConfigOption.configError().throws}
 
 """
 
@@ -132,7 +138,20 @@ class ConfigSpecs extends Specification { override def is = s2"""
         config.getOptionalDuration("service.name", SECONDS) must throwA[ConfigException.BadValue]
       }
     }
+  }
 
+  object RConfigOption extends Context {
+
+    case class configError() {
+      def ok = {
+        config.getOptionalString("service.name").orThrowConfigError("fail") must beEqualTo("matt")
+      }
+      def throws = {
+        Try { config.getOptionalString("service.noname").orThrowConfigError("fail") } must beAFailedTry[String].like {
+          case ce: ConfigError => ce.getMessage must beEqualTo("fail")
+        }
+      }
+    }
   }
 
 }
