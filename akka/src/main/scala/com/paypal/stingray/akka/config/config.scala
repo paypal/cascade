@@ -27,6 +27,28 @@ import scala.concurrent.duration._
  */
 package object config {
 
+  class ConfigError(name: String) extends Error(name)
+
+  /**
+   * Implicit wrapper on Option to getOrElse throw ConfigError.
+   *
+   * @param option optionally-wrapped object
+   * @tparam T type of object
+   */
+  implicit class RichConfigOption[T](option: Option[T]) {
+
+    /**
+     * Does a getOrElse, throws a ConfigError on else.
+     *
+     * @param name The name of the error
+     * @return Some(T)
+     * @throws ConfigError if None
+     */
+    @throws[ConfigError]
+    def orThrowConfigError(name: String): T = option.getOrElse(throw new ConfigError(name))
+
+  }
+
   /**
    * Implicit wrapper on Config which provides optional methods on getters.
    *
