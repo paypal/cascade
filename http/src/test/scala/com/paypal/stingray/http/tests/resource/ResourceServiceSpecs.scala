@@ -9,6 +9,8 @@ import com.paypal.stingray.json._
 import akka.actor.{ActorSystem, Props, Actor}
 import scala.concurrent.duration.FiniteDuration
 import java.util.concurrent.TimeUnit
+import spray.can.server.{Stats => SprayStats}
+import spray.can.Http.GetStats
 
 /**
  * Tests for [[com.paypal.stingray.http.resource.ResourceServiceComponent.ResourceService]]
@@ -21,23 +23,23 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is=s2
 
 """
 
-  val statsObject = new spray.can.server.Stats(new FiniteDuration(1L, TimeUnit.SECONDS), 1L, 1L, 1L, 1L, 1L, 1L, 1L)
+  val statsObject = SprayStats(new FiniteDuration(1L, TimeUnit.SECONDS), 1L, 1L, 1L, 1L, 1L, 1L, 1L)
 
   class ParentActor extends Actor {
     def receive = {
-      case other => println(other)
+      case _ =>
     }
     context.actorOf(Props(new ServerActor), "listener-0")
   }
   class ServerActor extends Actor {
     def receive = {
-      case spray.can.Http.GetStats => sender ! statsObject
+      case GetStats => sender ! statsObject
     }
   }
 
   class TestEnv extends DummyResourceService with SprayRoutingClientComponent {
     override implicit lazy val system = ActorSystem()
-    val serverActor = system.actorOf(Props(new ParentActor), "IO-HTTP")
+    system.actorOf(Props(new ParentActor), "IO-HTTP")
   }
 
   class FailTestEnv extends DummyResourceService with SprayRoutingClientComponent
