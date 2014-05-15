@@ -147,7 +147,9 @@ class ConfigSpecs extends Specification { override def is = s2"""
         config.getOptionalString("service.name").orThrowConfigError("fail") must beEqualTo("matt")
       }
       def throws = {
-        Try { config.getOptionalString("service.noname").orThrowConfigError("fail") } must beAFailedTry[String].withThrowable[ConfigError]
+        Try { config.getOptionalString("service.noname").orThrowConfigError("fail") } must beAFailedTry[String].like {
+          case ce: ConfigError => ce.getMessage must beEqualTo("fail")
+        }
       }
     }
   }
