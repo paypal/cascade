@@ -1,4 +1,7 @@
 
+# 0.8.1 05/15/14 released by mvaznaian
+* Move RichConfigOption to common, improve test coverage, bump build-utils and add doc settings
+
 # 0.8.0 05/02/14 released by Taylor
 * Shutdown on unhandled exceptions in the main thread.
 * Remove service from MDC.
