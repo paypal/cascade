@@ -12,9 +12,6 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Tests for [[com.paypal.stingray.http.resource.ResourceServiceComponent.ResourceService]]
- *
- * /stats success case is not tested because private server actor cannot start up
- * without the correct environment. Thus we only test the fail case.
  */
 class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is=s2"""
 
