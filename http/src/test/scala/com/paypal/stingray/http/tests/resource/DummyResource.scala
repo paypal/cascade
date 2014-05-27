@@ -10,7 +10,8 @@ import com.paypal.stingray.http.resource._
 import scala.util.{Success, Try}
 import spray.http.HttpHeaders.RawHeader
 import com.paypal.stingray.http.util.HttpUtil
-import akka.actor.ActorRef
+import akka.actor.{Actor, ActorRef}
+import com.paypal.stingray.http.tests.resource.DummyResource.{PutRequest, PostRequest, LanguageRequest, GetRequest}
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type
@@ -31,32 +32,15 @@ class DummyResource(requestContext: ActorRef)
       HttpUtil.parseType(r, data)(m)
   }
 
-  /** This logger */
-  override protected lazy val logger = getLogger[DummyResource]
-
   /**
    * the synchronous context this resource uses to construct futures in its methods
    */
   implicit val executionContext: ExecutionContext = new ExecutionContext {
     override def reportFailure(t: Throwable) {
-      logger.warn(t.getMessage, t)
+      log.warning(t.getMessage, t)
     }
     override def execute(runnable: Runnable) {
       runnable.run()
-    }
-  }
-
-
-  /**
-   * Authorized if a header marked `Unauthorized` is not sent.
-   * @param r the parsed request
-   * @return optionally, the AuthInfo for this request, or a Failure(halt)
-   */
-  override def isAuthorized(r: HttpRequest): Boolean = {
-    if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
-      true
-    } else {
-      false
     }
   }
 
@@ -69,40 +53,48 @@ class DummyResource(requestContext: ActorRef)
 
   /**
    * A dummy GET request must have a query param "foo=bar" and an Accept header with a single value `text/plain`
-   * @param r the request
-   * @return a response for the given request
+   * @param req the request
    */
-  def doGet(r: HttpRequest): Future[(HttpResponse, Option[String])] = {
-    for {
-      query <- r.uri.query.continue
-      param <- query.get("foo").orHaltWith(BadRequest, "no query param")
-      _ <- ("bar" == param).orHaltWith(BadRequest, "wrong query param")
-      (foo, bar) <- ("foo", "bar").some.orHaltWith(BadRequest, "what")
-      accept <- r.header[HttpHeaders.Accept].orHaltWith(BadRequest, "no accept header")
-      _ <- ((accept.mediaRanges.size == 1) && (accept.mediaRanges(0).value == MediaTypes.`text/plain`.value))
-        .orHaltWith(BadRequest, "no accept header")
-    } yield (HttpResponse(OK, "pong"), None)
+  def doGet(req: GetRequest): Unit = {
+    if (req.foo == "bar")
+      complete(HttpResponse(OK, "pong"))
+    else
+      errorCode(BadRequest, "incorrect parameters")
   }
 
-  def setContentLanguage(r: HttpRequest): Future[(HttpResponse, Option[String])] = {
-    (HttpResponse(OK, "Gutentag!", List(RawHeader("Content-Language", "de"))), None).continue
+  def setContentLanguage(req: LanguageRequest): Unit = {
+    complete(HttpResponse(OK, "Gutentag!", List(RawHeader("Content-Language", "de"))))
   }
 
   /**
    * A dummy POST request must have a body "{"foo":"bar"}"
-   * @param body the request
+   * @param req the request
    * @return the response for the post and the new location
    */
-  def doPostAsCreate(body: Map[String, String]): Future[(HttpResponse, Option[String])] = for {
-    param <- body.get("foo").orHaltWith(BadRequest, "wrong json in body")
-    _ <- ("bar" == param).orHaltWith(BadRequest, "wrong json in body")
-  } yield (HttpResponse(Created, "pong"), "foobar".some)
+  def doPostAsCreate(req: PostRequest): Unit = {
+    if (req.foo == "bar")
+      complete(HttpResponse(OK, "pong"), "foobar")
+    else
+      errorCode(BadRequest, "incorrect parameters")
+  }
 
   /**
-   * A dummy PUT request must have no body
-   * @param r the request
-   * @return the response for the put
+   * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
+   * will be sent to this message from ResourceActor via a tell. As an actor will be spun up for each request, it is
+   * safe to store mutable state during this receive function.
+   * When the request is finished, [[complete]] must be called
+   *
+   * @return The receive function to be applied when a parsed request object or other actor message is received
    */
-  def doPut(r: Unit): Future[(HttpResponse, Option[String])] = (HttpResponse(OK, "pong"), None).continue
+  override protected def processRequest: Actor.Receive = {
+    case req: GetRequest => doGet(req)
+    case req: LanguageRequest => setContentLanguage(req)
+    case req: PostRequest => doPostAsCreate(req)
+  }
+}
 
+object DummyResource {
+  case class GetRequest(foo: String)
+  case class LanguageRequest()
+  case class PostRequest(foo: String)
 }

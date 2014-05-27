@@ -17,6 +17,7 @@ import spray.http.HttpResponse
 import com.paypal.stingray.http.resource.ResourceHttpActor.RequestIsProcessed
 import spray.http.Language
 import com.paypal.stingray.http.resource.ResourceHttpActor.CheckSupportedFormats
+import com.paypal.stingray.akka.actor.{UnhandledMessageException, ServiceActor}
 
 /**
  * Base class for HTTP resources built with Spray.
@@ -26,34 +27,34 @@ import com.paypal.stingray.http.resource.ResourceHttpActor.CheckSupportedFormats
  *
  * @param requestContext The ResourceActor which started this actor
  */
-abstract class AbstractResourceActor(private val requestContext: ActorRef) extends Actor {
+abstract class AbstractResourceActor(private val requestContext: ActorRef) extends ServiceActor {
 
   /**
    * The receive function for this resource. Should not be overridden - implement [[processRequest]] instead
    */
-  override final def receive: Actor.Receive = processRequest orElse defaultReceive
+  override final def receive: Actor.Receive = defaultReceive orElse processRequest orElse errorCatching
 
   /**
    * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
    * will be sent to this message from ResourceActor via a tell. As an actor will be spun up for each request, it is
    * safe to store mutable state during this receive function.
    * When the request is finished, [[complete]] must be called
+   *
    * @return The receive function to be applied when a parsed request object or other actor message is received
    */
-  protected def processRequest: PartialFunction[Any, Unit]
+  protected def processRequest: Actor.Receive
 
-  private def defaultReceive: PartialFunction[Any, Unit] = {
+  private def defaultReceive: Actor.Receive = {
     case CheckSupportedFormats() =>
       requestContext ! SupportedFormats(acceptableContentTypes,
         responseContentType,
         responseLanguage)
+  }
+
+  private def errorCatching: Actor.Receive = {
     case failed: Status.Failure =>
-      logger.error("Error serving request", failed)
+      log.error("Error serving request", failed)
       requestContext ! failed
-      context.stop(self)
-    case other =>
-      logger.error(s"Unhandled message: $other")
-      requestContext ! Status.Failure(new IllegalStateException("Unhandled message to resource actor"))
       context.stop(self)
   }
 
@@ -72,14 +73,22 @@ abstract class AbstractResourceActor(private val requestContext: ActorRef) exten
     context.stop(self)
   }
 
-  protected lazy val logger = LoggerFactory.getLogger(this.getClass)
+  protected def errorCode(code: StatusCode): Unit = {
+    requestContext ! Status.Failure(HaltException(code))
+  }
 
-  /**
-   * Determines the AuthInfo for a given request, if authorized
-   * @param r the parsed request
-   * @return true iff the request is authorized to continue
-   */
-  def isAuthorized(r: HttpRequest): Boolean
+  protected def errorCode(code: StatusCode, msg: String): Unit = {
+    requestContext ! Status.Failure(HaltException(code))
+  }
+
+  @throws[UnhandledMessageException]
+  override def unhandled(message: Any): Unit = {
+    super.unhandled(message)
+    val ex = new UnhandledMessageException(s"Unhandled message recieved by actor: ${self.path}, message: $message")
+    sender ! Status.Failure(ex)
+    error(ex)
+    throw ex
+  }
 
   /**
    * A list of content types that that this server can accept, by default `application/json`.

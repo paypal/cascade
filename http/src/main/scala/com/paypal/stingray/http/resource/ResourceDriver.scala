@@ -5,7 +5,7 @@ import spray.http.StatusCodes.{Success => _, _}
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.util._
 import spray.routing.RequestContext
-import akka.actor.{ActorRef, ActorRefFactory}
+import akka.actor.{Props, ActorRef, ActorRefFactory}
 import com.paypal.stingray.http.util.HttpUtil
 
 /**
@@ -23,13 +23,12 @@ object ResourceDriver {
 
   /**
    * Run the request on this resource, first applying a rewrite. This should not be overridden.
-   * @param resource this resource
+   * @param resourceProps function for creating the actorRef which will process the request
    * @param rewrite a method by which to rewrite the request
    * @tparam ParsedRequest the request after parsing
-   * @tparam AuthInfo the authorization container
    * @return the rewritten request execution
    */
-  final def serveWithRewrite[ParsedRequest, AuthInfo](resource: AbstractResourceActor[AuthInfo],
+  final def serveWithRewrite[ParsedRequest](resourceProps: ActorRef => AbstractResourceActor,
                                                 processFunction: ResourceHttpActor.RequestProcessor[ParsedRequest],
                                                 mbResponseActor: Option[ActorRef] = None)
                                                (rewrite: RewriteFunction[ParsedRequest])
@@ -37,7 +36,7 @@ object ResourceDriver {
     ctx: RequestContext =>
       rewrite(ctx.request).map {
         case (request, parsed) =>
-          val serveFn = serve(resource, processFunction, r => Success(parsed))
+          val serveFn = serve(resourceProps, r => Success(parsed), mbResponseActor)
           serveFn(ctx.copy(request = request))
       }.recover {
         case e: Exception =>
@@ -47,19 +46,16 @@ object ResourceDriver {
 
   /**
    * Run the request on this resource
-   * @param resource this resource
-   * @param processFunction the function to be executed to process the request
+   * @param resourceProps function for creating the actorRef which will process the request
    * @tparam ParsedRequest the request after parsing
-   * @tparam AuthInfo the authorization container
    * @return the request execution
    */
-  final def serve[ParsedRequest, AuthInfo](resource: AbstractResourceActor[AuthInfo],
-                                           processFunction: ResourceHttpActor.RequestProcessor[ParsedRequest],
-                                           requestParser: ResourceHttpActor.RequestParser[ParsedRequest],
-                                           mbResponseActor: Option[ActorRef] = None)
-                                          (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
+  final def serve[ParsedRequest](resourceProps: ActorRef => AbstractResourceActor,
+                                 requestParser: ResourceHttpActor.RequestParser[ParsedRequest],
+                                 mbResponseActor: Option[ActorRef] = None)
+                                (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     { ctx: RequestContext =>
-      val actor = actorRefFactory.actorOf(ResourceHttpActor.props(resource, ctx, requestParser, mbResponseActor))
+      val actor = actorRefFactory.actorOf(ResourceHttpActor.props(resourceProps, ctx, requestParser, mbResponseActor))
       actor ! ResourceHttpActor.Start
     }
   }

@@ -11,7 +11,8 @@ import scala.concurrent.Future
 import spray.http.HttpRequest
 import scala.Some
 import scala.util.Try
-import akka.actor.ActorSystem
+import akka.actor.{Status, Actor, ActorSystem}
+import com.paypal.stingray.http.resource.ResourceHttpActor.{RequestIsProcessed, SupportedFormats}
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class
@@ -29,17 +30,40 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
   trait Context extends CommonImmutableSpecificationContext with SprayMatchers {
     implicit val actorSystem = ActorSystem("abstract-resource-specs")
 
-    val fullResource = new DummyResource
+    class TestActor extends Actor {
+      var supportedFormatsReceived = false
+      var errorReceived = false
+      var resultReceived = false
+
+      override def receive: Actor.Receive = {
+        case _: SupportedFormats => supportedFormatsReceived = true
+        case _: Status.Failure => errorReceived = true
+        case _: RequestIsProcessed => resultReceived = true
+      }
+    }
+
 
     val testResource = new TestResource
 
-    class TestResource extends AbstractResourceActor {
+    //
+    class TestResource extends AbstractResourceActor(null) {
       override def isAuthorized(r: HttpRequest): Future[Option[Unit]] = {
         if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
           Some().continue
         } else {
           halt(StatusCodes.Unauthorized)
         }
+      }
+
+      /**
+       * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
+       * will be sent to this message from ResourceActor via a tell. As an actor will be spun up for each request, it is
+       * safe to store mutable state during this receive function.
+       * When the request is finished, [[complete]] must be called
+       * @return The receive function to be applied when a parsed request object or other actor message is received
+       */
+      override protected def processRequest: PartialFunction[Any, Unit] = {
+        case Unit => sender ! Unit
       }
     }
   }
