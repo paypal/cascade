@@ -44,8 +44,8 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
    * Internal
    */
   case class RequestIsParsed(p: ParsedRequest)
-  case class ContentTypeIsSupported()
-  case class ResponseContentTypeIsAcceptable()
+  case object ContentTypeIsSupported
+  case object ResponseContentTypeIsAcceptable
 
 
 
@@ -88,21 +88,21 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
       resourceActor ! CheckSupportedFormats()
 
     case formats: SupportedFormats =>
-      setNextStep[ContentTypeIsSupported]
+      setNextStep[ContentTypeIsSupported.type]
       mbSupportedFormats = formats.opt
-      self ! ensureResponseContentTypeAcceptable().map { _ =>
-        ensureContentTypeSupported()
+      self ! ensureContentTypeSupported().map { _ =>
+        ContentTypeIsSupported
       }.orFailure
 
     //the content type is supported, now check if the response content type is acceptable
-    case ContentTypeIsSupported() =>
-      setNextStep[ResponseContentTypeIsAcceptable]
+    case ContentTypeIsSupported =>
+      setNextStep[ResponseContentTypeIsAcceptable.type]
       self ! ensureResponseContentTypeAcceptable().map { _ =>
-        ensureContentTypeSupported()
+        ResponseContentTypeIsAcceptable
       }.orFailure
 
     //the response content type is acceptable, now check if the request is authorized
-    case ResponseContentTypeIsAcceptable() =>
+    case ResponseContentTypeIsAcceptable =>
       setNextStep[RequestIsParsed]
       self ! reqParser.apply(request).map { p =>
         RequestIsParsed(p)
@@ -173,6 +173,8 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
         s"$self didn't receive a next message within ${recvTimeout.toMillis} milliseconds of the last one. next expected message was ${pendingStep.getName}")
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
   }
+
+
 
   /**
    * Continues execution if this resource supports the content type sent in the request, or halts

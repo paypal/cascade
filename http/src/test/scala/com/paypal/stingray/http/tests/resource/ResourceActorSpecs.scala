@@ -14,7 +14,7 @@ import com.paypal.stingray.akka.tests.actor.ActorSpecification
 import scala.concurrent.duration.Duration
 import com.paypal.stingray.common.tests.future._
 import java.util.concurrent.TimeUnit
-import com.paypal.stingray.http.tests.resource.DummyResource.GetRequest
+import com.paypal.stingray.http.tests.resource.DummyResource.{SleepRequest, GetRequest}
 
 class ResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
@@ -40,7 +40,7 @@ class ResourceActorSpecs
 
   sealed trait Context extends CommonImmutableSpecificationContext with RefAndProbeMatchers {
 
-    protected lazy val reqParser: ResourceHttpActor.RequestParser[Unit] = { req: HttpRequest =>
+    protected lazy val reqParser: ResourceHttpActor.RequestParser[GetRequest] = { req: HttpRequest =>
       Success(GetRequest("bar"))
     }
 
@@ -86,7 +86,7 @@ class ResourceActorSpecs
 
       lazy val resourceActorCtor = new ResourceHttpActor(resource,
         reqContext = dummyReqCtx,
-        reqParser = reqParser,
+        reqParser = request => Success(SleepRequest(500)),
         mbReturnActor = None,
         processRecvTimeout = processRecvTimeout
       )
@@ -122,7 +122,7 @@ class ResourceActorSpecs
 
   case class Fails() extends Context {
     private lazy val ex = new Exception("hello world")
-    override protected lazy val reqParser: ResourceHttpActor.RequestParser[Unit] = { req: HttpRequest =>
+    override protected lazy val reqParser: ResourceHttpActor.RequestParser[GetRequest] = { req: HttpRequest =>
       Failure(ex)
     }
 

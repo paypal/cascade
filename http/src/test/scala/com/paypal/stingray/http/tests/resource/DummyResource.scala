@@ -11,7 +11,7 @@ import scala.util.{Success, Try}
 import spray.http.HttpHeaders.RawHeader
 import com.paypal.stingray.http.util.HttpUtil
 import akka.actor.{Actor, ActorRef}
-import com.paypal.stingray.http.tests.resource.DummyResource.{PostRequest, LanguageRequest, GetRequest}
+import com.paypal.stingray.http.tests.resource.DummyResource.{SleepRequest, PostRequest, LanguageRequest, GetRequest}
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type
@@ -62,6 +62,15 @@ class DummyResource(requestContext: ActorRef)
       errorCode(BadRequest, "incorrect parameters")
   }
 
+  /**
+   * Sleep for a specified number of ms
+   * @param req request object
+   */
+  def doSleep(req: SleepRequest): Unit = {
+    Thread.sleep(req.millis)
+    complete(HttpResponse(OK, "pong"))
+  }
+
   def setContentLanguage(req: LanguageRequest): Unit = {
     complete(HttpResponse(OK, "Gutentag!", List(RawHeader("Content-Language", "de"))))
   }
@@ -90,11 +99,13 @@ class DummyResource(requestContext: ActorRef)
     case req: GetRequest => doGet(req)
     case req: LanguageRequest => setContentLanguage(req)
     case req: PostRequest => doPostAsCreate(req)
+    case req: SleepRequest => doSleep(req)
   }
 }
 
 object DummyResource {
   case class GetRequest(foo: String)
+  case class SleepRequest(millis: Long)
   case class LanguageRequest()
   case class PostRequest(foo: String)
 }

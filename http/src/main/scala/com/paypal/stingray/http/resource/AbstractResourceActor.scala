@@ -59,6 +59,7 @@ abstract class AbstractResourceActor(private val requestContext: ActorRef) exten
   }
 
   protected def complete(resp: HttpResponse): Unit = {
+    println("Complete")
     requestContext ! RequestIsProcessed(resp, None)
     context.stop(self)
   }
@@ -79,15 +80,6 @@ abstract class AbstractResourceActor(private val requestContext: ActorRef) exten
 
   protected def errorCode(code: StatusCode, msg: String): Unit = {
     requestContext ! Status.Failure(HaltException(code))
-  }
-
-  @throws[UnhandledMessageException]
-  override def unhandled(message: Any): Unit = {
-    super.unhandled(message)
-    val ex = new UnhandledMessageException(s"Unhandled message recieved by actor: ${self.path}, message: $message")
-    sender ! Status.Failure(ex)
-    error(ex)
-    throw ex
   }
 
   /**
