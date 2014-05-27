@@ -68,7 +68,7 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
   context.setReceiveTimeout(recvTimeout)
 
 
-  override def preStart() {
+  override def preStart(): Unit = {
     resourceActor = context.actorOf(Props(resourceCreator(self)))
     super.preStart()
   }

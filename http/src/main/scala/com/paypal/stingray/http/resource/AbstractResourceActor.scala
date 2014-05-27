@@ -59,7 +59,6 @@ abstract class AbstractResourceActor(private val requestContext: ActorRef) exten
   }
 
   protected def complete(resp: HttpResponse): Unit = {
-    println("Complete")
     requestContext ! RequestIsProcessed(resp, None)
     context.stop(self)
   }
