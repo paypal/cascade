@@ -10,7 +10,7 @@ import com.paypal.stingray.http.tests.matchers.SprayMatchers
 import akka.actor.ActorSystem
 
 /**
- * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResource]] abstract class,
+ * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class,
  * via the [[com.paypal.stingray.http.tests.resource.DummyResource]] implementation.
  */
 class DummyResourceSpecs extends Specification with Mockito { override def is = s2"""

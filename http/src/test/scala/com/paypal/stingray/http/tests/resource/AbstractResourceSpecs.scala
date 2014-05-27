@@ -14,13 +14,9 @@ import scala.util.Try
 import akka.actor.ActorSystem
 
 /**
- * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResource]] abstract class
+ * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class
  */
 class AbstractResourceSpecs extends Specification with Mockito { override def is = s2"""
-
-  isForbidden
-    isForbidden returns Success(false)                            ${Forbidden().success}
-    isForbidden which takes AuthInfo returns Success(false)       ${Forbidden().withAuthInfoSuccess}
 
   acceptableContentTypes
     returns the default application/json                          ${CTypes().acceptable}
@@ -47,7 +43,7 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
 
     val testResource = new TestResource
 
-    class TestResource extends AbstractResource[Unit] {
+    class TestResource extends AbstractResourceActor {
       override def isAuthorized(r: HttpRequest): Future[Option[Unit]] = {
         if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
           Some().continue
@@ -55,19 +51,6 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
           halt(StatusCodes.Unauthorized)
         }
       }
-    }
-  }
-
-  case class Forbidden() extends Context {
-    def success = {
-      val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
-      fullResource.isForbidden(request) must beSuccessfulTry[Boolean].withValue(false)
-    }
-
-    def withAuthInfoSuccess = {
-      val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
-      val resp: Try[Boolean] = fullResource.isForbidden(request, ())
-      resp must beSuccessfulTry[Boolean].withValue(false)
     }
   }
 

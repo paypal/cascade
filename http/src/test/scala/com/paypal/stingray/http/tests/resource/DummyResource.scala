@@ -9,6 +9,8 @@ import scala.concurrent._
 import com.paypal.stingray.http.resource._
 import scala.util.{Success, Try}
 import spray.http.HttpHeaders.RawHeader
+import com.paypal.stingray.http.util.HttpUtil
+import akka.actor.ActorRef
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type
@@ -16,17 +18,17 @@ import spray.http.HttpHeaders.RawHeader
  *
  * Useful when the action of a request through an HTTP server is important to model, as opposed to mocking a resource.
  */
-class DummyResource
-  extends AbstractResource[Unit]
+class DummyResource(requestContext: ActorRef)
+  extends AbstractResourceActor(requestContext)
   with LoggingSugar {
 
-  override def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Try[T] = {
+   def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Try[T] = {
     if (m == manifest[HttpRequest])
       Success(r.asInstanceOf[T])
     else if (m == manifest[Unit])
       Success(().asInstanceOf[T])
     else
-      super.parseType(r, data)(m)
+      HttpUtil.parseType(r, data)(m)
   }
 
   /** This logger */
@@ -50,11 +52,11 @@ class DummyResource
    * @param r the parsed request
    * @return optionally, the AuthInfo for this request, or a Failure(halt)
    */
-  override def isAuthorized(r: HttpRequest): Future[Option[Unit]] = {
+  override def isAuthorized(r: HttpRequest): Boolean = {
     if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
-      Some().continue
+      true
     } else {
-      halt(StatusCodes.Unauthorized)
+      false
     }
   }
 

@@ -3,7 +3,7 @@ package com.paypal.stingray.http.tests.resource
 import org.specs2.SpecificationLike
 import akka.testkit.{TestActorRef, TestKit}
 import akka.actor.ActorSystem
-import com.paypal.stingray.http.resource.ResourceActor
+import com.paypal.stingray.http.resource.ResourceHttpActor
 import spray.http.{StatusCodes, HttpResponse, HttpRequest}
 import scala.util.{Try, Failure, Success}
 import scala.concurrent.{Promise, Future}
@@ -39,11 +39,11 @@ class ResourceActorSpecs
 
   sealed trait Context extends CommonImmutableSpecificationContext with RefAndProbeMatchers {
 
-    protected lazy val reqParser: ResourceActor.RequestParser[Unit] = { req: HttpRequest =>
+    protected lazy val reqParser: ResourceHttpActor.RequestParser[Unit] = { req: HttpRequest =>
       Success(())
     }
 
-    protected lazy val reqProcessor: ResourceActor.RequestProcessor[Unit] = { _: Unit =>
+    protected lazy val reqProcessor: ResourceHttpActor.RequestProcessor[Unit] = { _: Unit =>
       Future.successful(HttpResponse() -> None)
     }
 
@@ -57,17 +57,17 @@ class ResourceActorSpecs
     protected lazy val returnActorRefAndProbe = RefAndProbe(TestActorRef(new ResponseHandlerActor(returnActorPromise)))
     protected val returnActorFuture = returnActorPromise.future
 
-    protected lazy val resourceActorRefAndProbe = RefAndProbe(TestActorRef(new ResourceActor(resource, dummyReqCtx, reqParser, reqProcessor, Some(returnActorRefAndProbe.ref))))
+    protected lazy val resourceActorRefAndProbe = RefAndProbe(TestActorRef(new ResourceHttpActor(resource, dummyReqCtx, reqParser, reqProcessor, Some(returnActorRefAndProbe.ref))))
 
     override def before() {
-      resourceActorRefAndProbe.ref ! ResourceActor.Start
+      resourceActorRefAndProbe.ref ! ResourceHttpActor.Start
     }
   }
 
   case class Start() extends Context {
 
     def succeeds = {
-      val props = ResourceActor.props(resource, dummyReqCtx, reqParser, reqProcessor, None)
+      val props = ResourceHttpActor.props(resource, dummyReqCtx, reqParser, reqProcessor, None)
       val started = Try(system.actorOf(props))
       started.map { a =>
           system.stop(a)
@@ -76,7 +76,7 @@ class ResourceActorSpecs
     }
 
     def timesOut = {
-      val refAndProbe = RefAndProbe(TestActorRef(new ResourceActor(resource, dummyReqCtx, reqParser, reqProcessor, None, Duration.Zero)))
+      val refAndProbe = RefAndProbe(TestActorRef(new ResourceHttpActor(resource, dummyReqCtx, reqParser, reqProcessor, None, Duration.Zero)))
       val stoppedRes = refAndProbe must beStopped
       val failedRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
         case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.ServiceUnavailable)
@@ -86,7 +86,7 @@ class ResourceActorSpecs
 
     def timesOutOnRequestProcessor = {
       val processRecvTimeout = Duration(250, TimeUnit.MILLISECONDS)
-      val reqProcessor: ResourceActor.RequestProcessor[Unit] = { _: Unit =>
+      val reqProcessor: ResourceHttpActor.RequestProcessor[Unit] = { _: Unit =>
         //the TestActorRef[ResourceActor] executes on a CallingThreadDispatcher,
         //so the sleep needs to happen on a different thread so that the actor
         //processes the ReceiveTimeout message before this future completes
@@ -95,7 +95,7 @@ class ResourceActorSpecs
           HttpResponse() -> None
         }
       }
-      lazy val resourceActorCtor = new ResourceActor(resource = resource,
+      lazy val resourceActorCtor = new ResourceHttpActor(resource = resource,
         reqContext = dummyReqCtx,
         reqParser = reqParser,
         reqProcessor = reqProcessor,
@@ -103,7 +103,7 @@ class ResourceActorSpecs
         processRecvTimeout = processRecvTimeout
       )
       val refAndProbe = RefAndProbe(TestActorRef(resourceActorCtor))
-      refAndProbe.ref ! ResourceActor.Start
+      refAndProbe.ref ! ResourceHttpActor.Start
       reqCtxHandlerActorFuture must beLike[HttpResponse] {
         case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.ServiceUnavailable)
       }.await
@@ -134,7 +134,7 @@ class ResourceActorSpecs
 
   case class Fails() extends Context {
     private lazy val ex = new Exception("hello world")
-    override protected lazy val reqParser: ResourceActor.RequestParser[Unit] = { req: HttpRequest =>
+    override protected lazy val reqParser: ResourceHttpActor.RequestParser[Unit] = { req: HttpRequest =>
       Failure(ex)
     }
 

@@ -5,7 +5,7 @@ import com.paypal.stingray.common.option._
 import spray.http.HttpRequest
 
 /**
- * Mix this into an [[com.paypal.stingray.http.resource.AbstractResource]] implementation,
+ * Mix this into an [[com.paypal.stingray.http.resource.AbstractResourceActor]] implementation,
  * and set AuthInfo to [[com.paypal.stingray.http.resource.NoAuth]] to always authorize requests.
  */
 trait AlwaysAuthorized {

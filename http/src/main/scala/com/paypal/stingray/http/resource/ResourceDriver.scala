@@ -6,6 +6,7 @@ import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.util._
 import spray.routing.RequestContext
 import akka.actor.{ActorRef, ActorRefFactory}
+import com.paypal.stingray.http.util.HttpUtil
 
 /**
  * Implementation of a basic HTTP request handling pipeline.
@@ -28,8 +29,8 @@ object ResourceDriver {
    * @tparam AuthInfo the authorization container
    * @return the rewritten request execution
    */
-  final def serveWithRewrite[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
-                                                processFunction: ResourceActor.RequestProcessor[ParsedRequest],
+  final def serveWithRewrite[ParsedRequest, AuthInfo](resource: AbstractResourceActor[AuthInfo],
+                                                processFunction: ResourceHttpActor.RequestProcessor[ParsedRequest],
                                                 mbResponseActor: Option[ActorRef] = None)
                                                (rewrite: RewriteFunction[ParsedRequest])
                                                (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
@@ -40,7 +41,7 @@ object ResourceDriver {
           serveFn(ctx.copy(request = request))
       }.recover {
         case e: Exception =>
-          ctx.complete(HttpResponse(InternalServerError, resource.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8))))
+          ctx.complete(HttpResponse(InternalServerError, HttpUtil.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8))))
       }
   }
 
@@ -52,14 +53,14 @@ object ResourceDriver {
    * @tparam AuthInfo the authorization container
    * @return the request execution
    */
-  final def serve[ParsedRequest, AuthInfo](resource: AbstractResource[AuthInfo],
-                                           processFunction: ResourceActor.RequestProcessor[ParsedRequest],
-                                           requestParser: ResourceActor.RequestParser[ParsedRequest],
+  final def serve[ParsedRequest, AuthInfo](resource: AbstractResourceActor[AuthInfo],
+                                           processFunction: ResourceHttpActor.RequestProcessor[ParsedRequest],
+                                           requestParser: ResourceHttpActor.RequestParser[ParsedRequest],
                                            mbResponseActor: Option[ActorRef] = None)
                                           (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     { ctx: RequestContext =>
-      val actor = actorRefFactory.actorOf(ResourceActor.props(resource, ctx, requestParser, processFunction, mbResponseActor))
-      actor ! ResourceActor.Start
+      val actor = actorRefFactory.actorOf(ResourceHttpActor.props(resource, ctx, requestParser, mbResponseActor))
+      actor ! ResourceHttpActor.Start
     }
   }
 }

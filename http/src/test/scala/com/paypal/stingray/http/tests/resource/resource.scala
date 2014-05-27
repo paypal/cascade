@@ -1,7 +1,7 @@
 package com.paypal.stingray.http.tests
 
 import spray.http.{HttpResponse, HttpRequest}
-import com.paypal.stingray.http.resource.{ResourceDriver, AbstractResource}
+import com.paypal.stingray.http.resource.{ResourceDriver, AbstractResourceActor}
 import scala.concurrent.Future
 import scala.util.Try
 import akka.actor.ActorSystem
@@ -19,7 +19,7 @@ package object resource {
    * @return a future that will be fulfilled when request parsing is complete
    */
   def executeResourceDriver[AuthInfo, ParsedRequest](req: HttpRequest,
-                                                     resource: AbstractResource[AuthInfo],
+                                                     resource: AbstractResourceActor[AuthInfo],
                                                      processFunction: ParsedRequest => Future[(HttpResponse, Option[String])],
                                                      requestParser: HttpRequest => Try[ParsedRequest])
                                                     (implicit actorSystem: ActorSystem): Future[HttpResponse] = {
