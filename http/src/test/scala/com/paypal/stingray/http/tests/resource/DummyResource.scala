@@ -11,7 +11,7 @@ import scala.util.{Success, Try}
 import spray.http.HttpHeaders.RawHeader
 import com.paypal.stingray.http.util.HttpUtil
 import akka.actor.{Actor, ActorRef}
-import com.paypal.stingray.http.tests.resource.DummyResource.{PutRequest, PostRequest, LanguageRequest, GetRequest}
+import com.paypal.stingray.http.tests.resource.DummyResource.{PostRequest, LanguageRequest, GetRequest}
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type

@@ -47,13 +47,6 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
 
     //
     class TestResource extends AbstractResourceActor(null) {
-      override def isAuthorized(r: HttpRequest): Future[Option[Unit]] = {
-        if (r.headers.find(_.lowercaseName == "unauthorized").isEmpty) {
-          Some().continue
-        } else {
-          halt(StatusCodes.Unauthorized)
-        }
-      }
 
       /**
        * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object

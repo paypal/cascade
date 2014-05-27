@@ -14,6 +14,7 @@ import com.paypal.stingray.akka.tests.actor.ActorSpecification
 import scala.concurrent.duration.Duration
 import com.paypal.stingray.common.tests.future._
 import java.util.concurrent.TimeUnit
+import com.paypal.stingray.http.tests.resource.DummyResource.GetRequest
 
 class ResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
@@ -35,16 +36,12 @@ class ResourceActorSpecs
 
   """
 
-  private val resource = new DummyResource
+  private val resource = new DummyResource(_)
 
   sealed trait Context extends CommonImmutableSpecificationContext with RefAndProbeMatchers {
 
     protected lazy val reqParser: ResourceHttpActor.RequestParser[Unit] = { req: HttpRequest =>
-      Success(())
-    }
-
-    protected lazy val reqProcessor: ResourceHttpActor.RequestProcessor[Unit] = { _: Unit =>
-      Future.successful(HttpResponse() -> None)
+      Success(GetRequest("bar"))
     }
 
     protected lazy val req = HttpRequest()
@@ -57,7 +54,7 @@ class ResourceActorSpecs
     protected lazy val returnActorRefAndProbe = RefAndProbe(TestActorRef(new ResponseHandlerActor(returnActorPromise)))
     protected val returnActorFuture = returnActorPromise.future
 
-    protected lazy val resourceActorRefAndProbe = RefAndProbe(TestActorRef(new ResourceHttpActor(resource, dummyReqCtx, reqParser, reqProcessor, Some(returnActorRefAndProbe.ref))))
+    protected lazy val resourceActorRefAndProbe = RefAndProbe(TestActorRef(new ResourceHttpActor(resource, dummyReqCtx, reqParser, Some(returnActorRefAndProbe.ref))))
 
     override def before() {
       resourceActorRefAndProbe.ref ! ResourceHttpActor.Start
@@ -67,7 +64,7 @@ class ResourceActorSpecs
   case class Start() extends Context {
 
     def succeeds = {
-      val props = ResourceHttpActor.props(resource, dummyReqCtx, reqParser, reqProcessor, None)
+      val props = ResourceHttpActor.props(resource, dummyReqCtx, reqParser, None)
       val started = Try(system.actorOf(props))
       started.map { a =>
           system.stop(a)
@@ -76,7 +73,7 @@ class ResourceActorSpecs
     }
 
     def timesOut = {
-      val refAndProbe = RefAndProbe(TestActorRef(new ResourceHttpActor(resource, dummyReqCtx, reqParser, reqProcessor, None, Duration.Zero)))
+      val refAndProbe = RefAndProbe(TestActorRef(new ResourceHttpActor(resource, dummyReqCtx, reqParser, None, Duration.Zero)))
       val stoppedRes = refAndProbe must beStopped
       val failedRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
         case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.ServiceUnavailable)
@@ -86,19 +83,10 @@ class ResourceActorSpecs
 
     def timesOutOnRequestProcessor = {
       val processRecvTimeout = Duration(250, TimeUnit.MILLISECONDS)
-      val reqProcessor: ResourceHttpActor.RequestProcessor[Unit] = { _: Unit =>
-        //the TestActorRef[ResourceActor] executes on a CallingThreadDispatcher,
-        //so the sleep needs to happen on a different thread so that the actor
-        //processes the ReceiveTimeout message before this future completes
-        Future {
-          Thread.sleep(processRecvTimeout.toMillis * 4)
-          HttpResponse() -> None
-        }
-      }
-      lazy val resourceActorCtor = new ResourceHttpActor(resource = resource,
+
+      lazy val resourceActorCtor = new ResourceHttpActor(resource,
         reqContext = dummyReqCtx,
         reqParser = reqParser,
-        reqProcessor = reqProcessor,
         mbReturnActor = None,
         processRecvTimeout = processRecvTimeout
       )
