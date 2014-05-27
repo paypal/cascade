@@ -82,7 +82,7 @@ class DummyResource(requestContext: ActorRef)
    */
   def doPostAsCreate(req: PostRequest): Unit = {
     if (req.foo == "bar")
-      complete(HttpResponse(OK, "pong"), "foobar")
+      complete(HttpResponse(Created, "pong"), "foobar")
     else
       errorCode(BadRequest, "incorrect parameters")
   }

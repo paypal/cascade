@@ -85,7 +85,7 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
     case Start =>
       setNextStep[SupportedFormats]
       //start the child actor as resourceActor
-      resourceActor ! CheckSupportedFormats()
+      resourceActor ! CheckSupportedFormats
 
     case formats: SupportedFormats =>
       setNextStep[ContentTypeIsSupported.type]
@@ -265,7 +265,7 @@ object ResourceHttpActor {
    * Contract with AbstractResourceActor
    */
   //requests
-  case class CheckSupportedFormats()
+  case object CheckSupportedFormats
 
   //responses
   case class SupportedFormats(contentTypes: List[ContentType],

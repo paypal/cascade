@@ -45,7 +45,7 @@ abstract class AbstractResourceActor(private val requestContext: ActorRef) exten
   protected def processRequest: Actor.Receive
 
   private def defaultReceive: Actor.Receive = {
-    case CheckSupportedFormats() =>
+    case CheckSupportedFormats =>
       requestContext ! SupportedFormats(acceptableContentTypes,
         responseContentType,
         responseLanguage)
