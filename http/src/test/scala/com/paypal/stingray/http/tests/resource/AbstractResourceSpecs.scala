@@ -24,16 +24,6 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
   responseContentType
     returns the default application/json                          ${CTypes().response}
 
-  errorResponse
-    properly returns a 500                                        ${ErrorResponse().returns500}
-
-  jsonOKResponse
-    serializes json and returns OK status                         ${JsonOK().returnsOK}
-
-  toJsonBody
-    Success returns proper http response                          ${JsonBody().ok}
-    Failure returns error in json format                          ${JsonBody().error}
-
   """
 
   trait Context extends CommonImmutableSpecificationContext with SprayMatchers {
@@ -60,36 +50,6 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
     }
     def response = {
       testResource.responseContentType must beEqualTo(ContentTypes.`application/json`)
-    }
-  }
-
-  case class ErrorResponse() extends Context {
-    def returns500 = {
-      val error = testResource.errorResponse(new Exception("Some Error"))
-      (error must beAnInstanceOf[HttpResponse]) and (error.status must beEqualTo(InternalServerError))
-    }
-  }
-
-  case class JsonOK() extends Context {
-    def returnsOK = {
-      val body = """{"key":"value""""
-      val resp = testResource.jsonOKResponse(body)
-      (resp must beAnInstanceOf[HttpResponse]) and (resp.status must beEqualTo(OK))
-    }
-  }
-
-  case class JsonBody() extends Context {
-    def ok = {
-      val body = Map("key" -> "value")
-      val expected = """{"key":"value"}"""
-      val resp = testResource.toJsonBody(body)
-      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
-    }
-    def error = {
-      class Foo
-      val body = new Foo
-      val resp = testResource.toJsonBody(body)
-      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must contain("errors"))
     }
   }
 
