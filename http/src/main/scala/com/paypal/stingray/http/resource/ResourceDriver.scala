@@ -29,7 +29,6 @@ object ResourceDriver {
    * @return the rewritten request execution
    */
   final def serveWithRewrite[ParsedRequest](resourceProps: ActorRef => AbstractResourceActor,
-                                                processFunction: ResourceHttpActor.RequestProcessor[ParsedRequest],
                                                 mbResponseActor: Option[ActorRef] = None)
                                                (rewrite: RewriteFunction[ParsedRequest])
                                                (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {

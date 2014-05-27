@@ -45,7 +45,6 @@ class AbstractResourceSpecs extends Specification with Mockito { override def is
 
     val testResource = new TestResource
 
-    //
     class TestResource extends AbstractResourceActor(null) {
 
       /**
