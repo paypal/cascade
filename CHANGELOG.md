@@ -1,3 +1,6 @@
+
+# 0.8.2 05/27/14 released by aaron
+* Making ActorSpecification's self type TestKitBase instead of TestKit
 # 0.8.2 05/27/14 released by aschlesinger
 * Making ActorSpecification's self type TestKitBase instead of TestKit
 
