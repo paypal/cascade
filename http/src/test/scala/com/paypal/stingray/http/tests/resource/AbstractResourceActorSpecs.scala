@@ -5,7 +5,7 @@ import spray.http._
 import com.paypal.stingray.http.resource._
 import spray.http.StatusCodes._
 import akka.actor._
-import com.paypal.stingray.http.resource.ResourceHttpActor.{CheckSupportedFormats, SupportedFormats}
+import com.paypal.stingray.http.resource.ResourceHttpActor.{RequestIsProcessed, CheckSupportedFormats, SupportedFormats}
 import spray.http.HttpResponse
 import akka.testkit.{TestProbe, TestKit}
 import org.specs2.SpecificationLike
@@ -64,7 +64,7 @@ class AbstractResourceActorSpecs
       val probe = TestProbe()
       val resourceRef = system.actorOf(Props(new TestResource(probe.ref)))
       resourceRef ! Unit
-      probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (HttpResponse(OK, "pong"))
+      probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (RequestIsProcessed(HttpResponse(OK, "pong"), None))
     }
 
     case object GenericException extends Exception("generic downstream exception")
