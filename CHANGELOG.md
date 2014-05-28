@@ -1,4 +1,7 @@
 
+# 0.8.2 05/27/14 released by aaron
+* Making ActorSpecification's self type TestKitBase instead of TestKit
+
 # 0.8.1 05/15/14 released by mvaznaian
 * Move RichConfigOption to common, improve test coverage, bump build-utils and add doc settings
 
