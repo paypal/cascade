@@ -1,23 +1,12 @@
 package com.paypal.stingray.http.resource
 
 import spray.http._
-import scala.concurrent._
-import org.slf4j.LoggerFactory
 import akka.actor.{Status, Actor, ActorRef}
-import scala.util.Failure
 import com.paypal.stingray.common.option._
-import spray.http.StatusCodes._
-import spray.http.HttpRequest
-import spray.http.HttpResponse
-import spray.http.Language
-import scala.util.Failure
 import com.paypal.stingray.http.resource.ResourceHttpActor._
-import spray.http.HttpRequest
 import spray.http.HttpResponse
-import com.paypal.stingray.http.resource.ResourceHttpActor.RequestIsProcessed
 import spray.http.Language
-import com.paypal.stingray.http.resource.ResourceHttpActor.CheckSupportedFormats
-import com.paypal.stingray.akka.actor.{UnhandledMessageException, ServiceActor}
+import com.paypal.stingray.akka.actor.ServiceActor
 
 /**
  * Base class for HTTP resources built with Spray.

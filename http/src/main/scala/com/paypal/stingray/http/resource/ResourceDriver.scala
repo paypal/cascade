@@ -5,7 +5,6 @@ import spray.http.StatusCodes.{Success => _, _}
 import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 import scala.util._
 import spray.routing.RequestContext
-import akka.actor.{Props, ActorRef, ActorRefFactory}
 import com.paypal.stingray.http.util.HttpUtil
 import akka.actor.{ActorRef, ActorRefFactory}
 import scala.concurrent.duration.Duration

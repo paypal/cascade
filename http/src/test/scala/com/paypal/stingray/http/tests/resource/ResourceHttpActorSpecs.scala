@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 import com.paypal.stingray.http.resource.ResourceHttpActor
 import spray.http.{StatusCodes, HttpResponse, HttpRequest}
 import scala.util.{Try, Failure, Success}
-import scala.concurrent.{Promise, Future}
+import scala.concurrent.Promise
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.stingray.http.tests.actor.RefAndProbe
 import com.paypal.stingray.http.tests.matchers.RefAndProbeMatchers
