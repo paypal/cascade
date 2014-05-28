@@ -54,7 +54,7 @@ object BuildSettings {
     releaseProcess := BuildUtilities.defaultReleaseProcess
   )
 
-  lazy val standardSettings = Defaults.defaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
+  lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
     exportJars := true,
@@ -89,7 +89,7 @@ object Dependencies {
   val slf4jVersion = "1.7.7"
   val fasterXmlJacksonVersion = "2.3.1-STINGRAY" //custom version until our fixes are released
   val sprayVersion = "1.3.1"
-  val akkaVersion = "2.3.2"
+  val akkaVersion = "2.3.3"
   val parboiledVersion = "1.1.6"
   val specs2Version = "2.3.11"
 
