@@ -76,6 +76,7 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
   override def postStop(): Unit = {
     // Ensure actor is stopped in case something has gone wrong
     resourceActor.opt.foreach(context.stop)
+    super.postStop()
   }
 
   //crash on unhandled exceptions
