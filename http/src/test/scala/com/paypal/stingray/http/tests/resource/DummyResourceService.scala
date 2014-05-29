@@ -21,7 +21,7 @@ trait DummyResourceService
   with ActorSystemComponent {
 
   /** This resource */
-  val dummy: ActorRef => AbstractResourceActor = new DummyResource(_)
+  val dummy: ActorRef => DummyResource = new DummyResource(_)
 
   val parseRequest: ResourceHttpActor.RequestParser[GetRequest] = { _ : HttpRequest =>
     Try (GetRequest("bar"))

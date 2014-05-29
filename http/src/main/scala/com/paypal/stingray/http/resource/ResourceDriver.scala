@@ -24,21 +24,21 @@ object ResourceDriver {
 
   /**
    * Run the request on this resource, first applying a rewrite. This should not be overridden.
-   * @param resourceProps function for creating the actorRef which will process the request
+   * @param resourceActor function for creating the actorRef which will process the request
    * @param rewrite a method by which to rewrite the request
    * @tparam ParsedRequest the request after parsing
    * @return the rewritten request execution
    */
-  final def serveWithRewrite[ParsedRequest](resourceProps: ActorRef => AbstractResourceActor,
-                                                mbResponseActor: Option[ActorRef] = None,
-                                                recvTimeout: Duration = ResourceHttpActor.defaultRecvTimeout,
-                                                processRecvTimeout: Duration = ResourceHttpActor.defaultProcessRecvTimeout)
-                                               (rewrite: RewriteFunction[ParsedRequest])
-                                               (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
+  final def serveWithRewrite[ParsedRequest](resourceActor: ActorRef => AbstractResourceActor,
+                                            mbResponseActor: Option[ActorRef] = None,
+                                            recvTimeout: Duration = ResourceHttpActor.defaultRecvTimeout,
+                                            processRecvTimeout: Duration = ResourceHttpActor.defaultProcessRecvTimeout)
+                                           (rewrite: RewriteFunction[ParsedRequest])
+                                           (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     ctx: RequestContext =>
       rewrite(ctx.request).map {
         case (request, parsed) =>
-          val serveFn = serve(resourceProps, r => Success(parsed), mbResponseActor, recvTimeout, processRecvTimeout)
+          val serveFn = serve(resourceActor, r => Success(parsed), mbResponseActor, recvTimeout, processRecvTimeout)
           serveFn(ctx.copy(request = request))
       }.recover {
         case e: Exception =>
@@ -48,18 +48,18 @@ object ResourceDriver {
 
   /**
    * Run the request on this resource
-   * @param resourceProps function for creating the actorRef which will process the request
+   * @param resourceActor function for creating the actorRef which will process the request
    * @tparam ParsedRequest the request after parsing
    * @return the request execution
    */
-  final def serve[ParsedRequest](resourceProps: ActorRef => AbstractResourceActor,
+  final def serve[ParsedRequest](resourceActor: ActorRef => AbstractResourceActor,
                                  requestParser: ResourceHttpActor.RequestParser[ParsedRequest],
                                  mbResponseActor: Option[ActorRef] = None,
                                  recvTimeout: Duration = ResourceHttpActor.defaultRecvTimeout,
                                  processRecvTimeout: Duration = ResourceHttpActor.defaultProcessRecvTimeout)
                                 (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     { ctx: RequestContext =>
-      val actor = actorRefFactory.actorOf(ResourceHttpActor.props(resourceProps, ctx, requestParser, mbResponseActor, recvTimeout, processRecvTimeout))
+      val actor = actorRefFactory.actorOf(ResourceHttpActor.props(resourceActor, ctx, requestParser, mbResponseActor, recvTimeout, processRecvTimeout))
       actor ! ResourceHttpActor.Start
     }
   }

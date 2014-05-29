@@ -20,8 +20,7 @@ import com.paypal.stingray.http.tests.resource.DummyResource.{SleepRequest, Post
  * Useful when the action of a request through an HTTP server is important to model, as opposed to mocking a resource.
  */
 class DummyResource(requestContext: ActorRef)
-  extends AbstractResourceActor(requestContext)
-  with LoggingSugar {
+  extends AbstractResourceActor(requestContext) {
 
    def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Try[T] = {
     if (m == manifest[HttpRequest])
