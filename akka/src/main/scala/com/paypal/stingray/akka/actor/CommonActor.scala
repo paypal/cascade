@@ -14,7 +14,7 @@ trait CommonActor extends Actor with ActorLogging {
    * to preserve consistent behavior
    */
   override def preStart(): Unit = {
-    log.info(s"Starting actor: ${self.path}")
+    log.debug(s"Starting actor: ${self.path}")
     super.preStart()
   }
 
@@ -44,7 +44,7 @@ trait CommonActor extends Actor with ActorLogging {
    * to preserve consistent behavior
    */
   override def postStop(): Unit = {
-    log.info(s"Stopped actor: ${self.path}")
+    log.debug(s"Stopped actor: ${self.path}")
     super.postStop()
   }
 
