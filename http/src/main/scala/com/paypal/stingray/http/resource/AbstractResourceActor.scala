@@ -19,9 +19,9 @@ import com.paypal.stingray.akka.actor.ServiceActor
 abstract class AbstractResourceActor(private val requestContext: ActorRef) extends ServiceActor {
 
   /**
-   * The receive function for this resource. Should not be overridden - implement [[processRequest]] instead
+   * The receive function for this resource. Should not be overridden - implement [[resourceReceive]] instead
    */
-  override final def receive: Actor.Receive = defaultReceive orElse processRequest orElse errorCatching
+  override final def receive: Actor.Receive = defaultReceive orElse resourceReceive orElse errorCatching
 
   /**
    * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
@@ -31,7 +31,7 @@ abstract class AbstractResourceActor(private val requestContext: ActorRef) exten
    *
    * @return The receive function to be applied when a parsed request object or other actor message is received
    */
-  protected def processRequest: Actor.Receive
+  protected def resourceReceive: Actor.Receive
 
   private def defaultReceive: Actor.Receive = {
     case CheckSupportedFormats =>

@@ -12,6 +12,7 @@ import spray.http.HttpHeaders.RawHeader
 import com.paypal.stingray.http.util.HttpUtil
 import akka.actor.{Actor, ActorRef}
 import com.paypal.stingray.http.tests.resource.DummyResource.{SleepRequest, PostRequest, LanguageRequest, GetRequest}
+import com.paypal.stingray.http.resource.ResourceHttpActor.ProcessRequest
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type
@@ -94,11 +95,11 @@ class DummyResource(requestContext: ActorRef)
    *
    * @return The receive function to be applied when a parsed request object or other actor message is received
    */
-  override protected def processRequest: Actor.Receive = {
-    case req: GetRequest => doGet(req)
-    case req: LanguageRequest => setContentLanguage(req)
-    case req: PostRequest => doPostAsCreate(req)
-    case req: SleepRequest => doSleep(req)
+  override protected def resourceReceive: Actor.Receive = {
+    case ProcessRequest(req: GetRequest) => doGet(req)
+    case ProcessRequest(req: LanguageRequest) => setContentLanguage(req)
+    case ProcessRequest(req: PostRequest) => doPostAsCreate(req)
+    case ProcessRequest(req: SleepRequest) => doSleep(req)
   }
 }
 

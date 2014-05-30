@@ -5,7 +5,7 @@ import spray.http._
 import com.paypal.stingray.http.resource._
 import spray.http.StatusCodes._
 import akka.actor._
-import com.paypal.stingray.http.resource.ResourceHttpActor.{RequestIsProcessed, CheckSupportedFormats, SupportedFormats}
+import com.paypal.stingray.http.resource.ResourceHttpActor.{ProcessRequest, RequestIsProcessed, CheckSupportedFormats, SupportedFormats}
 import spray.http.HttpResponse
 import akka.testkit.{TestProbe, TestKit}
 import org.specs2.SpecificationLike
@@ -43,8 +43,8 @@ class AbstractResourceActorSpecs
        * When the request is finished, [[complete]] must be called
        * @return The receive function to be applied when a parsed request object or other actor message is received
        */
-      override protected def processRequest: PartialFunction[Any, Unit] = {
-        case Unit => complete(HttpResponse(OK, "pong"))
+      override protected def resourceReceive: PartialFunction[Any, Unit] = {
+        case ProcessRequest(Unit) => complete(HttpResponse(OK, "pong"))
       }
     }
   }
@@ -63,7 +63,7 @@ class AbstractResourceActorSpecs
     def response = {
       val probe = TestProbe()
       val resourceRef = system.actorOf(Props(new TestResource(probe.ref)))
-      resourceRef ! Unit
+      resourceRef ! ProcessRequest(Unit)
       probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (RequestIsProcessed(HttpResponse(OK, "pong"), None))
     }
 

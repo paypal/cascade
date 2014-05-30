@@ -119,7 +119,7 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
       setNextStep[RequestIsProcessed]
       //account for extremely long processing times
       context.setReceiveTimeout(processRecvTimeout)
-      resourceActor ! p
+      resourceActor ! ProcessRequest(p)
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
@@ -272,6 +272,7 @@ object ResourceHttpActor {
    */
   //requests
   case object CheckSupportedFormats
+  case class ProcessRequest(req: Any)
 
   //responses
   case class SupportedFormats(contentTypes: List[ContentType],
