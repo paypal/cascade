@@ -152,7 +152,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
     //send the exception to returnActor and stop
     case s @ Status.Failure(t) =>
       setNextStep[HttpResponse]
-      log.error(t, s"Unexpected error: ${t.getMessage}")
+      log.error(t, s"Unexpected request error: ${t.getMessage}")
       t match {
         case e: Exception => self ! handleError(e)
         case t: Throwable => throw t
@@ -251,9 +251,13 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
               case _ => resource.coerceError(entity.data.toByteArray)
             }
         })
+        if (finalResponse.status.intValue >= 500) {
+          val statusCode = finalResponse.status.intValue
+          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
+        }
         finalResponse
       case otherException =>
-        log.error(s"Unexpected error: ${otherException.getMessage}", otherException)
+        log.error(s"Unexpected request error: ${otherException.getMessage}", otherException)
         HttpResponse(InternalServerError,
           resource.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
           addLanguageHeader(resource.responseLanguage, Nil))
