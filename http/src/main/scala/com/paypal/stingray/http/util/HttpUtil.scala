@@ -141,7 +141,7 @@ object HttpUtil {
     // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
     JsonUtil.toJson(t) match {
       case Success(j) => HttpEntity(ContentTypes.`application/json`, j)
-      case Failure(e) => coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8))
+      case Failure(e) => coerceError(Option(e.getMessage).getOrElse(""))
     }
   }
 
@@ -154,6 +154,15 @@ object HttpUtil {
    */
   def coerceError(body: Array[Byte]): HttpEntity = {
     toJsonBody(Map("errors" -> List(new String(body, charsetUtf8))))
+  }
+
+  /**
+   * Used under the covers to force simple error strings into a JSON format
+   * @param body the body
+   * @return an HttpEntity containing an error JSON body
+   */
+  def coerceError(body: String): HttpEntity = {
+    toJsonBody(Map("errors" -> List(body)))
   }
 
 }

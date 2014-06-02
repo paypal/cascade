@@ -5,14 +5,18 @@ import spray.http._
 import com.paypal.stingray.http.resource._
 import spray.http.StatusCodes._
 import akka.actor._
-import com.paypal.stingray.http.resource.ResourceHttpActor.{ProcessRequest, RequestIsProcessed, CheckSupportedFormats, SupportedFormats}
-import spray.http.HttpResponse
+import com.paypal.stingray.http.resource.HttpResourceActor._
 import akka.testkit.{TestProbe, TestKit}
 import org.specs2.SpecificationLike
-import akka.actor.Status.Failure
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import com.paypal.stingray.akka.tests.actor.ActorSpecification
+import com.paypal.stingray.http.resource.HttpResourceActor.ProcessRequest
+import spray.http.HttpResponse
+import spray.http.Language
+import com.paypal.stingray.http.resource.HttpResourceActor.RequestIsProcessed
+import akka.actor.Status.Failure
+import com.paypal.stingray.http.resource.HttpResourceActor.SupportedFormats
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class
@@ -34,7 +38,7 @@ class AbstractResourceActorSpecs
 
   trait Context extends CommonImmutableSpecificationContext {
 
-    class TestResource(ref: ActorRef) extends AbstractResourceActor(ref) {
+    class TestResource(ref: ResourceContext) extends AbstractResourceActor(ref) {
 
       /**
        * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
@@ -52,7 +56,7 @@ class AbstractResourceActorSpecs
   case class test() extends Context {
     def formats = {
       val probe = TestProbe()
-      val resourceRef = system.actorOf(Props(new TestResource(probe.ref)))
+      val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
       resourceRef ! CheckSupportedFormats
       val expected: SupportedFormats = SupportedFormats(List(ContentTypes.`application/json`),
         ContentTypes.`application/json`,
@@ -62,7 +66,7 @@ class AbstractResourceActorSpecs
 
     def response = {
       val probe = TestProbe()
-      val resourceRef = system.actorOf(Props(new TestResource(probe.ref)))
+      val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
       resourceRef ! ProcessRequest(Unit)
       probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (RequestIsProcessed(HttpResponse(OK, "pong"), None))
     }
@@ -71,7 +75,7 @@ class AbstractResourceActorSpecs
 
     def err = {
       val probe = TestProbe()
-      val resourceRef = system.actorOf(Props(new TestResource(probe.ref)))
+      val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
       val expected: Failure = Status.Failure(GenericException)
       resourceRef ! expected
       probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (expected)

@@ -17,6 +17,7 @@ import scala.concurrent.duration._
 import scala.reflect.ClassTag
 import com.paypal.stingray.common.option._
 import akka.actor.SupervisorStrategy.Escalate
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 /**
  * the actor to manage the execution of an [[AbstractResourceActor]]. create one of these per request
@@ -30,14 +31,14 @@ import akka.actor.SupervisorStrategy.Escalate
  * @param processRecvTimeout the longest time this actor will wait for `reqProcessor` to complete
  * @tparam ParsedRequest type to parse the request to
  */
-class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractResourceActor,
+class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => AbstractResourceActor,
                                        reqContext: RequestContext,
-                                       reqParser: ResourceHttpActor.RequestParser[ParsedRequest],
+                                       reqParser: HttpResourceActor.RequestParser[ParsedRequest],
                                        mbReturnActor: Option[ActorRef],
-                                       recvTimeout: Duration = ResourceHttpActor.defaultRecvTimeout,
-                                       processRecvTimeout: Duration = ResourceHttpActor.defaultProcessRecvTimeout) extends ServiceActor {
+                                       recvTimeout: Duration = HttpResourceActor.defaultRecvTimeout,
+                                       processRecvTimeout: Duration = HttpResourceActor.defaultProcessRecvTimeout) extends ServiceActor {
 
-  import ResourceHttpActor._
+  import HttpResourceActor._
 
 
   /*
@@ -49,7 +50,7 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
 
 
 
-  private var pendingStep: Class[_] = ResourceHttpActor.Start.getClass
+  private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
 
   private var resourceActor: ActorRef = _
 
@@ -69,7 +70,7 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
 
 
   override def preStart(): Unit = {
-    resourceActor = context.actorOf(Props(resourceCreator(self)))
+    resourceActor = context.actorOf(Props(resourceCreator(ResourceContext(self))))
     super.preStart()
   }
 
@@ -265,11 +266,13 @@ class ResourceHttpActor[ParsedRequest](resourceCreator: ActorRef => AbstractReso
 
 }
 
-object ResourceHttpActor {
+object HttpResourceActor {
 
   /*
    * Contract with AbstractResourceActor
    */
+  case class ResourceContext(parent: ActorRef)
+
   //requests
   case object CheckSupportedFormats
   case class ProcessRequest(req: Any)
@@ -287,7 +290,7 @@ object ResourceHttpActor {
   type RequestParser[T] = HttpRequest => Try[T]
 
   /**
-   * the only message to send each [[ResourceHttpActor]]. it begins processing the [[AbstractResourceActor]] that it contains
+   * the only message to send each [[HttpResourceActor]]. it begins processing the [[AbstractResourceActor]] that it contains
    */
   object Start
 
@@ -304,21 +307,21 @@ object ResourceHttpActor {
   val dispatcherName = "resource-actor-dispatcher"
 
   /**
-   * create the [[Props]] for a new [[ResourceHttpActor]]
+   * create the [[Props]] for a new [[HttpResourceActor]]
    * @param resourceActorProps function for creating props for an actor which will handle the request
-   * @param reqContext the [[RequestContext]] to pass to the [[ResourceHttpActor]]
-   * @param reqParser the parser function to pass to the [[ResourceHttpActor]]
-   * @param mbResponseActor the optional actor to pass to the [[ResourceHttpActor]]
+   * @param reqContext the [[ResourceContext]] to pass to the [[HttpResourceActor]]
+   * @param reqParser the parser function to pass to the [[HttpResourceActor]]
+   * @param mbResponseActor the optional actor to pass to the [[HttpResourceActor]]
    * @tparam ParsedRequest the type of the parsed request
    * @return the new [[Props]]
    */
-  def props[ParsedRequest](resourceActorProps: ActorRef => AbstractResourceActor,
+  def props[ParsedRequest](resourceActorProps: ResourceContext => AbstractResourceActor,
                            reqContext: RequestContext,
-                           reqParser: ResourceHttpActor.RequestParser[ParsedRequest],
+                           reqParser: HttpResourceActor.RequestParser[ParsedRequest],
                            mbResponseActor: Option[ActorRef],
                            processRecvTimeout: Duration = defaultProcessRecvTimeout,
                            recvTimeout: Duration = defaultRecvTimeout): Props = {
-    Props.apply(new ResourceHttpActor(resourceActorProps, reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout))
+    Props.apply(new HttpResourceActor(resourceActorProps, reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout))
       .withDispatcher(dispatcherName)
       .withMailbox("single-consumer-mailbox")
   }

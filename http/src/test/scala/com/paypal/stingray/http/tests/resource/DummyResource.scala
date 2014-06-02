@@ -12,7 +12,7 @@ import spray.http.HttpHeaders.RawHeader
 import com.paypal.stingray.http.util.HttpUtil
 import akka.actor.{Actor, ActorRef}
 import com.paypal.stingray.http.tests.resource.DummyResource.{SleepRequest, PostRequest, LanguageRequest, GetRequest}
-import com.paypal.stingray.http.resource.ResourceHttpActor.ProcessRequest
+import com.paypal.stingray.http.resource.HttpResourceActor.{ResourceContext, ProcessRequest}
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type
@@ -20,7 +20,7 @@ import com.paypal.stingray.http.resource.ResourceHttpActor.ProcessRequest
  *
  * Useful when the action of a request through an HTTP server is important to model, as opposed to mocking a resource.
  */
-class DummyResource(requestContext: ActorRef)
+class DummyResource(requestContext: ResourceContext)
   extends AbstractResourceActor(requestContext) {
 
    def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Try[T] = {
@@ -57,7 +57,7 @@ class DummyResource(requestContext: ActorRef)
    */
   def doGet(req: GetRequest): Unit = {
     if (req.foo == "bar")
-      complete(HttpResponse(OK, "pong"))
+      completeToJSON(OK, "pong")
     else
       errorCode(BadRequest, "incorrect parameters")
   }
@@ -82,7 +82,7 @@ class DummyResource(requestContext: ActorRef)
    */
   def doPostAsCreate(req: PostRequest): Unit = {
     if (req.foo == "bar")
-      complete(HttpResponse(Created, "pong"), "foobar")
+      completeToJSON(Created, "pong", "foobar")
     else
       errorCode(BadRequest, "incorrect parameters")
   }

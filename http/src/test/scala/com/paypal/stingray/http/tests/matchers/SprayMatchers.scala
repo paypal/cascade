@@ -7,9 +7,10 @@ import com.paypal.stingray.common.option._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.Try
-import akka.actor.{Props, ActorRef, ActorSystem}
+import akka.actor.ActorSystem
 import com.paypal.stingray.http.tests.resource.executeResourceDriver
 import com.paypal.stingray.http.resource.AbstractResourceActor
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 /**
  * Utility match cases for testing [[com.paypal.stingray.http.resource.AbstractResourceActor]]
@@ -166,9 +167,9 @@ trait SprayMatchers {
   class ResponseHasCode[ParsedRequest](req: HttpRequest,
                                        requestParser: HttpRequest => Try[ParsedRequest],
                                        code: StatusCode)
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       result(
@@ -190,9 +191,9 @@ trait SprayMatchers {
   class ResponseHasBody[ParsedRequest](req: HttpRequest,
                                        requestParser: HttpRequest => Try[ParsedRequest],
                                        body: HttpEntity)
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       result(
@@ -214,9 +215,9 @@ trait SprayMatchers {
   class ResponseHasBodyString[ParsedRequest](req: HttpRequest,
                                              requestParser: HttpRequest => Try[ParsedRequest],
                                              body: String)
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       result(
@@ -240,9 +241,9 @@ trait SprayMatchers {
                                                   requestParser: HttpRequest => Try[ParsedRequest],
                                                   code: StatusCode,
                                                   f: HttpEntity => MatchResult[Any])
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity)
@@ -270,9 +271,9 @@ trait SprayMatchers {
                                                         requestParser: HttpRequest => Try[ParsedRequest],
                                                         code: StatusCode,
                                                         f: String => MatchResult[Any])
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity.asString)
@@ -298,9 +299,9 @@ trait SprayMatchers {
   class ResponseHasBodyLike[ParsedRequest](req: HttpRequest,
                                            requestParser: HttpRequest => Try[ParsedRequest],
                                            f: HttpEntity => MatchResult[Any])
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity)
@@ -323,9 +324,9 @@ trait SprayMatchers {
   class ResponseHasBodyStringLike[ParsedRequest](req: HttpRequest,
                                                  requestParser: HttpRequest => Try[ParsedRequest],
                                                  f: String => MatchResult[Any])
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val matchResult = f(resp.entity.asString)
@@ -347,9 +348,9 @@ trait SprayMatchers {
   class ResponseHasHeaderContainingValue[ParsedRequest](req: HttpRequest,
                                                         requestParser: HttpRequest => Try[ParsedRequest],
                                                         header: HttpHeader)
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val hdr = resp.headers.find(_.lowercaseName == header.lowercaseName)
@@ -373,9 +374,9 @@ trait SprayMatchers {
   class ResponseHasNonEmptyHeader[ParsedRequest](req: HttpRequest,
                                                  requestParser: HttpRequest => Try[ParsedRequest],
                                                  header: String)
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val hdr = resp.headers.find(_.lowercaseName == header)
@@ -399,9 +400,9 @@ trait SprayMatchers {
   class ResponseHasContentType[ParsedRequest](req: HttpRequest,
                                               requestParser: HttpRequest => Try[ParsedRequest],
                                               cType: ContentType)
-    extends Matcher[ActorRef => AbstractResourceActor] {
+    extends Matcher[ResourceContext => AbstractResourceActor] {
 
-    override def apply[S <: ActorRef => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
+    override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
       val respFuture = executeResourceDriver(req, r.value, requestParser)
       val resp = Await.result(respFuture, sprayMatcherAwaitDuration)
       val resultCType = resp.entity.some collect {

@@ -5,6 +5,7 @@ import com.paypal.stingray.http.resource.{ResourceDriver, AbstractResourceActor}
 import scala.concurrent.Future
 import scala.util.Try
 import akka.actor.{Props, ActorRef, ActorSystem}
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 package object resource {
   /**
@@ -18,7 +19,7 @@ package object resource {
    * @return a future that will be fulfilled when request parsing is complete
    */
   def executeResourceDriver[AuthInfo, ParsedRequest](req: HttpRequest,
-                                                     resourceProps: ActorRef => AbstractResourceActor,
+                                                     resourceProps: ResourceContext => AbstractResourceActor,
                                                      requestParser: HttpRequest => Try[ParsedRequest])
                                                     (implicit actorSystem: ActorSystem): Future[HttpResponse] = {
     val respHandler = ResponseHandlerActor.apply

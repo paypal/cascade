@@ -3,10 +3,13 @@ package com.paypal.stingray.http.resource
 import spray.http._
 import akka.actor.{Status, Actor, ActorRef}
 import com.paypal.stingray.common.option._
-import com.paypal.stingray.http.resource.ResourceHttpActor._
+import com.paypal.stingray.http.resource.HttpResourceActor._
 import spray.http.HttpResponse
 import spray.http.Language
 import com.paypal.stingray.akka.actor.ServiceActor
+import com.paypal.stingray.http.util.HttpUtil
+import com.paypal.stingray.json._
+import scala.util.{Failure, Success}
 
 /**
  * Base class for HTTP resources built with Spray.
@@ -14,9 +17,9 @@ import com.paypal.stingray.akka.actor.ServiceActor
  * See https://confluence.paypal.com/cnfl/display/stingray/AbstractResource%2C+ResourceDriver%2C+and+ResourceService
  * for more information.
  *
- * @param requestContext The ResourceActor which started this actor
+ * @param resourceContext Context containing information needed to service the request, such as the parent actor
  */
-abstract class AbstractResourceActor(private val requestContext: ActorRef) extends ServiceActor {
+abstract class AbstractResourceActor(private val resourceContext: ResourceContext) extends ServiceActor {
 
   /**
    * The receive function for this resource. Should not be overridden - implement [[resourceReceive]] instead
@@ -35,7 +38,7 @@ abstract class AbstractResourceActor(private val requestContext: ActorRef) exten
 
   private def defaultReceive: Actor.Receive = {
     case CheckSupportedFormats =>
-      requestContext ! SupportedFormats(acceptableContentTypes,
+      resourceContext.parent ! SupportedFormats(acceptableContentTypes,
         responseContentType,
         responseLanguage)
   }
@@ -43,31 +46,44 @@ abstract class AbstractResourceActor(private val requestContext: ActorRef) exten
   private def errorCatching: Actor.Receive = {
     case failed: Status.Failure =>
       log.error("Error serving request", failed)
-      requestContext ! failed
+      resourceContext.parent ! failed
       context.stop(self)
   }
 
   protected def complete(resp: HttpResponse): Unit = {
-    requestContext ! RequestIsProcessed(resp, None)
+    resourceContext.parent ! RequestIsProcessed(resp, None)
     context.stop(self)
   }
 
+  protected def completeToJSON[T](code: StatusCode, response: T): Unit = {
+    response.toJson match {
+      case Success(jsonStr) => complete(HttpResponse(code, jsonStr))
+      case Failure(_) => errorCode(StatusCodes.InternalServerError, "Could not write response to json")
+    }
+  }
+  protected def completeToJSON[T](code: StatusCode, response: T, location: String): Unit = {
+    response.toJson match {
+      case Success(jsonStr) => complete(HttpResponse(code, jsonStr), location)
+      case Failure(_) => errorCode(StatusCodes.InternalServerError, "Could not write response to json")
+    }
+  }
+
   protected def complete(resp: HttpResponse, location: String): Unit = {
-    requestContext ! RequestIsProcessed(resp, location.opt)
+    resourceContext.parent ! RequestIsProcessed(resp, location.opt)
     context.stop(self)
   }
 
   protected def error(f: Exception): Unit = {
-    requestContext ! Status.Failure(f)
+    resourceContext.parent ! Status.Failure(f)
     context.stop(self)
   }
 
   protected def errorCode(code: StatusCode): Unit = {
-    requestContext ! Status.Failure(HaltException(code))
+    resourceContext.parent ! Status.Failure(HaltException(code))
   }
 
   protected def errorCode(code: StatusCode, msg: String): Unit = {
-    requestContext ! Status.Failure(HaltException(code))
+    resourceContext.parent ! Status.Failure(HaltException(code, HttpUtil.coerceError(msg)))
   }
 
   /**

@@ -47,7 +47,7 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
       val request = HttpRequest(uri = "/ping?foo=bar").withHeaders(List(Accept(MediaTypes.`text/plain`)))
       resource must resultInCodeAndBodyLike(request,
         request => Try (GetRequest("bar")), StatusCodes.OK) {
-        case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
+        case body @ NonEmpty(_, _) => body.asString must beEqualTo("\"pong\"")
         case Empty => true must beFalse
       }
     }
@@ -70,7 +70,7 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
       (resource must resultInCodeAndBodyLike(request,
         request => Try (PostRequest("bar")),
         StatusCodes.Created) {
-        case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
+        case body @ NonEmpty(_, _) => body.asString must beEqualTo("\"pong\"")
         case Empty => true must beFalse
       }) and (resource must resultInResponseWithHeaderContaining(request,
         request => Try (PostRequest("bar")),

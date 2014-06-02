@@ -12,6 +12,9 @@ import com.paypal.stingray.http.util.HttpUtil
 import spray.http.{HttpEntity, HttpResponse}
 import spray.http.StatusCodes._
 import org.scalacheck.Prop.Exception
+import java.nio.charset.Charset
+import com.paypal.stingray.common.constants.ValueConstants._
+import spray.http.HttpResponse
 
 /**
  * Tests features of [[com.paypal.stingray.http.util.HttpUtil]]
@@ -43,6 +46,10 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
   toJsonBody
     Success returns proper http response                                                                              ${JsonBody().ok}
     Failure returns error in json format                                                                              ${JsonBody().error}
+
+  coerceError
+    converts errors to json from a byte array                                                                         ${JsonError().array}
+    converts errors to json from a string                                                                             ${JsonError().string}
   """
 
   trait Context extends LoggingSugar {
@@ -144,9 +151,10 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
 
   case class JsonOK() extends Context {
     def returnsOK = {
-      val body = """{"key":"value""""
+      val expected = """{"key":"value"}"""
+      val body = Map("key" -> "value")
       val resp = HttpUtil.jsonOKResponse(body)
-      (resp must beAnInstanceOf[HttpResponse]) and (resp.status must beEqualTo(OK))
+      ((resp must beAnInstanceOf[HttpResponse]) and (resp.status must beEqualTo(OK))) and (resp.entity.data.asString must beEqualTo(expected))
     }
   }
 
@@ -162,6 +170,19 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
       val body = new Foo
       val resp = HttpUtil.toJsonBody(body)
       (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must contain("errors"))
+    }
+  }
+
+  case class JsonError() extends Context {
+    def array = {
+      val expected = """{"errors":["err"]}"""
+      val resp = HttpUtil.coerceError("err".getBytes(charsetUtf8))
+      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
+    }
+    def string = {
+      val expected = """{"errors":["err"]}"""
+      val resp = HttpUtil.coerceError("err")
+      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
     }
   }
 

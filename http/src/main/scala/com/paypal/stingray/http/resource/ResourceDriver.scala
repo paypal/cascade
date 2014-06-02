@@ -8,6 +8,7 @@ import spray.routing.RequestContext
 import com.paypal.stingray.http.util.HttpUtil
 import akka.actor.{ActorRef, ActorRefFactory}
 import scala.concurrent.duration.Duration
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 /**
  * Implementation of a basic HTTP request handling pipeline.
@@ -29,10 +30,10 @@ object ResourceDriver {
    * @tparam ParsedRequest the request after parsing
    * @return the rewritten request execution
    */
-  final def serveWithRewrite[ParsedRequest](resourceActor: ActorRef => AbstractResourceActor,
+  final def serveWithRewrite[ParsedRequest](resourceActor: ResourceContext => AbstractResourceActor,
                                             mbResponseActor: Option[ActorRef] = None,
-                                            recvTimeout: Duration = ResourceHttpActor.defaultRecvTimeout,
-                                            processRecvTimeout: Duration = ResourceHttpActor.defaultProcessRecvTimeout)
+                                            recvTimeout: Duration = HttpResourceActor.defaultRecvTimeout,
+                                            processRecvTimeout: Duration = HttpResourceActor.defaultProcessRecvTimeout)
                                            (rewrite: RewriteFunction[ParsedRequest])
                                            (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     ctx: RequestContext =>
@@ -52,15 +53,15 @@ object ResourceDriver {
    * @tparam ParsedRequest the request after parsing
    * @return the request execution
    */
-  final def serve[ParsedRequest](resourceActor: ActorRef => AbstractResourceActor,
-                                 requestParser: ResourceHttpActor.RequestParser[ParsedRequest],
+  final def serve[ParsedRequest](resourceActor: ResourceContext => AbstractResourceActor,
+                                 requestParser: HttpResourceActor.RequestParser[ParsedRequest],
                                  mbResponseActor: Option[ActorRef] = None,
-                                 recvTimeout: Duration = ResourceHttpActor.defaultRecvTimeout,
-                                 processRecvTimeout: Duration = ResourceHttpActor.defaultProcessRecvTimeout)
+                                 recvTimeout: Duration = HttpResourceActor.defaultRecvTimeout,
+                                 processRecvTimeout: Duration = HttpResourceActor.defaultProcessRecvTimeout)
                                 (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     { ctx: RequestContext =>
-      val actor = actorRefFactory.actorOf(ResourceHttpActor.props(resourceActor, ctx, requestParser, mbResponseActor, recvTimeout, processRecvTimeout))
-      actor ! ResourceHttpActor.Start
+      val actor = actorRefFactory.actorOf(HttpResourceActor.props(resourceActor, ctx, requestParser, mbResponseActor, recvTimeout, processRecvTimeout))
+      actor ! HttpResourceActor.Start
     }
   }
 }
