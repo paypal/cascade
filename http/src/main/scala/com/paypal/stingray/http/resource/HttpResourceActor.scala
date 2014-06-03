@@ -74,6 +74,10 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     super.preStart()
   }
 
+  override def postStop(): Unit = {
+    resourceActor.opt.foreach(context.stop)
+  }
+
   //crash on unhandled exceptions
   override val supervisorStrategy =
     OneForOneStrategy() {
