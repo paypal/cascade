@@ -2,7 +2,6 @@ package com.paypal.stingray.http.resource
 
 import akka.actor._
 import scala.util.{Success, Try}
-import scala.concurrent.Future
 import spray.http._
 import spray.http.StatusCodes._
 import spray.http.Uri.Path
@@ -63,8 +62,6 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
   }
 
   private val request = reqContext.request
-
-  log.debug(s"started $self with request $request")
 
   context.setReceiveTimeout(recvTimeout)
 
@@ -157,7 +154,6 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     //we got a response to return (either through successful processing or an error handling),
     //so return it to the spray context and return actor and then stop
     case r: HttpResponse =>
-      log.debug(s"completing request ${reqContext.request} with response $r")
       reqContext.complete(r)
       mbReturnActor.foreach { returnActor =>
         returnActor ! r
@@ -168,7 +164,7 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     //send the exception to returnActor and stop
     case s @ Status.Failure(t) =>
       setNextStep[HttpResponse]
-      log.error(t, s"Unexpected error: request: $request error: ${t.getMessage}")
+      log.error(t, s"Unexpected request error: ${t.getMessage}")
       t match {
         case e: Exception => self ! handleError(e)
         case t: Throwable => throw t
@@ -234,11 +230,12 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
             }
         })
         if (finalResponse.status.intValue >= 500) {
-          log.warning(s"Request finished unsuccessfully: request: $request response: $finalResponse")
+          val statusCode = finalResponse.status.intValue
+          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
         }
         finalResponse
       case otherException =>
-        log.error(s"Unexpected error: request: $request error: ${otherException.getMessage}", otherException)
+        log.error(s"Unexpected request error: ${otherException.getMessage}", otherException)
         HttpResponse(InternalServerError,
           HttpUtil.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
           addLanguageHeader(mbSupportedFormats.flatMap(_.responseLanguage), Nil))
