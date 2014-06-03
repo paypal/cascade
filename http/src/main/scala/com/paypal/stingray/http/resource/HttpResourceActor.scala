@@ -68,7 +68,9 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
 
 
   override def preStart(): Unit = {
-    resourceActor = context.actorOf(Props(resourceCreator(ResourceContext(self))))
+    resourceActor = context.actorOf(Props(resourceCreator(ResourceContext(self)))
+      .withDispatcher(dispatcherName)
+      .withMailbox("single-consumer-mailbox"))
     super.preStart()
   }
 
