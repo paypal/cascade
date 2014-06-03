@@ -73,7 +73,7 @@ abstract class AbstractResourceActor(private val resourceContext: ResourceContex
     context.stop(self)
   }
 
-  protected def error(f: Exception): Unit = {
+  protected def error(f: Throwable): Unit = {
     resourceContext.parent ! Status.Failure(f)
     context.stop(self)
   }
