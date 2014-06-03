@@ -56,8 +56,6 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
   private val request = reqContext.request
 
-  log.debug(s"started $self with request $request and resource ${resource.getClass.getSimpleName}")
-
   context.setReceiveTimeout(recvTimeout)
 
 
@@ -144,7 +142,6 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
     //we got a response to return (either through successful processing or an error handling),
     //so return it to the spray context and return actor and then stop
     case r: HttpResponse =>
-      log.debug(s"completing request ${reqContext.request} with response $r")
       reqContext.complete(r)
       mbReturnActor.foreach { returnActor =>
         returnActor ! r
@@ -155,7 +152,7 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
     //send the exception to returnActor and stop
     case s @ Status.Failure(t) =>
       setNextStep[HttpResponse]
-      log.error(t, s"Unexpected error: request: $request error: ${t.getMessage}")
+      log.error(t, s"Unexpected request error: ${t.getMessage}")
       t match {
         case e: Exception => self ! handleError(e)
         case t: Throwable => throw t
@@ -255,11 +252,12 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
             }
         })
         if (finalResponse.status.intValue >= 500) {
-          log.warning(s"Request finished unsuccessfully: request: $request response: $finalResponse")
+          val statusCode = finalResponse.status.intValue
+          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
         }
         finalResponse
       case otherException =>
-        log.error(s"Unexpected error: request: $request error: ${otherException.getMessage}", otherException)
+        log.error(s"Unexpected request error: ${otherException.getMessage}", otherException)
         HttpResponse(InternalServerError,
           resource.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
           addLanguageHeader(resource.responseLanguage, Nil))
