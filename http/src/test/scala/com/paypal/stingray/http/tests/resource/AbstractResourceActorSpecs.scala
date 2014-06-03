@@ -17,6 +17,8 @@ import spray.http.Language
 import com.paypal.stingray.http.resource.HttpResourceActor.RequestIsProcessed
 import akka.actor.Status.Failure
 import com.paypal.stingray.http.resource.HttpResourceActor.SupportedFormats
+import org.specs2.matcher.MatchResult
+import org.specs2.execute.Result
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class
@@ -54,31 +56,43 @@ class AbstractResourceActorSpecs
   }
 
   case class test() extends Context {
-    def formats = {
+    def formats: Result = {
       val probe = TestProbe()
       val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
       resourceRef ! CheckSupportedFormats
       val expected: SupportedFormats = SupportedFormats(List(ContentTypes.`application/json`),
         ContentTypes.`application/json`,
         Option(Language("en", "US")))
-      probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (expected)
+      try {
+        probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (expected)
+      } catch {
+        case t: Throwable => org.specs2.execute.Failure(t.getMessage)
+      }
     }
 
-    def response = {
+    def response: Result = {
       val probe = TestProbe()
       val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
       resourceRef ! ProcessRequest(Unit)
-      probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (RequestIsProcessed(HttpResponse(OK, "pong"), None))
+      try {
+        probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (RequestIsProcessed(HttpResponse(OK, "pong"), None))
+      } catch {
+        case t: Throwable => org.specs2.execute.Failure(t.getMessage)
+      }
     }
 
     case object GenericException extends Exception("generic downstream exception")
 
-    def err = {
+    def err: Result = {
       val probe = TestProbe()
       val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
       val expected: Failure = Status.Failure(GenericException)
       resourceRef ! expected
-      probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (expected)
+      try {
+        probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (expected)
+      } catch {
+        case t: Throwable => org.specs2.execute.Failure(t.getMessage)
+      }
     }
   }
 

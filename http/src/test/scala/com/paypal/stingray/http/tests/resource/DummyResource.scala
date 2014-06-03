@@ -45,10 +45,10 @@ class DummyResource(requestContext: ResourceContext)
   }
 
   /** Default response content type is `text/plain` */
-  override lazy val responseContentType: ContentType = ContentTypes.`text/plain`
+  override val responseContentType: ContentType = ContentTypes.`text/plain`
 
   /** Default accepted content types are `application/json` and `text/plain` */
-  override lazy val acceptableContentTypes: List[ContentType] =
+  override val acceptableContentTypes: List[ContentType] =
     List(ContentTypes.`application/json`, ContentTypes.`text/plain`)
 
   /**

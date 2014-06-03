@@ -16,7 +16,7 @@ import com.paypal.stingray.common.tests.future._
 import java.util.concurrent.TimeUnit
 import com.paypal.stingray.http.tests.resource.DummyResource.{SleepRequest, GetRequest}
 
-class ResourceHttpActorSpecs
+class HttpResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
   with SpecificationLike
   with ActorSpecification { override def is = s2"""

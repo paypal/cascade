@@ -38,7 +38,7 @@ abstract class AbstractResourceActor(private val resourceContext: ResourceContex
 
   private def defaultReceive: Actor.Receive = {
     case CheckSupportedFormats =>
-      resourceContext.parent ! SupportedFormats(acceptableContentTypes,
+      resourceContext.httpActor ! SupportedFormats(acceptableContentTypes,
         responseContentType,
         responseLanguage)
   }
@@ -46,44 +46,44 @@ abstract class AbstractResourceActor(private val resourceContext: ResourceContex
   private def errorCatching: Actor.Receive = {
     case failed: Status.Failure =>
       log.error("Error serving request", failed)
-      resourceContext.parent ! failed
+      resourceContext.httpActor ! failed
       context.stop(self)
   }
 
-  protected def complete(resp: HttpResponse): Unit = {
-    resourceContext.parent ! RequestIsProcessed(resp, None)
+  protected final def complete(resp: HttpResponse): Unit = {
+    resourceContext.httpActor ! RequestIsProcessed(resp, None)
     context.stop(self)
   }
 
-  protected def completeToJSON[T](code: StatusCode, response: T): Unit = {
+  protected final def completeToJSON[T](code: StatusCode, response: T): Unit = {
     response.toJson match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr))
       case Failure(_) => errorCode(StatusCodes.InternalServerError, "Could not write response to json")
     }
   }
-  protected def completeToJSON[T](code: StatusCode, response: T, location: String): Unit = {
+  protected final def completeToJSON[T](code: StatusCode, response: T, location: String): Unit = {
     response.toJson match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr), location)
       case Failure(_) => errorCode(StatusCodes.InternalServerError, "Could not write response to json")
     }
   }
 
-  protected def complete(resp: HttpResponse, location: String): Unit = {
-    resourceContext.parent ! RequestIsProcessed(resp, location.opt)
+  protected final def complete(resp: HttpResponse, location: String): Unit = {
+    resourceContext.httpActor ! RequestIsProcessed(resp, location.opt)
     context.stop(self)
   }
 
-  protected def error(f: Throwable): Unit = {
-    resourceContext.parent ! Status.Failure(f)
+  protected final def error(f: Throwable): Unit = {
+    resourceContext.httpActor ! Status.Failure(f)
     context.stop(self)
   }
 
-  protected def errorCode(code: StatusCode): Unit = {
-    resourceContext.parent ! Status.Failure(HaltException(code))
+  protected final def errorCode(code: StatusCode): Unit = {
+    resourceContext.httpActor ! Status.Failure(HaltException(code))
   }
 
-  protected def errorCode(code: StatusCode, msg: String): Unit = {
-    resourceContext.parent ! Status.Failure(HaltException(code, HttpUtil.coerceError(msg)))
+  protected final def errorCode(code: StatusCode, msg: String): Unit = {
+    resourceContext.httpActor ! Status.Failure(HaltException(code, HttpUtil.coerceError(msg)))
   }
 
   /**
@@ -91,13 +91,13 @@ abstract class AbstractResourceActor(private val resourceContext: ResourceContex
    * These will be matched against the `Content-Type` header of incoming requests.
    * @return a list of content types
    */
-  lazy val acceptableContentTypes: List[ContentType] = List(ContentTypes.`application/json`)
+  val acceptableContentTypes: List[ContentType] = List(ContentTypes.`application/json`)
 
   /**
    * The content type that this server provides, by default `application/json`
    * @return a list of content types
    */
-  lazy val responseContentType: ContentType = ContentTypes.`application/json`
+  val responseContentType: ContentType = ContentTypes.`application/json`
 
   /**
    * The language of the data in the response, to for the Content-Language header
@@ -105,6 +105,6 @@ abstract class AbstractResourceActor(private val resourceContext: ResourceContex
    * @return a spray.http.Language value in an Option, or None, if the Content-Language header
    *         does not need to be set for this resource
    */
-  lazy val responseLanguage: Option[Language] = Option(Language("en", "US"))
+  val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
 }

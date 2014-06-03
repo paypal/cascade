@@ -55,7 +55,8 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
 
   private var mbSupportedFormats: Option[SupportedFormats] = None
   //This should never throw in normal operation but does need to be brought into state somehow
-  private def unsafeSupportedFormats: SupportedFormats = mbSupportedFormats
+  //This is set by the first step in the pipeline, in the SupportedFormats step, and is used after that
+  private lazy val unsafeSupportedFormats: SupportedFormats = mbSupportedFormats
     .orThrow(new IllegalStateException("VERY ILLEGAL STATE: Supported formats accessed before being set"))
   private def setNextStep[T](implicit classTag: ClassTag[T]): Unit = {
     pendingStep = classTag.runtimeClass
@@ -69,12 +70,6 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
   override def preStart(): Unit = {
     resourceActor = context.actorOf(Props(resourceCreator(ResourceContext(self))))
     super.preStart()
-  }
-
-  override def postStop(): Unit = {
-    // Ensure actor is stopped in case something has gone wrong
-    resourceActor.opt.foreach(context.stop)
-    super.postStop()
   }
 
   //crash on unhandled exceptions
@@ -266,15 +261,33 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
 object HttpResourceActor {
 
   /*
-   * Contract with AbstractResourceActor
+   * Contract between this and AbstractResourceActor
    */
-  case class ResourceContext(parent: ActorRef)
+  /**
+   * ResourceContext contains all information needed to start an AbstractResourceActor
+   * @param httpActor the HttpActor starting the AbstractResourceActor
+   */
+  case class ResourceContext(httpActor: ActorRef)
 
   //requests
+  /**
+   * Request sent to AbstractResourceActor to request content type and language information
+   */
   case object CheckSupportedFormats
+
+  /**
+   * Sent to AbstractResourceActor to indicate that a request should be processed
+   * @param req The parsed request to process
+   */
   case class ProcessRequest(req: Any)
 
   //responses
+  /**
+   * Response from AbstractResourceActor containing content type information
+   * @param contentTypes Acceptable content types
+   * @param responseContentType Content type of the response
+   * @param responseLanguage Language of the response
+   */
   case class SupportedFormats(contentTypes: List[ContentType],
                               responseContentType: ContentType,
                               responseLanguage: Option[Language])
