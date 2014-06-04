@@ -74,10 +74,6 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     super.preStart()
   }
 
-  override def postStop(): Unit = {
-    resourceActor.opt.foreach(context.stop)
-  }
-
   //crash on unhandled exceptions
   override val supervisorStrategy =
     OneForOneStrategy() {
@@ -300,7 +296,7 @@ object HttpResourceActor {
   case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
 
   /**
-   * the function that parses an [[HttpRequest]] into a type, or fails
+   * the function that parses an [[spray.http.HttpRequest]] into a type, or fails
    * @tparam T the type to parse the request into
    */
   type RequestParser[T] = HttpRequest => Try[T]
@@ -313,30 +309,30 @@ object HttpResourceActor {
   /**
    * the default receive timeout for most steps in ResourceActor
    */
-  val defaultRecvTimeout = 250.milliseconds
+  val defaultRecvTimeout = 500.milliseconds
 
   /**
    * the receive timeout for the process function step in ResourceActor
    */
-  val defaultProcessRecvTimeout = 2.seconds
+  val defaultProcessRecvTimeout = 4.seconds
 
   val dispatcherName = "resource-actor-dispatcher"
 
   /**
-   * create the [[Props]] for a new [[HttpResourceActor]]
+   * create the [[akka.actor.Props]] for a new [[HttpResourceActor]]
    * @param resourceActorProps function for creating props for an actor which will handle the request
    * @param reqContext the [[ResourceContext]] to pass to the [[HttpResourceActor]]
    * @param reqParser the parser function to pass to the [[HttpResourceActor]]
    * @param mbResponseActor the optional actor to pass to the [[HttpResourceActor]]
    * @tparam ParsedRequest the type of the parsed request
-   * @return the new [[Props]]
+   * @return the new [[akka.actor.Props]]
    */
   def props[ParsedRequest](resourceActorProps: ResourceContext => AbstractResourceActor,
                            reqContext: RequestContext,
                            reqParser: HttpResourceActor.RequestParser[ParsedRequest],
                            mbResponseActor: Option[ActorRef],
-                           processRecvTimeout: Duration = defaultProcessRecvTimeout,
-                           recvTimeout: Duration = defaultRecvTimeout): Props = {
+                           recvTimeout: Duration = defaultRecvTimeout,
+                           processRecvTimeout: Duration = defaultProcessRecvTimeout): Props = {
     Props.apply(new HttpResourceActor(resourceActorProps, reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout))
       .withDispatcher(dispatcherName)
       .withMailbox("single-consumer-mailbox")

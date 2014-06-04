@@ -19,7 +19,7 @@ import scala.util.{Failure, Success}
  *
  * @param resourceContext Context containing information needed to service the request, such as the parent actor
  */
-abstract class AbstractResourceActor(private val resourceContext: ResourceContext) extends ServiceActor {
+abstract class AbstractResourceActor(private val resourceContext: HttpResourceActor.ResourceContext) extends ServiceActor {
 
   /**
    * The receive function for this resource. Should not be overridden - implement [[resourceReceive]] instead
@@ -30,7 +30,7 @@ abstract class AbstractResourceActor(private val resourceContext: ResourceContex
    * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
    * will be sent to this message from ResourceActor via a tell. As an actor will be spun up for each request, it is
    * safe to store mutable state during this receive function.
-   * When the request is finished, [[complete]] must be called
+   * When the request is finished, one of the provided complete methods must be called
    *
    * @return The receive function to be applied when a parsed request object or other actor message is received
    */
@@ -50,17 +50,35 @@ abstract class AbstractResourceActor(private val resourceContext: ResourceContex
       context.stop(self)
   }
 
+  /**
+   * Complete a successful request
+   * @param resp The HttpResponse to be returned
+   */
   protected final def complete(resp: HttpResponse): Unit = {
     resourceContext.httpActor ! RequestIsProcessed(resp, None)
     context.stop(self)
   }
 
+  /**
+   * Complete a successful request with a JSON response
+   * @param code Status code to return
+   * @param response Object to be serialized in the response
+   * @tparam T Type of the object to be returned
+   */
   protected final def completeToJSON[T](code: StatusCode, response: T): Unit = {
     response.toJson match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr))
       case Failure(_) => errorCode(StatusCodes.InternalServerError, "Could not write response to json")
     }
   }
+
+  /**
+   * Complete a successful request with a JSON response
+   * @param code Status code to return
+   * @param response Object to be serialized in the response
+   * @param location Value for the HTTP Location header
+   * @tparam T Type of the object to be returned
+   */
   protected final def completeToJSON[T](code: StatusCode, response: T, location: String): Unit = {
     response.toJson match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr), location)
@@ -68,20 +86,38 @@ abstract class AbstractResourceActor(private val resourceContext: ResourceContex
     }
   }
 
+  /**
+   * Complete a successful request
+   * @param resp The HttpResponse to be returned
+   * @param location Value for the HTTP location header
+   */
   protected final def complete(resp: HttpResponse, location: String): Unit = {
     resourceContext.httpActor ! RequestIsProcessed(resp, location.opt)
     context.stop(self)
   }
 
+  /**
+   * Return an internal server error in response to a throwable
+   * @param f The error to be logged
+   */
   protected final def error(f: Throwable): Unit = {
     resourceContext.httpActor ! Status.Failure(f)
     context.stop(self)
   }
 
+  /**
+   * Return an error with the specified Status code
+   * @param code The error code to return
+   */
   protected final def errorCode(code: StatusCode): Unit = {
     resourceContext.httpActor ! Status.Failure(HaltException(code))
   }
 
+  /**
+   * Return an error with the specified Status code
+   * @param code The error code to return
+   * @param msg Message to be returned, will be converted to JSON
+   */
   protected final def errorCode(code: StatusCode, msg: String): Unit = {
     resourceContext.httpActor ! Status.Failure(HaltException(code, HttpUtil.coerceError(msg)))
   }
