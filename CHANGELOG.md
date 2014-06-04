@@ -1,4 +1,7 @@
 
+# 0.8.3 06/03/14 released by mvaznaian
+* bumps a few dependencies, adds readme build utils template, removes some logging from ResourceActor
+
 # 0.8.2 05/27/14 released by aaron
 * Making ActorSpecification's self type TestKitBase instead of TestKit
 

@@ -1,6 +1,10 @@
 stingray-common
 =================
 
+Current Version: 0.8.3
+
+[View the ScalaDocs](https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/0.8.3/index.html#com.paypal.stingray.package)
+
 This is a repository of common patterns, convenience objects, implicit classes, utilities, and other foundational pieces
 used in projects developed by the Stingray team.
 
@@ -17,7 +21,7 @@ To use a project, add the dependency in `build.sbt` or `Build.scala` with the fo
 
 For example,
 
-    "com.paypal.stingray" %% "stingray-akka" % "0.4.0"
+    "com.paypal.stingray" %% "stingray-akka" % "0.8.3"
 
 
 The following is an overview of what is included in each sub-project:
