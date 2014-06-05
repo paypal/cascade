@@ -18,9 +18,9 @@ package object resource {
    * @return a future that will be fulfilled when request parsing is complete
    */
   def executeResourceDriver[ParsedRequest](req: HttpRequest,
-                                                     resourceProps: ResourceContext => AbstractResourceActor,
-                                                     requestParser: HttpRequest => Try[ParsedRequest])
-                                                    (implicit actorSystem: ActorSystem): Future[HttpResponse] = {
+                                           resourceProps: ResourceContext => AbstractResourceActor,
+                                           requestParser: HttpRequest => Try[ParsedRequest])
+                                          (implicit actorSystem: ActorSystem): Future[HttpResponse] = {
     val respHandler = ResponseHandlerActor.apply
     val (requestContext, _) = DummyRequestContext(req)
     val fn = ResourceDriver.serve(resourceProps, requestParser, Some(respHandler))
