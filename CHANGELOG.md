@@ -1,4 +1,7 @@
 
+# 0.8.4 06/05/14 released by Miles
+* Actorization of Abstract Resource
+
 # 0.8.3 06/03/14 released by mvaznaian
 * bumps a few dependencies, adds readme build utils template, removes some logging from ResourceActor
 
