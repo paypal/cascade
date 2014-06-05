@@ -51,7 +51,9 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
 
   private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
 
-  private var resourceActor: ActorRef = _
+  private lazy val resourceActor: ActorRef = context.actorOf(Props(resourceCreator(ResourceContext(self)))
+    .withDispatcher(dispatcherName)
+    .withMailbox("single-consumer-mailbox"))
 
   private var mbSupportedFormats: Option[SupportedFormats] = None
   //This should never throw in normal operation but does need to be brought into state somehow
@@ -68,9 +70,7 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
 
 
   override def preStart(): Unit = {
-    resourceActor = context.actorOf(Props(resourceCreator(ResourceContext(self)))
-      .withDispatcher(dispatcherName)
-      .withMailbox("single-consumer-mailbox"))
+    resourceActor
     super.preStart()
   }
 

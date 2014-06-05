@@ -23,15 +23,6 @@ import com.paypal.stingray.http.resource.HttpResourceActor.{ResourceContext, Pro
 class DummyResource(requestContext: ResourceContext)
   extends AbstractResourceActor(requestContext) {
 
-   def parseType[T](r: HttpRequest, data: String)(implicit m: Manifest[T]): Try[T] = {
-    if (m == manifest[HttpRequest])
-      Success(r.asInstanceOf[T])
-    else if (m == manifest[Unit])
-      Success(().asInstanceOf[T])
-    else
-      HttpUtil.parseType(r, data)(m)
-  }
-
   /**
    * the synchronous context this resource uses to construct futures in its methods
    */

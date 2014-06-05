@@ -14,11 +14,10 @@ package object resource {
    * @param resourceProps the props to create the resource to handle the request
    * @param requestParser the function to parse the request into a type, or fail
    * @param actorSystem the actor system from which to create the response handler actor
-   * @tparam AuthInfo the authorization that the resource uses
    * @tparam ParsedRequest the type of the successfully parsed request
    * @return a future that will be fulfilled when request parsing is complete
    */
-  def executeResourceDriver[AuthInfo, ParsedRequest](req: HttpRequest,
+  def executeResourceDriver[ParsedRequest](req: HttpRequest,
                                                      resourceProps: ResourceContext => AbstractResourceActor,
                                                      requestParser: HttpRequest => Try[ParsedRequest])
                                                     (implicit actorSystem: ActorSystem): Future[HttpResponse] = {
