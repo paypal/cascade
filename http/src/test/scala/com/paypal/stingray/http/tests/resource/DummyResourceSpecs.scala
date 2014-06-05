@@ -8,32 +8,35 @@ import spray.http.HttpEntity._
 import HttpHeaders._
 import com.paypal.stingray.http.tests.matchers.SprayMatchers
 import akka.actor.ActorSystem
+import scala.util.Try
 
 /**
- * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResource]] abstract class,
+ * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class,
  * via the [[com.paypal.stingray.http.tests.resource.DummyResource]] implementation.
  */
 class DummyResourceSpecs extends Specification with Mockito { override def is = s2"""
 
   Tests that exercise the Resource abstract class, via the DummyResource implementation
 
-  GET /ping =>
+  Sending a GetRequest
     should return pong                                                    ${Test().ping}
-    should have the right headers set if unauthorized                     ${Test().unauthorized}
     should have content language set                                      ${Test().language}
+
+  Sending a language override via LanguageRequest
     should not override the language if set in resource                   ${Test().languageSetInResource}
 
-  POST /ping =>
-    should return pong                                                    ${Test().pingPost}
+  Sending a PostRequest =>
+    should return the correct result and location header                  ${Test().pingPost}
+    should return failures set in the resource                            ${Test().pingPostFail}
 
-  PUT /ping =>
-    should return pong                                                    ${Test().pingPut}
 
   """
 
+  import DummyResource._
+
   trait Context extends CommonImmutableSpecificationContext with SprayMatchers {
 
-    val resource = new DummyResource
+    val resource = new DummyResource(_)
 
     implicit val actorSystem = ActorSystem("dummy-resource-specs")
   }
@@ -42,44 +45,43 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
     def ping = {
       val request = HttpRequest(uri = "/ping?foo=bar").withHeaders(List(Accept(MediaTypes.`text/plain`)))
-      resource must resultInCodeAndBodyLike(request, resource.doGet, resource.parseType[HttpRequest](_, ""), StatusCodes.OK) {
-        case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
+      resource must resultInCodeAndBodyLike(request,
+        request => Try (GetRequest("bar")), StatusCodes.OK) {
+        case body @ NonEmpty(_, _) => body.asString must beEqualTo("\"pong\"")
         case Empty => true must beFalse
       }
     }
 
     def language = {
       val request = HttpRequest(uri = "/ping?foo=bar")
-      resource must resultInResponseWithHeaderContaining(request, resource.doGet, resource.parseType[HttpRequest](_, ""),
+      resource must resultInResponseWithHeaderContaining(request,
+        request => Try (GetRequest("bar")),
         RawHeader("Content-Language", "en-US"))
     }
 
     def languageSetInResource = {
       val request = HttpRequest(uri = "/moo")
-      resource must resultInResponseWithHeaderContaining(request, resource.setContentLanguage, resource.parseType[HttpRequest](_, ""),
+      resource must resultInResponseWithHeaderContaining(request, request => Try (LanguageRequest()),
         RawHeader("Content-Language", "de"))
-    }
-
-    def unauthorized = {
-      val request = HttpRequest(uri = "/ping").withHeaders(List(Accept(MediaTypes.`text/plain`), RawHeader("unauthorized", "true")))
-      (resource must resultInCodeGivenData(request, resource.doGet, resource.parseType[HttpRequest](_, ""), StatusCodes.Unauthorized)) and
-      (resource must resultInResponseWithHeaderContaining(request, resource.doGet, resource.parseType[HttpRequest](_, ""), `WWW-Authenticate`(HttpChallenge("OAuth", request.uri.authority.host.toString))))
     }
 
     def pingPost = {
       val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
-      (resource must resultInCodeAndBodyLike(request, resource.doPostAsCreate, resource.parseType[Map[String, String]](_, """{"foo": "bar"}"""), StatusCodes.Created) {
-        case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
+      (resource must resultInCodeAndBodyLike(request,
+        request => Try (PostRequest("bar")),
+        StatusCodes.Created) {
+        case body @ NonEmpty(_, _) => body.asString must beEqualTo("\"pong\"")
         case Empty => true must beFalse
-      }) and (resource must resultInResponseWithHeaderContaining(request, resource.doPostAsCreate,resource.parseType[Map[String, String]](_, """{"foo": "bar"}"""), HttpHeaders.Location("http://foo.com/ping/foobar")))
+      }) and (resource must resultInResponseWithHeaderContaining(request,
+        request => Try (PostRequest("bar")),
+        HttpHeaders.Location("http://foo.com/ping/foobar")))
     }
 
-    def pingPut = {
-      val request = HttpRequest(method = HttpMethods.PUT, uri = "/ping").withHeaders(List(Accept(MediaTypes.`text/plain`)))
-      resource must resultInCodeAndBodyLike(request, resource.doPut, resource.parseType[Unit](_, ""), StatusCodes.OK) {
-        case body @ NonEmpty(_, _) => body.asString must beEqualTo("pong")
-        case Empty => true must beFalse
-      }
+    def pingPostFail = {
+      val request = HttpRequest(method = HttpMethods.POST, uri = "http://foo.com/ping").withEntity(HttpEntity(ContentTypes.`application/json`, """{"foo": "bar"}"""))
+      resource must resultInCodeGivenData(request,
+        request => Try (PostRequest("incorrect")),
+        StatusCodes.BadRequest)
     }
   }
 

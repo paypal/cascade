@@ -4,7 +4,7 @@ import spray.http.HttpRequest
 import scala.concurrent.Future
 
 /**
- * Mix this into an [[com.paypal.stingray.http.resource.AbstractResource]] implementation
+ * Mix this into an [[com.paypal.stingray.http.resource.AbstractResourceActor]] implementation
  * and use [[spray.http.HttpRequest]] as the `ParsedRequest` type to perform no additional parsing
  * of incoming requests. Useful for status endpoints, etc.
  */

@@ -9,6 +9,12 @@ import org.scalacheck.Gen._
 import java.net.URLDecoder
 import com.paypal.stingray.http.url.StrPair
 import com.paypal.stingray.http.util.HttpUtil
+import spray.http.{HttpEntity, HttpResponse}
+import spray.http.StatusCodes._
+import org.scalacheck.Prop.Exception
+import java.nio.charset.Charset
+import com.paypal.stingray.common.constants.ValueConstants._
+import spray.http.HttpResponse
 
 /**
  * Tests features of [[com.paypal.stingray.http.util.HttpUtil]]
@@ -31,6 +37,19 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
     merge two valid maps together when keys overlap                                                                   ${MergeParameters().mergesOverlappingKeys}
     merge an empty map with a non-empty one                                                                           ${MergeParameters().mergesEmptyMap}
 
+  errorResponse
+    properly returns a 500                                                                                            ${ErrorResponse().returns500}
+
+  jsonOKResponse
+    serializes json and returns OK status                                                                             ${JsonOK().returnsOK}
+
+  toJsonBody
+    Success returns proper http response                                                                              ${JsonBody().ok}
+    Failure returns error in json format                                                                              ${JsonBody().error}
+
+  coerceError
+    converts errors to json from a byte array                                                                         ${JsonError().array}
+    converts errors to json from a string                                                                             ${JsonError().string}
   """
 
   trait Context extends LoggingSugar {
@@ -120,6 +139,50 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
       val empty = Map[String, List[String]]()
       val nonEmpty = Map("a" -> List("c", "d"))
       mergesEmptyMap(empty, nonEmpty) and mergesEmptyMap(nonEmpty, empty)
+    }
+  }
+
+  case class ErrorResponse() extends Context {
+    def returns500 = {
+      val error = HttpUtil.errorResponse(new java.lang.Exception("Some Error"))
+      (error must beAnInstanceOf[HttpResponse]) and (error.status must beEqualTo(InternalServerError))
+    }
+  }
+
+  case class JsonOK() extends Context {
+    def returnsOK = {
+      val expected = """{"key":"value"}"""
+      val body = Map("key" -> "value")
+      val resp = HttpUtil.jsonOKResponse(body)
+      ((resp must beAnInstanceOf[HttpResponse]) and (resp.status must beEqualTo(OK))) and (resp.entity.data.asString must beEqualTo(expected))
+    }
+  }
+
+  case class JsonBody() extends Context {
+    def ok = {
+      val body = Map("key" -> "value")
+      val expected = """{"key":"value"}"""
+      val resp = HttpUtil.toJsonBody(body)
+      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
+    }
+    def error = {
+      class Foo
+      val body = new Foo
+      val resp = HttpUtil.toJsonBody(body)
+      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must contain("errors"))
+    }
+  }
+
+  case class JsonError() extends Context {
+    def array = {
+      val expected = """{"errors":["err"]}"""
+      val resp = HttpUtil.coerceError("err".getBytes(charsetUtf8))
+      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
+    }
+    def string = {
+      val expected = """{"errors":["err"]}"""
+      val resp = HttpUtil.coerceError("err")
+      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
     }
   }
 

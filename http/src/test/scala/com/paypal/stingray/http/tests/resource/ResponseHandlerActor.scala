@@ -7,7 +7,7 @@ import akka.testkit.TestActorRef
 import com.paypal.stingray.akka.actor.ServiceActor
 
 /**
- * an actor that's designed to listen for responses that [[com.paypal.stingray.http.resource.ResourceActor]] completes.
+ * an actor that's designed to listen for responses that [[com.paypal.stingray.http.resource.HttpResourceActor]] completes.
  * when it receives a response, it will fulfill the promise that it takes in.
  *
  * example usage:

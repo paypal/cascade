@@ -1,9 +1,7 @@
 package com.paypal.stingray.http.resource
 
 import akka.actor._
-import akka.pattern.pipe
 import scala.util.{Success, Try}
-import scala.concurrent.{ExecutionContext, Future}
 import spray.http._
 import spray.http.StatusCodes._
 import spray.http.Uri.Path
@@ -16,40 +14,52 @@ import com.paypal.stingray.common.constants.ValueConstants._
 import com.paypal.stingray.http.util.HttpUtil
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
+import com.paypal.stingray.common.option._
+import akka.actor.SupervisorStrategy.Escalate
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 /**
- * the actor to manage the execution of an [[AbstractResource]]. create one of these per request
- * @param resource the resource to execute
+ * the actor to manage the execution of an [[AbstractResourceActor]]. create one of these per request
+ * @param resourceCreator the instantiated actor object which will process the business logic for this request
  * @param reqContext the spray [[RequestContext]] for this request
  * @param reqParser the function to parse the request into a valid scala type
- * @param reqProcessor the function to process the actual request
  * @param mbReturnActor the actor to send the successful [[HttpResponse]] or the failed [[Throwable]]. optional - pass None to not do this
  * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
  *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[HttpResponse]] indicating the error to the
  *                    context and return actor.
  * @param processRecvTimeout the longest time this actor will wait for `reqProcessor` to complete
- * @tparam AuthInfo the authorization info type that [[AbstractResource]] uses
- * @tparam ParsedRequest the type that the request gets parsed into
+ * @tparam ParsedRequest type to parse the request to
  */
-class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo],
-                                             reqContext: RequestContext,
-                                             reqParser: ResourceActor.RequestParser[ParsedRequest],
-                                             reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
-                                             mbReturnActor: Option[ActorRef],
-                                             recvTimeout: Duration = ResourceActor.defaultRecvTimeout,
-                                             processRecvTimeout: Duration = ResourceActor.defaultProcessRecvTimeout) extends ServiceActor {
+class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => AbstractResourceActor,
+                                       reqContext: RequestContext,
+                                       reqParser: HttpResourceActor.RequestParser[ParsedRequest],
+                                       mbReturnActor: Option[ActorRef],
+                                       recvTimeout: Duration = HttpResourceActor.defaultRecvTimeout,
+                                       processRecvTimeout: Duration = HttpResourceActor.defaultProcessRecvTimeout) extends ServiceActor {
 
-  import context.dispatcher
-  import ResourceActor._
+  import HttpResourceActor._
 
-  case class MessageIsSupported(a: HttpRequest)
+
+  /*
+   * Internal
+   */
   case class RequestIsParsed(p: ParsedRequest)
-  case class ContentTypeIsSupported(p: ParsedRequest)
-  case class ResponseContentTypeIsAcceptable(p: ParsedRequest)
-  case class RequestIsAuthorized(p: ParsedRequest)
-  case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
+  case object ContentTypeIsSupported
+  case object ResponseContentTypeIsAcceptable
 
-  private var pendingStep: Class[_] = ResourceActor.Start.getClass
+
+
+  private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
+
+  private lazy val resourceActor: ActorRef = context.actorOf(Props(resourceCreator(ResourceContext(self)))
+    .withDispatcher(dispatcherName)
+    .withMailbox("single-consumer-mailbox"))
+
+  private var mbSupportedFormats: Option[SupportedFormats] = None
+  //This should never throw in normal operation but does need to be brought into state somehow
+  //This is set by the first step in the pipeline, in the SupportedFormats step, and is used after that
+  private lazy val unsafeSupportedFormats: SupportedFormats = mbSupportedFormats
+    .orThrow(new IllegalStateException("VERY ILLEGAL STATE: Supported formats accessed before being set"))
   private def setNextStep[T](implicit classTag: ClassTag[T]): Unit = {
     pendingStep = classTag.runtimeClass
   }
@@ -59,53 +69,52 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
   context.setReceiveTimeout(recvTimeout)
 
 
+  override def preStart(): Unit = {
+    resourceActor
+    super.preStart()
+  }
+
+  //crash on unhandled exceptions
+  override val supervisorStrategy =
+    OneForOneStrategy() {
+      case _ => Escalate
+    }
+
   override def receive: Actor.Receive = { // scalastyle:ignore cyclomatic.complexity scalastyle:ignore method.length
 
     //begin processing the request
     case Start =>
-      setNextStep[MessageIsSupported]
-      self ! ensureMethodSupported(resource, request.method).map { _ =>
-        MessageIsSupported(request)
-      }.orFailure
+      setNextStep[SupportedFormats]
+      //start the child actor as resourceActor
+      resourceActor ! CheckSupportedFormats
 
-    //the HTTP method is supported, now parse the request
-    case MessageIsSupported(a) =>
-      setNextStep[RequestIsParsed]
-      self ! reqParser.apply(a).map { p =>
-        RequestIsParsed(p)
-      }.orFailure
-
-
-    //the request has been parsed, now check if the content type is supported
-    case RequestIsParsed(p) =>
-      setNextStep[ContentTypeIsSupported]
-      self ! ensureContentTypeSupported(resource, request).map { _ =>
-        ContentTypeIsSupported(p)
+    case formats: SupportedFormats =>
+      setNextStep[ContentTypeIsSupported.type]
+      mbSupportedFormats = formats.opt
+      self ! ensureContentTypeSupported().map { _ =>
+        ContentTypeIsSupported
       }.orFailure
 
     //the content type is supported, now check if the response content type is acceptable
-    case ContentTypeIsSupported(p) =>
-      setNextStep[ResponseContentTypeIsAcceptable]
-      self ! ensureResponseContentTypeAcceptable(resource, request).map { _ =>
-        ResponseContentTypeIsAcceptable(p)
+    case ContentTypeIsSupported =>
+      setNextStep[ResponseContentTypeIsAcceptable.type]
+      self ! ensureResponseContentTypeAcceptable().map { _ =>
+        ResponseContentTypeIsAcceptable
       }.orFailure
 
     //the response content type is acceptable, now check if the request is authorized
-    case ResponseContentTypeIsAcceptable(p) =>
-      setNextStep[RequestIsAuthorized]
-      ensureAuthorized(resource, request).map { _ =>
-        RequestIsAuthorized(p)
-      }.recover(handleErrorPF).pipeTo(self)
+    case ResponseContentTypeIsAcceptable =>
+      setNextStep[RequestIsParsed]
+      self ! reqParser.apply(request).map { p =>
+        RequestIsParsed(p)
+      }.orFailure
 
-    //the request is authorized, now process the request
-    case RequestIsAuthorized(p) =>
+    //the request has been parsed, now check if the content type is supported
+    case RequestIsParsed(p) =>
       setNextStep[RequestIsProcessed]
       //account for extremely long processing times
       context.setReceiveTimeout(processRecvTimeout)
-      reqProcessor.apply(p).map { tup =>
-        val (response, mbLocation) = tup
-        RequestIsProcessed(response, mbLocation)
-      }.recover(handleErrorPF).pipeTo(self)
+      resourceActor ! ProcessRequest(p)
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
@@ -129,12 +138,12 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
         val newUri = request.uri.copy(scheme = newScheme, path = newPath)
         Location(newUri)
       }
-      val headers = addLanguageHeader(resource.responseLanguage, responseWithLocation.headers)
+      val headers = addLanguageHeader(unsafeSupportedFormats.responseLanguage, responseWithLocation.headers)
       // Just force the request to the right content type
 
       val finalResponse: HttpResponse = responseWithLocation.withHeadersAndEntity(headers, responseWithLocation.entity.flatMap {
         entity: NonEmpty =>
-          HttpEntity(resource.responseContentType, entity.data)
+          HttpEntity(unsafeSupportedFormats.responseContentType, entity.data)
       })
 
       self ! finalResponse
@@ -165,56 +174,25 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
   }
 
-  /**
-   * Continues execution if this method is supported, or halts
-   * @param resource this resource
-   * @param method the method sent
-   * @return an empty Try
-   */
-  private def ensureMethodSupported(resource: AbstractResource[_],
-                                    method: HttpMethod): Try[Unit] = {
-    resource.supportedHttpMethods.contains(method).orHaltWithT(MethodNotAllowed)
-  }
 
-  /**
-   * Continues execution and yields an `AuthInfo` if this method is authorized, or halts
-   * @param resource this resource
-   * @param request the request
-   * @tparam AI the `AuthInfo` type
-   * @return a Future containing an `AuthInfo` object, or a failure
-   */
-  private def ensureAuthorized[AI](resource: AbstractResource[AI],
-                                   request: HttpRequest)
-                                  (implicit ctx: ExecutionContext): Future[AI] = {
-    for {
-      authInfoOpt <- resource.isAuthorized(request)
-      authInfo <- authInfoOpt.orHaltWith(Unauthorized)
-    } yield authInfo
-  }
 
   /**
    * Continues execution if this resource supports the content type sent in the request, or halts
-   * @param resource this resource
-   * @param request the request
    * @return an empty Try
    */
-  private def ensureContentTypeSupported(resource: AbstractResource[_],
-                                         request: HttpRequest): Try[Unit] = {
+  private def ensureContentTypeSupported(): Try[Unit] = {
     request.entity match {
       case Empty => Success()
-      case NonEmpty(ct, _) => resource.acceptableContentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
+      case NonEmpty(ct, _) => unsafeSupportedFormats.contentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
     }
   }
 
   /**
    * Continues execution if this resource can respond in a format that the requester can accept, or halts
-   * @param resource this resource
-   * @param request the request
    * @return a Try containing the acceptable content type found, or a failure
    */
-  private def ensureResponseContentTypeAcceptable(resource: AbstractResource[_],
-                                                  request: HttpRequest): Try[ContentType] = {
-    request.acceptableContentType(List(resource.responseContentType)).orHaltWithT(NotAcceptable)
+  private def ensureResponseContentTypeAcceptable(): Try[ContentType] = {
+    request.acceptableContentType(List(unsafeSupportedFormats.responseContentType)).orHaltWithT(NotAcceptable)
   }
 
   /**
@@ -233,22 +211,19 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
     }
   }
 
-  private val handleErrorPF: PartialFunction[Throwable, HttpResponse] = {
-    case e: Exception => handleError(e)
-  }
   private def handleError(exception: Exception) = {
     exception match {
       case h: HaltException =>
         val response = addHeaderOnCode(h.response, Unauthorized) {
-          `WWW-Authenticate`(resource.unauthorizedChallenge(request))
+          `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
         }
-        val headers = addLanguageHeader(resource.responseLanguage, response.headers)
+        val headers = addLanguageHeader(mbSupportedFormats.flatMap(_.responseLanguage), response.headers)
         // If the error already has the right content type, let it through, otherwise coerce it
         val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap {
           entity: NonEmpty =>
             entity.contentType match {
-              case resource.responseContentType => entity
-              case _ => resource.coerceError(entity.data.toByteArray)
+              case HttpUtil.errorResponseType => entity
+              case _ => HttpUtil.coerceError(entity.data.toByteArray)
             }
         })
         if (finalResponse.status.intValue >= 500) {
@@ -259,8 +234,8 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
       case otherException =>
         log.error(s"Unexpected request error: ${otherException.getMessage}", otherException)
         HttpResponse(InternalServerError,
-          resource.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
-          addLanguageHeader(resource.responseLanguage, Nil))
+          HttpUtil.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
+          addLanguageHeader(mbSupportedFormats.flatMap(_.responseLanguage), Nil))
     }
   }
 
@@ -285,57 +260,80 @@ class ResourceActor[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo
 
 }
 
-object ResourceActor {
+object HttpResourceActor {
+
+  /*
+   * Contract between this and AbstractResourceActor
+   */
   /**
-   * the function that parses an [[HttpRequest]] into a type, or fails
+   * ResourceContext contains all information needed to start an AbstractResourceActor
+   * @param httpActor the HttpActor starting the AbstractResourceActor
+   */
+  case class ResourceContext(httpActor: ActorRef)
+
+  //requests
+  /**
+   * Request sent to AbstractResourceActor to request content type and language information
+   */
+  case object CheckSupportedFormats
+
+  /**
+   * Sent to AbstractResourceActor to indicate that a request should be processed
+   * @param req The parsed request to process
+   */
+  case class ProcessRequest(req: Any)
+
+  //responses
+  /**
+   * Response from AbstractResourceActor containing content type information
+   * @param contentTypes Acceptable content types
+   * @param responseContentType Content type of the response
+   * @param responseLanguage Language of the response
+   */
+  case class SupportedFormats(contentTypes: List[ContentType],
+                              responseContentType: ContentType,
+                              responseLanguage: Option[Language])
+  case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
+
+  /**
+   * the function that parses an [[spray.http.HttpRequest]] into a type, or fails
    * @tparam T the type to parse the request into
    */
   type RequestParser[T] = HttpRequest => Try[T]
 
   /**
-   * the function to process the request and output a result future. the return of this function is a tuple.
-   * the first element is the [[HttpResponse]] to return to the client.
-   * the second element is the (optional) value of the location header to return to the client.
-   * @tparam T the type to process
-   */
-  type RequestProcessor[T] = T => Future[(HttpResponse, Option[String])]
-
-  /**
-   * the only message to send each [[ResourceActor]]. it begins processing the [[AbstractResource]] that it contains
+   * the only message to send each [[HttpResourceActor]]. it begins processing the [[AbstractResourceActor]] that it contains
    */
   object Start
 
   /**
    * the default receive timeout for most steps in ResourceActor
    */
-  val defaultRecvTimeout = 250.milliseconds
+  val defaultRecvTimeout = 500.milliseconds
 
   /**
    * the receive timeout for the process function step in ResourceActor
    */
-  val defaultProcessRecvTimeout = 2.seconds
+  val defaultProcessRecvTimeout = 4.seconds
 
   val dispatcherName = "resource-actor-dispatcher"
 
   /**
-   * create the [[Props]] for a new [[ResourceActor]]
-   * @param resource the resource to pass to the [[ResourceActor]]
-   * @param reqContext the [[RequestContext]] to pass to the [[ResourceActor]]
-   * @param reqParser the parser function to pass to the [[ResourceActor]]
-   * @param reqProcessor the processor function to pass to the [[ResourceActor]]
-   * @param mbResponseActor the optional actor to pass to the [[ResourceActor]]
-   * @tparam AuthInfo the authorization info type for [[AbstractResource]]
+   * create the [[akka.actor.Props]] for a new [[HttpResourceActor]]
+   * @param resourceActorProps function for creating props for an actor which will handle the request
+   * @param reqContext the [[ResourceContext]] to pass to the [[HttpResourceActor]]
+   * @param reqParser the parser function to pass to the [[HttpResourceActor]]
+   * @param mbResponseActor the optional actor to pass to the [[HttpResourceActor]]
    * @tparam ParsedRequest the type of the parsed request
-   * @return the new [[Props]]
+   * @return the new [[akka.actor.Props]]
    */
-  def props[AuthInfo, ParsedRequest](resource: AbstractResource[AuthInfo],
-                                     reqContext: RequestContext,
-                                     reqParser: ResourceActor.RequestParser[ParsedRequest],
-                                     reqProcessor: ResourceActor.RequestProcessor[ParsedRequest],
-                                     mbResponseActor: Option[ActorRef],
-                                     recvTimeout: Duration = defaultRecvTimeout,
-                                     processRecvTimeout: Duration = defaultProcessRecvTimeout): Props = {
-    Props.apply(new ResourceActor(resource, reqContext, reqParser, reqProcessor, mbResponseActor, recvTimeout, processRecvTimeout))
+  def props[ParsedRequest](resourceActorProps: ResourceContext => AbstractResourceActor,
+                           reqContext: RequestContext,
+                           reqParser: HttpResourceActor.RequestParser[ParsedRequest],
+                           mbResponseActor: Option[ActorRef],
+                           recvTimeout: Duration = defaultRecvTimeout,
+                           processRecvTimeout: Duration = defaultProcessRecvTimeout): Props = {
+    Props.apply(new HttpResourceActor(resourceActorProps, reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout))
       .withDispatcher(dispatcherName)
       .withMailbox("single-consumer-mailbox")
   }

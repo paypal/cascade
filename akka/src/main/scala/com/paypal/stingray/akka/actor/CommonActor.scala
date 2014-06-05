@@ -14,7 +14,7 @@ trait CommonActor extends Actor with ActorLogging {
    * to preserve consistent behavior
    */
   override def preStart(): Unit = {
-    log.info(s"Starting actor: ${self.path}")
+    log.debug(s"Starting actor: ${self.path}")
     super.preStart()
   }
 
@@ -44,7 +44,7 @@ trait CommonActor extends Actor with ActorLogging {
    * to preserve consistent behavior
    */
   override def postStop(): Unit = {
-    log.info(s"Stopped actor: ${self.path}")
+    log.debug(s"Stopped actor: ${self.path}")
     super.postStop()
   }
 
@@ -68,7 +68,7 @@ trait ServiceActor extends CommonActor {
   @throws[UnhandledMessageException]
   override def unhandled(message: Any): Unit = {
     super.unhandled(message)
-    val ex = new UnhandledMessageException(s"Unhandled message recieved by actor: ${self.path}, message: $message")
+    val ex = new UnhandledMessageException(s"Unhandled message received by actor: ${self.path}, sender: ${sender()} message: $message")
     sender ! Status.Failure(ex)
     throw ex
   }
