@@ -1,4 +1,7 @@
 
+# 0.8.5 06/23/14 released by awharris
+* new specs2 version, plus corresponding sbt-build-utilities version
+
 # 0.8.4 06/05/14 released by Miles
 * Actorization of Abstract Resource
 
