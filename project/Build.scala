@@ -91,7 +91,7 @@ object Dependencies {
   val sprayVersion = "1.3.1"
   val akkaVersion = "2.3.3"
   val parboiledVersion = "1.1.6"
-  val specs2Version = "2.3.11"
+  val specs2Version = "2.3.12"
 
   lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
