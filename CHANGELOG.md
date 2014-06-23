@@ -1,7 +1,4 @@
 
-# 0.8.5 06/23/14 released by awharris
-* Specs 2.3.12 and corresponding sbt-build-utilities
-
 # 0.8.4 06/05/14 released by Miles
 * Actorization of Abstract Resource
 
