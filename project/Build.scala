@@ -89,9 +89,10 @@ object BuildSettings {
     resolvers += "Stingray Nexus" at s"http://$stingrayNexusHost/nexus/content/groups/public/",
     conflictManager := ConflictManager.strict,
     dependencyOverrides <++= scalaVersion { vsn => Set(
-      "org.scala-lang" % "scala-library"  % vsn,
-      "org.scala-lang" % "scala-compiler" % vsn,
-      "org.scala-lang" % "scala-reflect"  % vsn
+      "org.scala-lang"         %  "scala-library"  % vsn,
+      "org.scala-lang"         %  "scala-compiler" % vsn,
+      "org.scala-lang"         %  "scala-reflect"  % vsn,
+      "org.scala-lang.modules" %% "scala-xml"      % "1.0.1"
     )}
   )
 
@@ -117,7 +118,7 @@ object Dependencies {
   lazy val slf4jLog4j          = "org.slf4j"                    % "log4j-over-slf4j"            % slf4jVersion
 
   lazy val sprayCan            = "io.spray"                     %% "spray-can"                  % sprayVersion
-  lazy val sprayRouting        = "io.spray"                     %% "spray-routing"              % sprayVersion exclude("org.scala-lang.modules", "scala-xml_2.11")
+  lazy val sprayRouting        = "io.spray"                     %% "spray-routing"              % sprayVersion
   lazy val akka                = "com.typesafe.akka"            %% "akka-actor"                 % akkaVersion
 
   lazy val specs2              = "org.specs2"                   %% "specs2"                     % specs2Version     % "test"
