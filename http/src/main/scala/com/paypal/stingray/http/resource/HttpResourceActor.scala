@@ -182,7 +182,7 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
    */
   private def ensureContentTypeSupported(): Try[Unit] = {
     request.entity match {
-      case Empty => Success()
+      case Empty => Success(())
       case NonEmpty(ct, _) => unsafeSupportedFormats.contentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
     }
   }

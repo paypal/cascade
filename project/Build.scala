@@ -16,7 +16,7 @@ object BuildSettings {
   import Dependencies._
 
   val org = "com.paypal.stingray"
-  val scalaVsn = "2.11.0"
+  val scalaVsn = "2.11.1"
   val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
 
   val defaultArgs = Seq(
@@ -117,7 +117,7 @@ object Dependencies {
   lazy val slf4jLog4j          = "org.slf4j"                    % "log4j-over-slf4j"            % slf4jVersion
 
   lazy val sprayCan            = "io.spray"                     %% "spray-can"                  % sprayVersion
-  lazy val sprayRouting        = "io.spray"                     %% "spray-routing"              % sprayVersion
+  lazy val sprayRouting        = "io.spray"                     %% "spray-routing"              % sprayVersion exclude("org.scala-lang.modules", "scala-xml_2.11")
   lazy val akka                = "com.typesafe.akka"            %% "akka-actor"                 % akkaVersion
 
   lazy val specs2              = "org.specs2"                   %% "specs2"                     % specs2Version     % "test"
@@ -128,7 +128,7 @@ object Dependencies {
   lazy val parboiledJava       = "org.parboiled"                % "parboiled-java"              % parboiledVersion  % "test"
   lazy val parboiledScala      = "org.parboiled"                %% "parboiled-scala"            % parboiledVersion  % "test"
 
-  lazy val sprayTestKit        = "io.spray"                     %% "spray-testkit"              % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.10")
+  lazy val sprayTestKit        = "io.spray"                     %% "spray-testkit"              % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.11")
   lazy val akkaTestKit         = "com.typesafe.akka"            %% "akka-testkit"               % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
