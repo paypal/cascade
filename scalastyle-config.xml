@@ -97,4 +97,10 @@
   <check level="error" class="org.scalastyle.scalariform.PublicMethodsHaveTypeChecker" enabled="true"></check>
   <check level="error" class="org.scalastyle.file.NewLineAtEofChecker" enabled="true"></check>
   <check level="error" class="org.scalastyle.file.NoNewLineAtEofChecker" enabled="false"></check>
+  <check level="error" class="org.scalastyle.file.RegexChecker" enabled="true">
+    <parameters>
+      <parameter name="regex">((lazy)\s+(override|private|protected|final|implicit))|((implicit)\s+(override|private|protected|final))|((final)\s+(override|private|protected))|((private|protected)\s+(override))</parameter>
+    </parameters>
+    <customMessage>Modifiers should be declared in the following order: "override access (private|protected) final implicit lazy".</customMessage>
+  </check>
 </scalastyle>

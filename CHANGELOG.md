@@ -1,4 +1,23 @@
 
+# 0.8.5 06/23/14 released by awharris
+* new specs2 version, plus corresponding sbt-build-utilities version
+
+# 0.8.4 06/05/14 released by Miles
+* Actorization of Abstract Resource
+
+# 0.8.3 06/03/14 released by mvaznaian
+* bumps a few dependencies, adds readme build utils template, removes some logging from ResourceActor
+
+# 0.8.2 05/27/14 released by aaron
+* Making ActorSpecification's self type TestKitBase instead of TestKit
+
+# 0.8.1 05/15/14 released by mvaznaian
+* Move RichConfigOption to common, improve test coverage, bump build-utils and add doc settings
+
+# 0.8.0 05/02/14 released by Taylor
+* Shutdown on unhandled exceptions in the main thread.
+* Remove service from MDC.
+
 # 0.7.0 04/30/14 released by Taylor
 * Adds NoConcurrentExecutionContext.
 

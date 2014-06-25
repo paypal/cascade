@@ -3,10 +3,12 @@ package com.paypal.stingray.http.tests.resource
 import org.specs2.Specification
 import spray.http.StatusCodes.BadRequest
 import scala.concurrent.Future
-import spray.http.HttpResponse
+import spray.http.{HttpHeader, ContentTypes, HttpEntity, HttpResponse}
 import scala.util.Try
 import com.paypal.stingray.common.tests.future._
 import com.paypal.stingray.http.resource._
+import spray.http.HttpHeaders.`Content-Type`
+import com.paypal.stingray.http.server.exception.ServiceException
 
 /**
  * Tests resource.scala in [[com.paypal.stingray.http.resource]]
@@ -56,8 +58,8 @@ class ResourceSpecs extends Specification { override def is = s2"""
     return halted future if false                               ${RBooleanHalt.orError().failure}
 
   RichFuture#orHalt should
-    wrap value in successful future if valid                    ${RFuture.orHalt().ok}
-    return halted future if throws                              ${RFuture.orHalt().failure}
+    wrap value in successful future if valid                    ${RFuture.orHaltTest().ok}
+    return halted future if throws                              ${RFuture.orHaltTest().failure}
 
   RichIdentity#continue should
     wrap the function in a successful future                    ${RIdentity.continue().ok}
@@ -104,7 +106,9 @@ class ResourceSpecs extends Specification { override def is = s2"""
         Right("hi").orThrowHaltExceptionWithErrorMessage() must beEqualTo("hi")
        }
       def failure = {
-        Left[Throwable, Unit](new Throwable("fail")).orThrowHaltExceptionWithErrorMessage() must throwA[HaltException]
+        Left[Throwable, Unit](new Exception("fail")).orThrowHaltExceptionWithErrorMessage { s => "Super Fail"} must throwA[HaltException].like {
+          case e => e.getMessage must beEqualTo("Halting with response HttpResponse(500 Internal Server Error,HttpEntity(text/plain; charset=UTF-8,Super Fail),List(),HTTP/1.1)")
+        }
       }
     }
     case class orErrorWithMessage() {
@@ -162,17 +166,18 @@ class ResourceSpecs extends Specification { override def is = s2"""
   }
 
   object RBooleanHalt {
+    val entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, "Hello")
     case class orErrorT() {
       def ok = {
-        true.orErrorT() must beASuccessfulTry[Unit]
+        true.orErrorT(entity, List()) must beASuccessfulTry[Unit]
       }
       def failure = {
-        false.orErrorT() must beAFailedTry[Unit].withThrowable[HaltException]
+        false.orErrorT(entity, List()) must beAFailedTry[Unit].withThrowable[HaltException]
       }
     }
     case class orError() {
       def ok = {
-        val successfulFuture = true.orError()
+        val successfulFuture = true.orError(entity, List())
         successfulFuture.value.get must beASuccessfulTry[Unit]
       }
       def failure = {
@@ -183,7 +188,7 @@ class ResourceSpecs extends Specification { override def is = s2"""
   }
 
   object RFuture {
-    case class orHalt() {
+    case class orHaltTest() {
       def ok = {
         val successfulFuture = Future("hi").orHalt { case e: Throwable => HttpResponse(BadRequest) }
         successfulFuture.toTry must beSuccessfulTry[String].withValue("hi")

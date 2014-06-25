@@ -1,6 +1,15 @@
 package com.paypal.stingray.http.util
 
 import java.net.URLDecoder
+import spray.http._
+import scala.util.{Failure, Success, Try}
+import spray.http.HttpRequest
+import spray.http.HttpChallenge
+import spray.http.HttpEntity._
+import spray.http.HttpResponse
+import StatusCodes._
+import com.paypal.stingray.json._
+import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
 
 /**
  * Convenience methods for interacting with URLs and other request components.
@@ -73,4 +82,87 @@ object HttpUtil {
       runningMap ++ Map(currentKey -> newList)
     }
   }
+
+  /**
+   * Attempt to parse the incoming request.
+   * @param r the full request
+   * @param data the piece of data that should be converted to the suggested type
+   * @return the parsed request, or a Failure response
+   */
+  def parseType[T : Manifest](r: HttpRequest, data: String): Try[T] = {
+    JsonUtil.fromJson[T](data)
+  }
+
+  def parseType[T : Manifest](r: HttpRequest, data: Array[Byte]): Try[T] = {
+    parseType(r, new String(data, charsetUtf8))
+  }
+
+  /**
+   * The message to be sent back with the `WWW-Authenticate` header when the request is
+   * unauthorized. This particular form works around a known Android quirk.
+   *
+   * See discussion at http://stackoverflow.com/questions/6114455/
+   * @return the message
+   */
+  def unauthorizedChallenge(req: HttpRequest): List[HttpChallenge] =
+    List(HttpChallenge("OAuth", req.uri.authority.host.toString))
+
+  /**
+   * Convenience method to return an exception as a 500 Internal Error with the body being the message
+   * of the exception
+   */
+  def errorResponse(e: Exception): HttpResponse = {
+    HttpResponse(InternalServerError, e.getMessage)
+  }
+
+  /**
+   * Utility method to return HttpResponse with status OK and a serialized json body via Jackson.
+   * If the JSON processing is CPU intensive, it should be done in a background thread, dedicated actor, etc...
+   * into an http body with the content type set
+   * @param t the object to serialize
+   * @tparam T the type to serialize from
+   * @return an HttpResponse containing an OK StatusCode and the serialized object
+   */
+  def jsonOKResponse[T : Manifest](t: T): HttpResponse = {
+    // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
+    HttpResponse(OK, toJsonBody(t))
+  }
+
+  /**
+   * Utility method to serialize a json body via jackson.
+   * If the JSON processing is CPU intensive, it should be done in a background thread, dedicated actor, etc...
+   * into an http body with the content type set
+   * Enforces the return of application/json as a content type, since this always serializes to json
+   * @param t the object to serialize
+   * @tparam T the type to serialize from
+   * @return an HttpResponse containing either the desired HttpEntity, or an error entity
+   */
+  def toJsonBody[T : Manifest](t: T): HttpEntity = {
+    // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
+    JsonUtil.toJson(t) match {
+      case Success(j) => HttpEntity(ContentTypes.`application/json`, j)
+      case Failure(e) => coerceError(Option(e.getMessage).getOrElse(""))
+    }
+  }
+
+  val errorResponseType = ContentTypes.`application/json`
+
+  /**
+   * Used under the covers to force simple error strings into a JSON format
+   * @param body the body
+   * @return an HttpEntity containing an error JSON body
+   */
+  def coerceError(body: Array[Byte]): HttpEntity = {
+    toJsonBody(Map("errors" -> List(new String(body, charsetUtf8))))
+  }
+
+  /**
+   * Used under the covers to force simple error strings into a JSON format
+   * @param body the body
+   * @return an HttpEntity containing an error JSON body
+   */
+  def coerceError(body: String): HttpEntity = {
+    toJsonBody(Map("errors" -> List(body)))
+  }
+
 }
