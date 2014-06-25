@@ -81,8 +81,7 @@ class DummyResource(requestContext: ResourceContext)
   /**
    * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
    * will be sent to this message from ResourceActor via a tell. As an actor will be spun up for each request, it is
-   * safe to store mutable state during this receive function.
-   * When the request is finished, [[complete]] must be called
+   * safe to store mutable state during this receive function. When the request is finished, complete must be called.
    *
    * @return The receive function to be applied when a parsed request object or other actor message is received
    */
