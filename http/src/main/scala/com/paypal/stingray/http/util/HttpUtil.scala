@@ -165,4 +165,20 @@ object HttpUtil {
     toJsonBody(Map("errors" -> List(body)))
   }
 
+  // TODO add docs
+  def coerceError[T: Manifest](body: T): HttpEntity = {
+    toJsonBody(body)
+  }
+
+  /**
+   * Class to encapsulate `ErrorVO` object.
+   *
+   * @param code error code, assigned from [[com.paypal.user.UserErrorCode]] value field
+   * @param translation translation of error code, assigned from [[com.paypal.user.UserErrorCode]] name field
+   * @param message error msg, assigned from error object's error_msg value
+   */
+  case class StandardError(name: String, debugId: Option[String], message: String, informationLink: String, details: Option[List[StandardErrorDetails]])
+
+  // TODO docs
+  case class StandardErrorDetails(field: String, issue: String)
 }
