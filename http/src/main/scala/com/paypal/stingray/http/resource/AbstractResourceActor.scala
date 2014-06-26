@@ -126,6 +126,10 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   protected final def sendErrorResponse(code: StatusCode, stdError: HttpUtil.StandardError): Unit = {
     resourceContext.httpActor ! Status.Failure(HaltException(code, HttpUtil.coerceError(stdError)))
   }
+  // TODO add docs
+  protected final def sendErrorResponse(code: StatusCode, stdError: List[HttpUtil.StandardError]): Unit = {
+    resourceContext.httpActor ! Status.Failure(HaltException(code, HttpUtil.coerceError(stdError)))
+  }
 
   /**
    * A list of content types that that this server can accept, by default `application/json`.
