@@ -178,7 +178,8 @@ object CommonBuild extends Build {
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-common",
       libraryDependencies ++= commonDependencies ++ commonTestDependencies,
-      publishArtifact in Test := true
+      publishArtifact in Test := true,
+      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
     )
   )
 
@@ -187,7 +188,8 @@ object CommonBuild extends Build {
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-json",
       libraryDependencies ++= jsonDependencies,
-      publishArtifact in Test := true
+      publishArtifact in Test := true,
+      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
     )
   )
 
@@ -196,8 +198,9 @@ object CommonBuild extends Build {
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-akka",
       libraryDependencies ++= akkaDependencies ++ akkaTestDependencies,
-      publishArtifact in Test := true
-    )
+      publishArtifact in Test := true,
+      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
+  )
   )
 
   lazy val http = Project("stingray-http", file("http"),
@@ -209,7 +212,9 @@ object CommonBuild extends Build {
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-http",
       libraryDependencies ++= httpDependencies ++ httpTestDependencies,
-      publishArtifact in Test := true
+      publishArtifact in Test := true,
+      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
+
     )
   )
 
