@@ -8,6 +8,6 @@ addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.8.3")
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.4.0")
 
-addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.4")
+addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.5")
 
 addSbtPlugin("com.paypal.stingray" % "sbt-build-utilities" % "0.6.1")
