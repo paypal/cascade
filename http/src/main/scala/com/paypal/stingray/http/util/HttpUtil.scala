@@ -152,7 +152,7 @@ object HttpUtil {
    * @param body the body
    * @return an HttpEntity containing an error JSON body
    */
-  def coerceError(body: Array[Byte]): HttpEntity = {
+  def coerceErrorMap(body: Array[Byte]): HttpEntity = {
     toJsonBody(Map("errors" -> List(new String(body, charsetUtf8))))
   }
 
@@ -161,12 +161,12 @@ object HttpUtil {
    * @param body the body
    * @return an HttpEntity containing an error JSON body
    */
-  def coerceError(body: String): HttpEntity = {
+  def coerceErrorMap(body: String): HttpEntity = {
     toJsonBody(Map("errors" -> List(body)))
   }
 
   // TODO add docs
-  def coerceError[T: Manifest](body: T): HttpEntity = {
+  def coerceError[T : Manifest](body: T): HttpEntity = {
     toJsonBody(body)
   }
 
