@@ -7,7 +7,18 @@ import akka.actor.{ActorLogging, Actor, Status}
  * receiving exceptions from other actors. Generally, there should only be one actor (or a small pool of actors)
  * extending this trait directly.
  */
-trait CommonActor extends Actor with ActorLogging {}
+trait CommonActor extends Actor with ActorLogging {
+
+  /**
+   * Can be overridden in subsequent actor implementations, but `super.postRestart(reason)` should also be called
+   * to preserve consistent behavior
+   * @param reason what triggered this restart cycle
+   */
+  override def postRestart(reason: Throwable): Unit = {
+    log.debug(s"Restarted actor: ${self.path}")
+    super.postRestart(reason)
+  }
+}
 
 /**
  * ServiceActor returns an error response for unhandled messages and escalates the error to the supervisor
