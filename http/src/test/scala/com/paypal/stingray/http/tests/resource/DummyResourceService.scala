@@ -2,14 +2,11 @@ package com.paypal.stingray.http.tests.resource
 
 import com.paypal.stingray.common.service.ServiceNameComponent
 import spray.routing.Directives._
-import com.paypal.stingray.http.resource.{AbstractResourceActor, HttpResourceActor, ResourceServiceComponent, ResourceDriver}
-import scala.concurrent.Future
-import spray.http.{HttpRequest, HttpResponse}
-import scala.util.{Try, Success}
+import com.paypal.stingray.http.resource.{HttpResourceActor, ResourceServiceComponent, ResourceDriver}
+import spray.http.HttpRequest
+import scala.util.Try
 import com.paypal.stingray.akka.actor.ActorSystemComponent
-import akka.actor.{ActorRef, Props}
 import com.paypal.stingray.http.tests.resource.DummyResource.GetRequest
-import com.paypal.stingray.common.trys._
 import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 /**
@@ -24,7 +21,7 @@ trait DummyResourceService
   /** This resource */
   val dummy: ResourceContext => DummyResource = new DummyResource(_)
 
-  val parseRequest: HttpResourceActor.RequestParser[GetRequest] = { _ : HttpRequest =>
+  val parseRequest: HttpResourceActor.RequestParser = { _ : HttpRequest =>
     Try (GetRequest("bar"))
   }
 

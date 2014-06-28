@@ -19,42 +19,46 @@ import akka.actor.SupervisorStrategy.Escalate
 import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 /**
- * the actor to manage the execution of an [[AbstractResourceActor]]. create one of these per request
- * @param resourceCreator the instantiated actor object which will process the business logic for this request
- * @param reqContext the spray [[RequestContext]] for this request
- * @param reqParser the function to parse the request into a valid scala type
- * @param mbReturnActor the actor to send the successful [[HttpResponse]] or the failed [[Throwable]]. optional - pass None to not do this
- * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
- *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[HttpResponse]] indicating the error to the
- *                    context and return actor.
- * @param processRecvTimeout the longest time this actor will wait for `reqProcessor` to complete
- * @tparam ParsedRequest type to parse the request to
+ * the actor to manage the execution of an [[AbstractResourceActor]]. Create one of these per request
  */
-class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => AbstractResourceActor,
-                                       reqContext: RequestContext,
-                                       reqParser: HttpResourceActor.RequestParser[ParsedRequest],
-                                       mbReturnActor: Option[ActorRef],
-                                       recvTimeout: Duration = HttpResourceActor.defaultRecvTimeout,
-                                       processRecvTimeout: Duration = HttpResourceActor.defaultProcessRecvTimeout) extends ServiceActor {
+abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
 
   import HttpResourceActor._
+
+  /*
+   * Publicly overrideable
+   */
+
+  /**
+   * A list of content types that that this server can accept, by default `application/json`.
+   * These will be matched against the `Content-Type` header of incoming requests.
+   * @return a list of content types
+   */
+  val acceptableContentTypes: List[ContentType] = List(ContentTypes.`application/json`)
+
+  /**
+   * The content type that this server provides, by default `application/json`
+   * @return a list of content types
+   */
+  val responseContentType: ContentType = ContentTypes.`application/json`
+
+  /**
+   * The language of the data in the response, to for the Content-Language header
+   *
+   * @return a spray.http.Language value in an Option, or None, if the Content-Language header
+   *         does not need to be set for this resource
+   */
+  val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
 
   /*
    * Internal
    */
-  case class RequestIsParsed(p: ParsedRequest)
+  case class RequestIsParsed(parsedRequest: AnyRef)
   case object ContentTypeIsSupported
   case object ResponseContentTypeIsAcceptable
 
-
-
   private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
-
-  private lazy val resourceActor: ActorRef = context.actorOf(Props(resourceCreator(ResourceContext(self)))
-    .withDispatcher(dispatcherName)
-    .withMailbox("single-consumer-mailbox"))
-
   private var mbSupportedFormats: Option[SupportedFormats] = None
   //This should never throw in normal operation but does need to be brought into state somehow
   //This is set by the first step in the pipeline, in the SupportedFormats step, and is used after that
@@ -64,13 +68,11 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     pendingStep = classTag.runtimeClass
   }
 
-  private val request = reqContext.request
+  private val request = resourceContext.reqContext.request
 
-  context.setReceiveTimeout(recvTimeout)
-
+  context.setReceiveTimeout(resourceContext.recvTimeout)
 
   override def preStart(): Unit = {
-    resourceActor
     super.preStart()
   }
 
@@ -85,8 +87,7 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     //begin processing the request
     case Start =>
       setNextStep[SupportedFormats]
-      //start the child actor as resourceActor
-      resourceActor ! CheckSupportedFormats
+      self ! SupportedFormats(acceptableContentTypes, responseContentType, responseLanguage)
 
     case formats: SupportedFormats =>
       setNextStep[ContentTypeIsSupported.type]
@@ -105,7 +106,7 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     //the response content type is acceptable, now check if the request is authorized
     case ResponseContentTypeIsAcceptable =>
       setNextStep[RequestIsParsed]
-      self ! reqParser.apply(request).map { p =>
+      self ! resourceContext.reqParser.apply(request).map { p =>
         RequestIsParsed(p)
       }.orFailure
 
@@ -113,13 +114,13 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     case RequestIsParsed(p) =>
       setNextStep[RequestIsProcessed]
       //account for extremely long processing times
-      context.setReceiveTimeout(processRecvTimeout)
-      resourceActor ! ProcessRequest(p)
+      context.setReceiveTimeout(resourceContext.processRecvTimeout)
+      self ! ProcessRequest(p)
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
       setNextStep[HttpResponse]
-      context.setReceiveTimeout(recvTimeout)
+      context.setReceiveTimeout(resourceContext.recvTimeout)
       val responseWithLocation = addHeaderOnCode(resp, Created) {
         // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
         val newScheme = request.headers.find(_.name == "X-Forwarded-Proto") match {
@@ -151,8 +152,8 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     //we got a response to return (either through successful processing or an error handling),
     //so return it to the spray context and return actor and then stop
     case r: HttpResponse =>
-      reqContext.complete(r)
-      mbReturnActor.foreach { returnActor =>
+      resourceContext.reqContext.complete(r)
+      resourceContext.mbReturnActor.foreach { returnActor =>
         returnActor ! r
       }
       context.stop(self)
@@ -161,16 +162,16 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     //send the exception to returnActor and stop
     case s @ Status.Failure(t) =>
       setNextStep[HttpResponse]
-      log.error(t, s"Unexpected request error: ${t.getMessage}")
+      log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTraceString)
       t match {
         case e: Exception => self ! handleError(e)
         case t: Throwable => throw t
       }
 
-    //the actor didn't receive a method before startTimeout
+    //the actor didn't receive a message before the current ReceiveTimeout
     case ReceiveTimeout =>
       log.error(
-        s"$self didn't receive a next message within ${recvTimeout.toMillis} milliseconds of the last one. next expected message was ${pendingStep.getName}")
+        s"$self didn't receive a next message within ${resourceContext.recvTimeout.toMillis} milliseconds of the last one. next expected message was ${pendingStep.getName}")
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
   }
 
@@ -211,32 +212,29 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
     }
   }
 
-  private def handleError(exception: Exception) = {
-    exception match {
-      case h: HaltException =>
-        val response = addHeaderOnCode(h.response, Unauthorized) {
-          `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
-        }
-        val headers = addLanguageHeader(mbSupportedFormats.flatMap(_.responseLanguage), response.headers)
-        // If the error already has the right content type, let it through, otherwise coerce it
-        val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap {
-          entity: NonEmpty =>
-            entity.contentType match {
-              case HttpUtil.errorResponseType => entity
-              case _ => HttpUtil.coerceError(entity.data.toByteArray)
-            }
-        })
-        if (finalResponse.status.intValue >= 500) {
-          val statusCode = finalResponse.status.intValue
-          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
-        }
-        finalResponse
-      case otherException =>
-        log.error(s"Unexpected request error: ${otherException.getMessage}", otherException)
-        HttpResponse(InternalServerError,
-          HttpUtil.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
-          addLanguageHeader(mbSupportedFormats.flatMap(_.responseLanguage), Nil))
-    }
+  private def handleError(exception: Exception): HttpResponse = exception match {
+    case h: HaltException =>
+      val response = addHeaderOnCode(h.response, Unauthorized) {
+        `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
+      }
+      val headers = addLanguageHeader(mbSupportedFormats.flatMap(_.responseLanguage), response.headers)
+      // If the error already has the right content type, let it through, otherwise coerce it
+      val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap {
+        entity: NonEmpty =>
+          entity.contentType match {
+            case HttpUtil.errorResponseType => entity
+            case _ => HttpUtil.coerceError(entity.data.toByteArray)
+          }
+      })
+      if (finalResponse.status.intValue >= 500) {
+        val statusCode = finalResponse.status.intValue
+        log.warning(s"Request finished unsuccessfully with status code: $statusCode")
+      }
+      finalResponse
+    case otherException =>
+      HttpResponse(InternalServerError,
+                   HttpUtil.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
+                   addLanguageHeader(mbSupportedFormats.flatMap(_.responseLanguage), Nil))
   }
 
   /**
@@ -262,21 +260,23 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
 
 object HttpResourceActor {
 
-  /*
-   * Contract between this and AbstractResourceActor
-   */
   /**
    * ResourceContext contains all information needed to start an AbstractResourceActor
-   * @param httpActor the HttpActor starting the AbstractResourceActor
+   * @param reqContext the spray [[RequestContext]] for this request
+   * @param reqParser the function to parse the request into a valid scala type
+   * @param mbReturnActor the actor to send the successful [[HttpResponse]] or the failed [[Throwable]]. optional - pass None to not do this
+   * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
+   *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[HttpResponse]] indicating the error to the
+   *                    context and return actor.
+   * @param processRecvTimeout the longest time this actor will wait for `reqProcessor` to complete
    */
-  case class ResourceContext(httpActor: ActorRef)
+  case class ResourceContext(reqContext: RequestContext,
+                             reqParser: RequestParser,
+                             mbReturnActor: Option[ActorRef] = None,
+                             recvTimeout: Duration = HttpResourceActor.defaultRecvTimeout,
+                             processRecvTimeout: Duration = HttpResourceActor.defaultProcessRecvTimeout)
 
   //requests
-  /**
-   * Request sent to AbstractResourceActor to request content type and language information
-   */
-  case object CheckSupportedFormats
-
   /**
    * Sent to AbstractResourceActor to indicate that a request should be processed
    * @param req The parsed request to process
@@ -299,7 +299,7 @@ object HttpResourceActor {
    * the function that parses an [[spray.http.HttpRequest]] into a type, or fails
    * @tparam T the type to parse the request into
    */
-  type RequestParser[T] = HttpRequest => Try[T]
+  type RequestParser = HttpRequest => Try[AnyRef]
 
   /**
    * the only message to send each [[HttpResourceActor]]. it begins processing the [[AbstractResourceActor]] that it contains
@@ -324,16 +324,15 @@ object HttpResourceActor {
    * @param reqContext the [[ResourceContext]] to pass to the [[HttpResourceActor]]
    * @param reqParser the parser function to pass to the [[HttpResourceActor]]
    * @param mbResponseActor the optional actor to pass to the [[HttpResourceActor]]
-   * @tparam ParsedRequest the type of the parsed request
    * @return the new [[akka.actor.Props]]
    */
-  def props[ParsedRequest](resourceActorProps: ResourceContext => AbstractResourceActor,
+  def props(resourceActorProps: ResourceContext => AbstractResourceActor,
                            reqContext: RequestContext,
-                           reqParser: HttpResourceActor.RequestParser[ParsedRequest],
+                           reqParser: RequestParser,
                            mbResponseActor: Option[ActorRef],
                            recvTimeout: Duration = defaultRecvTimeout,
                            processRecvTimeout: Duration = defaultProcessRecvTimeout): Props = {
-    Props.apply(new HttpResourceActor(resourceActorProps, reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout))
+    Props.apply(resourceActorProps(ResourceContext(reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout)))
       .withDispatcher(dispatcherName)
       .withMailbox("single-consumer-mailbox")
   }

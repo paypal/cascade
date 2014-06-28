@@ -1,15 +1,14 @@
 package com.paypal.stingray.http.resource
 
 import spray.http._
-import akka.actor.{Status, Actor, ActorRef}
+import akka.actor.{Status, Actor}
 import com.paypal.stingray.common.option._
 import com.paypal.stingray.http.resource.HttpResourceActor._
 import spray.http.HttpResponse
-import spray.http.Language
-import com.paypal.stingray.akka.actor.ServiceActor
 import com.paypal.stingray.http.util.HttpUtil
 import com.paypal.stingray.json._
 import scala.util.{Failure, Success}
+import akka.event.LoggingReceive
 
 /**
  * Base class for HTTP resources built with Spray.
@@ -19,12 +18,12 @@ import scala.util.{Failure, Success}
  *
  * @param resourceContext Context containing information needed to service the request, such as the parent actor
  */
-abstract class AbstractResourceActor(private val resourceContext: HttpResourceActor.ResourceContext) extends ServiceActor {
+abstract class AbstractResourceActor(private val resourceContext: HttpResourceActor.ResourceContext) extends HttpResourceActor(resourceContext) {
 
   /**
    * The receive function for this resource. Should not be overridden - implement [[resourceReceive]] instead
    */
-  override final def receive: Actor.Receive = defaultReceive orElse resourceReceive orElse errorCatching
+  override final def receive: Actor.Receive = LoggingReceive { super.receive orElse resourceReceive }
 
   /**
    * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
@@ -36,27 +35,12 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    */
   protected def resourceReceive: Actor.Receive
 
-  private def defaultReceive: Actor.Receive = {
-    case CheckSupportedFormats =>
-      resourceContext.httpActor ! SupportedFormats(acceptableContentTypes,
-        responseContentType,
-        responseLanguage)
-  }
-
-  private def errorCatching: Actor.Receive = {
-    case failed: Status.Failure =>
-      log.error("Error serving request", failed)
-      resourceContext.httpActor ! failed
-      context.stop(self)
-  }
-
   /**
    * Complete a successful request
    * @param resp The HttpResponse to be returned
    */
   protected final def complete(resp: HttpResponse): Unit = {
-    resourceContext.httpActor ! RequestIsProcessed(resp, None)
-    context.stop(self)
+    self ! RequestIsProcessed(resp, None)
   }
 
   /**
@@ -92,8 +76,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param location Value for the HTTP location header
    */
   protected final def complete(resp: HttpResponse, location: String): Unit = {
-    resourceContext.httpActor ! RequestIsProcessed(resp, location.opt)
-    context.stop(self)
+    self ! RequestIsProcessed(resp, location.opt)
   }
 
   /**
@@ -101,8 +84,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param f The error to be logged
    */
   protected final def error(f: Throwable): Unit = {
-    resourceContext.httpActor ! Status.Failure(f)
-    context.stop(self)
+    self ! Status.Failure(f)
   }
 
   /**
@@ -110,7 +92,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param code The error code to return
    */
   protected final def errorCode(code: StatusCode): Unit = {
-    resourceContext.httpActor ! Status.Failure(HaltException(code))
+    self ! Status.Failure(HaltException(code))
   }
 
   /**
@@ -119,28 +101,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param msg Message to be returned, will be converted to JSON
    */
   protected final def errorCode(code: StatusCode, msg: String): Unit = {
-    resourceContext.httpActor ! Status.Failure(HaltException(code, HttpUtil.coerceError(msg)))
+    self ! Status.Failure(HaltException(code, HttpUtil.coerceError(msg)))
   }
-
-  /**
-   * A list of content types that that this server can accept, by default `application/json`.
-   * These will be matched against the `Content-Type` header of incoming requests.
-   * @return a list of content types
-   */
-  val acceptableContentTypes: List[ContentType] = List(ContentTypes.`application/json`)
-
-  /**
-   * The content type that this server provides, by default `application/json`
-   * @return a list of content types
-   */
-  val responseContentType: ContentType = ContentTypes.`application/json`
-
-  /**
-   * The language of the data in the response, to for the Content-Language header
-   *
-   * @return a spray.http.Language value in an Option, or None, if the Content-Language header
-   *         does not need to be set for this resource
-   */
-  val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
 }

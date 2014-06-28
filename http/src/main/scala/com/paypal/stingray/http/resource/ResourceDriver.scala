@@ -8,7 +8,7 @@ import spray.routing.RequestContext
 import com.paypal.stingray.http.util.HttpUtil
 import akka.actor.{ActorRef, ActorRefFactory}
 import scala.concurrent.duration.Duration
-import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
+import com.paypal.stingray.http.resource.HttpResourceActor.{RequestParser, ResourceContext}
 
 /**
  * Implementation of a basic HTTP request handling pipeline.
@@ -30,7 +30,7 @@ object ResourceDriver {
    * @tparam ParsedRequest the request after parsing
    * @return the rewritten request execution
    */
-  final def serveWithRewrite[ParsedRequest](resourceActor: ResourceContext => AbstractResourceActor,
+  final def serveWithRewrite[ParsedRequest <: AnyRef](resourceActor: ResourceContext => AbstractResourceActor,
                                             mbResponseActor: Option[ActorRef] = None,
                                             recvTimeout: Duration = HttpResourceActor.defaultRecvTimeout,
                                             processRecvTimeout: Duration = HttpResourceActor.defaultProcessRecvTimeout)
@@ -39,7 +39,7 @@ object ResourceDriver {
     ctx: RequestContext =>
       rewrite(ctx.request).map {
         case (request, parsed) =>
-          val serveFn = serve(resourceActor, r => Success(parsed), mbResponseActor, recvTimeout, processRecvTimeout)
+          val serveFn = serve(resourceActor, (r => Success(parsed): Try[AnyRef]): RequestParser, mbResponseActor, recvTimeout, processRecvTimeout)
           serveFn(ctx.copy(request = request))
       }.recover {
         case e: Exception =>
@@ -50,11 +50,10 @@ object ResourceDriver {
   /**
    * Run the request on this resource
    * @param resourceActor function for creating the actorRef which will process the request
-   * @tparam ParsedRequest the request after parsing
    * @return the request execution
    */
-  final def serve[ParsedRequest](resourceActor: ResourceContext => AbstractResourceActor,
-                                 requestParser: HttpResourceActor.RequestParser[ParsedRequest],
+  final def serve(resourceActor: ResourceContext => AbstractResourceActor,
+                                 requestParser: HttpResourceActor.RequestParser,
                                  mbResponseActor: Option[ActorRef] = None,
                                  recvTimeout: Duration = HttpResourceActor.defaultRecvTimeout,
                                  processRecvTimeout: Duration = HttpResourceActor.defaultProcessRecvTimeout)

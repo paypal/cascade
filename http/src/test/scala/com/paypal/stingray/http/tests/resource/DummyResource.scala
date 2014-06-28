@@ -2,15 +2,11 @@ package com.paypal.stingray.http.tests.resource
 
 import spray.http._
 import StatusCodes._
-import com.paypal.stingray.common.logging.LoggingSugar
-import com.paypal.stingray.common.option._
 import spray.http.HttpResponse
 import scala.concurrent._
 import com.paypal.stingray.http.resource._
-import scala.util.{Success, Try}
 import spray.http.HttpHeaders.RawHeader
-import com.paypal.stingray.http.util.HttpUtil
-import akka.actor.{Actor, ActorRef}
+import akka.actor.Actor
 import com.paypal.stingray.http.tests.resource.DummyResource.{SleepRequest, PostRequest, LanguageRequest, GetRequest}
 import com.paypal.stingray.http.resource.HttpResourceActor.{ResourceContext, ProcessRequest}
 

@@ -19,6 +19,16 @@ import akka.actor.Status.Failure
 import com.paypal.stingray.http.resource.HttpResourceActor.SupportedFormats
 import org.specs2.matcher.MatchResult
 import org.specs2.execute.Result
+import spray.routing.RequestContext
+import com.paypal.stingray.http.util.HttpUtil
+import com.paypal.stingray.common.constants.ValueConstants._
+import spray.http.HttpRequest
+import com.paypal.stingray.http.resource.HttpResourceActor.ProcessRequest
+import spray.routing.RequestContext
+import spray.http.Language
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
+import scala.Some
+import spray.http.HttpResponse
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class
@@ -28,19 +38,19 @@ class AbstractResourceActorSpecs
   with SpecificationLike
   with ActorSpecification { override def is = s2"""
 
-  requesting acceptable formats should
-    return the correct defaults                                  ${test().formats}
-  sending a request object should
-    send back a response                                         ${test().response}
+
+
   When receiving an error, AbstractResourceActor should
     forward that error                                           ${test().err}
 
-
   """
+
+  //Sending a request object should
+  //send back a response                                         ${test().response}
 
   trait Context extends CommonImmutableSpecificationContext {
 
-    class TestResource(ref: ResourceContext) extends AbstractResourceActor(ref) {
+    class TestResource(ctx: ResourceContext) extends AbstractResourceActor(ctx) {
 
       /**
        * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
@@ -52,44 +62,40 @@ class AbstractResourceActorSpecs
       override protected def resourceReceive: PartialFunction[Any, Unit] = {
         case ProcessRequest(Unit) => complete(HttpResponse(OK, "pong"))
       }
+
+      override val responseContentType: ContentType = ContentTypes.`text/plain(UTF-8)`
+      override val responseLanguage: Option[Language] = None
+    }
+
+    //TODO: make a Scalacheck generator
+    def fakeContext(ref: ActorRef): ResourceContext = {
+      ResourceContext(RequestContext(HttpRequest(), ref, Uri.Path("")),
+                      _ => scala.util.Success(Unit),
+                      Some(ref), Duration(2, TimeUnit.SECONDS))
     }
   }
 
   case class test() extends Context {
-    def formats: Result = {
-      val probe = TestProbe()
-      val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
-      resourceRef ! CheckSupportedFormats
-      val expected: SupportedFormats = SupportedFormats(List(ContentTypes.`application/json`),
-        ContentTypes.`application/json`,
-        Option(Language("en", "US")))
-      try {
-        probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (expected)
-      } catch {
-        case t: Throwable => org.specs2.execute.Failure(t.getMessage)
-      }
-    }
 
     def response: Result = {
       val probe = TestProbe()
-      val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
-      resourceRef ! ProcessRequest(Unit)
+      val resourceRef = system.actorOf(Props(new TestResource(fakeContext(probe.ref))))
+      resourceRef ! Start
       try {
-        probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (RequestIsProcessed(HttpResponse(OK, "pong"), None))
+        probe.receiveOne(Duration(1, TimeUnit.SECONDS)) must beEqualTo (HttpResponse(OK, "pong"))
       } catch {
         case t: Throwable => org.specs2.execute.Failure(t.getMessage)
       }
     }
 
-    case object GenericException extends Exception("generic downstream exception")
-
     def err: Result = {
       val probe = TestProbe()
-      val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
-      val expected: Failure = Status.Failure(GenericException)
-      resourceRef ! expected
+      val resourceRef = system.actorOf(Props(new TestResource(fakeContext(probe.ref))))
+      case object GenericException extends Exception("generic downstream exception")
+      resourceRef ! Status.Failure(GenericException)
       try {
-        probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (expected)
+        probe.receiveOne(Duration(2, TimeUnit.SECONDS)) must beEqualTo(
+          HttpResponse(InternalServerError, HttpUtil.coerceError(GenericException.getMessage.getBytes(charsetUtf8))))
       } catch {
         case t: Throwable => org.specs2.execute.Failure(t.getMessage)
       }
