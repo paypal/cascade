@@ -38,7 +38,7 @@ trait ServiceActor extends CommonActor {
   @throws[UnhandledMessageException]
   override def unhandled(message: Any): Unit = {
     super.unhandled(message)
-    val ex = new UnhandledMessageException(s"Unhandled message received by actor: ${self.path}, sender: ${sender()} message: $message")
+    val ex = new UnhandledMessageException(s"Unhandled message received by actor: ${self.path}, sender: ${sender()}, message: ${message.getClass}")
     sender ! Status.Failure(ex)
     throw ex
   }
