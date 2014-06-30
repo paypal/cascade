@@ -10,44 +10,14 @@ import akka.actor.{ActorLogging, Actor, Status}
 trait CommonActor extends Actor with ActorLogging {
 
   /**
-   * Can be overridden in subsequent actor implementations, but `super.preStart()` should also be called
-   * to preserve consistent behavior
-   */
-  override def preStart(): Unit = {
-    log.debug(s"Starting actor: ${self.path}")
-    super.preStart()
-  }
-
-  /**
-   * Can be overridden in subsequent actor implementations, but `super.preRestart(reason, message)`
-   * should also be called to preserve consistent behavior
-   * @param reason what triggered this restart cycle
-   * @param message why this restart was triggered
-   */
-  override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
-    log.error(reason, s"Restarting actor: ${self.path}, message: ${message.getOrElse("")}")
-    super.preRestart(reason, message)
-  }
-
-  /**
    * Can be overridden in subsequent actor implementations, but `super.postRestart(reason)` should also be called
    * to preserve consistent behavior
    * @param reason what triggered this restart cycle
    */
   override def postRestart(reason: Throwable): Unit = {
-    log.error(reason, s"Restarted actor: ${self.path}")
+    log.debug(s"Restarted actor: ${self.path}")
     super.postRestart(reason)
   }
-
-  /**
-   * Can be overridden in subsequent actor implementations, but `super.postStop()` should also be called
-   * to preserve consistent behavior
-   */
-  override def postStop(): Unit = {
-    log.debug(s"Stopped actor: ${self.path}")
-    super.postStop()
-  }
-
 }
 
 /**
@@ -68,7 +38,7 @@ trait ServiceActor extends CommonActor {
   @throws[UnhandledMessageException]
   override def unhandled(message: Any): Unit = {
     super.unhandled(message)
-    val ex = new UnhandledMessageException(s"Unhandled message received by actor: ${self.path}, sender: ${sender()} message: $message")
+    val ex = new UnhandledMessageException(s"Unhandled message received by actor: ${self.path}, sender: ${sender()}, message: ${message.getClass}")
     sender ! Status.Failure(ex)
     throw ex
   }
