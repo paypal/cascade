@@ -175,8 +175,6 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
   }
 
-
-
   /**
    * Continues execution if this resource supports the content type sent in the request, or halts
    * @return an empty Try
@@ -273,8 +271,8 @@ object HttpResourceActor {
   case class ResourceContext(reqContext: RequestContext,
                              reqParser: RequestParser,
                              mbReturnActor: Option[ActorRef] = None,
-                             recvTimeout: Duration = HttpResourceActor.defaultRecvTimeout,
-                             processRecvTimeout: Duration = HttpResourceActor.defaultProcessRecvTimeout)
+                             recvTimeout: FiniteDuration = HttpResourceActor.defaultRecvTimeout,
+                             processRecvTimeout: FiniteDuration = HttpResourceActor.defaultProcessRecvTimeout)
 
   //requests
   /**
@@ -330,8 +328,8 @@ object HttpResourceActor {
                            reqContext: RequestContext,
                            reqParser: RequestParser,
                            mbResponseActor: Option[ActorRef],
-                           recvTimeout: Duration = defaultRecvTimeout,
-                           processRecvTimeout: Duration = defaultProcessRecvTimeout): Props = {
+                           recvTimeout: FiniteDuration = defaultRecvTimeout,
+                           processRecvTimeout: FiniteDuration = defaultProcessRecvTimeout): Props = {
     Props.apply(resourceActorProps(ResourceContext(reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout)))
       .withDispatcher(dispatcherName)
       .withMailbox("single-consumer-mailbox")

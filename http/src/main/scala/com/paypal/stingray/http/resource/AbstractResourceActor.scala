@@ -31,6 +31,8 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * safe to store mutable state during this receive function.
    * When the request is finished, one of the provided complete methods must be called
    *
+   * This receive should handle {{{ProcessRequest(_)}}} messages.
+   *
    * @return The receive function to be applied when a parsed request object or other actor message is received
    */
   protected def resourceReceive: Actor.Receive
