@@ -1,4 +1,7 @@
 
+# 0.8.7 06/30/14 released by awharris
+* remove a potential PII log
+
 # 0.8.6 06/27/14 released by awharris
 * actor logging perf improvements
 
