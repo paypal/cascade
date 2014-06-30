@@ -105,7 +105,13 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
     context.stop(self)
   }
 
-  // TODO add docs
+  /**
+   * Return an error with the specified status code and error object.
+   *
+   * @param code The error code to return
+   * @param error Error to return, will be converted to JSON
+   * @tparam T Type of the error
+   */
   protected final def sendErrorResponse[T : Manifest](code: StatusCode, error: T): Unit = {
     resourceContext.httpActor ! Status.Failure(HaltException(code, HttpUtil.coerceError(error)))
   }
