@@ -170,8 +170,11 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
 
     //the actor didn't receive a message before the current ReceiveTimeout
     case ReceiveTimeout =>
+      val timeoutMillis = if (pendingStep == classOf[RequestIsProcessed]) {
+        resourceContext.processRecvTimeout.toMillis
+      } else { resourceContext.recvTimeout.toMillis }
       log.error(
-        s"$self didn't receive a next message within ${resourceContext.recvTimeout.toMillis} milliseconds of the last one. next expected message was ${pendingStep.getName}")
+        s"$self didn't receive message within $timeoutMillis milliseconds of the last one. next expected message was ${pendingStep.getName}")
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
   }
 
