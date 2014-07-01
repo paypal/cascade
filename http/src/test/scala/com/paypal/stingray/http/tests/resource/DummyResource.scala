@@ -54,7 +54,7 @@ class DummyResource(requestContext: ResourceContext)
     if (req.foo == "bar")
       completeToJSON(OK, "pong")
     else
-      errorCode(BadRequest, "incorrect parameters")
+      sendErrorResponseMap(BadRequest, "incorrect parameters")
   }
 
   /**
@@ -90,7 +90,7 @@ class DummyResource(requestContext: ResourceContext)
     if (req.foo == "bar")
       completeToJSON(Created, "pong", "foobar")
     else
-      errorCode(BadRequest, "incorrect parameters")
+      sendErrorResponseMap(BadRequest, "incorrect parameters")
   }
 
   /**

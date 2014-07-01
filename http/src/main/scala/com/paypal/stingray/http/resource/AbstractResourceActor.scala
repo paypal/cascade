@@ -54,7 +54,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   protected final def completeToJSON[T](code: StatusCode, response: T): Unit = {
     response.toJson match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr))
-      case Failure(_) => errorCode(StatusCodes.InternalServerError, "Could not write response to json")
+      case Failure(_) => sendErrorResponse(StatusCodes.InternalServerError, "Could not write response to json")
     }
   }
 
@@ -68,7 +68,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   protected final def completeToJSON[T](code: StatusCode, response: T, location: String): Unit = {
     response.toJson match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr), location)
-      case Failure(_) => errorCode(StatusCodes.InternalServerError, "Could not write response to json")
+      case Failure(_) => sendErrorResponse(StatusCodes.InternalServerError, "Could not write response to json")
     }
   }
 
@@ -85,15 +85,26 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * Return an internal server error in response to a throwable
    * @param f The error to be logged
    */
-  protected final def error(f: Throwable): Unit = {
+  protected final def sendError(f: Throwable): Unit = {
     self ! Status.Failure(f)
+  }
+
+  /**
+   * Return an error with the specified status code and error object.
+   *
+   * @param code The error code to return
+   * @param error Error to return, will be converted to JSON
+   * @tparam T Type of the error
+   */
+  protected final def sendErrorResponse[T : Manifest](code: StatusCode, error: T): Unit = {
+    self ! Status.Failure(HaltException(code, HttpUtil.coerceError(error)))
   }
 
   /**
    * Return an error with the specified Status code
    * @param code The error code to return
    */
-  protected final def errorCode(code: StatusCode): Unit = {
+  protected final def sendErrorResponseCode(code: StatusCode): Unit = {
     self ! Status.Failure(HaltException(code))
   }
 
@@ -102,8 +113,8 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param code The error code to return
    * @param msg Message to be returned, will be converted to JSON
    */
-  protected final def errorCode(code: StatusCode, msg: String): Unit = {
-    self ! Status.Failure(HaltException(code, HttpUtil.coerceError(msg)))
+  protected final def sendErrorResponseMap(code: StatusCode, msg: String): Unit = {
+    self ! Status.Failure(HaltException(code, HttpUtil.coerceErrorMap(msg)))
   }
 
 }
