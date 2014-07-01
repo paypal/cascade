@@ -47,7 +47,6 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
     case failed: Status.Failure =>
       log.error("Error serving request", failed)
       resourceContext.httpActor ! failed
-      context.stop(self)
   }
 
   /**
@@ -102,7 +101,6 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    */
   protected final def sendError(f: Throwable): Unit = {
     resourceContext.httpActor ! Status.Failure(f)
-    context.stop(self)
   }
 
   /**
@@ -122,7 +120,6 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    */
   protected final def sendErrorResponseCode(code: StatusCode): Unit = {
     resourceContext.httpActor ! Status.Failure(HaltException(code))
-    context.stop(self)
   }
 
   /**
@@ -132,7 +129,6 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    */
   protected final def sendErrorResponseMap(code: StatusCode, msg: String): Unit = {
     resourceContext.httpActor ! Status.Failure(HaltException(code, HttpUtil.coerceErrorMap(msg)))
-    context.stop(self)
   }
 
   /**
