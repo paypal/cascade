@@ -52,7 +52,6 @@ class HttpResourceActor[ParsedRequest](resourceCreator: ResourceContext => Abstr
   private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
 
   private lazy val resourceActor: ActorRef = context.actorOf(Props(resourceCreator(ResourceContext(self)))
-    .withDispatcher(dispatcherName)
     .withMailbox("single-consumer-mailbox"))
 
   private var mbSupportedFormats: Option[SupportedFormats] = None
@@ -316,8 +315,6 @@ object HttpResourceActor {
    */
   val defaultProcessRecvTimeout = 4.seconds
 
-  val dispatcherName = "resource-actor-dispatcher"
-
   /**
    * create the [[akka.actor.Props]] for a new [[HttpResourceActor]]
    * @param resourceActorProps function for creating props for an actor which will handle the request
@@ -334,7 +331,6 @@ object HttpResourceActor {
                            recvTimeout: Duration = defaultRecvTimeout,
                            processRecvTimeout: Duration = defaultProcessRecvTimeout): Props = {
     Props.apply(new HttpResourceActor(resourceActorProps, reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout))
-      .withDispatcher(dispatcherName)
       .withMailbox("single-consumer-mailbox")
   }
 
