@@ -38,15 +38,13 @@ class AbstractResourceActorSpecs
   with SpecificationLike
   with ActorSpecification { override def is = s2"""
 
-
-
   When receiving an error, AbstractResourceActor should
     forward that error                                           ${test().err}
 
-  """
+  Sending a request object should
+    send back a response                                         ${test().response}
 
-  //Sending a request object should
-  //send back a response                                         ${test().response}
+  """
 
   trait Context extends CommonImmutableSpecificationContext {
 
