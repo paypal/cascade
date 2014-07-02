@@ -14,7 +14,6 @@ import com.paypal.stingray.common.constants.ValueConstants._
 import com.paypal.stingray.http.util.HttpUtil
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
-import com.paypal.stingray.common.option._
 import akka.actor.SupervisorStrategy.Escalate
 import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
@@ -60,11 +59,6 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
 
   private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
 
-  private var mbSupportedFormats: Option[SupportedFormats] = None
-  //This should never throw in normal operation but does need to be brought into state somehow
-  //This is set by the first step in the pipeline, in the SupportedFormats step, and is used after that
-  private lazy val unsafeSupportedFormats: SupportedFormats = mbSupportedFormats
-    .orThrow(new IllegalStateException("VERY ILLEGAL STATE: Supported formats accessed before being set"))
   private def setNextStep[T](implicit classTag: ClassTag[T]): Unit = {
     pendingStep = classTag.runtimeClass
   }
@@ -81,29 +75,21 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
 
   override def receive: Actor.Receive = { // scalastyle:ignore cyclomatic.complexity scalastyle:ignore method.length
 
-    //begin processing the request
+    //begin processing the request. check if content type is supported and response content type is acceptable
     case Start =>
-      setNextStep[ContentTypeIsSupported.type]
-      mbSupportedFormats = SupportedFormats(acceptableContentTypes, responseContentType, responseLanguage).opt
-      self ! ensureContentTypeSupported().map { _ =>
-        ContentTypeIsSupported
-      }.orFailure
-
-    //the content type is supported, now check if the response content type is acceptable
-    case ContentTypeIsSupported =>
       setNextStep[ResponseContentTypeIsAcceptable.type]
-      self ! ensureResponseContentTypeAcceptable().map { _ =>
+      val formats = SupportedFormats(acceptableContentTypes, responseContentType, responseLanguage)
+      self ! ensureContentTypeSupportedAndAcceptable(formats).map { _ =>
         ResponseContentTypeIsAcceptable
       }.orFailure
 
-    //the response content type is acceptable, now check if the request is authorized
-    case ResponseContentTypeIsAcceptable =>
+    //the response content type is acceptable, now parse the request
       setNextStep[RequestIsParsed]
       self ! resourceContext.reqParser.apply(request).map { p =>
         RequestIsParsed(p)
       }.orFailure
 
-    //the request has been parsed, now check if the content type is supported
+    //the request has been parsed, now process the request
     case RequestIsParsed(p) =>
       setNextStep[RequestIsProcessed]
       //account for extremely long processing times
@@ -132,12 +118,12 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
         val newUri = request.uri.copy(scheme = newScheme, path = newPath)
         Location(newUri)
       }
-      val headers = addLanguageHeader(unsafeSupportedFormats.responseLanguage, responseWithLocation.headers)
+      val headers = addLanguageHeader(responseLanguage, responseWithLocation.headers)
       // Just force the request to the right content type
 
       val finalResponse: HttpResponse = responseWithLocation.withHeadersAndEntity(headers, responseWithLocation.entity.flatMap {
         entity: NonEmpty =>
-          HttpEntity(unsafeSupportedFormats.responseContentType, entity.data)
+          HttpEntity(responseContentType, entity.data)
       })
 
       self ! finalResponse
@@ -172,22 +158,17 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
   }
 
   /**
-   * Continues execution if this resource supports the content type sent in the request, or halts
-   * @return an empty Try
-   */
-  private def ensureContentTypeSupported(): Try[Unit] = {
-    request.entity match {
-      case Empty => Success()
-      case NonEmpty(ct, _) => unsafeSupportedFormats.contentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
-    }
-  }
-
-  /**
-   * Continues execution if this resource can respond in a format that the requester can accept, or halts
+   * Continues execution if this resource supports the content type sent in the request,
+   * and can respond in a format the the requester can accept, or halts
    * @return a Try containing the acceptable content type found, or a failure
    */
-  private def ensureResponseContentTypeAcceptable(): Try[ContentType] = {
-    request.acceptableContentType(List(unsafeSupportedFormats.responseContentType)).orHaltWithT(NotAcceptable)
+  private def ensureContentTypeSupportedAndAcceptable(formats: SupportedFormats): Try[ContentType] = {
+    val supported = request.entity match {
+      case Empty => Success()
+      case NonEmpty(ct, _) => formats.contentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
+    }
+    supported.flatMap(_ =>
+      request.acceptableContentType(List(formats.responseContentType)).orHaltWithT(NotAcceptable))
   }
 
   /**
@@ -211,7 +192,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
       val response = addHeaderOnCode(h.response, Unauthorized) {
         `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
       }
-      val headers = addLanguageHeader(mbSupportedFormats.flatMap(_.responseLanguage), response.headers)
+      val headers = addLanguageHeader(responseLanguage, response.headers)
       // If the error already has the right content type, let it through, otherwise coerce it
       val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap {
         entity: NonEmpty =>
@@ -228,7 +209,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
     case otherException =>
       HttpResponse(InternalServerError,
                    HttpUtil.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
-                   addLanguageHeader(mbSupportedFormats.flatMap(_.responseLanguage), Nil))
+                   addLanguageHeader(responseLanguage, Nil))
   }
 
   /**
@@ -291,7 +272,6 @@ object HttpResourceActor {
 
   /**
    * the function that parses an [[spray.http.HttpRequest]] into a type, or fails
-   * @tparam T the type to parse the request into
    */
   type RequestParser = HttpRequest => Try[AnyRef]
 
