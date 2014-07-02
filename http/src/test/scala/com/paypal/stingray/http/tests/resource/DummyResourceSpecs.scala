@@ -20,6 +20,7 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
   Sending a GetRequest
     should return pong                                                    ${Test().ping}
+    should return pong after a request rewrite                            ${Test().pingRewrite}
     should have content language set                                      ${Test().language}
 
   Sending a language override via LanguageRequest
@@ -44,7 +45,15 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
   case class Test() extends Context {
 
     def ping = {
-      val request = HttpRequest(uri = "/ping?foo=bar").withHeaders(List(Accept(MediaTypes.`text/plain`)))
+      pingTest("ping")
+    }
+
+    def pingRewrite = {
+      pingTest("ping-rewrite")
+    }
+
+    private def pingTest(path: String) = {
+      val request = HttpRequest(uri = s"/$path?foo=bar").withHeaders(List(Accept(MediaTypes.`text/plain`)))
       resource must resultInCodeAndBodyLike(request,
         request => Try (GetRequest("bar")), StatusCodes.OK) {
         case body @ NonEmpty(_, _) => body.asString must beEqualTo("\"pong\"")

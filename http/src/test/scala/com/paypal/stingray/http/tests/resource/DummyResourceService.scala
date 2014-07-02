@@ -8,6 +8,7 @@ import scala.util.Try
 import com.paypal.stingray.akka.actor.ActorSystemComponent
 import com.paypal.stingray.http.tests.resource.DummyResource.GetRequest
 import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
+import com.paypal.stingray.http.resource.ResourceDriver.RewriteFunction
 
 /**
  * A dummy resource service implementation for use with [[com.paypal.stingray.http.tests.resource.DummyResource]].
@@ -25,11 +26,20 @@ trait DummyResourceService
     Try (GetRequest("bar"))
   }
 
+  val rewriteRequest: RewriteFunction[GetRequest] = { req: HttpRequest =>
+    Try((req,GetRequest("bar")))
+  }
+
   /** The route for this resource */
   override val route = {
     path("ping") {
       get {
         ResourceDriver.serve(dummy, parseRequest)
+      }
+    } ~
+    path("ping-rewrite") {
+      get {
+        ResourceDriver.serveWithRewrite(dummy)(rewriteRequest)
       }
     }
   }
