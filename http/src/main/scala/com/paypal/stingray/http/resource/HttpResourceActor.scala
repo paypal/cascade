@@ -84,6 +84,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
       }.orFailure
 
     //the response content type is acceptable, now parse the request
+    case ResponseContentTypeIsAcceptable =>
       setNextStep[RequestIsParsed]
       self ! resourceContext.reqParser.apply(request).map { p =>
         RequestIsParsed(p)
