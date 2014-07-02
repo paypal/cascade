@@ -32,7 +32,7 @@ trait SprayMatchers {
    */
   def resultInCodeGivenData(req: HttpRequest,
                             requestParser: HttpResourceActor.RequestParser,
-                            code: StatusCode) =
+                            code: StatusCode): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasCode(req, requestParser, code)
 
   /**
@@ -44,7 +44,7 @@ trait SprayMatchers {
    */
   def resultInBodyGivenData(req: HttpRequest,
                             requestParser: HttpResourceActor.RequestParser,
-                            body: HttpEntity) =
+                            body: HttpEntity): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasBody(req, requestParser, body)
 
   /**
@@ -56,7 +56,7 @@ trait SprayMatchers {
    */
   def resultInBodyStringGivenData(req: HttpRequest,
                                   requestParser: HttpResourceActor.RequestParser,
-                                  body: String) =
+                                  body: String): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasBodyString(req, requestParser, body)
 
   /**
@@ -68,7 +68,7 @@ trait SprayMatchers {
    */
   def resultInBodyLike(req: HttpRequest,
                        requestParser: HttpResourceActor.RequestParser)
-                       (f: HttpEntity => MatchResult[Any]) =
+                       (f: HttpEntity => MatchResult[Any]): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasBodyLike(req, requestParser, f)
 
   /**
@@ -80,7 +80,7 @@ trait SprayMatchers {
    */
   def resultInBodyStringLike(req: HttpRequest,
                              requestParser: HttpResourceActor.RequestParser)
-                             (f: String => MatchResult[Any]) =
+                             (f: String => MatchResult[Any]): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasBodyStringLike(req, requestParser, f)
 
   /**
@@ -94,7 +94,7 @@ trait SprayMatchers {
   def resultInCodeAndBodyLike(req: HttpRequest,
                               requestParser: HttpResourceActor.RequestParser,
                               code: StatusCode)
-                              (f: HttpEntity => MatchResult[Any]) =
+                              (f: HttpEntity => MatchResult[Any]): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasCodeAndBodyLike(req, requestParser, code, f)
 
   /**
@@ -108,7 +108,7 @@ trait SprayMatchers {
   def resultInCodeAndBodyStringLike(req: HttpRequest,
                                     requestParser: HttpResourceActor.RequestParser,
                                     code: StatusCode)
-                                    (f: String => MatchResult[Any]) =
+                                    (f: String => MatchResult[Any]): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasCodeAndBodyStringLike(req, requestParser, code, f)
 
   /**
@@ -120,7 +120,7 @@ trait SprayMatchers {
    */
   def resultInResponseWithHeaderContaining(req: HttpRequest,
                                            requestParser: HttpResourceActor.RequestParser,
-                                           header: HttpHeader) =
+                                           header: HttpHeader): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasHeaderContainingValue(req, requestParser, header)
 
   /**
@@ -132,7 +132,7 @@ trait SprayMatchers {
    */
   def resultInResponseWithNonEmptyHeader(req: HttpRequest,
                                          requestParser: HttpResourceActor.RequestParser,
-                                         header: String) =
+                                         header: String): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasNonEmptyHeader(req, requestParser, header)
 
   /**
@@ -144,7 +144,7 @@ trait SprayMatchers {
    */
   def resultInContentType(req: HttpRequest,
                           requestParser: HttpResourceActor.RequestParser,
-                          cType: ContentType) =
+                          cType: ContentType): Matcher[ResourceContext => AbstractResourceActor] =
     new ResponseHasContentType(req, requestParser, cType)
 
   /**
