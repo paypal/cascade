@@ -1,4 +1,7 @@
 
+# 0.9.0 07/01/14 released by mvaznaian
+* Update error response methods
+
 # 0.8.7 06/30/14 released by awharris
 * remove a potential PII log
 

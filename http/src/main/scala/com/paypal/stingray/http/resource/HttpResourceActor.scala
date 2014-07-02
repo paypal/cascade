@@ -59,6 +59,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
   case object ResponseContentTypeIsAcceptable
 
   private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
+
   private var mbSupportedFormats: Option[SupportedFormats] = None
   //This should never throw in normal operation but does need to be brought into state somehow
   //This is set by the first step in the pipeline, in the SupportedFormats step, and is used after that
@@ -317,8 +318,6 @@ object HttpResourceActor {
    */
   val defaultProcessRecvTimeout = 4.seconds
 
-  val dispatcherName = "resource-actor-dispatcher"
-
   /**
    * create the [[akka.actor.Props]] for a new [[HttpResourceActor]]
    * @param resourceActorProps function for creating props for an actor which will handle the request
@@ -334,7 +333,6 @@ object HttpResourceActor {
                            recvTimeout: FiniteDuration = defaultRecvTimeout,
                            processRecvTimeout: FiniteDuration = defaultProcessRecvTimeout): Props = {
     Props.apply(resourceActorProps(ResourceContext(reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout)))
-      .withDispatcher(dispatcherName)
       .withMailbox("single-consumer-mailbox")
   }
 
