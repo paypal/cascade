@@ -73,10 +73,6 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
 
   context.setReceiveTimeout(resourceContext.recvTimeout)
 
-  override def preStart(): Unit = {
-    super.preStart()
-  }
-
   //crash on unhandled exceptions
   override val supervisorStrategy =
     OneForOneStrategy() {
@@ -87,12 +83,8 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
 
     //begin processing the request
     case Start =>
-      setNextStep[SupportedFormats]
-      self ! SupportedFormats(acceptableContentTypes, responseContentType, responseLanguage)
-
-    case formats: SupportedFormats =>
       setNextStep[ContentTypeIsSupported.type]
-      mbSupportedFormats = formats.opt
+      mbSupportedFormats = SupportedFormats(acceptableContentTypes, responseContentType, responseLanguage).opt
       self ! ensureContentTypeSupported().map { _ =>
         ContentTypeIsSupported
       }.orFailure
