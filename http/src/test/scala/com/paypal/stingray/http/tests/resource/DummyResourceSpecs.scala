@@ -38,7 +38,7 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
   trait Context extends CommonImmutableSpecificationContext with SprayMatchers {
 
-    def resource: ResourceContext => AbstractResourceActor = new DummyResource(_)
+    val resource: ResourceContext => AbstractResourceActor = new DummyResource(_)
 
     implicit val actorSystem = ActorSystem("dummy-resource-specs")
   }
