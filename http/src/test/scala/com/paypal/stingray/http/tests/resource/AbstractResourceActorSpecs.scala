@@ -1,24 +1,20 @@
 package com.paypal.stingray.http.tests.resource
 
-import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
 import spray.http._
-import com.paypal.stingray.http.resource._
 import spray.http.StatusCodes._
+import spray.routing.RequestContext
 import akka.actor._
-import com.paypal.stingray.http.resource.HttpResourceActor._
 import akka.testkit.{TestProbe, TestKit}
 import org.specs2.SpecificationLike
+import org.specs2.execute.Result
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import com.paypal.stingray.akka.tests.actor.ActorSpecification
-import com.paypal.stingray.http.resource.HttpResourceActor.ProcessRequest
-import spray.http.HttpResponse
-import spray.http.Language
-import com.paypal.stingray.http.resource.HttpResourceActor.RequestIsProcessed
-import akka.actor.Status.Failure
-import com.paypal.stingray.http.resource.HttpResourceActor.SupportedFormats
-import org.specs2.matcher.MatchResult
-import org.specs2.execute.Result
+import com.paypal.stingray.common.constants.ValueConstants._
+import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
+import com.paypal.stingray.http.util.HttpUtil
+import com.paypal.stingray.http.resource._
+import com.paypal.stingray.http.resource.HttpResourceActor._
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class
@@ -28,19 +24,22 @@ class AbstractResourceActorSpecs
   with SpecificationLike
   with ActorSpecification { override def is = s2"""
 
-  requesting acceptable formats should
-    return the correct defaults                                  ${test().formats}
-  sending a request object should
-    send back a response                                         ${test().response}
-  When receiving an error, AbstractResourceActor should
+  When sending an error, AbstractResourceActor should
     forward that error                                           ${test().err}
+    forward the error code                                       ${test().errCode}
+    forward the serialized error response object                 ${test().errResponse}
+    forward the serialized error in a map                        ${test().errResponseMap}
 
+  Sending a request object should
+    send back a response                                         ${test().response}
+    send back a serialized JSON response                         ${test().jsonResponse}
+    send an error if response object can't be serialized         ${test().badJsonResponse}
 
   """
 
   trait Context extends CommonImmutableSpecificationContext {
 
-    class TestResource(ref: ResourceContext) extends AbstractResourceActor(ref) {
+    class TestResource(ctx: ResourceContext) extends AbstractResourceActor(ctx) {
 
       /**
        * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
@@ -50,50 +49,73 @@ class AbstractResourceActorSpecs
        * @return The receive function to be applied when a parsed request object or other actor message is received
        */
       override protected def resourceReceive: PartialFunction[Any, Unit] = {
-        case ProcessRequest(Unit) => complete(HttpResponse(OK, "pong"))
+        case ProcessRequest("json") => completeToJSON(OK, PongResponse("pong"))
+        case ProcessRequest("badjson") => completeToJSON(OK, testActor) //trying to serialize something we shouldn't
+        case ProcessRequest("error") => sendError(GenericException)
+        case ProcessRequest("errorCode") => sendErrorResponseCode(InternalServerError)
+        case ProcessRequest("errorResponse") => sendErrorResponse(InternalServerError, ErrorResponse("oops"))
+        case ProcessRequest("errorResponseMap") => sendErrorResponseMap(InternalServerError, "oops")
+        case ProcessRequest("") => complete(HttpResponse(OK, "pong"))
       }
+
+      case class PongResponse(resp: String)
+      case class ErrorResponse(error: String)
+
+      override val responseContentType: ContentType = ContentTypes.`text/plain(UTF-8)`
+      override val responseLanguage: Option[Language] = None
     }
+
+    //TODO: make a Scalacheck generator
+    def fakeContext(ref: ActorRef, parsedString: String = ""): ResourceContext = {
+      ResourceContext(RequestContext(HttpRequest(), ref, Uri.Path("")),
+                      _ => scala.util.Success(parsedString),
+                      Some(ref), Duration(2, TimeUnit.SECONDS))
+    }
+
+    case object GenericException extends Exception("generic downstream exception")
   }
 
   case class test() extends Context {
-    def formats: Result = {
+
+    private def probeAndTest[T](parsedMessage: String, expectedResponse: HttpResponse): Result = {
       val probe = TestProbe()
-      val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
-      resourceRef ! CheckSupportedFormats
-      val expected: SupportedFormats = SupportedFormats(List(ContentTypes.`application/json`),
-        ContentTypes.`application/json`,
-        Option(Language("en", "US")))
+      val resourceRef = system.actorOf(Props(new TestResource(fakeContext(probe.ref, parsedMessage))))
+      resourceRef ! Start
       try {
-        probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (expected)
+        probe.receiveOne(Duration(2, TimeUnit.SECONDS)) must beEqualTo (expectedResponse)
       } catch {
         case t: Throwable => org.specs2.execute.Failure(t.getMessage)
       }
     }
 
     def response: Result = {
-      val probe = TestProbe()
-      val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
-      resourceRef ! ProcessRequest(Unit)
-      try {
-        probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (RequestIsProcessed(HttpResponse(OK, "pong"), None))
-      } catch {
-        case t: Throwable => org.specs2.execute.Failure(t.getMessage)
-      }
+      probeAndTest("", HttpResponse(OK, "pong"))
     }
 
-    case object GenericException extends Exception("generic downstream exception")
+    def jsonResponse: Result = {
+      probeAndTest("json", HttpResponse(OK, """{"resp":"pong"}"""))
+    }
+
+    def badJsonResponse: Result = {
+      probeAndTest("badjson", HttpResponse(InternalServerError,  HttpEntity(ContentTypes.`application/json`, "\"Could not write response to json\"")))
+    }
 
     def err: Result = {
-      val probe = TestProbe()
-      val resourceRef = system.actorOf(Props(new TestResource(ResourceContext(probe.ref))))
-      val expected: Failure = Status.Failure(GenericException)
-      resourceRef ! expected
-      try {
-        probe.receiveOne(Duration(250, TimeUnit.MILLISECONDS)) must beEqualTo (expected)
-      } catch {
-        case t: Throwable => org.specs2.execute.Failure(t.getMessage)
-      }
+      probeAndTest("error", HttpResponse(InternalServerError, HttpUtil.coerceError(GenericException.getMessage.getBytes(charsetUtf8))))
     }
+
+    def errCode: Result = {
+      probeAndTest("errorCode", HttpResponse(InternalServerError))
+    }
+
+    def errResponse: Result = {
+      probeAndTest("errorResponse", HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, """{"error":"oops"}""")))
+    }
+
+    def errResponseMap: Result = {
+      probeAndTest("errorResponseMap", HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`,"""{"errors":["oops"]}""")))
+    }
+
   }
 
 }

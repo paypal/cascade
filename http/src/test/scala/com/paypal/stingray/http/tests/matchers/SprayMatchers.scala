@@ -9,7 +9,7 @@ import scala.concurrent.duration._
 import scala.util.Try
 import akka.actor.ActorSystem
 import com.paypal.stingray.http.tests.resource.executeResourceDriver
-import com.paypal.stingray.http.resource.AbstractResourceActor
+import com.paypal.stingray.http.resource.{HttpResourceActor, AbstractResourceActor}
 import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 /**
@@ -28,65 +28,60 @@ trait SprayMatchers {
    * @param req the request to run the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInCodeGivenData[ParsedRequest](req: HttpRequest,
-                                           requestParser: HttpRequest => Try[ParsedRequest],
-                                           code: StatusCode) =
-    new ResponseHasCode[ParsedRequest](req, requestParser, code)
+  def resultInCodeGivenData(req: HttpRequest,
+                            requestParser: HttpResourceActor.RequestParser,
+                            code: StatusCode): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasCode(req, requestParser, code)
 
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param body the body required
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInBodyGivenData[ParsedRequest](req: HttpRequest,
-                                           requestParser: HttpRequest => Try[ParsedRequest],
-                                           body: HttpEntity) =
-    new ResponseHasBody[ParsedRequest](req, requestParser, body)
+  def resultInBodyGivenData(req: HttpRequest,
+                            requestParser: HttpResourceActor.RequestParser,
+                            body: HttpEntity): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasBody(req, requestParser, body)
 
   /**
    * Requires that a run request must have a certain response body
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param body the body required
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInBodyStringGivenData[ParsedRequest](req: HttpRequest,
-                                                 requestParser: HttpRequest => Try[ParsedRequest],
-                                                 body: String) =
-    new ResponseHasBodyString[ParsedRequest](req, requestParser, body)
+  def resultInBodyStringGivenData(req: HttpRequest,
+                                  requestParser: HttpResourceActor.RequestParser,
+                                  body: String): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasBodyString(req, requestParser, body)
 
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param f the comparison function
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInBodyLike[ParsedRequest](req: HttpRequest,
-                                      requestParser: HttpRequest => Try[ParsedRequest])
-                                     (f: HttpEntity => MatchResult[Any]) =
-    new ResponseHasBodyLike[ParsedRequest](req, requestParser, f)
+  def resultInBodyLike(req: HttpRequest,
+                       requestParser: HttpResourceActor.RequestParser)
+                       (f: HttpEntity => MatchResult[Any]): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasBodyLike(req, requestParser, f)
 
   /**
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param f the comparison function
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInBodyStringLike[ParsedRequest](req: HttpRequest,
-                                            requestParser: HttpRequest => Try[ParsedRequest])
-                                           (f: String => MatchResult[Any]) =
-    new ResponseHasBodyStringLike[ParsedRequest](req, requestParser, f)
+  def resultInBodyStringLike(req: HttpRequest,
+                             requestParser: HttpResourceActor.RequestParser)
+                             (f: String => MatchResult[Any]): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasBodyStringLike(req, requestParser, f)
 
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
@@ -94,14 +89,13 @@ trait SprayMatchers {
    * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @param f the comparison function
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInCodeAndBodyLike[ParsedRequest](req: HttpRequest,
-                                             requestParser: HttpRequest => Try[ParsedRequest],
-                                             code: StatusCode)
-                                            (f: HttpEntity => MatchResult[Any]) =
-    new ResponseHasCodeAndBodyLike[ParsedRequest](req, requestParser, code, f)
+  def resultInCodeAndBodyLike(req: HttpRequest,
+                              requestParser: HttpResourceActor.RequestParser,
+                              code: StatusCode)
+                              (f: HttpEntity => MatchResult[Any]): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasCodeAndBodyLike(req, requestParser, code, f)
 
   /**
    * Requires that a run request must have a certain response code and a response body that passes a given function
@@ -109,64 +103,59 @@ trait SprayMatchers {
    * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @param f the comparison function
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInCodeAndBodyStringLike[ParsedRequest](req: HttpRequest,
-                                                   requestParser: HttpRequest => Try[ParsedRequest],
-                                                   code: StatusCode)
-                                                  (f: String => MatchResult[Any]) =
-    new ResponseHasCodeAndBodyStringLike[ParsedRequest](req, requestParser, code, f)
+  def resultInCodeAndBodyStringLike(req: HttpRequest,
+                                    requestParser: HttpResourceActor.RequestParser,
+                                    code: StatusCode)
+                                    (f: String => MatchResult[Any]): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasCodeAndBodyStringLike(req, requestParser, code, f)
 
   /**
    * Requires that a run request must have a given header in its response
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param header the header
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInResponseWithHeaderContaining[ParsedRequest](req: HttpRequest,
-                                                          requestParser: HttpRequest => Try[ParsedRequest],
-                                                          header: HttpHeader) =
-    new ResponseHasHeaderContainingValue[ParsedRequest](req, requestParser, header)
+  def resultInResponseWithHeaderContaining(req: HttpRequest,
+                                           requestParser: HttpResourceActor.RequestParser,
+                                           header: HttpHeader): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasHeaderContainingValue(req, requestParser, header)
 
   /**
    * Requires that a run request must have a given header and header value in its response
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param header the header
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInResponseWithNonEmptyHeader[ParsedRequest](req: HttpRequest,
-                                                        requestParser: HttpRequest => Try[ParsedRequest],
-                                                        header: String) =
-    new ResponseHasNonEmptyHeader[ParsedRequest](req, requestParser, header)
+  def resultInResponseWithNonEmptyHeader(req: HttpRequest,
+                                         requestParser: HttpResourceActor.RequestParser,
+                                         header: String): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasNonEmptyHeader(req, requestParser, header)
 
   /**
    * Requires that a run request must have a given `Content-Type` header in its response
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param cType the content type
-   * @tparam ParsedRequest the parsed request type
    * @return an object that can yield a [[org.specs2.matcher.MatchResult]]
    */
-  def resultInContentType[ParsedRequest](req: HttpRequest,
-                                         requestParser: HttpRequest => Try[ParsedRequest],
-                                         cType: ContentType) =
-    new ResponseHasContentType[ParsedRequest](req, requestParser, cType)
+  def resultInContentType(req: HttpRequest,
+                          requestParser: HttpResourceActor.RequestParser,
+                          cType: ContentType): Matcher[ResourceContext => AbstractResourceActor] =
+    new ResponseHasContentType(req, requestParser, cType)
 
   /**
    * Requires that a run request must have a certain response code
    * @param req the request to run the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
-   * @tparam ParsedRequest the parsed request type
    */
-  class ResponseHasCode[ParsedRequest](req: HttpRequest,
-                                       requestParser: HttpRequest => Try[ParsedRequest],
-                                       code: StatusCode)
+  class ResponseHasCode(req: HttpRequest,
+                        requestParser: HttpResourceActor.RequestParser,
+                        code: StatusCode)
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
@@ -186,11 +175,10 @@ trait SprayMatchers {
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param body the body required
-   * @tparam ParsedRequest the parsed request type
    */
-  class ResponseHasBody[ParsedRequest](req: HttpRequest,
-                                       requestParser: HttpRequest => Try[ParsedRequest],
-                                       body: HttpEntity)
+  class ResponseHasBody(req: HttpRequest,
+                        requestParser: HttpResourceActor.RequestParser,
+                        body: HttpEntity)
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
@@ -210,11 +198,10 @@ trait SprayMatchers {
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param body the body required
-   * @tparam ParsedRequest the parsed request type
    */
-  class ResponseHasBodyString[ParsedRequest](req: HttpRequest,
-                                             requestParser: HttpRequest => Try[ParsedRequest],
-                                             body: String)
+  class ResponseHasBodyString(req: HttpRequest,
+                              requestParser: HttpResourceActor.RequestParser,
+                              body: String)
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
@@ -235,12 +222,11 @@ trait SprayMatchers {
    * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @param f the comparison function
-   * @tparam ParsedRequest the parsed request type
    */
-  class ResponseHasCodeAndBodyLike[ParsedRequest](req: HttpRequest,
-                                                  requestParser: HttpRequest => Try[ParsedRequest],
-                                                  code: StatusCode,
-                                                  f: HttpEntity => MatchResult[Any])
+  class ResponseHasCodeAndBodyLike(req: HttpRequest,
+                                   requestParser: HttpResourceActor.RequestParser,
+                                   code: StatusCode,
+                                   f: HttpEntity => MatchResult[Any])
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
@@ -265,12 +251,11 @@ trait SprayMatchers {
    * @param requestParser function, which converts the request, into a parsed request
    * @param code the response code required
    * @param f the comparison function
-   * @tparam ParsedRequest the parsed request type
    */
-  class ResponseHasCodeAndBodyStringLike[ParsedRequest](req: HttpRequest,
-                                                        requestParser: HttpRequest => Try[ParsedRequest],
-                                                        code: StatusCode,
-                                                        f: String => MatchResult[Any])
+  class ResponseHasCodeAndBodyStringLike(req: HttpRequest,
+                                         requestParser: HttpResourceActor.RequestParser,
+                                         code: StatusCode,
+                                         f: String => MatchResult[Any])
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
@@ -294,11 +279,10 @@ trait SprayMatchers {
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param f the comparison function
-   * @tparam ParsedRequest the parsed request type
    */
-  class ResponseHasBodyLike[ParsedRequest](req: HttpRequest,
-                                           requestParser: HttpRequest => Try[ParsedRequest],
-                                           f: HttpEntity => MatchResult[Any])
+  class ResponseHasBodyLike(req: HttpRequest,
+                            requestParser: HttpResourceActor.RequestParser,
+                            f: HttpEntity => MatchResult[Any])
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
@@ -319,11 +303,10 @@ trait SprayMatchers {
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param f the comparison function
-   * @tparam ParsedRequest the parsed request type
    */
-  class ResponseHasBodyStringLike[ParsedRequest](req: HttpRequest,
-                                                 requestParser: HttpRequest => Try[ParsedRequest],
-                                                 f: String => MatchResult[Any])
+  class ResponseHasBodyStringLike(req: HttpRequest,
+                                  requestParser: HttpResourceActor.RequestParser,
+                                  f: String => MatchResult[Any])
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
@@ -343,11 +326,11 @@ trait SprayMatchers {
    * Requires that a run request must have a response body that passes a given comparison function
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
-   * @tparam ParsedRequest the parsed request type
+   * @param header the header
    */
-  class ResponseHasHeaderContainingValue[ParsedRequest](req: HttpRequest,
-                                                        requestParser: HttpRequest => Try[ParsedRequest],
-                                                        header: HttpHeader)
+  class ResponseHasHeaderContainingValue(req: HttpRequest,
+                                         requestParser: HttpResourceActor.RequestParser,
+                                         header: HttpHeader)
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
@@ -369,11 +352,10 @@ trait SprayMatchers {
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param header the header
-   * @tparam ParsedRequest the parsed request type
    */
-  class ResponseHasNonEmptyHeader[ParsedRequest](req: HttpRequest,
-                                                 requestParser: HttpRequest => Try[ParsedRequest],
-                                                 header: String)
+  class ResponseHasNonEmptyHeader(req: HttpRequest,
+                                  requestParser: HttpResourceActor.RequestParser,
+                                  header: String)
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {
@@ -395,11 +377,10 @@ trait SprayMatchers {
    * @param req the request to run
    * @param requestParser function, which converts the request, into a parsed request
    * @param cType the content type
-   * @tparam ParsedRequest the parsed request type
    */
-  class ResponseHasContentType[ParsedRequest](req: HttpRequest,
-                                              requestParser: HttpRequest => Try[ParsedRequest],
-                                              cType: ContentType)
+  class ResponseHasContentType(req: HttpRequest,
+                               requestParser: HttpResourceActor.RequestParser,
+                               cType: ContentType)
     extends Matcher[ResourceContext => AbstractResourceActor] {
 
     override def apply[S <: ResourceContext => AbstractResourceActor](r: Expectable[S]): MatchResult[S] = {

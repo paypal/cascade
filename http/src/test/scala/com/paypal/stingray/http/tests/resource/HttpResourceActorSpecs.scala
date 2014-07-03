@@ -14,35 +14,32 @@ import com.paypal.stingray.akka.tests.actor.ActorSpecification
 import scala.concurrent.duration.Duration
 import com.paypal.stingray.common.tests.future._
 import java.util.concurrent.TimeUnit
-import com.paypal.stingray.http.tests.resource.DummyResource.{SleepRequest, GetRequest}
+import com.paypal.stingray.http.tests.resource.DummyResource.{SyncSleep, SleepRequest, GetRequest}
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 class HttpResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
   with SpecificationLike
   with ActorSpecification { override def is = s2"""
 
-    ResourceActor is the individual actor that executes an entire request against an AbstractResource. One is created per request.
+  ResourceActor is the individual actor that executes an entire request against an AbstractResource. One is created per request.
 
-    After the ResourceActor succeeds, it writes the appropriate HttpResponse to the return actor and stops                             ${Succeeds().writesToReturnActor}
-    After the ResourceActor fails, it writes the appropriate failure HttpResponse to the return actor and stops                        ${Fails().writesToReturnActor}
-    After the ResourceActor succeeds, it writes the appropriate HttpResponse to the DummyRequestContext and stops                      ${Succeeds().writesToRequestContext}
-    After the ResourceActor fails, it writes the appropriate HttpResponse to the DummyRequestContext and stops                         ${Fails().writesToRequestContext}
+    After the ResourceActor succeeds, it writes the appropriate HttpResponse to the return actor and stops                   ${Succeeds().writesToReturnActor}
+    After the ResourceActor fails, it writes the appropriate failure HttpResponse to the return actor and stops              ${Fails().writesToReturnActor}
+    After the ResourceActor succeeds, it writes the appropriate HttpResponse to the DummyRequestContext and stops            ${Succeeds().writesToRequestContext}
+    After the ResourceActor fails, it writes the appropriate HttpResponse to the DummyRequestContext and stops               ${Fails().writesToRequestContext}
 
-    The ResourceActor should be start-able from the reference.conf file                                                                ${Start().succeeds}
+    The ResourceActor should be start-able from the reference.conf file                                                      ${Start().succeeds}
 
-    The ResourceActor should time out properly                                                                                         ${Start().timesOut}
-
-    The ResourceActor should time out if the request processor takes too long                                                          ${Start().timesOutOnRequestProcessor}
+    The ResourceActor should time out if the request processor takes too long in async code                                  ${Start().timesOutOnAsyncRequestProcessor}
+    The ResourceActor will still succeed if blocking code takes too long. DON'T BLOCK in HttpActors!                         ${Start().timeOutFailsOnBlockingRequestProcessor}
 
   """
-
-  private val resource = new DummyResource(_)
+  private val resourceGen = new DummyResource(_)
 
   sealed trait Context extends CommonImmutableSpecificationContext with RefAndProbeMatchers {
 
-    protected lazy val reqParser: HttpResourceActor.RequestParser[GetRequest] = { req: HttpRequest =>
-      Success(GetRequest("bar"))
-    }
+    protected lazy val reqParser: HttpResourceActor.RequestParser = _ => Success(GetRequest("bar"))
 
     protected lazy val req = HttpRequest()
 
@@ -54,7 +51,9 @@ class HttpResourceActorSpecs
     protected lazy val returnActorRefAndProbe = RefAndProbe(TestActorRef(new ResponseHandlerActor(returnActorPromise)))
     protected val returnActorFuture = returnActorPromise.future
 
-    protected lazy val resourceActorRefAndProbe = RefAndProbe(TestActorRef(new HttpResourceActor(resource, dummyReqCtx, reqParser, Some(returnActorRefAndProbe.ref))))
+    private lazy val dummyResourceContext = ResourceContext(dummyReqCtx, reqParser,  Some(returnActorRefAndProbe.ref))
+
+    protected lazy val resourceActorRefAndProbe = RefAndProbe(TestActorRef(new DummyResource(dummyResourceContext)))
 
     override def before() {
       resourceActorRefAndProbe.ref ! HttpResourceActor.Start
@@ -64,7 +63,7 @@ class HttpResourceActorSpecs
   case class Start() extends Context {
 
     def succeeds = {
-      val props = HttpResourceActor.props(resource, dummyReqCtx, reqParser, None)
+      val props = HttpResourceActor.props(resourceGen, dummyReqCtx, reqParser, None)
       val started = Try(system.actorOf(props))
       started.map { a =>
           system.stop(a)
@@ -73,7 +72,8 @@ class HttpResourceActorSpecs
     }
 
     def timesOut = {
-      val refAndProbe = RefAndProbe(TestActorRef(new HttpResourceActor(resource, dummyReqCtx, reqParser, None, Duration.Zero)))
+      val refAndProbe = RefAndProbe(TestActorRef(new DummyResource(ResourceContext(dummyReqCtx, reqParser, None, Duration.Zero))))
+
       val stoppedRes = refAndProbe must beStopped
       val failedRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
         case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.ServiceUnavailable)
@@ -81,19 +81,35 @@ class HttpResourceActorSpecs
       stoppedRes and failedRes
     }
 
-    def timesOutOnRequestProcessor = {
-      val processRecvTimeout = Duration(250, TimeUnit.MILLISECONDS)
+    def timesOutOnAsyncRequestProcessor = {
+      val processRecvTimeout = Duration(50, TimeUnit.MILLISECONDS)
 
-      lazy val resourceActorCtor = new HttpResourceActor(resource,
+      lazy val resourceActorCtor = new DummyResource(ResourceContext(
         reqContext = dummyReqCtx,
         reqParser = request => Success(SleepRequest(500)),
         mbReturnActor = None,
         processRecvTimeout = processRecvTimeout
-      )
+      ))
       val refAndProbe = RefAndProbe(TestActorRef(resourceActorCtor))
       refAndProbe.ref ! HttpResourceActor.Start
       reqCtxHandlerActorFuture must beLike[HttpResponse] {
         case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.ServiceUnavailable)
+      }.await
+    }
+
+    def timeOutFailsOnBlockingRequestProcessor = {
+      val processRecvTimeout = Duration(50, TimeUnit.MILLISECONDS)
+
+      lazy val resourceActorCtor = new DummyResource(ResourceContext(
+        reqContext = dummyReqCtx,
+        reqParser = request => Success(SyncSleep(500)),
+        mbReturnActor = None,
+        processRecvTimeout = processRecvTimeout
+      ))
+      val refAndProbe = RefAndProbe(TestActorRef(resourceActorCtor))
+      refAndProbe.ref ! HttpResourceActor.Start
+      reqCtxHandlerActorFuture must beLike[HttpResponse] {
+        case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.OK)
       }.await
     }
   }
@@ -122,7 +138,7 @@ class HttpResourceActorSpecs
 
   case class Fails() extends Context {
     private lazy val ex = new Exception("hello world")
-    override protected lazy val reqParser: HttpResourceActor.RequestParser[GetRequest] = { req: HttpRequest =>
+    override protected lazy val reqParser: HttpResourceActor.RequestParser = { req: HttpRequest =>
       Failure(ex)
     }
 
