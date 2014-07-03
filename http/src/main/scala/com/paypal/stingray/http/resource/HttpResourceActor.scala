@@ -78,8 +78,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
     //begin processing the request. check if content type is supported and response content type is acceptable
     case Start =>
       setNextStep[ResponseContentTypeIsAcceptable.type]
-      val formats = SupportedFormats(acceptableContentTypes, responseContentType, responseLanguage)
-      self ! ensureContentTypeSupportedAndAcceptable(formats).map { _ =>
+      self ! ensureContentTypeSupportedAndAcceptable.map { _ =>
         ResponseContentTypeIsAcceptable
       }.orFailure
 
@@ -163,13 +162,13 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
    * and can respond in a format the the requester can accept, or halts
    * @return a Try containing the acceptable content type found, or a failure
    */
-  private def ensureContentTypeSupportedAndAcceptable(formats: SupportedFormats): Try[ContentType] = {
+  private def ensureContentTypeSupportedAndAcceptable: Try[ContentType] = {
     val supported = request.entity match {
       case Empty => Success()
-      case NonEmpty(ct, _) => formats.contentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
+      case NonEmpty(ct, _) => acceptableContentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
     }
     supported.flatMap(_ =>
-      request.acceptableContentType(List(formats.responseContentType)).orHaltWithT(NotAcceptable))
+      request.acceptableContentType(List(responseContentType)).orHaltWithT(NotAcceptable))
   }
 
   /**
@@ -260,15 +259,6 @@ object HttpResourceActor {
   case class ProcessRequest(req: Any)
 
   //responses
-  /**
-   * Response from AbstractResourceActor containing content type information
-   * @param contentTypes Acceptable content types
-   * @param responseContentType Content type of the response
-   * @param responseLanguage Language of the response
-   */
-  case class SupportedFormats(contentTypes: List[ContentType],
-                              responseContentType: ContentType,
-                              responseLanguage: Option[Language])
   case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
 
   /**
