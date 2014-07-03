@@ -9,6 +9,8 @@ import HttpHeaders._
 import com.paypal.stingray.http.tests.matchers.SprayMatchers
 import akka.actor.ActorSystem
 import scala.util.Try
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
+import com.paypal.stingray.http.resource.AbstractResourceActor
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class,
@@ -30,14 +32,13 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
     should return the correct result and location header                  ${Test().pingPost}
     should return failures set in the resource                            ${Test().pingPostFail}
 
-
   """
 
   import DummyResource._
 
   trait Context extends CommonImmutableSpecificationContext with SprayMatchers {
 
-    val resource = new DummyResource(_)
+    def resource: ResourceContext => AbstractResourceActor = new DummyResource(_)
 
     implicit val actorSystem = ActorSystem("dummy-resource-specs")
   }
