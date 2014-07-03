@@ -23,8 +23,9 @@ package object resource {
     val respHandler = ResponseHandlerActor.apply
     val (requestContext, _) = DummyRequestContext(req)
     val fn = ResourceDriver.serve(resourceProps, requestParser, Some(respHandler))
+    val respFuture = respHandler.underlyingActor.respPromise.future
     fn(requestContext)
-    respHandler.underlyingActor.respPromise.future
+    respFuture
   }
 
 }
