@@ -95,8 +95,10 @@ object Dependencies {
 
   lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
-  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"            % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations")
-  lazy val jacksonScalaModule  = "com.fasterxml.jackson.module" %% "jackson-module-scala"       % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
+  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"     %  "jackson-databind"         % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations")
+  lazy val jacksonScalaModule  = "com.fasterxml.jackson.module"   %% "jackson-module-scala"     % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
+  lazy val jacksonJodaModule   = "com.fasterxml.jackson.datatype" %  "jackson-datatype-joda"    % "2.4.0" exclude("com.fasterxml.jackson.core", "jackson-annotations") exclude("com.fasterxml.jackson.core", "jackson-core") exclude("com.fasterxml.jackson.core", "jackson-databind")
+  lazy val jodaConvert         = "org.joda"                       % "joda-convert"              % "1.2"
 
   lazy val slf4j               = "org.slf4j"                    % "slf4j-api"                   % slf4jVersion
   lazy val slf4jJul            = "org.slf4j"                    % "jul-to-slf4j"                % slf4jVersion
@@ -128,7 +130,9 @@ object Dependencies {
 
   lazy val jsonDependencies = Seq(
     jacksonDataBind,
-    jacksonScalaModule
+    jacksonScalaModule,
+    jacksonJodaModule,
+    jodaConvert
   )
 
   lazy val akkaDependencies = Seq(
