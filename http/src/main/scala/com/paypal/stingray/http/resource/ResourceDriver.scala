@@ -43,7 +43,7 @@ object ResourceDriver {
           serveFn(ctx.copy(request = request))
       }.recover {
         case e: Exception =>
-          ctx.complete(HttpResponse(InternalServerError, HttpUtil.coerceError(Option(e.getMessage).getOrElse("").getBytes(charsetUtf8))))
+          ctx.complete(HttpResponse(InternalServerError, HttpUtil.toJsonErrorsMap(Option(e.getMessage).getOrElse(""))))
       }
   }
 

@@ -52,9 +52,9 @@ class AbstractResourceActorSpecs
         case ProcessRequest("json") => completeToJSON(OK, PongResponse("pong"))
         case ProcessRequest("badjson") => completeToJSON(OK, testActor) //trying to serialize something we shouldn't
         case ProcessRequest("error") => sendError(GenericException)
-        case ProcessRequest("errorCode") => sendErrorResponseCode(InternalServerError)
+        case ProcessRequest("errorCode") => sendErrorCodeResponse(InternalServerError)
         case ProcessRequest("errorResponse") => sendErrorResponse(InternalServerError, ErrorResponse("oops"))
-        case ProcessRequest("errorResponseMap") => sendErrorResponseMap(InternalServerError, "oops")
+        case ProcessRequest("errorResponseMap") => sendErrorMapResponse(InternalServerError, "oops")
         case ProcessRequest("") => complete(HttpResponse(OK, "pong"))
       }
 
@@ -101,7 +101,7 @@ class AbstractResourceActorSpecs
     }
 
     def err: Result = {
-      probeAndTest("error", HttpResponse(InternalServerError, HttpUtil.coerceError(GenericException.getMessage.getBytes(charsetUtf8))))
+      probeAndTest("error", HttpResponse(InternalServerError, HttpUtil.toJsonErrorsMap(GenericException.getMessage)))
     }
 
     def errCode: Result = {
