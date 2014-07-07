@@ -6,8 +6,8 @@ import org.specs2._
 import org.scalacheck.Gen._
 import org.scalacheck.Prop._
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
-import org.joda.time.{DateTimeZone, DateTime}
+import org.scalacheck.Gen
+import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 
 /**
@@ -103,7 +103,6 @@ class JsonUtilSpecs
     }
 
     case class Dates() {
-      implicit val arbDateTime: Arbitrary[DateTime] = Arbitrary(choose(0L, Long.MaxValue).map(new DateTime(_).withZone(DateTimeZone.UTC)))
       def ok = forAll(arbitrary[DateTime]) { dt =>
         val to = toJson(dt).get
         val from = fromJson[DateTime](to).get

@@ -151,7 +151,9 @@ object Dependencies {
     pegdown,
     parboiledJava,
     parboiledScala,
-    specs2
+    specs2,
+    jacksonJodaModule,
+    jodaConvert
   )
 
   lazy val akkaTestDependencies = Seq(
