@@ -7,6 +7,7 @@ import org.scalacheck.Gen._
 import java.util.UUID
 import scala.util.Try
 import scala.reflect.ClassTag
+import org.joda.time.{DateTimeZone, DateTime}
 
 /**
  * Custom generators for use with ScalaCheck
@@ -25,6 +26,10 @@ package object scalacheck {
 
   /** Arbitrary instance of Error */
   implicit lazy val arbError: Arbitrary[Error] = Arbitrary(const(new Error))
+
+  /** Arbitrary joda DateTime (max is the maximum supported time with Joda date */
+  implicit val arbDateTime: Arbitrary[DateTime] =
+    Arbitrary(choose(0L, 9223372017129599000L).map(new DateTime(_).withZone(DateTimeZone.UTC)))
 
   /** Generates a broken UUID */
   lazy val genInvalidUUID: Gen[String] = arbitrary[String].suchThat(s => Try(UUID.fromString(s)).isFailure)

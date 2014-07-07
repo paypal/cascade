@@ -1,9 +1,10 @@
 package com.paypal.stingray.json
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.databind.{SerializationFeature, DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.module.scala._
+import com.fasterxml.jackson.datatype.joda.JodaModule
 import scala.util.Try
 
 /**
@@ -26,8 +27,10 @@ object JsonUtil {
   private val mapper = new ObjectMapper() with ScalaObjectMapper
 
   mapper.registerModule(DefaultScalaModule)
+  mapper.registerModule(new JodaModule)
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
   mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+  mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 
   /**
    * Convert an object to a JSON string representation.
