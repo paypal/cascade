@@ -99,6 +99,8 @@ object Dependencies {
   lazy val jacksonScalaModule  = "com.fasterxml.jackson.module"   %% "jackson-module-scala"     % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
   lazy val jacksonJodaModule   = "com.fasterxml.jackson.datatype" %  "jackson-datatype-joda"    % "2.4.0" exclude("com.fasterxml.jackson.core", "jackson-annotations") exclude("com.fasterxml.jackson.core", "jackson-core") exclude("com.fasterxml.jackson.core", "jackson-databind")
   lazy val jodaConvert         = "org.joda"                       % "joda-convert"              % "1.2"
+  
+  lazy val scalaMetrics        = "nl.grons"                     %% "metrics-scala"              % "3.2.0_a2.3" exclude("org.slf4j", "slf4j-api") exclude("com.typesafe.akka", "akka-actor_2.10")
 
   lazy val slf4j               = "org.slf4j"                    % "slf4j-api"                   % slf4jVersion
   lazy val slf4jJul            = "org.slf4j"                    % "jul-to-slf4j"                % slf4jVersion
@@ -125,7 +127,8 @@ object Dependencies {
     slf4jJul,
     slf4jJcl,
     slf4jLog4j,
-    logback
+    logback,
+    scalaMetrics
   )
 
   lazy val jsonDependencies = Seq(
