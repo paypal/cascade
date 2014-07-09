@@ -211,7 +211,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
       HttpResponse(BadRequest,
         HttpUtil.toJsonErrorsMap(Option(parseException.getMessage).getOrElse("")),
         addLanguageHeader(responseLanguage, Nil))
-    case otherException =>
+    case otherException: Exception =>
       HttpResponse(InternalServerError,
         HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")),
         addLanguageHeader(responseLanguage, Nil))
