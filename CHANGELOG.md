@@ -1,4 +1,7 @@
 
+# 0.10.1 07/07/14 released by alex
+* Support for joda-date serialization
+
 # 0.9.1 07/03/14 released by wpalmeri
 * AbstractResourceActor and HttpResourceActor have been combined into a single Actor instance. HttpResourceActor is further simplified with a reduction in the number of messages/states it uses, and it will be run on the default dispatcher as well.
 
