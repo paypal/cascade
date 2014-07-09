@@ -16,6 +16,7 @@ import scala.concurrent.duration._
 import scala.reflect.ClassTag
 import akka.actor.SupervisorStrategy.Escalate
 import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
+import com.fasterxml.jackson.core.JsonParseException
 
 /**
  * the actor to manage the execution of an [[AbstractResourceActor]]. Create one of these per request
@@ -198,7 +199,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
         entity: NonEmpty =>
           entity.contentType match {
             case HttpUtil.errorResponseType => entity
-            case _ => HttpUtil.coerceError(entity.data.toByteArray)
+            case _ => HttpUtil.toJsonErrorsMap(entity.data.asString(charsetUtf8))
           }
       })
       if (finalResponse.status.intValue >= 500) {
@@ -206,10 +207,14 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
         log.warning(s"Request finished unsuccessfully with status code: $statusCode")
       }
       finalResponse
-    case otherException =>
+    case parseException: JsonParseException =>
+      HttpResponse(BadRequest,
+        HttpUtil.toJsonErrorsMap(Option(parseException.getMessage).getOrElse("")),
+        addLanguageHeader(responseLanguage, Nil))
+    case otherException: Exception =>
       HttpResponse(InternalServerError,
-                   HttpUtil.coerceError(Option(otherException.getMessage).getOrElse("").getBytes(charsetUtf8)),
-                   addLanguageHeader(responseLanguage, Nil))
+        HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")),
+        addLanguageHeader(responseLanguage, Nil))
   }
 
   /**

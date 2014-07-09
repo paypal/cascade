@@ -97,14 +97,14 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @tparam T Type of the error
    */
   protected final def sendErrorResponse[T : Manifest](code: StatusCode, error: T): Unit = {
-    self ! Status.Failure(HaltException(code, HttpUtil.coerceError(error)))
+    self ! Status.Failure(HaltException(code, HttpUtil.toJsonErrors(error)))
   }
 
   /**
    * Return an error with the specified Status code
    * @param code The error code to return
    */
-  protected final def sendErrorResponseCode(code: StatusCode): Unit = {
+  protected final def sendErrorCodeResponse(code: StatusCode): Unit = {
     self ! Status.Failure(HaltException(code))
   }
 
@@ -113,8 +113,8 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param code The error code to return
    * @param msg Message to be returned, will be converted to JSON
    */
-  protected final def sendErrorResponseMap(code: StatusCode, msg: String): Unit = {
-    self ! Status.Failure(HaltException(code, HttpUtil.coerceErrorMap(msg)))
+  protected final def sendErrorMapResponse(code: StatusCode, msg: String): Unit = {
+    self ! Status.Failure(HaltException(code, HttpUtil.toJsonErrorsMap(msg)))
   }
 
 }

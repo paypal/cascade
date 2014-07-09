@@ -16,6 +16,7 @@ import com.paypal.stingray.common.tests.future._
 import java.util.concurrent.TimeUnit
 import com.paypal.stingray.http.tests.resource.DummyResource.{SyncSleep, SleepRequest, GetRequest}
 import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
+import com.fasterxml.jackson.core.{JsonLocation, JsonParseException}
 
 class HttpResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
@@ -34,6 +35,7 @@ class HttpResourceActorSpecs
     The ResourceActor should time out if the request processor takes too long in async code                                  ${Start().timesOutOnAsyncRequestProcessor}
     The ResourceActor will still succeed if blocking code takes too long. DON'T BLOCK in HttpActors!                         ${Start().timeOutFailsOnBlockingRequestProcessor}
 
+    If the request parser is a failure due to malformed json, Status.Failure is called and a 400 is returned                 ${JsonParseFail().reqParserFail}
   """
   private val resourceGen = new DummyResource(_)
 
@@ -153,7 +155,20 @@ class HttpResourceActorSpecs
       val stoppedRes = resourceActorRefAndProbe must beStopped
       recvRes and stoppedRes
     }
+  }
 
+  case class JsonParseFail() extends Context {
+    override protected lazy val reqParser: HttpResourceActor.RequestParser = { req: HttpRequest =>
+      Failure(new JsonParseException("could not parse json", JsonLocation.NA))
+    }
+    def reqParserFail = apply {
+      val refAndProbe = RefAndProbe(TestActorRef(new DummyResource(ResourceContext(dummyReqCtx, reqParser))))
+      refAndProbe.ref ! HttpResourceActor.Start
+      val failedRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
+        case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.BadRequest)
+      }
+      failedRes
+    }
   }
 
 }
