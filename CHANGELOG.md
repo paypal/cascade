@@ -1,4 +1,7 @@
 
+# 0.11.0 07/09/14 released by mvaznaian
+* Update error methods, handle json parsing exceptions
+
 # 0.10.1 07/07/14 released by alex
 * Support for joda-date serialization
 
