@@ -213,7 +213,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
         addLanguageHeader(responseLanguage, Nil))
     case otherException: Exception =>
       HttpResponse(InternalServerError,
-        HttpUtil.toJsonErrorsMap(Option(otherException.getClass.getCanonicalName).getOrElse("")),
+        HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")),
         addLanguageHeader(responseLanguage, Nil))
   }
 
