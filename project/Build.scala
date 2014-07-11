@@ -54,7 +54,7 @@ object BuildSettings {
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
-    // Add apiURL := Some(url(...)) once the scaladocs start being published
+    apiURL := Some(url("https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/")),
     autoAPIMappings := true,
     apiMappings ++= {
       def findManagedDependency(organization: String, name: String): Option[File] = {
