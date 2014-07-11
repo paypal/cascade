@@ -30,6 +30,24 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
    */
 
   /**
+   * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.
+   *
+   * If the method throws, an internal server error will be returned. As always, personally identifiable information should
+   * never be included in exception messages.
+   * @param method The Http method of the request in question
+   */
+  def before(method: HttpMethod): Unit = {}
+
+  /**
+   * This method will always be invoked after request processing is finished.
+   *
+   * If the method throws, the error will be logged and the given response will still be returned. As always, personally
+   * identifiable information should never be included in exception messages.
+   * @param resp The response to be returned to the client
+   */
+  def after(resp: HttpResponse): Unit = {}
+
+  /**
    * A list of content types that that this server can accept, by default `application/json`.
    * These will be matched against the `Content-Type` header of incoming requests.
    * @return a list of content types
@@ -55,7 +73,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
    * Internal
    */
   case class RequestIsParsed(parsedRequest: AnyRef)
-  case object ContentTypeIsSupported
+  case object BeforeExecuted
   case object ResponseContentTypeIsAcceptable
 
   private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
@@ -78,6 +96,13 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
 
     //begin processing the request. check if content type is supported and response content type is acceptable
     case Start =>
+      setNextStep[BeforeExecuted.type]
+      self ! Try {
+        before(request.method)
+        BeforeExecuted
+      }.orFailure
+
+    case BeforeExecuted =>
       setNextStep[ResponseContentTypeIsAcceptable.type]
       self ! ensureContentTypeSupportedAndAcceptable.map { _ =>
         ResponseContentTypeIsAcceptable
@@ -132,6 +157,11 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
     //we got a response to return (either through successful processing or an error handling),
     //so return it to the spray context and return actor and then stop
     case r: HttpResponse =>
+      Try {
+        after(r)
+      }.recover {
+        case t: Throwable => log.error(t, "An error occurred executing after()")
+      }
       resourceContext.reqContext.complete(r)
       resourceContext.mbReturnActor.foreach { returnActor =>
         returnActor ! r
