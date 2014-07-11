@@ -42,12 +42,14 @@ class ExpiringBoundedMailboxSpecs
     lazy val sendActor = TestActorRef[TestPromiseActor](new TestPromiseActor(promise)) //normal mailbox
 
     //to test a mailbox instance directly
-    val mailbox = ExpiringBoundedMailbox(1, FiniteDuration(10, TimeUnit.MILLISECONDS), FiniteDuration(10, TimeUnit.MILLISECONDS))
-      .create(Some(testActor), Some(system))
+    def mailboxWithExprMillis(expr: Int) =
+      ExpiringBoundedMailbox(1, FiniteDuration(10, TimeUnit.MILLISECONDS), FiniteDuration(expr, TimeUnit.MILLISECONDS))
+        .create(Some(testActor), Some(system))
   }
 
   case class Normal() extends Context {
     def ok = apply {
+      val mailbox = mailboxWithExprMillis(2000)
       mailbox.enqueue(testActor, Envelope(Ping(), testActor, system))
       mailbox.dequeue() must beEqualTo(Envelope(Ping(), testActor, system))
     }
@@ -55,14 +57,16 @@ class ExpiringBoundedMailboxSpecs
 
   case class Failing() extends Context {
     def full = apply {
+      val mailbox = mailboxWithExprMillis(2000)
       mailbox.enqueue(testActor, Envelope(Ping(), sendActor, system)) //1 in the mailbox
       mailbox.enqueue(testActor, Envelope(Ping(), sendActor, system)) //this should fail
       promise.future.toTry must beAFailedTry.withThrowable[UnhandledMessageException]
     }
 
     def stale = apply {
+      val mailbox = mailboxWithExprMillis(10)
       mailbox.enqueue(testActor, Envelope(Ping(), sendActor, system)) //1 in the mailbox
-      Thread.sleep(500) //let the message go stale
+      Thread.sleep(100) //let the message go stale
       mailbox.dequeue()
       promise.future.toTry must beAFailedTry.withThrowable[UnhandledMessageException]
     }
