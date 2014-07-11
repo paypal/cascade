@@ -32,7 +32,8 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
   /**
    * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.
    *
-   * If the method throws, an internal server error will be returned.
+   * If the method throws, an internal server error will be returned. As always, personally identifiable information should
+   * never be included in exception messages.
    * @param method The Http method of the request in question
    */
   def before(method: HttpMethod): Unit = {}
@@ -40,7 +41,8 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
   /**
    * This method will always be invoked after request processing is finished.
    *
-   * If the method throws, the error will be logged and the given response will still be returned.
+   * If the method throws, the error will be logged and the given response will still be returned. As always, personally
+   * identifiable information should never be included in exception messages.
    * @param resp The response to be returned to the client
    */
   def after(resp: HttpResponse): Unit = {}
