@@ -50,6 +50,43 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
    */
   val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
+  protected def defaultHaltExceptionResponse(h: HaltException): HttpResponse = {
+    val response = addHeaderOnCode(h.response, Unauthorized) {
+      `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
+    }
+    val headers = addLanguageHeader(responseLanguage, response.headers)
+    // If the error already has the right content type, let it through, otherwise coerce it
+    val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap {
+      entity: NonEmpty =>
+        entity.contentType match {
+          case HttpUtil.errorResponseType => entity
+          case _ => HttpUtil.toJsonErrorsMap(entity.data.asString(charsetUtf8))
+        }
+    })
+    if (finalResponse.status.intValue >= 500) {
+      val statusCode = finalResponse.status.intValue
+      log.warning(s"Request finished unsuccessfully with status code: $statusCode")
+    }
+    finalResponse
+  }
+
+  protected def defaultParseExceptionResponse(parseException: JsonParseException): HttpResponse = {
+    HttpResponse(BadRequest,
+      HttpUtil.toJsonErrorsMap(Option(parseException.getMessage).getOrElse("")),
+      addLanguageHeader(responseLanguage, Nil))
+  }
+
+  protected def defaultExceptionResponse(e: Exception): HttpResponse = {
+    HttpResponse(InternalServerError,
+      HttpUtil.toJsonErrorsMap(Option(e.getMessage).getOrElse("")),
+      addLanguageHeader(responseLanguage, Nil))
+  }
+
+  protected def handleError(exception: Exception): HttpResponse = exception match {
+    case h: HaltException => defaultHaltExceptionResponse(h)
+    case parseException: JsonParseException => defaultParseExceptionResponse(parseException)
+    case otherException: Exception => defaultExceptionResponse(otherException)
+  }
 
   /*
    * Internal
@@ -186,35 +223,6 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
     } else {
       response
     }
-  }
-
-  private def handleError(exception: Exception): HttpResponse = exception match {
-    case h: HaltException =>
-      val response = addHeaderOnCode(h.response, Unauthorized) {
-        `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
-      }
-      val headers = addLanguageHeader(responseLanguage, response.headers)
-      // If the error already has the right content type, let it through, otherwise coerce it
-      val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap {
-        entity: NonEmpty =>
-          entity.contentType match {
-            case HttpUtil.errorResponseType => entity
-            case _ => HttpUtil.toJsonErrorsMap(entity.data.asString(charsetUtf8))
-          }
-      })
-      if (finalResponse.status.intValue >= 500) {
-        val statusCode = finalResponse.status.intValue
-        log.warning(s"Request finished unsuccessfully with status code: $statusCode")
-      }
-      finalResponse
-    case parseException: JsonParseException =>
-      HttpResponse(BadRequest,
-        HttpUtil.toJsonErrorsMap(Option(parseException.getMessage).getOrElse("")),
-        addLanguageHeader(responseLanguage, Nil))
-    case otherException: Exception =>
-      HttpResponse(InternalServerError,
-        HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")),
-        addLanguageHeader(responseLanguage, Nil))
   }
 
   /**
