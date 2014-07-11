@@ -245,7 +245,8 @@ object HttpResourceActor {
    * ResourceContext contains all information needed to start an AbstractResourceActor
    * @param reqContext the spray [[spray.routing.RequestContext]] for this request
    * @param reqParser the function to parse the request into a valid scala type
-   * @param mbReturnActor the actor to send the successful [[spray.http.HttpResponse]] or the failed [[java.lang.Throwable]]. optional - pass None to not do this
+   * @param mbReturnActor the actor to send the successful [[spray.http.HttpResponse]] or the failed [[java.lang.Throwable]].
+   *                      optional - pass None to not do this
    * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
    *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[spray.http.HttpResponse]] indicating the error to the
    *                    context and return actor.
@@ -291,7 +292,8 @@ object HttpResourceActor {
   /**
    * create the [[akka.actor.Props]] for a new [[com.paypal.stingray.http.resource.HttpResourceActor]]
    * @param resourceActorProps function for creating props for an actor which will handle the request
-   * @param reqContext the [[com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext]] to pass to the [[com.paypal.stingray.http.resource.HttpResourceActor]]
+   * @param reqContext the [[com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext]] to pass to the
+   *                   [[com.paypal.stingray.http.resource.HttpResourceActor]]
    * @param reqParser the parser function to pass to the [[com.paypal.stingray.http.resource.HttpResourceActor]]
    * @param mbResponseActor the optional actor to pass to the [[com.paypal.stingray.http.resource.HttpResourceActor]]
    * @return the new [[akka.actor.Props]]
