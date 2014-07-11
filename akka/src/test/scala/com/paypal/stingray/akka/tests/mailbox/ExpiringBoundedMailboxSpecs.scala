@@ -62,7 +62,7 @@ class ExpiringBoundedMailboxSpecs
 
     def stale = apply {
       mailbox.enqueue(testActor, Envelope(Ping(), sendActor, system)) //1 in the mailbox
-      Thread.sleep(100) //let the message go stale
+      Thread.sleep(500) //let the message go stale
       mailbox.dequeue()
       promise.future.toTry must beAFailedTry.withThrowable[UnhandledMessageException]
     }
