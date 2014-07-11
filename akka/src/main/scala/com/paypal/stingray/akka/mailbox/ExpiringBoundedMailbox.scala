@@ -29,7 +29,7 @@ case class ExpiringBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, me
   }
 
   if (capacity < 0) throw new IllegalArgumentException("The capacity for BoundedMailbox can not be negative")
-  if (pushTimeOut eq null) throw new IllegalArgumentException("The push time-out for BoundedMailbox can not be null") // scalastyle:ignore null
+  if (pushTimeOut.eq(null)) throw new IllegalArgumentException("The push time-out for BoundedMailbox can not be null") // scalastyle:ignore null
 
   override def create(owner: Option[ActorRef], system: Option[ActorSystem]): MessageQueue =
     new BoundedMailbox.MessageQueue(capacity, pushTimeOut) {
@@ -46,7 +46,7 @@ case class ExpiringBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, me
               new UnhandledMessageException(s"Mailbox full or timed out. Failed message: ${handle.message.getClass}"))
           }
         } else {
-          queue put env
+          queue.put(env)
         }
       }
 
@@ -56,7 +56,7 @@ case class ExpiringBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, me
           case Envelope(TimedEnvelope(env, created, receiver), _) =>
             if (System.currentTimeMillis() - created >= exprMillis) {
               val ex = new UnhandledMessageException("message expired before being handled")
-              if (env.sender ne Actor.noSender) {
+              if (env.sender.ne(Actor.noSender)) {
                 //tell the sender immediately that the message failed
                 env.sender ! Status.Failure(ex)
               }
@@ -92,4 +92,3 @@ object ExpiringBoundedMailbox {
   private[ExpiringBoundedMailbox] val pushTimeoutStr = "mailbox-push-timeout-time"
   private[ExpiringBoundedMailbox] val messageExpirationStr = "mailbox-expiration-time"
 }
-
