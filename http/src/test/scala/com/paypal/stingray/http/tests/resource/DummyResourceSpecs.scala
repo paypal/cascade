@@ -9,6 +9,8 @@ import HttpHeaders._
 import com.paypal.stingray.http.tests.matchers.SprayMatchers
 import akka.actor.ActorSystem
 import scala.util.Try
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
+import com.paypal.stingray.http.resource.AbstractResourceActor
 
 /**
  * Tests that exercise the [[com.paypal.stingray.http.resource.AbstractResourceActor]] abstract class,
@@ -20,6 +22,7 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
 
   Sending a GetRequest
     should return pong                                                    ${Test().ping}
+    should return pong after a request rewrite                            ${Test().pingRewrite}
     should have content language set                                      ${Test().language}
 
   Sending a language override via LanguageRequest
@@ -29,14 +32,13 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
     should return the correct result and location header                  ${Test().pingPost}
     should return failures set in the resource                            ${Test().pingPostFail}
 
-
   """
 
   import DummyResource._
 
   trait Context extends CommonImmutableSpecificationContext with SprayMatchers {
 
-    val resource = new DummyResource(_)
+    val resource: ResourceContext => AbstractResourceActor = new DummyResource(_)
 
     implicit val actorSystem = ActorSystem("dummy-resource-specs")
   }
@@ -44,7 +46,15 @@ class DummyResourceSpecs extends Specification with Mockito { override def is = 
   case class Test() extends Context {
 
     def ping = {
-      val request = HttpRequest(uri = "/ping?foo=bar").withHeaders(List(Accept(MediaTypes.`text/plain`)))
+      pingTest("ping")
+    }
+
+    def pingRewrite = {
+      pingTest("ping-rewrite")
+    }
+
+    private def pingTest(path: String) = {
+      val request = HttpRequest(uri = s"/$path?foo=bar").withHeaders(List(Accept(MediaTypes.`text/plain`)))
       resource must resultInCodeAndBodyLike(request,
         request => Try (GetRequest("bar")), StatusCodes.OK) {
         case body @ NonEmpty(_, _) => body.asString must beEqualTo("\"pong\"")

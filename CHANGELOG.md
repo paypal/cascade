@@ -1,4 +1,22 @@
 
+# 0.11.0 07/09/14 released by mvaznaian
+* Update error methods, handle json parsing exceptions
+
+# 0.10.1 07/07/14 released by alex
+* Support for joda-date serialization
+
+# 0.9.1 07/03/14 released by wpalmeri
+* AbstractResourceActor and HttpResourceActor have been combined into a single Actor instance. HttpResourceActor is further simplified with a reduction in the number of messages/states it uses, and it will be run on the default dispatcher as well.
+
+# 0.9.0 07/01/14 released by mvaznaian
+* Update error response methods
+
+# 0.8.7 06/30/14 released by awharris
+* remove a potential PII log
+
+# 0.8.6 06/27/14 released by awharris
+* actor logging perf improvements
+
 # 0.8.5 06/23/14 released by awharris
 * new specs2 version, plus corresponding sbt-build-utilities version
 

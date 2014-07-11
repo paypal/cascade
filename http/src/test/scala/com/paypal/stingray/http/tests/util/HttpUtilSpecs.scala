@@ -47,9 +47,12 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
     Success returns proper http response                                                                              ${JsonBody().ok}
     Failure returns error in json format                                                                              ${JsonBody().error}
 
-  coerceError
-    converts errors to json from a byte array                                                                         ${JsonError().array}
+  toJsonErrors
+    converts errors to json from a case class                                                                         ${JsonError().caseClass}
+
+  toJsonErrorsMap
     converts errors to json from a string                                                                             ${JsonError().string}
+
   """
 
   trait Context extends LoggingSugar {
@@ -174,14 +177,16 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
   }
 
   case class JsonError() extends Context {
-    def array = {
-      val expected = """{"errors":["err"]}"""
-      val resp = HttpUtil.coerceError("err".getBytes(charsetUtf8))
+    def caseClass = {
+      case class Something(a: Int, b: String)
+      val newSomething = Something(56, "Hello")
+      val expected = """{"a":56,"b":"Hello"}"""
+      val resp = HttpUtil.toJsonErrors(newSomething)
       (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
     }
     def string = {
       val expected = """{"errors":["err"]}"""
-      val resp = HttpUtil.coerceError("err")
+      val resp = HttpUtil.toJsonErrorsMap("err")
       (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
     }
   }

@@ -7,6 +7,8 @@ import org.scalacheck.Gen._
 import org.scalacheck.Prop._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
+import org.joda.time.DateTime
+import org.joda.time.format.ISODateTimeFormat
 
 /**
  * Tests that exercise methods in [[com.paypal.stingray.json.JsonUtil]]
@@ -23,6 +25,7 @@ class JsonUtilSpecs
     a Long as a String representation of that Long                           ${BasicTypes.Longs().ok}
     a Float as a String representation of that Float                         ${BasicTypes.Floats().ok}
     a Double as a String representation of that Double                       ${BasicTypes.Doubles().ok}
+    a Date as an ISO8601 String representation of that Date                  ${BasicTypes.Dates().ok}
 
   JsonUtil should serialize and deserialize more complex types, such as
     a Map[String, String]                                                    ${Maps.StringToString().ok}
@@ -96,6 +99,16 @@ class JsonUtilSpecs
         val to = toJson(i).get
         val from = fromJson[Double](to).get
         (to must beEqualTo(i.toString)) and (from must beEqualTo(i))
+      }
+    }
+
+    case class Dates() {
+      def ok = forAll(arbitrary[DateTime]) { dt =>
+        val to = toJson(dt).get
+        val from = fromJson[DateTime](to).get
+        //currently Jackson-Joda serializer doesn't preserve timezone, which is what we want anyways
+        val expected = "\"%s\"".format(ISODateTimeFormat.dateTime().print(dt))
+        (to must beEqualTo(expected)) and (from must beEqualTo(dt))
       }
     }
   }

@@ -2,17 +2,21 @@ package com.paypal.stingray.http.tests.resource
 
 import spray.http._
 import StatusCodes._
-import com.paypal.stingray.common.logging.LoggingSugar
-import com.paypal.stingray.common.option._
 import spray.http.HttpResponse
 import scala.concurrent._
 import com.paypal.stingray.http.resource._
-import scala.util.{Success, Try}
 import spray.http.HttpHeaders.RawHeader
-import com.paypal.stingray.http.util.HttpUtil
-import akka.actor.{Actor, ActorRef}
-import com.paypal.stingray.http.tests.resource.DummyResource.{SleepRequest, PostRequest, LanguageRequest, GetRequest}
+import akka.actor.{Props, Actor}
+import com.paypal.stingray.http.tests.resource.DummyResource._
 import com.paypal.stingray.http.resource.HttpResourceActor.{ResourceContext, ProcessRequest}
+import com.paypal.stingray.http.tests.resource.DummyResource.SleepRequest
+import com.paypal.stingray.http.tests.resource.DummyResource.PostRequest
+import com.paypal.stingray.http.resource.HttpResourceActor.ProcessRequest
+import com.paypal.stingray.http.tests.resource.DummyResource.GetRequest
+import spray.http.HttpResponse
+import com.paypal.stingray.http.tests.resource.DummyResource.LanguageRequest
+import spray.http.HttpHeaders.RawHeader
+import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type
@@ -50,14 +54,25 @@ class DummyResource(requestContext: ResourceContext)
     if (req.foo == "bar")
       completeToJSON(OK, "pong")
     else
-      errorCode(BadRequest, "incorrect parameters")
+      sendErrorMapResponse(BadRequest, "incorrect parameters")
   }
 
   /**
-   * Sleep for a specified number of ms
+   * Send a sleep to a child actor for specified millis. Sleeper actor will sleep, then send FinishedSleeping()
    * @param req request object
    */
   def doSleep(req: SleepRequest): Unit = {
+    //spawn an actor and sleep in there
+    class SleepActor extends Actor {
+      def receive: Actor.Receive = {
+        case SleepRequest(m) => Thread.sleep(m); sender ! FinishedSleeping()
+      }
+    }
+    val sleeper = context.actorOf(Props(classOf[SleepActor], this), "sleeper")
+    sleeper ! req
+  }
+
+  def doSyncSleep(req: SyncSleep): Unit = {
     Thread.sleep(req.millis)
     complete(HttpResponse(OK, "pong"))
   }
@@ -75,7 +90,7 @@ class DummyResource(requestContext: ResourceContext)
     if (req.foo == "bar")
       completeToJSON(Created, "pong", "foobar")
     else
-      errorCode(BadRequest, "incorrect parameters")
+      sendErrorMapResponse(BadRequest, "incorrect parameters")
   }
 
   /**
@@ -90,12 +105,18 @@ class DummyResource(requestContext: ResourceContext)
     case ProcessRequest(req: LanguageRequest) => setContentLanguage(req)
     case ProcessRequest(req: PostRequest) => doPostAsCreate(req)
     case ProcessRequest(req: SleepRequest) => doSleep(req)
+    case ProcessRequest(req: SyncSleep) => doSyncSleep(req)
+    //extra actor messages to respond to
+    case FinishedSleeping() => log.debug("finished sleeping"); complete(HttpResponse(OK, "pong"))
   }
 }
 
 object DummyResource {
-  case class GetRequest(foo: String)
-  case class SleepRequest(millis: Long)
-  case class LanguageRequest()
-  case class PostRequest(foo: String)
+  sealed trait DummyRequest
+  case class GetRequest(foo: String) extends DummyRequest
+  case class SleepRequest(millis: Long) extends DummyRequest
+  case class SyncSleep(millis: Long) extends DummyRequest
+  case class FinishedSleeping() extends DummyRequest
+  case class LanguageRequest() extends DummyRequest
+  case class PostRequest(foo: String) extends DummyRequest
 }

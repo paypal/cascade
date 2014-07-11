@@ -109,9 +109,11 @@ object Dependencies {
 
   lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
-  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"   % "jackson-databind"            % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations")
-  lazy val jacksonScalaModule  = "com.fasterxml.jackson.module" %% "jackson-module-scala"       % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
-
+  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"     %  "jackson-databind"         % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations")
+  lazy val jacksonScalaModule  = "com.fasterxml.jackson.module"   %% "jackson-module-scala"     % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
+  lazy val jacksonJodaModule   = "com.fasterxml.jackson.datatype" %  "jackson-datatype-joda"    % "2.4.0" exclude("com.fasterxml.jackson.core", "jackson-annotations") exclude("com.fasterxml.jackson.core", "jackson-core") exclude("com.fasterxml.jackson.core", "jackson-databind")
+  lazy val jodaConvert         = "org.joda"                       % "joda-convert"              % "1.2"
+  
   lazy val slf4j               = "org.slf4j"                    % "slf4j-api"                   % slf4jVersion
   lazy val slf4jJul            = "org.slf4j"                    % "jul-to-slf4j"                % slf4jVersion
   lazy val slf4jJcl            = "org.slf4j"                    % "jcl-over-slf4j"              % slf4jVersion
@@ -142,7 +144,9 @@ object Dependencies {
 
   lazy val jsonDependencies = Seq(
     jacksonDataBind,
-    jacksonScalaModule
+    jacksonScalaModule,
+    jacksonJodaModule,
+    jodaConvert
   )
 
   lazy val akkaDependencies = Seq(
@@ -161,7 +165,9 @@ object Dependencies {
     pegdown,
     parboiledJava,
     parboiledScala,
-    specs2
+    specs2,
+    jacksonJodaModule,
+    jodaConvert
   )
 
   lazy val akkaTestDependencies = Seq(
@@ -192,7 +198,8 @@ object CommonBuild extends Build {
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-common",
       libraryDependencies ++= commonDependencies ++ commonTestDependencies,
-      publishArtifact in Test := true
+      publishArtifact in Test := true,
+      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
     )
   )
 
@@ -201,7 +208,8 @@ object CommonBuild extends Build {
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-json",
       libraryDependencies ++= jsonDependencies,
-      publishArtifact in Test := true
+      publishArtifact in Test := true,
+      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
     )
   )
 
@@ -210,8 +218,9 @@ object CommonBuild extends Build {
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-akka",
       libraryDependencies ++= akkaDependencies ++ akkaTestDependencies,
-      publishArtifact in Test := true
-    )
+      publishArtifact in Test := true,
+      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
+  )
   )
 
   lazy val http = Project("stingray-http", file("http"),
@@ -223,7 +232,9 @@ object CommonBuild extends Build {
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "stingray-http",
       libraryDependencies ++= httpDependencies ++ httpTestDependencies,
-      publishArtifact in Test := true
+      publishArtifact in Test := true,
+      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
+
     )
   )
 
