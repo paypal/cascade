@@ -1,6 +1,7 @@
 package com.paypal.stingray.http.resource
 
 import akka.actor._
+import scala.compat.Platform._
 import scala.util.{Success, Try}
 import spray.http._
 import spray.http.StatusCodes._
@@ -19,7 +20,7 @@ import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 import com.fasterxml.jackson.core.JsonParseException
 
 /**
- * the actor to manage the execution of an [[AbstractResourceActor]]. Create one of these per request
+ * the actor to manage the execution of an [[com.paypal.stingray.http.resource.AbstractResourceActor]]. Create one of these per request
  */
 abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
 
@@ -142,7 +143,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
     //send the exception to returnActor and stop
     case s @ Status.Failure(t) =>
       setNextStep[HttpResponse]
-      log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTraceString)
+      log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTrace.mkString("", EOL, EOL))
       t match {
         case e: Exception => self ! handleError(e)
         case t: Throwable => throw t
@@ -165,7 +166,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
    */
   private def ensureContentTypeSupportedAndAcceptable: Try[ContentType] = {
     val supported = request.entity match {
-      case Empty => Success()
+      case Empty => Success(())
       case NonEmpty(ct, _) => acceptableContentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
     }
     supported.flatMap(_ =>
@@ -242,11 +243,11 @@ object HttpResourceActor {
 
   /**
    * ResourceContext contains all information needed to start an AbstractResourceActor
-   * @param reqContext the spray [[RequestContext]] for this request
+   * @param reqContext the spray [[spray.routing.RequestContext]] for this request
    * @param reqParser the function to parse the request into a valid scala type
-   * @param mbReturnActor the actor to send the successful [[HttpResponse]] or the failed [[Throwable]]. optional - pass None to not do this
+   * @param mbReturnActor the actor to send the successful [[spray.http.HttpResponse]] or the failed [[java.lang.Throwable]]. optional - pass None to not do this
    * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
-   *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[HttpResponse]] indicating the error to the
+   *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[spray.http.HttpResponse]] indicating the error to the
    *                    context and return actor.
    * @param processRecvTimeout the longest time this actor will wait for `reqProcessor` to complete
    */
@@ -272,7 +273,8 @@ object HttpResourceActor {
   type RequestParser = HttpRequest => Try[AnyRef]
 
   /**
-   * the only message to send each [[HttpResourceActor]]. it begins processing the [[AbstractResourceActor]] that it contains
+   * the only message to send each [[com.paypal.stingray.http.resource.HttpResourceActor]]. it begins processing the
+   * [[com.paypal.stingray.http.resource.AbstractResourceActor]] that it contains
    */
   object Start
 
@@ -287,11 +289,11 @@ object HttpResourceActor {
   val defaultProcessRecvTimeout = 4.seconds
 
   /**
-   * create the [[akka.actor.Props]] for a new [[HttpResourceActor]]
+   * create the [[akka.actor.Props]] for a new [[com.paypal.stingray.http.resource.HttpResourceActor]]
    * @param resourceActorProps function for creating props for an actor which will handle the request
-   * @param reqContext the [[ResourceContext]] to pass to the [[HttpResourceActor]]
-   * @param reqParser the parser function to pass to the [[HttpResourceActor]]
-   * @param mbResponseActor the optional actor to pass to the [[HttpResourceActor]]
+   * @param reqContext the [[com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext]] to pass to the [[com.paypal.stingray.http.resource.HttpResourceActor]]
+   * @param reqParser the parser function to pass to the [[com.paypal.stingray.http.resource.HttpResourceActor]]
+   * @param mbResponseActor the optional actor to pass to the [[com.paypal.stingray.http.resource.HttpResourceActor]]
    * @return the new [[akka.actor.Props]]
    */
   def props(resourceActorProps: ResourceContext => AbstractResourceActor,
