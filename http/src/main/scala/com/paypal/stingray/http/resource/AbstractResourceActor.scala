@@ -6,9 +6,8 @@ import com.paypal.stingray.common.option._
 import com.paypal.stingray.http.util.HttpUtil
 import com.paypal.stingray.json._
 import akka.event.LoggingReceive
-import scala.util.Failure
+import scala.util.{Success, Failure}
 import spray.http.HttpResponse
-import scala.util.Success
 import com.paypal.stingray.http.resource.HttpResourceActor.RequestIsProcessed
 
 /**
