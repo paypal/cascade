@@ -68,6 +68,41 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
    */
   val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
+  /*
+   * Overrideable by subclasses
+   */
+
+  /**
+   * Exception handler for creating an http error response when Status.Failure is received.
+   *
+   * @param exception the exception
+   * @return a crafted HttpResponse from the error message
+   */
+  protected def handleError(exception: Exception): HttpResponse = exception match {
+    case haltException: HaltException =>
+      val response = addHeaderOnCode(haltException.response, Unauthorized) {
+        `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
+      }
+      // If the error already has the right content type, let it through, otherwise coerce it
+      val finalResponse = response.withEntity(response.entity.flatMap {
+        entity: NonEmpty =>
+          entity.contentType match {
+            case HttpUtil.errorResponseType => entity
+            case _ => HttpUtil.toJsonErrorsMap(entity.data.asString(charsetUtf8))
+          }
+      })
+      if (finalResponse.status.intValue >= 500) {
+        val statusCode = finalResponse.status.intValue
+        log.warning(s"Request finished unsuccessfully with status code: $statusCode")
+      }
+      finalResponse
+    case parseException: JsonParseException =>
+      HttpResponse(BadRequest,
+        HttpUtil.toJsonErrorsMap(Option(parseException.getMessage).getOrElse("")))
+    case otherException: Exception =>
+      HttpResponse(InternalServerError,
+        HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")))
+  }
 
   /*
    * Internal
@@ -174,7 +209,11 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
       setNextStep[HttpResponse]
       log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTraceString)
       t match {
-        case e: Exception => self ! handleError(e)
+        case e: Exception => {
+          val respFromError = handleError(e)
+          val respPlusHeaders = respFromError.withHeaders(addLanguageHeader(responseLanguage, respFromError.headers))
+          self ! respPlusHeaders
+        }
         case t: Throwable => throw t
       }
 
@@ -216,35 +255,6 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
     } else {
       response
     }
-  }
-
-  private def handleError(exception: Exception): HttpResponse = exception match {
-    case h: HaltException =>
-      val response = addHeaderOnCode(h.response, Unauthorized) {
-        `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
-      }
-      val headers = addLanguageHeader(responseLanguage, response.headers)
-      // If the error already has the right content type, let it through, otherwise coerce it
-      val finalResponse = response.withHeadersAndEntity(headers, response.entity.flatMap {
-        entity: NonEmpty =>
-          entity.contentType match {
-            case HttpUtil.errorResponseType => entity
-            case _ => HttpUtil.toJsonErrorsMap(entity.data.asString(charsetUtf8))
-          }
-      })
-      if (finalResponse.status.intValue >= 500) {
-        val statusCode = finalResponse.status.intValue
-        log.warning(s"Request finished unsuccessfully with status code: $statusCode")
-      }
-      finalResponse
-    case parseException: JsonParseException =>
-      HttpResponse(BadRequest,
-        HttpUtil.toJsonErrorsMap(Option(parseException.getMessage).getOrElse("")),
-        addLanguageHeader(responseLanguage, Nil))
-    case otherException: Exception =>
-      HttpResponse(InternalServerError,
-        HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")),
-        addLanguageHeader(responseLanguage, Nil))
   }
 
   /**
