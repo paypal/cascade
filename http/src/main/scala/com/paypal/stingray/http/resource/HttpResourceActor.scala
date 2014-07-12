@@ -50,11 +50,15 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
    */
   val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
-  // TODO add docs
+  /*
+   * Overrideable by subclasses
+   */
+
   /**
+   * Exception handler for creating an http error response when Status.Failure is received.
    *
-   * @param exception
-   * @return
+   * @param exception the exception
+   * @return a crafted HttpResponse from the error message
    */
   protected def handleError(exception: Exception): HttpResponse = exception match {
     case haltException: HaltException =>
