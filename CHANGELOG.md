@@ -1,4 +1,7 @@
 
+# 0.12.0 07/15/14 released by mvaznaian
+* add ExpiringBoundedMailbox, before/after methods to resource actor, update error handler
+
 # 0.11.0 07/09/14 released by mvaznaian
 * Update error methods, handle json parsing exceptions
 
