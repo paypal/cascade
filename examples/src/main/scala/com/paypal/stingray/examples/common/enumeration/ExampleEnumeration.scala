@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core._
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.annotation._
 import com.paypal.stingray.common.logging.LoggingSugar
+import java.io.IOException
 
 /**
  * An example implementation of Enumeration.
@@ -27,9 +28,11 @@ sealed abstract class MyEnum extends Enumeration
  * regardless of uppercase/lowercase.
  */
 object MyEnum {
+
   case object CaseOne extends MyEnum {
     override val stringVal = "caseone"
   }
+
   case object CaseTwo extends MyEnum {
     override val stringVal = "casetwo"
   }
@@ -45,6 +48,7 @@ object MyEnum {
       case _ => None
     }
   }
+
 }
 
 /**
@@ -63,7 +67,12 @@ private[this] class MyEnumSerializer extends JsonSerializer[MyEnum] {
  */
 private[this] class MyEnumDeserializer extends JsonDeserializer[MyEnum] {
   override def deserialize(jp: JsonParser, ctxt: DeserializationContext): MyEnum = {
-    jp.getText.toEnum[MyEnum]
+    try {
+      jp.getText.toEnum[MyEnum]
+    } catch {
+      // Needs to throw an IOException or the compiler complains with Scala 2.11
+      case e: EnumerationException => throw new IOException(e)
+    }
   }
 }
 

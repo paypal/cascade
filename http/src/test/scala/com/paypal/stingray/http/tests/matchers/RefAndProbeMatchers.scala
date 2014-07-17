@@ -6,7 +6,7 @@ import com.paypal.stingray.http.tests.actor.RefAndProbe
 import scala.util.Try
 
 /**
- * this trait has specs2 matcher functionality for the [[RefAndProbe]] class. Mix it into your [[org.specs2.Specification]] (or trait/class inside your specification).
+ * this trait has specs2 matcher functionality for the [[com.paypal.stingray.http.tests.actor.RefAndProbe]] class. Mix it into your [[org.specs2.Specification]] (or trait/class inside your specification).
  *
  * Example usage:
  *
@@ -30,8 +30,8 @@ import scala.util.Try
 trait RefAndProbeMatchers {
 
   /**
-   * the matcher for testing whether the [[akka.testkit.TestActorRef]] inside the [[RefAndProbe]] is stopped
-   * @tparam T the [[Actor]] that the [[akka.testkit.TestActorRef]] contains
+   * the matcher for testing whether the [[akka.testkit.TestActorRef]] inside the [[com.paypal.stingray.http.tests.actor.RefAndProbe]] is stopped
+   * @tparam T the [[akka.actor.Actor]] that the [[akka.testkit.TestActorRef]] contains
    */
   class RefAndProbeIsStopped[T <: Actor]() extends Matcher[RefAndProbe[T]] {
     override def apply[S <: RefAndProbe[T]](r: Expectable[S]): MatchResult[S] = {
@@ -42,7 +42,7 @@ trait RefAndProbeMatchers {
   }
 
   /**
-   * the matcher function to test whether the [[akka.testkit.TestActorRef]] inside a [[RefAndProbe]] is stopped
+   * the matcher function to test whether the [[akka.testkit.TestActorRef]] inside a [[com.paypal.stingray.http.tests.actor.RefAndProbe]] is stopped
    *
    * Example usage:
    *
@@ -53,7 +53,7 @@ trait RefAndProbeMatchers {
    *   //shut down refAndProbe.ref
    *   refAndProbe must beStopped
    * }}}
-   * @tparam T the [[Actor]] that the [[akka.testkit.TestActorRef]] contains
+   * @tparam T the [[akka.actor.Actor]] that the [[akka.testkit.TestActorRef]] contains
    * @return the new matcher.
    */
   def beStopped[T <: Actor] = {

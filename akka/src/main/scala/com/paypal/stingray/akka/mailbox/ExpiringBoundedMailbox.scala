@@ -76,10 +76,10 @@ case class ExpiringBoundedMailbox(capacity: Int, pushTimeOut: FiniteDuration, me
 
 /**
  * A wrapper for Messages that went "stale" by sitting in the Mailbox's queue for longer than
- * ``mailbox-expiration-time``ms before being dequeued. [[ExpiredLetter]]s are still delivered
+ * ``mailbox-expiration-time``ms before being dequeued. [[com.paypal.stingray.akka.mailbox.ExpiredLetter]]s are still delivered
  * to the original receiving Actor, as this is how akka works. In the future, it may make sense
- * to have an [[ExpiredLetter]] event stream similar to the [[DeadLetter]] stream/handler, and avoid
- * delivering [[ExpiredLetter]]s to the original recipient.
+ * to have an [[com.paypal.stingray.akka.mailbox.ExpiredLetter]] event stream similar to the [[akka.actor.DeadLetter]] stream/handler, and avoid
+ * delivering [[com.paypal.stingray.akka.mailbox.ExpiredLetter]]s to the original recipient.
  *
  * @param message the original message sent by sender
  * @param sender the sender of the expired message

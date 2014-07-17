@@ -4,11 +4,11 @@ import akka.testkit.{TestProbe, TestActorRef}
 import akka.actor.{Actor, ActorSystem}
 
 /**
- * a container to hold a [[TestActorRef]] and a [[TestProbe]]. it automatically watches the ref and provides convenience functions for
+ * a container to hold a [[akka.testkit.TestActorRef]] and a [[akka.testkit.TestProbe]]. it automatically watches the ref and provides convenience functions for
  * sending messages from the probe, etc...
- * @param ref the [[TestActorRef]]
- * @param probe the [[TestProbe]] that's watching ref
- * @tparam T the type of actor inside the [[TestActorRef]]
+ * @param ref the [[akka.testkit.TestActorRef]]
+ * @param probe the [[akka.testkit.TestProbe]] that's watching ref
+ * @tparam T the type of actor inside the [[akka.testkit.TestActorRef]]
  */
 class RefAndProbe[T <: Actor](val ref: TestActorRef[T], val probe: TestProbe) {
 

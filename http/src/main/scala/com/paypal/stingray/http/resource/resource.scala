@@ -291,7 +291,7 @@ package object resource {
      * @return an empty successful Future, or a failed Future
      */
     def orHaltT(halt: => HttpResponse): Try[Unit] = {
-      if (v) Success() else Failure(new HaltException(halt))
+      if (v) Success(()) else Failure(new HaltException(halt))
     }
 
     /**

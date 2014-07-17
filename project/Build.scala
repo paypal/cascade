@@ -16,7 +16,7 @@ object BuildSettings {
   import Dependencies._
 
   val org = "com.paypal.stingray"
-  val scalaVsn = "2.10.4"
+  val scalaVsn = "2.11.1"
   val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
 
   val defaultArgs = Seq(
@@ -33,21 +33,7 @@ object BuildSettings {
   val runArgs = defaultArgs
   val testArgs = defaultArgs
 
-  val docScalacOptions = Seq(
-    "-groups",
-    "-implicits",
-    "-external-urls:" +
-      s"scala=http://www.scala-lang.org/api/$scalaVsn}/," +
-      s"akka=http://doc.akka.io/api/akka/$akkaVersion/," +
-      "java=http://docs.oracle.com/javase/6/docs/api/," +
-      // this is the only scaladoc location listed on the spray site
-      "spray=http://spray.io/documentation/1.1-SNAPSHOT/api/," +
-      "org.slf4j=http://www.slf4j.org/api/,"+
-      // make the version here dynamic once we stop using the stingray jackson fork
-      "com.fasterxml.jackson=http://fasterxml.github.io/jackson-core/javadoc/2.3.0/," +
-      "com.typesafe=http://typesafehub.github.io/config/latest/api/," +
-      s"org.specs2=http://etorreborre.github.io/specs2/api/SPECS2-$specs2Version/"
-  )
+  val docScalacOptions = Seq("-groups", "-implicits")
 
   lazy val standardReleaseSettings = releaseSettings ++ Seq(
     tagName <<= (version in ThisBuild).map(a => a),
@@ -59,6 +45,7 @@ object BuildSettings {
     scalaVersion := scalaVsn,
     exportJars := true,
     fork := true,
+    incOptions := incOptions.value.withNameHashing(true),
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     scalacOptions in (Compile, doc) ++= docScalacOptions,
@@ -67,8 +54,24 @@ object BuildSettings {
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
-    // Add apiURL := Some(url(...)) once the scaladocs start being published
+    apiURL := Some(url("https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/")),
     autoAPIMappings := true,
+    apiMappings ++= {
+      import BuildUtilities._
+      val links = Seq(
+        findManagedDependency("org.scala-lang", "scala-library").value.map(d => d -> url(s"http://www.scala-lang.org/api/$scalaVsn/")),
+        findManagedDependency("com.typesafe.akka", "akka-actor").value.map(d => d -> url(s"http://doc.akka.io/api/akka/$akkaVersion/")),
+        findManagedDependency("com.typesafe", "config").value.map(d => d -> url("http://typesafehub.github.io/config/latest/api/")),
+        findManagedDependency("com.fasterxml.jackson.core", "jackson-core").value.map(d => d -> url(s"http://fasterxml.github.io/jackson-core/javadoc/2.4/")),
+        // this is the only scaladoc location listed on the spray site
+        findManagedDependency("io.spray", "spray-http").value.map(d => d -> url("http://spray.io/documentation/1.1-SNAPSHOT/api/")),
+        findManagedDependency("io.spray", "spray-routing").value.map(d => d -> url("http://spray.io/documentation/1.1-SNAPSHOT/api/")),
+        findManagedDependency("org.slf4j", "slf4j-api").value.map(d => d -> url("http://www.slf4j.org/api/")),
+        findManagedDependency("com.typesafe.akka", "akka-testkit").value.map(d => d -> url(s"http://doc.akka.io/api/akka/$akkaVersion/")),
+        findManagedDependency("org.specs2", "specs2").value.map(d => d -> url(s"http://etorreborre.github.io/specs2/api/SPECS2-$specs2Version/"))
+      )
+      links.collect { case Some(d) => d }.toMap
+    },
     publishTo <<= version { version: String =>
       val stingrayNexus = s"http://$stingrayNexusHost/nexus/content/repositories/"
       if (version.trim.endsWith("SNAPSHOT")) {
@@ -79,7 +82,12 @@ object BuildSettings {
     },
     resolvers += "Stingray Nexus" at s"http://$stingrayNexusHost/nexus/content/groups/public/",
     conflictManager := ConflictManager.strict,
-    dependencyOverrides <+= scalaVersion { vsn => "org.scala-lang" % "scala-library" % vsn }
+    dependencyOverrides <++= scalaVersion { vsn => Set(
+      "org.scala-lang"         %  "scala-library"  % vsn,
+      "org.scala-lang"         %  "scala-compiler" % vsn,
+      "org.scala-lang"         %  "scala-reflect"  % vsn,
+      "org.scala-lang.modules" %% "scala-xml"      % "1.0.1"
+    )}
   )
 
 }
@@ -93,32 +101,32 @@ object Dependencies {
   val parboiledVersion = "1.1.6"
   val specs2Version = "2.3.12"
 
-  lazy val logback             = "ch.qos.logback"               % "logback-classic"             % "1.1.2" exclude("org.slf4j", "slf4j-api")
+  lazy val logback             = "ch.qos.logback"                 %  "logback-classic"       % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
-  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"     %  "jackson-databind"         % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations")
-  lazy val jacksonScalaModule  = "com.fasterxml.jackson.module"   %% "jackson-module-scala"     % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
-  lazy val jacksonJodaModule   = "com.fasterxml.jackson.datatype" %  "jackson-datatype-joda"    % "2.4.0" exclude("com.fasterxml.jackson.core", "jackson-annotations") exclude("com.fasterxml.jackson.core", "jackson-core") exclude("com.fasterxml.jackson.core", "jackson-databind")
-  lazy val jodaConvert         = "org.joda"                       % "joda-convert"              % "1.2"
-  
-  lazy val slf4j               = "org.slf4j"                    % "slf4j-api"                   % slf4jVersion
-  lazy val slf4jJul            = "org.slf4j"                    % "jul-to-slf4j"                % slf4jVersion
-  lazy val slf4jJcl            = "org.slf4j"                    % "jcl-over-slf4j"              % slf4jVersion
-  lazy val slf4jLog4j          = "org.slf4j"                    % "log4j-over-slf4j"            % slf4jVersion
+  lazy val jacksonDataBind     = "com.fasterxml.jackson.core"     %  "jackson-databind"      % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations")
+  lazy val jacksonScalaModule  = "com.fasterxml.jackson.module"   %% "jackson-module-scala"  % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-databind")
+  lazy val jacksonJodaModule   = "com.fasterxml.jackson.datatype" %  "jackson-datatype-joda" % fasterXmlJacksonVersion exclude("com.fasterxml.jackson.core", "jackson-annotations") exclude("com.fasterxml.jackson.core", "jackson-core") exclude("com.fasterxml.jackson.core", "jackson-databind")
+  lazy val jodaConvert         = "org.joda"                       %  "joda-convert"          % "1.2"
 
-  lazy val sprayCan            = "io.spray"                     % "spray-can"                   % sprayVersion
-  lazy val sprayRouting        = "io.spray"                     % "spray-routing"               % sprayVersion
-  lazy val akka                = "com.typesafe.akka"            %% "akka-actor"                 % akkaVersion
+  lazy val slf4j               = "org.slf4j"                      %  "slf4j-api"             % slf4jVersion
+  lazy val slf4jJul            = "org.slf4j"                      %  "jul-to-slf4j"          % slf4jVersion
+  lazy val slf4jJcl            = "org.slf4j"                      %  "jcl-over-slf4j"        % slf4jVersion
+  lazy val slf4jLog4j          = "org.slf4j"                      %  "log4j-over-slf4j"      % slf4jVersion
 
-  lazy val specs2              = "org.specs2"                   %% "specs2"                     % specs2Version     % "test"
-  lazy val scalacheck          = "org.scalacheck"               %% "scalacheck"                 % "1.11.3"          % "test"
-  lazy val mockito             = "org.mockito"                  % "mockito-all"                 % "1.9.5"           % "test"
-  lazy val hamcrest            = "org.hamcrest"                 % "hamcrest-all"                % "1.3"             % "test"
-  lazy val pegdown             = "org.pegdown"                  % "pegdown"                     % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
-  lazy val parboiledJava       = "org.parboiled"                % "parboiled-java"              % parboiledVersion  % "test"
-  lazy val parboiledScala      = "org.parboiled"                %% "parboiled-scala"            % parboiledVersion  % "test"
+  lazy val sprayCan            = "io.spray"                       %% "spray-can"             % sprayVersion
+  lazy val sprayRouting        = "io.spray"                       %% "spray-routing"         % sprayVersion
+  lazy val akka                = "com.typesafe.akka"              %% "akka-actor"            % akkaVersion
 
-  lazy val sprayTestKit        = "io.spray"                     % "spray-testkit"               % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.10")
-  lazy val akkaTestKit         = "com.typesafe.akka"            %% "akka-testkit"               % akkaVersion       % "test"
+  lazy val specs2              = "org.specs2"                     %% "specs2"                % specs2Version     % "test"
+  lazy val scalacheck          = "org.scalacheck"                 %% "scalacheck"            % "1.11.3"          % "test"
+  lazy val mockito             = "org.mockito"                    %  "mockito-all"           % "1.9.5"           % "test"
+  lazy val hamcrest            = "org.hamcrest"                   %  "hamcrest-all"          % "1.3"             % "test"
+  lazy val pegdown             = "org.pegdown"                    %  "pegdown"               % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
+  lazy val parboiledJava       = "org.parboiled"                  %  "parboiled-java"        % parboiledVersion  % "test"
+  lazy val parboiledScala      = "org.parboiled"                  %% "parboiled-scala"       % parboiledVersion  % "test"
+
+  lazy val sprayTestKit        = "io.spray"                       %% "spray-testkit"         % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.11")
+  lazy val akkaTestKit         = "com.typesafe.akka"              %% "akka-testkit"          % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
     slf4j,
@@ -177,7 +185,7 @@ object CommonBuild extends Build {
       unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(examples),
       publish := {}
     ),
-    aggregate = Seq(common, examples, json, akka, http)
+    aggregate = Seq(common, json, akka, http, examples)
   )
 
   lazy val common = Project("stingray-common", file("common"),
@@ -231,7 +239,6 @@ object CommonBuild extends Build {
     ),
     settings = standardSettings ++ Seq(
       name := "stingray-examples",
-      libraryDependencies ++= httpDependencies,
       publish := {}
     )
   )

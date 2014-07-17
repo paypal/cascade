@@ -24,8 +24,8 @@ import com.paypal.stingray.akka.actor.ServiceActor
  *   //wait for the response and verify it the right response code
  *   Await.result(prom.future, Duration.Inf).status must beEqualTo(StatusCodes.OK)
  * }}}
- * @param respPromise the promise that it fulfills when it receives a message. fulfills it with success when it receives an [[HttpResponse]]
- *                    and failure when it receives a [[Throwable]] or a [[Status.Failure]]
+ * @param respPromise the promise that it fulfills when it receives a message. fulfills it with success when it receives an [[spray.http.HttpResponse]]
+ *                    and failure when it receives a [[java.lang.Throwable]] or a [[akka.actor.Status.Failure]]
  */
 class ResponseHandlerActor(val respPromise: Promise[HttpResponse]) extends ServiceActor {
 
@@ -49,9 +49,9 @@ class ResponseHandlerActor(val respPromise: Promise[HttpResponse]) extends Servi
 
 object ResponseHandlerActor {
   /**
-   * create a new [[ResponseHandlerActor]] for testing (using [[TestActorRef]])
-   * @param actorSystem the actor system that implicitly gets passed to the [[TestActorRef]]
-   * @return the new [[TestActorRef]] for the [[ResponseHandlerActor]] and the promise that the new actor will fulfill
+   * create a new [[com.paypal.stingray.http.tests.resource.ResponseHandlerActor]] for testing (using [[akka.testkit.TestActorRef]])
+   * @param actorSystem the actor system that implicitly gets passed to the [[akka.testkit.TestActorRef]]
+   * @return the new [[akka.testkit.TestActorRef]] for the [[com.paypal.stingray.http.tests.resource.ResponseHandlerActor]] and the promise that the new actor will fulfill
    */
   def apply(implicit actorSystem: ActorSystem): TestActorRef[ResponseHandlerActor] = {
     val promise = Promise[HttpResponse]()
