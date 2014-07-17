@@ -43,7 +43,7 @@ object BuildSettings {
   lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
-    crossScalaVersions := Seq(scalaVsn),
+    crossScalaVersions := Seq(scalaVsn, "2.10.4"),
     exportJars := true,
     fork := true,
     incOptions := incOptions.value.withNameHashing(true),
@@ -126,7 +126,7 @@ object Dependencies {
   lazy val parboiledJava       = "org.parboiled"                  %  "parboiled-java"        % parboiledVersion  % "test"
   lazy val parboiledScala      = "org.parboiled"                  %% "parboiled-scala"       % parboiledVersion  % "test"
 
-  lazy val sprayTestKit        = "io.spray"                       %% "spray-testkit"         % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.11")
+  lazy val sprayTestKit        = "io.spray"                       %% "spray-testkit"         % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.11") exclude("com.typesafe.akka", "akka-testkit_2.10")
   lazy val akkaTestKit         = "com.typesafe.akka"              %% "akka-testkit"          % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
