@@ -3,12 +3,12 @@ package com.paypal.stingray.http.resource
 import spray.http._
 import akka.actor.{Status, Actor}
 import com.paypal.stingray.common.option._
-import com.paypal.stingray.http.resource.HttpResourceActor._
-import spray.http.HttpResponse
 import com.paypal.stingray.http.util.HttpUtil
 import com.paypal.stingray.json._
-import scala.util.{Failure, Success}
 import akka.event.LoggingReceive
+import scala.util.{Success, Failure}
+import spray.http.HttpResponse
+import com.paypal.stingray.http.resource.HttpResourceActor.RequestIsProcessed
 
 /**
  * Base class for HTTP resources built with Spray.

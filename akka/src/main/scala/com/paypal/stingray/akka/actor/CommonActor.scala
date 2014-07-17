@@ -1,6 +1,7 @@
 package com.paypal.stingray.akka.actor
 
-import akka.actor.{ActorLogging, Actor, Status}
+import akka.actor.{UnhandledMessage, ActorLogging, Actor, Status}
+import com.paypal.stingray.akka.mailbox.ExpiredLetter
 
 /**
  * CommonActor is intended for top-level actors that have robust error-handling, and that are responsible for
@@ -32,15 +33,23 @@ trait ServiceActor extends CommonActor {
    * 1) Publishes an unhandled message to the actor system's event stream.
    * 2) Replies with a [[akka.actor.Status.Failure]] message to the sender.
    * 3) Throws an [[UnhandledMessageException]] for delegation to the supervisor.
+   *
+   * [[com.paypal.stingray.akka.mailbox.ExpiredLetter]] messages from an [[com.paypal.stingray.akka.mailbox.ExpiringBoundedMailbox]]
+   * are published to the system eventstream, similar to the dead letter stream, and are otherwise ignored.
+   *
    * @param message The unhandled message
    * @throws UnhandledMessageException The unhandled message exception.
    */
   @throws[UnhandledMessageException]
   override def unhandled(message: Any): Unit = {
-    super.unhandled(message)
-    val ex = new UnhandledMessageException(s"Unhandled message received by actor: ${self.path}, sender: ${sender()}, message: ${message.getClass}")
-    sender ! Status.Failure(ex)
-    throw ex
+    message match {
+      case em: ExpiredLetter => context.system.eventStream.publish(UnhandledMessage(message, sender(), self))
+      case _ =>
+        super.unhandled(message)
+        val ex = new UnhandledMessageException(s"Unhandled message received by actor: ${self.path}, sender: ${sender()}, message: ${message.getClass}")
+        sender ! Status.Failure(ex)
+        throw ex
+    }
   }
 }
 

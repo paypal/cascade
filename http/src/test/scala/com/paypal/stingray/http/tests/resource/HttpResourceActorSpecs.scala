@@ -3,8 +3,8 @@ package com.paypal.stingray.http.tests.resource
 import org.specs2.SpecificationLike
 import akka.testkit.{TestActorRef, TestKit}
 import akka.actor.ActorSystem
-import com.paypal.stingray.http.resource.HttpResourceActor
-import spray.http.{StatusCodes, HttpResponse, HttpRequest}
+import com.paypal.stingray.http.resource.{AbstractResourceActor, HttpResourceActor}
+import spray.http.{HttpMethod, StatusCodes, HttpResponse, HttpRequest}
 import scala.util.{Try, Failure, Success}
 import scala.concurrent.Promise
 import com.paypal.stingray.common.tests.util.CommonImmutableSpecificationContext
@@ -13,7 +13,7 @@ import com.paypal.stingray.http.tests.matchers.RefAndProbeMatchers
 import com.paypal.stingray.akka.tests.actor.ActorSpecification
 import scala.concurrent.duration.Duration
 import com.paypal.stingray.common.tests.future._
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{CountDownLatch, TimeUnit}
 import com.paypal.stingray.http.tests.resource.DummyResource.{SyncSleep, SleepRequest, GetRequest}
 import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
 import com.fasterxml.jackson.core.{JsonLocation, JsonParseException}
@@ -36,6 +36,9 @@ class HttpResourceActorSpecs
     The ResourceActor will still succeed if blocking code takes too long. DON'T BLOCK in HttpActors!                         ${Start().timeOutFailsOnBlockingRequestProcessor}
 
     If the request parser is a failure due to malformed json, Status.Failure is called and a 400 is returned                 ${JsonParseFail().reqParserFail}
+
+    The actor calls the before() method                                                                                      ${BeforeAfter().beforeCalled}
+    The actor calls the after() method                                                                                       ${BeforeAfter().afterCalled}
   """
   private val resourceGen = new DummyResource(_)
 
@@ -53,9 +56,9 @@ class HttpResourceActorSpecs
     protected lazy val returnActorRefAndProbe = RefAndProbe(TestActorRef(new ResponseHandlerActor(returnActorPromise)))
     protected val returnActorFuture = returnActorPromise.future
 
-    private lazy val dummyResourceContext = ResourceContext(dummyReqCtx, reqParser,  Some(returnActorRefAndProbe.ref))
+    protected lazy val dummyResourceContext = ResourceContext(dummyReqCtx, reqParser,  Some(returnActorRefAndProbe.ref))
 
-    protected lazy val resourceActorRefAndProbe = RefAndProbe(TestActorRef(new DummyResource(dummyResourceContext)))
+    protected lazy val resourceActorRefAndProbe: RefAndProbe[AbstractResourceActor] = RefAndProbe(TestActorRef(new DummyResource(dummyResourceContext)))
 
     override def before() {
       resourceActorRefAndProbe.ref ! HttpResourceActor.Start
@@ -168,6 +171,30 @@ class HttpResourceActorSpecs
         case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.BadRequest)
       }
       failedRes
+    }
+  }
+
+  case class BeforeAfter() extends Context {
+
+    val beforeLatch = new CountDownLatch(1)
+    val afterLatch = new CountDownLatch(1)
+
+    class WithBeforeAfter(ctx: ResourceContext) extends DummyResource(ctx) {
+      override def before(method: HttpMethod): Unit = {
+        beforeLatch.countDown()
+      }
+      override def after(resp: HttpResponse): Unit = {
+        afterLatch.countDown()
+      }
+    }
+
+    override protected lazy val resourceActorRefAndProbe: RefAndProbe[AbstractResourceActor] = RefAndProbe(TestActorRef(new WithBeforeAfter(dummyResourceContext)))
+
+    def beforeCalled = apply {
+      beforeLatch.await(500, TimeUnit.MILLISECONDS) must beTrue
+    }
+    def afterCalled = apply {
+      afterLatch.await(500, TimeUnit.MILLISECONDS) must beTrue
     }
   }
 
