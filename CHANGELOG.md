@@ -1,4 +1,7 @@
 
+# 0.13.0 07/17/14 released by tleese
+* Bump Scala to 2.11.1
+
 # 0.12.0 07/15/14 released by mvaznaian
 * add ExpiringBoundedMailbox, before/after methods to resource actor, update error handler
 
