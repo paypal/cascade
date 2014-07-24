@@ -16,7 +16,7 @@ object BuildSettings {
   import Dependencies._
 
   val org = "com.paypal.stingray"
-  val scalaVsn = "2.11.1"
+  val scalaVsn = "2.11.2"
   val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
 
   val defaultArgs = Seq(
@@ -84,10 +84,11 @@ object BuildSettings {
     resolvers += "Stingray Nexus" at s"http://$stingrayNexusHost/nexus/content/groups/public/",
     conflictManager := ConflictManager.strict,
     dependencyOverrides <++= scalaVersion { vsn => Set(
-      "org.scala-lang"         %  "scala-library"  % vsn,
-      "org.scala-lang"         %  "scala-compiler" % vsn,
-      "org.scala-lang"         %  "scala-reflect"  % vsn,
-      "org.scala-lang.modules" %% "scala-xml"      % "1.0.1"
+      "org.scala-lang"         %  "scala-library"             % vsn,
+      "org.scala-lang"         %  "scala-compiler"            % vsn,
+      "org.scala-lang"         %  "scala-reflect"             % vsn,
+      "org.scala-lang.modules" %% "scala-xml"                 % "1.0.1",
+      "org.scala-lang.modules" %% "scala-parser-combinators"  % "1.0.2"
     )}
   )
 
