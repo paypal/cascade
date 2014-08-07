@@ -27,8 +27,12 @@ trait SprayActorComponent {
   lazy val sprayActor: ActorRef = system.actorOf(SprayActor.props, serviceName)
 
   /**
-   * Convenience method to start the spray actor
-   * This should be called at startup by the application
+   * Convenience method to start the spray actor.
+   * This should be called at startup by the application.
+   *
+   * @param sslEngineProvider the SSL provider to be used by this spray service. A sane default is provided. See
+   *                          <a href="http://spray.io/documentation/1.1-SNAPSHOT/spray-can/http-server/#ssl-support">
+   *                            spray-can HTTP Server SSL support</a>.
    */
   def start(implicit sslEngineProvider: ServerSSLEngineProvider): Unit = {
     AkkaIO(Http) ! Http.Bind(sprayActor, interface = "0.0.0.0", port = port, backlog = backlog)
