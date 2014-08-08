@@ -31,7 +31,7 @@ trait SprayActorComponent {
    * This should be called at startup by the application.
    *
    * @param sslEngineProvider the SSL provider to be used by this spray service. A sane default is provided. See
-   *                          <a href="http://spray.io/documentation/1.1-SNAPSHOT/spray-can/http-server/#ssl-support">
+   *                          <a href="http://spray.io/documentation/1.2.1/spray-can/http-server/#ssl-support">
    *                            spray-can HTTP Server SSL support</a>.
    */
   def start(implicit sslEngineProvider: ServerSSLEngineProvider): Unit = {
