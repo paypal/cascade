@@ -20,3 +20,4 @@ project/plugins/project/
 .history
 target
 .DS_Store
+.vagrant
