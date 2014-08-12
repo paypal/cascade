@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013-2014 PayPal
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.paypal.stingray.common.tests
 
 import com.paypal.stingray.common.option._
@@ -39,7 +54,7 @@ package object scalacheck {
 
   /** Generates a non-empty String comprised of alphabetics */
   lazy val genNonEmptyAlphaStr: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString)
-  
+
   /** Generates a non-empty String comprised of alphabetics and digits */
   lazy val genNonEmptyAlphaNumStr: Gen[String] =
     Gen.nonEmptyListOf(Gen.frequency((52, Gen.alphaChar), (10, Gen.numChar))).map(_.mkString)
@@ -134,4 +149,3 @@ package object scalacheck {
   def genOption[T](gen: Gen[T]): Gen[Option[T]] = gen.flatMap(g => Gen.oneOf(g.some, none[T]))
 
 }
-
