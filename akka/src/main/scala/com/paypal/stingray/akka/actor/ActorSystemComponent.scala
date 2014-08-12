@@ -21,13 +21,16 @@ import com.paypal.stingray.common.service.ServiceNameComponent
 import scala.concurrent.ExecutionContext
 
 /**
- * Provides the root actor which supervises other actors and handles spray http requests
+ * Provides the root actor which supervises other actors and handles spray http requests.
  */
 trait ActorSystemComponent {
   //Dependencies
   self: ServiceNameComponent =>
 
-  //Implicits provided
+  /**
+   * The default ActorSystem.
+   * All components that depend on this one automatically inherit this.
+   */
   implicit lazy val system = {
     val newSystem = ActorSystem(serviceName)
     sys.addShutdownHook {
@@ -37,7 +40,16 @@ trait ActorSystemComponent {
     newSystem
   }
 
+  /**
+   * The default [[akka.actor.ActorRefFactory]] (comes from system).
+   * All components that depend on this one automatically inherit this.
+   */
   implicit lazy val actorRefFactory: ActorRefFactory = system
+
+  /**
+   * The default [[scala.concurrent.ExecutionContext]] (comes from system).
+   * All components that depend on this one automatically inherit this.
+   */
   implicit lazy val ec: ExecutionContext = system.dispatcher
 
 }
