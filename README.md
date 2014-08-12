@@ -116,4 +116,11 @@ Useful test objects include:
 
 - `json` package object provides a utility for serializing/deserializing JSON. It uses the `JsonUtil` object.
 
+# Development
 
+If you have [Vagrant](http://vagrantup.com), simply `vagrant up` in this project to get a VM with all the necessary
+tools for development. When inside the VM, the sources for this project are inside `/vagrant`, and they're
+synched with your host machine. Edit your code on the host machine and build/run it inside the VM.
+
+If you don't have Vagrant, you'll need [Scala 2.11.2](http://scala-lang.org/download/) and
+[SBT 0.13.5](http://www.scala-sbt.org/download.html) to build and run this project.
