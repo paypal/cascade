@@ -1,14 +1,17 @@
 package com.paypal.stingray.json.tests
 
-import com.paypal.stingray.json.JsonUtil._
-import com.paypal.stingray.common.tests.scalacheck._
-import org.specs2._
-import org.scalacheck.Gen._
-import org.scalacheck.Prop._
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Gen
+import scala.util.Try
+
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen
+import org.scalacheck.Gen._
+import org.scalacheck.Prop._
+import org.specs2._
+
+import com.paypal.stingray.common.tests.scalacheck._
+import com.paypal.stingray.json.JsonUtil._
 
 /**
  * Tests that exercise methods in [[com.paypal.stingray.json.JsonUtil]]
@@ -48,7 +51,7 @@ class JsonUtilSpecs
 
   JsonUtil should
     not deserialize malformed json                                           ${Badness.MalformedJson().fails}
-    not deserialize json that is type mismatched                             ${skipped} // Badness.MismatchedTypes().fails
+    not deserialize json that is type mismatched                             ${Badness.MismatchedTypes().fails}
     deserialize json that is missing an AnyVal, with a default value         ${Badness.MissingAnyVal().ok}
     deserialize json that is missing an AnyRef, with a null value            ${Badness.MissingAnyRef().ok}
 
@@ -206,7 +209,7 @@ class JsonUtilSpecs
   }
 
   object CaseClasses {
-    import JsonUtilSpecs._
+    import com.paypal.stingray.json.tests.JsonUtilSpecs._
 
     case class OneMember() {
       def ok = forAll(genJsonString) { v =>
@@ -304,7 +307,7 @@ class JsonUtilSpecs
   }
 
   object Badness {
-    import JsonUtilSpecs._
+    import com.paypal.stingray.json.tests.JsonUtilSpecs._
 
     case class MalformedJson() {
       def fails = forAll(genJsonString, genJsonString) { (k, v) =>
@@ -344,7 +347,9 @@ class JsonUtilSpecs
     // changing genJsonString from using nonEmptyListOf to listOf causes failure every time because it tests the empty string.
     case class MismatchedTypes() {
       def fails = {
-        forAll(genJsonString, genJsonString) { (k, v) =>
+        forAll(
+          genJsonString,
+          genJsonString.suchThat(s => Try {Integer.decode(s)}.isFailure)) { (k, v) =>
           val to = toJson(Map(k -> v)).get
 
           // Note: if instead `v` were an Int, and `fromJson[Map[String, String]]` were used,
