@@ -25,9 +25,8 @@ The libraries live in separate sub-projects in this repository:
 Each library is loosely coupled from the others, so you can mix and match what
 you use in your project.
 
-The libraries in Cascade all follow some similar patterns and
-conventions, however. [CONVENTIONS.md](CONVENTIONS.md) serves as a reference
-for those common patterns and conventions.
+The libraries in Cascade all follow some similar patterns.
+[PATTERNS.md](PATTERNS.md) describes them in detail.
 
 # Dependencies
 
