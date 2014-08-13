@@ -114,7 +114,17 @@ Useful test objects include:
 
 ## json
 
-- `json` package object provides a utility for serializing/deserializing JSON. It uses the `JsonUtil` object.
+Simple functionality for fast JSON encoding/decoding that uses [Jackson](https://github.com/FasterXML/jackson)
+under the hood.
+
+- The `JsonUtil` object provides two functions to do encoding and decoding:
+    - `toJson(value: Any): Try[String]`
+    - `fromJson[T: Manifest](json: String): Try[T]``
+- The `json` package object provides implicit classes to wrap `JsonUtil.toJson`
+and `JsonUtil.fromJson`. If you `import com.paypal.stingray.json._` you can
+decode a `String` using `.fromJson[T]` and you can encode an `Any`
+(any type) using `.toJson`.
+
 
 # Development
 
