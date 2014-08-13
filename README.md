@@ -1,34 +1,57 @@
-stingray-common
-=================
+# Cascade
 
 Current Version: 0.13.0
 
 [View the ScalaDocs](https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/0.13.0/index.html#com.paypal.stingray.package)
 
-This is a repository of common patterns, convenience objects, implicit classes, utilities, and other foundational pieces
-used in projects developed by the Stingray team.
+Cascade is a collection of libraries that implement common patterns,
+convenience objects, implicit classes, utilities, and other foundational pieces
+used in Scala applications and servers at PayPal. The libraries herein are
+carefully designed to:
 
-stingray-common consists of several sub-projects. The current projects are:
+1. Work well with Scala and the Typesafe libraries.
+2. Be loosely coupled from each other.
+3. Be well defined in their functionality.
 
-* stingray-common
-* stingray-http
-* stingray-akka
-* stingray-json
+# Usage
 
-To use a project, add the dependency in `build.sbt` or `Build.scala` with the following format:
+The libraries live in separate sub-projects in this repository:
 
-    "com.paypal.stingray" %% "project-name" % "root-common-version"
+* [common](common/) - utilities to help build any Scala program.
+* [http](http/) - building blocks for building [Spray](http://spray.io) servers.
+* [akka](akka/) - building blocks for building [Akka](http://akka.io) systems.
+* [json](json/) - utilities to encode/decode JSON.
 
-For example,
+Each library is loosely coupled from the others, so you can mix and match what
+you use in your project.
 
-    "com.paypal.stingray" %% "stingray-akka" % "0.13.0"
+The libraries in Cascade all follow some similar patterns and
+conventions, however. [CONVENTIONS.md](CONVENTIONS.md) serves as a reference
+for those common patterns and conventions.
 
+# Dependencies
 
-The following is an overview of what is included in each sub-project:
+To use Cascade libraries in your project, simply add a dependency to your
+build system. In an SBT project, add the following to your `build.sbt` or
+`Build.scala` file:
+
+```scala
+"com.paypal.stingray" %% "$projectName" % "0.13.0"
+```
+
+For example, to use the Akka library:
+
+```scala
+"com.paypal.stingray" %% "stingray-akka" % "0.13.0"
+```
+
+If you're starting a new project, we recommend using SBT.
+
+# Library Details
 
 ## common
 
-Contains basic patterns, objects, and utilities for any project:
+Basic patterns, objects, and utilities for any project:
 
 - `StingrayApp` is the starting place for building executable applications. It sets up logging and MDC values.
 - `LoggingSugar` provides easy access to SLF4J.
@@ -43,7 +66,7 @@ Useful test objects include:
 
 ## http
 
-Contains base objects and traits for creating Spray HTTP resources:
+Base objects and traits for creating Spray HTTP resources:
 
 - `AbstractResource` is a starting point for HTTP resources.
 - `ResourceActor` provides an implementation of a basic HTTP request handling pipeline.
