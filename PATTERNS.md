@@ -41,115 +41,14 @@ some functionality. A component is a Scala `trait` that contains:
 3. Zero or more "fake" (e.g. stub) implementations of the `trait` from (1)
 4. An abstract `val` (singleton) or `def` (factory) for the interface from (1)
 
-Here's a complete example of a component that provides access to a networked
-key/value database:
-
-```scala
-trait KVServiceComponent {
-
-    //Dependencies
-    this: KVServiceDiscoveryComponent =>
-
-    //Service Provided
-    val kvService: KVService
-
-    //Interface Provided
-
-    /**
-     * KVService is an interface that provides access to a key/value storage
-     * system. Implementations of this interface may choose their own storage
-     * backends and storage semantics (e.g. consistency guarantees, etc...).
-     * Each implementation is required to specify those parameters.
-     */
-    trait KVService {
-        /**
-         * Get a value for a key, or None if the key doesn't exist
-         *
-         * @param key the key to get the value for
-         * @return Some(value) if the key/value pair existed, None otherwise
-         */
-        def get(key: String): Option[Array[Byte]]
-
-        /**
-         * Set the value for a key.
-         *
-         * @param key the key part of the key/value pair
-         * @param val the value part of the key/value pair
-         */
-        def set(key: String, value: Array[Byte])
-    }
-
-    //Implementation
-
-    /**
-     * MemcachedKVServiceImpl is a KVService implementation that uses
-     * Memcached as its backing store. All writes go to exactly one node
-     * (it uses the service discovery mechanism to find the correct node)
-     * and are fully consistent.
-     */
-    class MemcachedKVServiceImpl extends KVService {
-        /**
-         * getConnectionForKey retrieves the appropriate Node for the given key,
-         * using the KVServiceDiscovery dependency.
-         *
-         * @param key the key to use to locate the Node
-         * @return the node for the given key
-         */
-        private def getNodeForKey(key: String): Node = {
-            kvServiceDiscovery.getHostForKey(key)
-        }
-
-        /**
-         * get retrieves the value for the given key
-         *
-         * @param key the key whose value to look up
-         * @return Some(value) if they key/value pair was found, None otherwise
-         */
-        override def get(key: String): Option[Array[Byte]] = {
-            getConnectionForKey(key).get(key)
-        }
-
-        /**
-         * set creates or overwrites the value for the given key
-         *
-         * @param key the key whose value to create or overwrite
-         * @param value the value to create or overwrite
-         */
-        override def set(key: String, value: Array[Byte]) {
-            getConnectionForKey(key).set(key, val)
-        }
-    }
-}
-```
-
-A few notes:
-
-1. All dependencies are listed only as self-types
-2. Only modules (see below) may extend components.
-3. Names should be consistent. The component for `$INTERFACE` should be
-`${INTERFACE}Component`. The implementation `$IMPL` (under `//Implementation`)
-for `$INTERFACE` should be `${IMPL}${NAME}Impl`, and the service provided
-(under `//Service Provided`) should be `${iNTERFACE}` (note the lowercase first
-character.)
-4. Generally components are referred to as `Service`s, since they perform one
-single action.
-5. Only functionality that has dependencies need to be in components. A set of
-`String` utilities, for example, need not be.
-
 ## Modules
 
-Modules are the top level unit to define what dependencies to inject. Here's
-an example of a top level module to define the dependencies to use `KVService`
-in production:
+Modules are top level `object`s or `class`es that configure all dependencies.
+They are the only thing that ever inherits (with `extends` and `with`) a
+component, and may override the `val` or `def` from (4) above as appropriate.
 
-```scala
+Most projects have a single `object` module for the main entry point (e.g.
+`object MyServer extends App with MyServiceComponent`) and 1 or more modules
+for test configuration (e.g. stubbing out the database driver).
 
-object ServerModule {
-
-}
-```
-
-## More
-
-This guide has most of the required reference material for using the Cake
-pattern. See [CAKE.md](CAKE.md) for extensive details.
+Please see [CAKEPATTERN.md](CAKEPATTERN.md) for thorough details and examples.
