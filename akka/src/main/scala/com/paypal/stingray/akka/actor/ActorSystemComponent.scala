@@ -21,7 +21,10 @@ import com.paypal.stingray.common.service.ServiceNameComponent
 import scala.concurrent.ExecutionContext
 
 /**
- * Provides the root actor which supervises other actors and handles spray http requests.
+ * Provides the root actor which supervises other actors and handles spray http
+ * requests. Use this component as a dependency (in the cake pattern) wherever
+ * you need to get access to an `ActorSystem`, `ActorRefFactory`, or
+ * `ExecutionContext`.
  */
 trait ActorSystemComponent {
   //Dependencies
@@ -41,13 +44,14 @@ trait ActorSystemComponent {
   }
 
   /**
-   * The default [[akka.actor.ActorRefFactory]] (comes from system).
-   * All components that depend on this one automatically inherit this.
+   * The default [[akka.actor.ActorRefFactory]]
+   * comes from the implicit system in this component.
    */
   implicit lazy val actorRefFactory: ActorRefFactory = system
 
   /**
-   * The default [[scala.concurrent.ExecutionContext]] (comes from system).
+   * The default [[scala.concurrent.ExecutionContext]].
+   * comes from the implicit system in this component.
    * All components that depend on this one automatically inherit this.
    */
   implicit lazy val ec: ExecutionContext = system.dispatcher
