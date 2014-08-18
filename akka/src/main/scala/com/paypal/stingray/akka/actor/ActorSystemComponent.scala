@@ -32,7 +32,6 @@ trait ActorSystemComponent {
 
   /**
    * The default ActorSystem.
-   * All components that depend on this one automatically inherit this.
    */
   implicit lazy val system = {
     val newSystem = ActorSystem(serviceName)
