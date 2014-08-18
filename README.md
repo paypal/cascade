@@ -12,6 +12,8 @@ carefully designed to:
 1. Work well with Scala and the Typesafe libraries.
 2. Be loosely coupled from each other.
 3. Be well defined in their functionality.
+4. Minimize the number of external dependencies (we try to use the Scala
+standard library as much as possible.)
 
 # Usage
 
@@ -22,10 +24,8 @@ The libraries live in separate sub-projects in this repository:
 * [akka](akka/) - building blocks for building [Akka](http://akka.io) systems.
 * [json](json/) - utilities to encode/decode JSON.
 
-Each library is loosely coupled from the others, so you can mix and match what
-you use in your project.
-
-The libraries in Cascade all follow some similar patterns.
+Although you can use each library independently of the others, we try to keep
+them consistent. All libraries in Cascade all follow some similar patterns.
 [PATTERNS.md](PATTERNS.md) describes them in detail.
 
 # Dependencies
@@ -44,7 +44,8 @@ For example, to use the Akka library:
 "com.paypal.stingray" %% "stingray-akka" % "0.13.0"
 ```
 
-If you're starting a new project, we recommend using SBT.
+If you're starting a new project, we recommend using SBT along with
+[Nugget](https://github.paypal.com/Paypal-Commons-R/sbt-build-utilities)
 
 # Library Details
 
