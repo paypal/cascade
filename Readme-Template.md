@@ -10,8 +10,11 @@ used in Scala applications and servers at PayPal. The libraries herein are
 carefully designed to:
 
 1. Work well with Scala and the Typesafe libraries.
-2. Be loosely coupled from each other.
+2. Work independently from the others.
 3. Be well defined in their functionality.
+4. Minimize the number of external dependencies.
+5. Related to (4) - use the features of the Scala standard library before
+building their own.
 
 # Usage
 
@@ -22,8 +25,9 @@ The libraries live in separate sub-projects in this repository:
 * [akka](akka/) - building blocks for building [Akka](http://akka.io) systems.
 * [json](json/) - utilities to encode/decode JSON.
 
-Each library is loosely coupled from the others, so you can mix and match what
-you use in your project.
+As mentioned in (2) above, these libraries are designed to work independently.
+Although they have internal dependencies on each other (e.g. many libraries
+depend on `common`), you can mix and match which libraries you use.
 
 The libraries in Cascade all follow some similar patterns.
 [PATTERNS.md](PATTERNS.md) describes them in detail.
@@ -44,7 +48,8 @@ For example, to use the Akka library:
 "com.paypal.stingray" %% "stingray-akka" % "{{version}}"
 ```
 
-If you're starting a new project, we recommend using SBT.
+If you're starting a new project, we recommend using SBT along with
+[Nugget](https://github.paypal.com/Paypal-Commons-R/sbt-build-utilities)
 
 # Library Details
 
