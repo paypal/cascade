@@ -1,29 +1,24 @@
 # Patterns
-Although the libraries in Cascade are loosely coupled from each other, they all
-follow some patterns that we've found useful. Each pattern listed here has
-helped us write code that is more readable, better organized or both.
+The libraries in Cascade, while loosely coupled from each other,
+follow similar design patterns. These patterns were chosen by the
+Cascade development team to ensure code is readable and better organized.
 
-This document is a reference to patterns that we use in Cascade. Hopefully it
-helps you understand the code.
+This document serves as a reference for patterns used in Cascade.
 
 # Cake
-Cake is a simple pattern we use for organizing Scala code so that we can easily
-(and simply) test it. We slightly adapted the pattern outlined in
-[Jonas Bonér's Blog Post](http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di/)
-to our needs. It allows us to stub out complex functionality (often
-functionality that does I/O) so we can write unit or integration tests without
-needing complex external infrastructure (like a database).
-
-## Dependency Injection
-Many in the Scala community talk about the Cake pattern as dependency injection
-and in our use case, they're right. We use this pattern to achieve dependency
-injection in our code.
+Cake is a pattern used for organizing Scala code as well as dependency injection,
+allowing implementations to be easily swapped out so testing is simple. The original pattern
+is outlined in [Jonas Bonér's Blog Post](http://jonasboner.com/2008/10/06/real-world-scala-dependency-injection-di/),
+and has been slightly adapted to fit our needs. It allows us to stub out complex functionality (often
+functionality that handles I/O) so we can write unit or integration tests without
+needing a complex external infrastructure (like a database).
 
 ### Cake vs. DI Frameworks
-There are multiple [dependency](https://code.google.com/p/google-guice/)
-[injection](http://projects.spring.io/spring-framework/)
-[frameworks](http://square.github.io/dagger/) in the Java ecosystem already,
-and we decided to use Cake instead for two major reasons. We want:
+Many in the Scala community use the Cake pattern for dependency injection, as does this project.
+There are multiple dependency injection frameworks ([Guice](https://code.google.com/p/google-guice/),
+[Spring](http://projects.spring.io/spring-framework/),
+[Dagger](http://square.github.io/dagger/)) in the Java ecosystem already.
+Cake was decided to be used for two major reasons. In Cascade, we want:
 
 1. To do DI at _compile time_ instead of runtime.
 2. To do DI with the fewest number of external dependncies.
@@ -51,7 +46,7 @@ for test configuration (e.g. stubbing out the database driver).
 Please see [CAKEPATTERN.md](CAKEPATTERN.md) for thorough details and examples.
 
 # Naming
-We follows these rules for naming:
+The following naming conventions were chosen by the Cascade development team:
 
 1. `object`s, `class`es and `trait`s are camel cased starting with an uppercase
 letter.
@@ -62,19 +57,19 @@ lowercase letter.
 5. `package object`s are in their own file named `${package}.scala`.
 
 # Errors
-We prefer to use
-[`Try`](`](http://www.scala-lang.org/api/current/#scala.util.Try) where
+The following error handling conventions were chosen by the Cascade development team.
+Where possible, use [`Try`](`](http://www.scala-lang.org/api/current/#scala.util.Try) where
 possible to pass errors to the caller of a `def`. When the exception does not
-matter to the caller, we use
+matter to the caller, use
 [`Option`](http://www.scala-lang.org/api/current/#scala.Option).
 
-We do, however, throw exceptions in a few cases:
+However, throw exceptions in a few cases:
 
-1. We throw from
+1. Throw from
 [Akka `Actor`](http://doc.akka.io/docs/akka/2.3.5/scala/actors.html)s so that
 the supervisor can decide what to do.
-2. We throw from `def`s that have a `@throws` annotation on them. We often do
+2. Throw from `def`s that have a `@throws` annotation on them. We often do
 this when we override Java methods that have a thrown exception on them.
 
-Generally, we try to minimize throwing exceptions in favor of `Try` and
-`Option`, and `throw` only when we have a good reason.
+Generally, try to minimize throwing exceptions in favor of `Try` and
+`Option`, and `throw` only when there is a good reason.
