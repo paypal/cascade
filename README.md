@@ -1,34 +1,61 @@
-stingray-common
-=================
+# Cascade
 
-Current Version: 0.13.0
+Current Version: 0.13.1-SNAPSHOT
 
-[View the ScalaDocs](https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/0.13.0/index.html#com.paypal.stingray.package)
+[View the ScalaDocs](https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/0.13.1-SNAPSHOT/index.html#com.paypal.stingray.package)
 
-This is a repository of common patterns, convenience objects, implicit classes, utilities, and other foundational pieces
-used in projects developed by the Stingray team.
+Cascade is a collection of libraries that implement common patterns,
+convenience objects, implicit classes, utilities, and other foundational pieces
+used in Scala applications and servers at PayPal. The libraries herein are
+carefully designed to:
 
-stingray-common consists of several sub-projects. The current projects are:
+1. Work well with Scala and the Typesafe libraries.
+2. Work independently from the others.
+3. Be well defined in their functionality.
+4. Minimize the number of external dependencies.
+5. Related to (4) - use the features of the Scala standard library before
+building their own.
 
-* stingray-common
-* stingray-http
-* stingray-akka
-* stingray-json
+# Usage
 
-To use a project, add the dependency in `build.sbt` or `Build.scala` with the following format:
+The libraries live in separate sub-projects in this repository:
 
-    "com.paypal.stingray" %% "project-name" % "root-common-version"
+* [common](common/) - utilities to help build any Scala program.
+* [http](http/) - building blocks for building [Spray](http://spray.io) servers.
+* [akka](akka/) - building blocks for building [Akka](http://akka.io) systems.
+* [json](json/) - utilities to encode/decode JSON.
 
-For example,
+As mentioned in (2) above, these libraries are designed to work independently.
+Although they have internal dependencies on each other (e.g. many libraries
+depend on `common`), you can mix and match which libraries you use.
 
-    "com.paypal.stingray" %% "stingray-akka" % "0.13.0"
+The libraries in Cascade all follow some similar patterns.
+[PATTERNS.md](PATTERNS.md) describes them in detail.
 
+# Dependencies
 
-The following is an overview of what is included in each sub-project:
+To use Cascade libraries in your project, simply add a dependency to your
+build system. In an SBT project, add the following to your `build.sbt` or
+`Build.scala` file:
+
+```scala
+"com.paypal.stingray" %% "$projectName" % "0.13.1-SNAPSHOT"
+```
+
+For example, to use the Akka library:
+
+```scala
+"com.paypal.stingray" %% "stingray-akka" % "0.13.1-SNAPSHOT"
+```
+
+If you're starting a new project, we recommend using SBT along with
+[Nugget](https://github.paypal.com/Paypal-Commons-R/sbt-build-utilities)
+
+# Library Details
 
 ## common
 
-Contains basic patterns, objects, and utilities for any project:
+Basic patterns, objects, and utilities for any project:
 
 - `StingrayApp` is the starting place for building executable applications. It sets up logging and MDC values.
 - `LoggingSugar` provides easy access to SLF4J.
@@ -43,7 +70,7 @@ Useful test objects include:
 
 ## http
 
-Contains base objects and traits for creating Spray HTTP resources:
+Base objects and traits for creating Spray HTTP resources:
 
 - `AbstractResource` is a starting point for HTTP resources.
 - `ResourceActor` provides an implementation of a basic HTTP request handling pipeline.
@@ -114,7 +141,17 @@ Useful test objects include:
 
 ## json
 
-- `json` package object provides a utility for serializing/deserializing JSON. It uses the `JsonUtil` object.
+Simple functionality for fast JSON encoding/decoding that uses [Jackson](https://github.com/FasterXML/jackson)
+under the hood.
+
+- The `JsonUtil` object provides two functions to do encoding and decoding:
+    - `toJson(value: Any): Try[String]`
+    - `fromJson[T: Manifest](json: String): Try[T]``
+- The `json` package object provides implicit classes to wrap `JsonUtil.toJson`
+and `JsonUtil.fromJson`. If you `import com.paypal.stingray.json._` you can
+decode a `String` using `.fromJson[T]` and you can encode an `Any`
+(any type) using `.toJson`.
+
 
 # Development
 
@@ -124,3 +161,5 @@ synched with your host machine. Edit your code on the host machine and build/run
 
 If you don't have Vagrant, you'll need [Scala 2.11.2](http://scala-lang.org/download/) and
 [SBT 0.13.5](http://www.scala-sbt.org/download.html) to build and run this project.
+
+{{auto-gen}}
