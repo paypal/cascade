@@ -1,10 +1,8 @@
 # Cascade
 
-Current Version: 0.13.0
+Current Version: 0.13.1-SNAPSHOT
 
-[View the ScalaDocs](https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/0.13.0/index.html#com.paypal.stingray.package)
-
-[View the Changelog](https://github.paypal.com/Paypal-Commons-R/stingray-common/blob/develop/CHANGELOG.md)
+[View the ScalaDocs](https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/0.13.1-SNAPSHOT/index.html#com.paypal.stingray.package)
 
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
@@ -12,8 +10,11 @@ used in Scala applications and servers at PayPal. The libraries herein are
 carefully designed to:
 
 1. Work well with Scala and the Typesafe libraries.
-2. Be loosely coupled from each other.
+2. Work independently from the others.
 3. Be well defined in their functionality.
+4. Minimize the number of external dependencies.
+5. Related to (4) - use the features of the Scala standard library before
+building their own.
 
 # Usage
 
@@ -24,8 +25,9 @@ The libraries live in separate sub-projects in this repository:
 * [akka](akka/) - building blocks for building [Akka](http://akka.io) systems.
 * [json](json/) - utilities to encode/decode JSON.
 
-Each library is loosely coupled from the others, so you can mix and match what
-you use in your project.
+As mentioned in (2) above, these libraries are designed to work independently.
+Although they have internal dependencies on each other (e.g. many libraries
+depend on `common`), you can mix and match which libraries you use.
 
 The libraries in Cascade all follow some similar patterns.
 [PATTERNS.md](PATTERNS.md) describes them in detail.
@@ -37,16 +39,17 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal.stingray" %% "$projectName" % "0.13.0"
+"com.paypal.stingray" %% "$projectName" % "0.13.1-SNAPSHOT"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal.stingray" %% "stingray-akka" % "0.13.0"
+"com.paypal.stingray" %% "stingray-akka" % "0.13.1-SNAPSHOT"
 ```
 
-If you're starting a new project, we recommend using SBT.
+If you're starting a new project, we recommend using SBT along with
+[Nugget](https://github.paypal.com/Paypal-Commons-R/sbt-build-utilities)
 
 # Library Details
 
@@ -158,3 +161,5 @@ synched with your host machine. Edit your code on the host machine and build/run
 
 If you don't have Vagrant, you'll need [Scala 2.11.2](http://scala-lang.org/download/) and
 [SBT 0.13.5](http://www.scala-sbt.org/download.html) to build and run this project.
+
+{{auto-gen}}

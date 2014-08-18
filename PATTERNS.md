@@ -54,11 +54,13 @@ letter.
 lowercase letter.
 3. `implicit class` names start with `Rich`.
 4. `package object` names are short and lower case.
-5. `package object`s are in their own file named `${package}.scala`.
+5. `package object`s are in their own file named `${package}.scala`. We do this
+so that they're easier to find on the filesystem, in GitHub, etc...
 
 # Errors
-The following error handling conventions were chosen by the Cascade development team.
-Where possible, use [`Try`](`](http://www.scala-lang.org/api/current/#scala.util.Try) where
+The following error handling conventions were chosen by the Cascade development team:
+
+Where possible, use [`Try`](http://www.scala-lang.org/api/current/#scala.util.Try) where
 possible to pass errors to the caller of a `def`. When the exception does not
 matter to the caller, use
 [`Option`](http://www.scala-lang.org/api/current/#scala.Option).
