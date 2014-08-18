@@ -4,6 +4,8 @@ Current Version: 0.13.0
 
 [View the ScalaDocs](https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/0.13.0/index.html#com.paypal.stingray.package)
 
+[View the Changelog](https://github.paypal.com/Paypal-Commons-R/stingray-common/blob/develop/CHANGELOG.md)
+
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
 used in Scala applications and servers at PayPal. The libraries herein are
