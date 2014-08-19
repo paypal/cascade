@@ -2,7 +2,7 @@
 
 Current Version: {{version}}
 
-[View the ScalaDocs](https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/{{version}}/index.html#com.paypal.stingray.package)
+[View the ScalaDocs](https://paypal.github.io/Cascade/api/{{version}}/index.html#com.paypal.cascade.package)
 
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
@@ -39,17 +39,17 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal.stingray" %% "$projectName" % "{{version}}"
+"com.paypal.cascade" %% "cascade-$projectName" % "{{version}}"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal.stingray" %% "stingray-akka" % "{{version}}"
+"com.paypal.cascade" %% "cascade-akka" % "{{version}}"
 ```
 
 If you're starting a new project, we recommend using SBT along with
-[Nugget](https://github.paypal.com/Paypal-Commons-R/sbt-build-utilities)
+[Nugget](https://github.com/paypal/nugget)
 
 # Library Details
 
@@ -57,7 +57,7 @@ If you're starting a new project, we recommend using SBT along with
 
 Basic patterns, objects, and utilities for any project:
 
-- `StingrayApp` is the starting place for building executable applications. It sets up logging and MDC values.
+- `CascadeApp` is the starting place for building executable applications. It sets up logging and MDC values.
 - `LoggingSugar` provides easy access to SLF4J.
 - `trys` package object contains implicit classes/methods to convert Try objects to Either and Future objects.
 - `option` package object contains implicit classes/methods to wrap any object in an Option.
@@ -148,7 +148,7 @@ under the hood.
     - `toJson(value: Any): Try[String]`
     - `fromJson[T: Manifest](json: String): Try[T]``
 - The `json` package object provides implicit classes to wrap `JsonUtil.toJson`
-and `JsonUtil.fromJson`. If you `import com.paypal.stingray.json._` you can
+and `JsonUtil.fromJson`. If you `import com.paypal.cascade.json._` you can
 decode a `String` using `.fromJson[T]` and you can encode an `Any`
 (any type) using `.toJson`.
 

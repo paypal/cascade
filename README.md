@@ -2,7 +2,7 @@
 
 Current Version: 0.13.1-SNAPSHOT
 
-[View the ScalaDocs](https://paypal.github.io/Cascade/api/0.13.1-SNAPSHOT/index.html)
+[View the ScalaDocs](https://paypal.github.io/Cascade/api/0.13.1-SNAPSHOT/index.html#com.paypal.cascade.package)
 
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
@@ -39,13 +39,13 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal" %% "cascade-$projectName" % "0.13.1-SNAPSHOT"
+"com.paypal.cascade" %% "cascade-$projectName" % "0.13.1-SNAPSHOT"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal" %% "cascade-akka" % "0.13.1-SNAPSHOT"
+"com.paypal.cascade" %% "cascade-akka" % "0.13.1-SNAPSHOT"
 ```
 
 If you're starting a new project, we recommend using SBT along with
