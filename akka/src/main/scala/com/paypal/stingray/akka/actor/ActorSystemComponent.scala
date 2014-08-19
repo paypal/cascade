@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.akka.actor
+package com.paypal.cascade.akka.actor
 
 import akka.actor.{ActorRefFactory, ActorSystem}
-import com.paypal.stingray.common.logging._
-import com.paypal.stingray.common.service.ServiceNameComponent
+import com.paypal.cascade.common.logging._
+import com.paypal.cascade.common.service.ServiceNameComponent
 import scala.concurrent.ExecutionContext
 
 /**

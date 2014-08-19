@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common
+package com.paypal.cascade.common
 
 import scala.concurrent.Future
 
@@ -35,7 +35,7 @@ package object option {
    * `toOption` or similar methods; provided methods should be preferred over these implicits, in these cases.
    *
    * {{{
-   *   import com.paypal.stingray.common.option._
+   *   import com.paypal.cascade.common.option._
    *   val a = 5.some // Option[Int], equal to Some(5)
    * }}}
    *
@@ -123,7 +123,7 @@ package object option {
    * Convenience methods for working with pairs of Options.
    *
    * {{{
-   *   import com.paypal.stingray.common.option._
+   *   import com.paypal.cascade.common.option._
    *   val a = (Some("hi"), None)
    *   a.fold( ... )
    * }}}
@@ -154,7 +154,7 @@ package object option {
    * @param optionBoolean this Option
    *
    * {{{
-   *   import com.paypal.stingray.common.option._
+   *   import com.paypal.cascade.common.option._
    *   val a = Some(true)
    *   a.orFalse  // => true, from the value in a
    *   a.orTrue   // => true still, from the value in a

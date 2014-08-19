@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.akka.actor
+package com.paypal.cascade.akka.actor
 
 import akka.actor.{UnhandledMessage, ActorLogging, Actor, Status}
-import com.paypal.stingray.akka.mailbox.ExpiredLetter
+import com.paypal.cascade.akka.mailbox.ExpiredLetter
 
 /**
  * CommonActor is intended for top-level actors that have robust error-handling, and that are responsible for
@@ -49,7 +49,7 @@ trait ServiceActor extends CommonActor {
    * 2) Replies with a [[akka.actor.Status.Failure]] message to the sender.
    * 3) Throws an [[UnhandledMessageException]] for delegation to the supervisor.
    *
-   * [[com.paypal.stingray.akka.mailbox.ExpiredLetter]] messages from an [[com.paypal.stingray.akka.mailbox.ExpiringBoundedMailbox]]
+   * [[com.paypal.cascade.akka.mailbox.ExpiredLetter]] messages from an [[com.paypal.cascade.akka.mailbox.ExpiringBoundedMailbox]]
    * are published to the system eventstream, similar to the dead letter stream, and are otherwise ignored.
    *
    * @param message The unhandled message

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common
+package com.paypal.cascade.common
 
 import org.slf4j.LoggerFactory
 import ch.qos.logback.classic.LoggerContext
-import com.paypal.stingray.common.util.casts._
+import com.paypal.cascade.common.util.casts._
 
 /**
  * Convenience methods and implicits for working with logging.

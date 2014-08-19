@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common
+package com.paypal.cascade.common
 
 import scala.util.{Failure, Success, Try, Either}
 import scala.concurrent.Future

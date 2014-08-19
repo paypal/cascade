@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common.app
+package com.paypal.cascade.common.app
 
 import org.slf4j.bridge.SLF4JBridgeHandler
 import org.slf4j.LoggerFactory
-import com.paypal.stingray.common.logging._
+import com.paypal.cascade.common.logging._
 
 /**
  * Starting point for runnable applications and services. Sets up logging and MDC values.
  * Otherwise functions like [[scala.App]].
  */
-trait StingrayApp extends App {
+trait CascadeApp extends App {
 
   // Install the Java Util Logging to SFL4J bridge and delegate all management to SLF4J.
   SLF4JBridgeHandler.removeHandlersForRootLogger()

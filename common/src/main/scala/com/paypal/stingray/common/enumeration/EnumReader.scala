@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common.enumeration
+package com.paypal.cascade.common.enumeration
 
 /**
- * Base trait for reading Strings into our [[com.paypal.stingray.common.enumeration.Enumeration]].
+ * Base trait for reading Strings into our [[com.paypal.cascade.common.enumeration.Enumeration]].
  */
 trait EnumReader[T] {
 
   /**
-   * Attempt to read a String into an [[com.paypal.stingray.common.enumeration.Enumeration]] subtype
+   * Attempt to read a String into an [[com.paypal.cascade.common.enumeration.Enumeration]] subtype
    * @param s the String to read
    * @return optionally, an Enumeration type, or None if no match is made
    */
   def read(s: String): Option[T]
 
   /**
-   * Reads a String into an [[com.paypal.stingray.common.enumeration.Enumeration]] subtype
+   * Reads a String into an [[com.paypal.cascade.common.enumeration.Enumeration]] subtype
    * @param s the String to read
    * @return an Enumeration subtype
    * @throws EnumerationException if no match is made

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common.util
+package com.paypal.cascade.common.util
 
 /**
  * Convenience object for working with Int values.
  *
  * {{{
- *   import com.paypal.stingray.common.util.IntExtractor
+ *   import com.paypal.cascade.common.util.IntExtractor
  *
  *   "1234" match { case IntExtractor(a) => a; case _ => 0; } // res0: Int = 1234
  *
@@ -50,7 +50,7 @@ object IntExtractor {
  * Convenience object for working with Long values
  *
  * {{{
- *   import com.paypal.stingray.common.util.LongExtractor
+ *   import com.paypal.cascade.common.util.LongExtractor
  *
  *   "1234" match { case LongExtractor(a) => a; case _ => 0L; } // res0: Long = 1234
  *

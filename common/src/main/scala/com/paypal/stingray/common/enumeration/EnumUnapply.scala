@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common.enumeration
+package com.paypal.cascade.common.enumeration
 
 /**
- * Allows pattern matching on String values that correspond to [[com.paypal.stingray.common.enumeration.Enumeration]]
+ * Allows pattern matching on String values that correspond to [[com.paypal.cascade.common.enumeration.Enumeration]]
  * subtypes. Note that the type returned by the extractor is the general sealed trait `T`, not an Enumeration instance.
  *
  * {{{
@@ -33,7 +33,7 @@ trait EnumUnapply[T <: Enumeration] {
   /**
    * Allows pattern matching on String values that correspond to Enumeration subtypes
    * @param s the String to try to convert
-   * @param reader implicitly, the [[com.paypal.stingray.common.enumeration.EnumReader]] to use for conversion
+   * @param reader implicitly, the [[com.paypal.cascade.common.enumeration.EnumReader]] to use for conversion
    * @return optionally, an Enumeration subtype corresponding to the input String
    */
   def unapply(s: String)(implicit reader: EnumReader[T]): Option[T] = reader.read(s)

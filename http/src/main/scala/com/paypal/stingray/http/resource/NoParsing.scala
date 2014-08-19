@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.http.resource
+package com.paypal.cascade.http.resource
 
 import spray.http.HttpRequest
 import scala.concurrent.Future
 
 /**
- * Mix this into an [[com.paypal.stingray.http.resource.AbstractResourceActor]] implementation
+ * Mix this into an [[com.paypal.cascade.http.resource.AbstractResourceActor]] implementation
  * and use [[spray.http.HttpRequest]] as the `ParsedRequest` type to perform no additional parsing
  * of incoming requests. Useful for status endpoints, etc.
  */

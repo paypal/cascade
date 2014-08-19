@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.akka
+package com.paypal.cascade.akka
 
 import com.typesafe.config._
 import scala.collection.JavaConverters._
-import com.paypal.stingray.common.util.casts._
-import com.paypal.stingray.common.logging._
+import com.paypal.cascade.common.util.casts._
+import com.paypal.cascade.common.logging._
 import scala.concurrent.duration._
 
 /**

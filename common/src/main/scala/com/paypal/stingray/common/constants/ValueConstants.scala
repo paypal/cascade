@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common.constants
+package com.paypal.cascade.common.constants
 
 import java.nio.charset.Charset
 

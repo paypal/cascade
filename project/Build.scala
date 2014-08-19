@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.paypal.stingray.sbt.BuildUtilities
+import com.paypal.nugget.sbt.BuildUtilities
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
@@ -30,7 +30,7 @@ object BuildSettings {
 
   import Dependencies._
 
-  val org = "com.paypal.stingray"
+  val org = "com.paypal.cascade"
   val scalaVsn = "2.11.2"
   val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
 
@@ -71,7 +71,7 @@ object BuildSettings {
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
-    apiURL := Some(url("https://github.paypal.com/pages/Paypal-Commons-R/stingray-common/api/")),
+    apiURL := Some(url("https://paypal.github.com/cascade/stingray/api/")),
     autoAPIMappings := true,
     apiMappings ++= {
       import BuildUtilities._
@@ -206,43 +206,43 @@ object CommonBuild extends Build {
     aggregate = Seq(common, json, akka, http, examples)
   )
 
-  lazy val common = Project("stingray-common", file("common"),
+  lazy val common = Project("cascade-common", file("common"),
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
-      name := "stingray-common",
+      name := "cascade-common",
       libraryDependencies ++= commonDependencies ++ commonTestDependencies,
       publishArtifact in Test := true,
       jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
     )
   )
 
-  lazy val json = Project("stingray-json", file("json"),
+  lazy val json = Project("cascade-json", file("json"),
     dependencies = Seq(common % "compile->compile;test->test"),
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
-      name := "stingray-json",
+      name := "cascade-json",
       libraryDependencies ++= jsonDependencies,
       publishArtifact in Test := true,
       jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
     )
   )
 
-  lazy val akka = Project("stingray-akka", file("akka"),
+  lazy val akka = Project("cascade-akka", file("akka"),
     dependencies = Seq(common % "compile->compile;test->test"),
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
-      name := "stingray-akka",
+      name := "cascade-akka",
       libraryDependencies ++= akkaDependencies ++ akkaTestDependencies,
       publishArtifact in Test := true,
       jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
   )
   )
 
-  lazy val http = Project("stingray-http", file("http"),
+  lazy val http = Project("cascade-http", file("http"),
     dependencies = Seq(
       common % "compile->compile;test->test",
       json   % "compile->compile;test->test",
       akka   % "compile->compile;test->test"
     ),
     settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
-      name := "stingray-http",
+      name := "cascade-http",
       libraryDependencies ++= httpDependencies ++ httpTestDependencies,
       publishArtifact in Test := true,
       jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
@@ -250,13 +250,13 @@ object CommonBuild extends Build {
     )
   )
 
-  lazy val examples = Project("stingray-examples", file("examples"),
+  lazy val examples = Project("cascade-examples", file("examples"),
     dependencies = Seq(
       common % "compile->compile;test->test",
       json   % "compile->compile;test->test"
     ),
     settings = standardSettings ++ Seq(
-      name := "stingray-examples",
+      name := "cascade-examples",
       publish := {}
     )
   )

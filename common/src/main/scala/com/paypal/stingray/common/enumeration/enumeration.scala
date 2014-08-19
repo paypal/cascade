@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common
+package com.paypal.cascade.common
 
 /**
  * Contains a fully type-safe enumeration framework. Takes more setup & code than the built-in [[scala.Enumeration]],
@@ -58,7 +58,7 @@ package object enumeration {
   class EnumerationException(unknownValue: String) extends Exception("Unknown enumeration value " + unknownValue)
 
   /**
-   * Creates an [[com.paypal.stingray.common.enumeration.EnumReader]]
+   * Creates an [[com.paypal.cascade.common.enumeration.EnumReader]]
    * @param reader the method to convert a String to an Enumeration
    * @tparam T the Enumeration type
    * @return an EnumReader that knows how to read a String to an Enumeration
@@ -68,7 +68,7 @@ package object enumeration {
   }
 
   /**
-   * Creates an [[com.paypal.stingray.common.enumeration.EnumReader]] that converts a String to an Enumeration
+   * Creates an [[com.paypal.cascade.common.enumeration.EnumReader]] that converts a String to an Enumeration
    * if the lowercase version of that String matches the lowercase of the Enumeration's stringVal
    * @param values the Enumeration values that are candidates to convert
    * @tparam T the Enumeration type
@@ -81,7 +81,7 @@ package object enumeration {
   }
 
   /**
-   * Creates an [[com.paypal.stingray.common.enumeration.EnumReader]] that converts a String to an Enumeration
+   * Creates an [[com.paypal.cascade.common.enumeration.EnumReader]] that converts a String to an Enumeration
    * if the uppercase version of that String matches the uppercase of the Enumeration's stringVal
    * @param values the Enumeration values that are candidates to convert
    * @tparam T the Enumeration type
@@ -95,14 +95,14 @@ package object enumeration {
 
   /**
    * Implicit wrapper for Strings to perform Enumeration reading,
-   * using an implicit [[com.paypal.stingray.common.enumeration.EnumReader]]
+   * using an implicit [[com.paypal.cascade.common.enumeration.EnumReader]]
    * @param value the wrapped String
    */
   implicit class RichStringEnumReader(value: String) {
 
     /**
      * Reads the wrapped String and, if it corresponds to an Enumeration value, returns that value; otherwise, None
-     * @param reader implicitly, the [[com.paypal.stingray.common.enumeration.EnumReader]] to use for reading
+     * @param reader implicitly, the [[com.paypal.cascade.common.enumeration.EnumReader]] to use for reading
      * @tparam T the Enumeration type
      * @return optionally, an instance of the Enumeration type
      */
@@ -110,7 +110,7 @@ package object enumeration {
 
     /**
      * Reads the wrapped String and fits it to an Enumeration value, or throws
-     * @param reader implicitly, the [[com.paypal.stingray.common.enumeration.EnumReader]] to use for reading
+     * @param reader implicitly, the [[com.paypal.cascade.common.enumeration.EnumReader]] to use for reading
      * @tparam T the Enumeration type
      * @return an instance of the Enumeration type
      * @throws EnumerationException if no mapping to an Enumeration type can be found

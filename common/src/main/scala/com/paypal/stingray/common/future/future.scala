@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common
+package com.paypal.cascade.common
 
 import scala.concurrent._
 import org.slf4j.Logger
@@ -42,7 +42,7 @@ package object future {
    * Implicits to provide slightly cleaner patterns for handling Futures
    *
    * {{{
-   *   import com.paypal.stingray.common.future._
+   *   import com.paypal.cascade.common.future._
    *   val f = Future { ... }
    *   f.mapFailure { case e: SomeThrowable => ... }
    * }}}

@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.http.resource
+package com.paypal.cascade.http.resource
 
 import spray.http._
 import akka.actor.{Status, Actor}
-import com.paypal.stingray.common.option._
-import com.paypal.stingray.http.util.HttpUtil
-import com.paypal.stingray.json._
+import com.paypal.cascade.common.option._
+import com.paypal.cascade.http.util.HttpUtil
+import com.paypal.cascade.json._
 import akka.event.LoggingReceive
 import scala.util.{Success, Failure}
 import spray.http.HttpResponse
-import com.paypal.stingray.http.resource.HttpResourceActor.RequestIsProcessed
+import com.paypal.cascade.http.resource.HttpResourceActor.RequestIsProcessed
 
 /**
  * Base class for HTTP resources built with Spray.
- *
- * See https://confluence.paypal.com/cnfl/display/stingray/AbstractResource%2C+ResourceDriver%2C+and+ResourceService
- * for more information.
- *
  * @param resourceContext Context containing information needed to service the request, such as the parent actor
  */
 abstract class AbstractResourceActor(private val resourceContext: HttpResourceActor.ResourceContext) extends HttpResourceActor(resourceContext) {

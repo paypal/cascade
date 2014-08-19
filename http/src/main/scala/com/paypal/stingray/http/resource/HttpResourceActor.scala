@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.http.resource
+package com.paypal.cascade.http.resource
 
 import akka.actor._
 import scala.compat.Platform._
@@ -25,17 +25,17 @@ import spray.http.HttpHeaders.{RawHeader, `WWW-Authenticate`, Location}
 import spray.http.HttpEntity.{Empty, NonEmpty}
 import spray.http.{HttpRequest, HttpResponse}
 import spray.routing.RequestContext
-import com.paypal.stingray.akka.actor._
-import com.paypal.stingray.common.constants.ValueConstants._
-import com.paypal.stingray.http.util.HttpUtil
+import com.paypal.cascade.akka.actor._
+import com.paypal.cascade.common.constants.ValueConstants._
+import com.paypal.cascade.http.util.HttpUtil
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
 import akka.actor.SupervisorStrategy.Escalate
-import com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext
+import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
 import com.fasterxml.jackson.core.JsonParseException
 
 /**
- * the actor to manage the execution of an [[com.paypal.stingray.http.resource.AbstractResourceActor]]. Create one of these per request
+ * the actor to manage the execution of an [[com.paypal.cascade.http.resource.AbstractResourceActor]]. Create one of these per request
  */
 abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
 
@@ -329,8 +329,8 @@ object HttpResourceActor {
   type RequestParser = HttpRequest => Try[AnyRef]
 
   /**
-   * the only message to send each [[com.paypal.stingray.http.resource.HttpResourceActor]]. it begins processing the
-   * [[com.paypal.stingray.http.resource.AbstractResourceActor]] that it contains
+   * the only message to send each [[com.paypal.cascade.http.resource.HttpResourceActor]]. it begins processing the
+   * [[com.paypal.cascade.http.resource.AbstractResourceActor]] that it contains
    */
   object Start
 
@@ -345,12 +345,12 @@ object HttpResourceActor {
   val defaultProcessRecvTimeout = 4.seconds
 
   /**
-   * create the [[akka.actor.Props]] for a new [[com.paypal.stingray.http.resource.HttpResourceActor]]
+   * create the [[akka.actor.Props]] for a new [[com.paypal.cascade.http.resource.HttpResourceActor]]
    * @param resourceActorProps function for creating props for an actor which will handle the request
-   * @param reqContext the [[com.paypal.stingray.http.resource.HttpResourceActor.ResourceContext]] to pass to the
-   *                   [[com.paypal.stingray.http.resource.HttpResourceActor]]
-   * @param reqParser the parser function to pass to the [[com.paypal.stingray.http.resource.HttpResourceActor]]
-   * @param mbResponseActor the optional actor to pass to the [[com.paypal.stingray.http.resource.HttpResourceActor]]
+   * @param reqContext the [[com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext]] to pass to the
+   *                   [[com.paypal.cascade.http.resource.HttpResourceActor]]
+   * @param reqParser the parser function to pass to the [[com.paypal.cascade.http.resource.HttpResourceActor]]
+   * @param mbResponseActor the optional actor to pass to the [[com.paypal.cascade.http.resource.HttpResourceActor]]
    * @return the new [[akka.actor.Props]]
    */
   def props(resourceActorProps: ResourceContext => AbstractResourceActor,

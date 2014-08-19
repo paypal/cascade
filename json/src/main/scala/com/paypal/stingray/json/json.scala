@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray
+package com.paypal.cascade
 
 import scala.util.Try
 
@@ -28,7 +28,7 @@ package object json {
    * Implicit conversions from a JSON String to a variety of object types
    *
    * {{{
-   *   import com.paypal.stingray.common.json._
+   *   import com.paypal.cascade.common.json._
    *   """{"key":"value"}""".toMap
    * }}}
    *
@@ -48,7 +48,7 @@ package object json {
    * Implicit conversions from a given object of type `T` to a JSON String
    *
    * {{{
-   *   import com.paypal.stingray.common.json._
+   *   import com.paypal.cascade.common.json._
    *   case class AnObject(v1: String, v2: Long, v3: List[String])
    *   val a = AnObject("value", 5L, List("hi", "there")
    *   a.toJson

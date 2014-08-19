@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common
+package com.paypal.cascade.common
 
 import scala.util.{Success, Failure, Try}
 
@@ -32,7 +32,7 @@ package object either {
    * Implicit wrapper to convert regular objects to [[scala.util.Either]]
    *
    * {{{
-   *   import com.paypal.stingray.common.either._
+   *   import com.paypal.cascade.common.either._
    *   "hello".toRight[Throwable]               // Either[Throwable, String]
    *   "hello".toLeft[Int]                      // Either[String, Int]
    *   (new Throwable("error")).toLeft[String]  // Either[Throwable, String]

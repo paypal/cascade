@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.http.actor
+package com.paypal.cascade.http.actor
 
 import akka.actor.{ActorRef, Props, Actor}
 import spray.routing.{RoutingSettings, RejectionHandler, ExceptionHandler}
-import com.paypal.stingray.http.resource.ResourceServiceComponent
-import com.paypal.stingray.common.service.ServiceNameComponent
+import com.paypal.cascade.http.resource.ResourceServiceComponent
+import com.paypal.cascade.common.service.ServiceNameComponent
 import spray.util.LoggingContext
 import spray.can.Http
 import akka.io.{IO => AkkaIO}
-import com.paypal.stingray.http.server.SprayConfigurationComponent
-import com.paypal.stingray.akka.actor.ActorSystemComponent
+import com.paypal.cascade.http.server.SprayConfigurationComponent
+import com.paypal.cascade.akka.actor.ActorSystemComponent
 import spray.io.ServerSSLEngineProvider
 
 /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.akka.config
+package com.paypal.cascade.akka.config
 
 import com.typesafe.config.ConfigFactory
 

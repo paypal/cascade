@@ -13,25 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.http.resource
+package com.paypal.cascade.http.resource
 
 import spray.http._
 import spray.http.StatusCodes.{Success => _, _}
-import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
+import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
 import scala.util._
 import spray.routing.RequestContext
-import com.paypal.stingray.http.util.HttpUtil
+import com.paypal.cascade.http.util.HttpUtil
 import akka.actor.{ActorRef, ActorRefFactory}
 import scala.concurrent.duration.FiniteDuration
-import com.paypal.stingray.http.resource.HttpResourceActor.{RequestParser, ResourceContext}
+import com.paypal.cascade.http.resource.HttpResourceActor.{RequestParser, ResourceContext}
 
 /**
- * Implementation of a basic HTTP request handling pipeline.
- *
- * Used to push along HTTP requests
- *
- * See https://confluence.paypal.com/cnfl/display/stingray/AbstractResource%2C+ResourceDriver%2C+and+ResourceService
- * for more information.
+ * Implementation of a basic HTTP request handling pipeline. Used to push along HTTP requests.
  */
 
 object ResourceDriver {

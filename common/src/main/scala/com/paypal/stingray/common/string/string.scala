@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.common
+package com.paypal.cascade.common
 
-import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
+import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
 
 /**
  * Convenience methods and implicit wrappers for working with Strings
