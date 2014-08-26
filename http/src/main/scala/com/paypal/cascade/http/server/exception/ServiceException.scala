@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.http.server.exception
+package com.paypal.cascade.http.server.exception
 
-import com.paypal.stingray.common.option._
+import com.paypal.cascade.common.option._
 
 /**
  * Base type for Exceptions thrown by services. Implementations can be used to wrap other exceptions,

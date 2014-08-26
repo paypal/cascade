@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.cascade.http.server
+package com.paypal.cascade.common.tests.util
+
+import org.specs2.matcher.ConcurrentExecutionContext
+import scala.concurrent.ExecutionContext
 
 /**
- * This component provides configuration information for a spray service
+ * This trait can be used to deactive the implicit concurrent execution context.
+ * Added in Specs 2.4 via https://github.com/etorreborre/specs2/commit/a165db45ba213f1794b3738ab996aad383a1ba0e.
  */
-trait SprayConfigurationComponent {
-
-  //configuration variables provided below
-
-  /**
-   * The port the spray service should listen on
-   */
-  val port: Int
-
-  /**
-   * Number of backlogged connections spray should allow before resetting connections
-   */
-  val backlog: Int
-
+trait NoConcurrentExecutionContext extends ConcurrentExecutionContext {
+  override val concurrentExecutionContext: ExecutionContext = concurrent.ExecutionContext.Implicits.global
 }

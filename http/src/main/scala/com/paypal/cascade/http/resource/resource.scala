@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.http
+package com.paypal.cascade.http
 
 import spray.http._
 import spray.http.HttpEntity._
 import spray.http.StatusCodes._
-import com.paypal.stingray.common.option._
-import com.paypal.stingray.common.trys._
+import com.paypal.cascade.common.option._
+import com.paypal.cascade.common.trys._
 import scala.concurrent._
 import scala.concurrent.Future
 import scala.util.{Success, Failure, Try}
 
 /**
  * Utility methods for turning everyday datatypes into Trys and Futures that can possibly return a
- * [[com.paypal.stingray.http.resource.HaltException]]. Methods of the form `orHalt` create a Future.
+ * [[com.paypal.cascade.http.resource.HaltException]]. Methods of the form `orHalt` create a Future.
  * Methods of the form `orHaltT` return a Try.
  */
 
@@ -54,7 +54,7 @@ package object resource {
    * Implicit wrapper to allow optional values to halt or throw
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   Option("hi").orError()  // Future("hi")
    * }}}
    *
@@ -103,7 +103,7 @@ package object resource {
    * Implicit wrapper to allow optional values to halt or throw
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   Option("hi").orError()  // Future("hi")
    * }}}
    *
@@ -152,7 +152,7 @@ package object resource {
    * Implicit wrapper to allow right-biased, left Throwable [[scala.util.Either]] values to halt or throw
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   Right("hi").orErrorWithMessage                 // Future("hi")
    *   Left(new Throwable("fail")).orErrorWithMessage // Future(HaltException(500, "fail", List()))
    * }}}
@@ -216,7 +216,7 @@ package object resource {
    * Handled internally as a right-biased [[scala.util.Either]] with a Throwable left.
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   Try { "hi" }.orErrorWithMessage()                      // Future("hi")
    *   Try { throw new Throwable("no") }.orErrorWithMessage() // Future(HaltException(HttpResponse(500, "no", List())))
    * }}}
@@ -230,7 +230,7 @@ package object resource {
    * Implicit wrapper to allow right-biased [[scala.util.Either]] values, of any left type, to halt or throw
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   Right("hi").orError                                                             // Future("hi")
    *   Left(CustomError("no")).orError { c => HttpResponse(500, c.getMessage, List()) } // Future(HaltException(...))
    * }}}
@@ -291,7 +291,7 @@ package object resource {
    * Implicit wrapper to allow Booleans to halt or throw
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   true.orError  // Try({})
    *   false.orError // Try(HaltException(HttpResponse(500, Empty, List())))
    * }}}
@@ -339,7 +339,7 @@ package object resource {
    * Implicit wrapper to allow Booleans to halt or throw
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   true.orError  // Future({})
    *   false.orError // Future(HaltException(HttpResponse(500, Empty, List())))
    * }}}
@@ -387,7 +387,7 @@ package object resource {
    * Implicit wrapper to allow Futures to halt
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   Future { "hi" }.orHalt { case e: Throwable => HttpResponse(...) }
    *     // => Future("hi")
    *   Future { throw new Throwable("fail") }.orHalt { case e: Throwable => HttpResponse(...) }
@@ -416,7 +416,7 @@ package object resource {
    * Implicit wrapper to allow anything to continue
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   "hi".continue  // Future("hi")
    * }}}
    *
@@ -436,7 +436,7 @@ package object resource {
    * Implicit wrapper to allow any Throwable to halt
    *
    * {{{
-   *   import com.paypal.stingray.http.resource._
+   *   import com.paypal.cascade.http.resource._
    *   (new Throwable("no")).haltWith(InternalServiceError)()  // Future(HaltException(HttpResponse(500, "no", List())))
    * }}}
    *

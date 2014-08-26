@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.examples.common.enumeration
+package com.paypal.cascade.examples.common.enumeration
 
-import com.paypal.stingray.common.enumeration._
-import com.paypal.stingray.json._
+import com.paypal.cascade.common.enumeration._
+import com.paypal.cascade.json._
 import com.fasterxml.jackson.core._
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.annotation._
-import com.paypal.stingray.common.logging.LoggingSugar
+import com.paypal.cascade.common.logging.LoggingSugar
 import java.io.IOException
 
 /**
@@ -52,7 +52,7 @@ object MyEnum {
     override val stringVal = "casetwo"
   }
 
-  /** Several convenience methods for EnumReaders are available in {{{ com.paypal.stingray.common.enumeration._ }}}.
+  /** Several convenience methods for EnumReaders are available in {{{ com.paypal.cascade.common.enumeration._ }}}.
     * Generally, this will be implemented as a pattern match across all the case objects of an Enumeration.
     * If a case object is missing from the pattern match, a non-exhaustive match warning will be raised at compile.
     */
@@ -93,7 +93,7 @@ private[this] class MyEnumDeserializer extends JsonDeserializer[MyEnum] {
 
 /**
  * A simple example runner, demonstrating how to serialize and deserialize objects with Enumerations.
- * The `toJson` and `fromJson` calls are from implicits in {{{ com.paypal.stingray.json._ }}}.
+ * The `toJson` and `fromJson` calls are from implicits in {{{ com.paypal.cascade.json._ }}}.
  */
 object MyEnumRunner extends LoggingSugar {
 

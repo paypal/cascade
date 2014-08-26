@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.cascade.http.server
+package com.paypal.cascade.akka.tests.actor
+
+import org.specs2.specification.{SpecificationStructure, Step, Fragments}
+import akka.testkit.{TestKitBase, TestKit}
 
 /**
- * This component provides configuration information for a spray service
+ * Test harness trait for Specs involving Akka Actors
  */
-trait SprayConfigurationComponent {
+trait ActorSpecification extends SpecificationStructure {
+  this: TestKitBase =>
 
-  //configuration variables provided below
-
-  /**
-   * The port the spray service should listen on
-   */
-  val port: Int
-
-  /**
-   * Number of backlogged connections spray should allow before resetting connections
-   */
-  val backlog: Int
+  override def map(fs: => Fragments): Fragments = super.map(fs).add(Step(TestKit.shutdownActorSystem(system)))
 
 }

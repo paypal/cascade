@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.http.util
+package com.paypal.cascade.http.util
 
 import java.net.URLDecoder
 import spray.http._
@@ -23,8 +23,8 @@ import spray.http.HttpChallenge
 import spray.http.HttpEntity._
 import spray.http.HttpResponse
 import StatusCodes._
-import com.paypal.stingray.json._
-import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
+import com.paypal.cascade.json._
+import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
 
 /**
  * Convenience methods for interacting with URLs and other request components.
@@ -34,7 +34,7 @@ import com.paypal.stingray.common.constants.ValueConstants.charsetUtf8
  * [spray.http.Uri.Query$.toMap] instead of using `parseQueryStringToMap` found here
  */
 object HttpUtil {
-  import com.paypal.stingray.http.url.StrPair
+  import com.paypal.cascade.http.url.StrPair
 
   /** Convenience value for `utf-8` */
   val UTF_8 = "utf-8"

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.stingray.http
+package com.paypal.cascade.http
 
 import java.net.URL
-import com.paypal.stingray.http.util.HttpUtil
+import com.paypal.cascade.http.util.HttpUtil
 
 /**
  * Convenience type and implicits for working with [[java.net.URL]] objects
@@ -30,7 +30,7 @@ package object url {
    * Convenience implicit wrapper for URLs
    *
    * {{{
-   *   import com.paypal.stingray.http.url._
+   *   import com.paypal.cascade.http.url._
    *   val u = new URL("http://www.paypal.com/endpoint?key=value")
    *   u.queryList  // List(("key", "value"))
    * }}}

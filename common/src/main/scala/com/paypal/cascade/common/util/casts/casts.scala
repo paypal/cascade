@@ -21,7 +21,7 @@ import scala.reflect._
  * Utility classes for class casting.
  *
  * {{{
- *    import com.paypal.stingray.util.casts._
+ *    import com.paypal.cascade.util.casts._
  *
  *   // `.cast[T]` casts an object to type T, returning an Option[T] which is some iff the object may be cast, none otherwise
  *   def castToString(obj: Obj): String =
