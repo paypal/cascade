@@ -106,8 +106,30 @@ object BuildSettings {
       "org.scala-lang.modules" %% "scala-xml"                 % "1.0.1",
       "org.scala-lang.modules" %% "scala-parser-combinators"  % "1.0.2"
     )}
+  ),
+  publishMavenStyle := true,
+  publishArtifact in Test := false,
+  pomExtra := (
+      <url>https://github.com/paypal/cascade</url>
+      <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>git@github.com:paypal/cascade.git</url>
+        <connection>scm:git:git@github.com:paypal/cascade.git</connection>
+    </scm>
+    <developers>
+        <developer>
+            <id>arschles</id>
+            <name>Aaron Schlesinger</name>
+            <url>https://github.com/arschles</url>
+        </developer>
+    </developers>
   )
-
 }
 
 object Dependencies {
