@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.paypal.nugget.sbt.BuildUtilities
+import com.paypal.horizon.BuildUtilities
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
