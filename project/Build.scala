@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.paypal.nugget.sbt.BuildUtilities
+import com.paypal.horizon.BuildUtilities
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
@@ -32,7 +32,6 @@ object BuildSettings {
 
   val org = "com.paypal.cascade"
   val scalaVsn = "2.11.2"
-  val stingrayNexusHost = "stingray-nexus.stratus.dev.ebay.com"
 
   val defaultArgs = Seq(
     "-Xmx4096m",
@@ -71,7 +70,7 @@ object BuildSettings {
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
-    apiURL := Some(url("https://paypal.github.com/cascade/stingray/api/")),
+    apiURL := Some(url("https://paypal.github.com/cascade/api/")),
     autoAPIMappings := true,
     apiMappings ++= {
       import BuildUtilities._
@@ -89,25 +88,48 @@ object BuildSettings {
       )
       links.collect { case Some(d) => d }.toMap
     },
-    publishTo <<= version { version: String =>
-      val stingrayNexus = s"http://$stingrayNexusHost/nexus/content/repositories/"
-      if (version.trim.endsWith("SNAPSHOT")) {
-        Some("snapshots" at stingrayNexus + "snapshots/")
+    publishTo := {
+      val nexus = s"http://oss.sonatype.org/"
+      if (isSnapshot.value) {
+        Some("snapshots" at nexus + "content/repositories/snapshots")
       } else {
-        Some("releases" at stingrayNexus + "releases/")
+        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
       }
     },
-    resolvers += "Stingray Nexus" at s"http://$stingrayNexusHost/nexus/content/groups/public/",
     conflictManager := ConflictManager.strict,
-    dependencyOverrides <++= scalaVersion { vsn => Set(
-      "org.scala-lang"         %  "scala-library"             % vsn,
-      "org.scala-lang"         %  "scala-compiler"            % vsn,
-      "org.scala-lang"         %  "scala-reflect"             % vsn,
-      "org.scala-lang.modules" %% "scala-xml"                 % "1.0.1",
-      "org.scala-lang.modules" %% "scala-parser-combinators"  % "1.0.2"
-    )}
+    dependencyOverrides <++= scalaVersion { vsn =>
+      Set(
+        "org.scala-lang"         %  "scala-library"             % vsn,
+        "org.scala-lang"         %  "scala-compiler"            % vsn,
+        "org.scala-lang"         %  "scala-reflect"             % vsn,
+        "org.scala-lang.modules" %% "scala-xml"                 % "1.0.1",
+        "org.scala-lang.modules" %% "scala-parser-combinators"  % "1.0.2"
+      )
+    },
+    publishMavenStyle := true,
+    publishArtifact in Test := false,
+    pomExtra := (
+      <url>https://github.com/paypal/cascade</url>
+      <licenses>
+        <license>
+          <name>Apache 2</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+          <distribution>repo</distribution>
+        </license>
+      </licenses>
+      <scm>
+        <url>git@github.com:paypal/cascade.git</url>
+        <connection>scm:git:git@github.com:paypal/cascade.git</connection>
+      </scm>
+      <developers>
+        <developer>
+          <id>arschles</id>
+          <name>Aaron Schlesinger</name>
+          <url>https://github.com/arschles</url>
+        </developer>
+      </developers>
+    )
   )
-
 }
 
 object Dependencies {
