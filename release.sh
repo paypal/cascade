@@ -1,16 +1,18 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-    echo "you must set a branch from which to delete"
+    echo "you must set a branch from which to release"
     exit
 fi
 
 if [ -z "$2" ]; then
     echo "you must set an author"
+    exit
 fi
 
 if [ -z "$3" ]; then
     echo "you must set a changelog entry"
+    exit
 fi
 
 RELEASE_BRANCH=$1

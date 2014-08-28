@@ -1,4 +1,7 @@
 
+# 0.1.2 08/28/14 released by arschles
+* got gh-pages branch set up correctly. publishing docs also
+
 # 0.1.1 08/28/14 released by arschles
 * changing publishTo
 
