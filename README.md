@@ -49,7 +49,7 @@ For example, to use the Akka library:
 ```
 
 If you're starting a new project, we recommend using SBT along with
-[Nugget](https://github.com/paypal/nugget)
+[Horizon](https://github.com/paypal/horizon)
 
 # Library Details
 
