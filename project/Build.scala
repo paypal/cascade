@@ -70,7 +70,7 @@ object BuildSettings {
     javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
-    apiURL := Some(url("https://paypal.github.com/cascade/api/")),
+    apiURL := Some(url("https://paypal.github.io/cascade/api/")),
     autoAPIMappings := true,
     apiMappings ++= {
       import BuildUtilities._
