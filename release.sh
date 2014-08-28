@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-    echo "you must set a branch from which to delete"
+    echo "you must set a branch from which to release"
     exit
 fi
 
