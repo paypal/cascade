@@ -89,7 +89,7 @@ object BuildSettings {
       links.collect { case Some(d) => d }.toMap
     },
     publishTo := {
-      val nexus = s"http://oss.sonatype.org/"
+      val nexus = s"https://oss.sonatype.org/"
       if (isSnapshot.value) {
         Some("snapshots" at nexus + "content/repositories/snapshots")
       } else {
