@@ -1,4 +1,7 @@
 
+# 0.1.1 08/28/14 released by arschles
+* changing publishTo
+
 # 0.1.0 08/28/14 released by arschles
 * Changing publishTo
 
