@@ -28,9 +28,9 @@ depend on `common`), you can mix and match which libraries you use.
 The libraries in Cascade all follow some similar patterns.
 [PATTERNS.md](PATTERNS.md) describes them in detail.
 
-Current Version: 0.1.3
+Current Version: 0.1.4
 
-[View the ScalaDocs](https://paypal.github.io/Cascade/api/0.1.3/index.html#com.paypal.cascade.package)
+[View the ScalaDocs](https://paypal.github.io/Cascade/api/0.1.4/index.html#com.paypal.cascade.package)
 
 # Dependencies
 
@@ -39,17 +39,17 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal.cascade" %% "cascade-$projectName" % "0.1.3"
+"com.paypal" %% "cascade-$projectName" % "0.1.4"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal.cascade" %% "cascade-akka" % "0.1.3"
+"com.paypal" %% "cascade-akka" % "0.1.4"
 ```
 
 If you're starting a new project, we recommend using SBT along with
-[Nugget](https://github.com/paypal/nugget)
+[Horizon](https://github.com/paypal/horizon)
 
 # Library Details
 

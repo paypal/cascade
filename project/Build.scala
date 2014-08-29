@@ -30,7 +30,7 @@ object BuildSettings {
 
   import Dependencies._
 
-  val org = "com.paypal.cascade"
+  val org = "com.paypal"
   val scalaVsn = "2.11.2"
 
   val defaultArgs = Seq(
