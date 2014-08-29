@@ -1,4 +1,7 @@
 
+# 0.1.4 08/29/14 released by arschles
+* releasing to com.paypal instead of com.paypal.cascade
+
 # 0.1.3 08/28/14 released by arschles
 * signing releases properly
 
