@@ -25,6 +25,7 @@ import sbt._
 import Keys._
 import sbtunidoc.Plugin._
 import sbtunidoc.Plugin.UnidocKeys._
+import bintray.Plugin._
 
 object BuildSettings {
 
@@ -54,7 +55,7 @@ object BuildSettings {
     releaseProcess := BuildUtilities.defaultReleaseProcess
   )
 
-  lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
+  lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ bintrayPublishSettings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
     crossScalaVersions := Seq(scalaVsn, "2.10.4"),
