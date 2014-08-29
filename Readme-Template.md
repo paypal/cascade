@@ -39,17 +39,17 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal.cascade" %% "cascade-$projectName" % "{{version}}"
+"com.paypal" %% "cascade-$projectName" % "{{version}}"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal.cascade" %% "cascade-akka" % "{{version}}"
+"com.paypal" %% "cascade-akka" % "{{version}}"
 ```
 
 If you're starting a new project, we recommend using SBT along with
-[Nugget](https://github.com/paypal/nugget)
+[Horizon](https://github.com/paypal/horizon)
 
 # Library Details
 
