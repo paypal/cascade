@@ -113,12 +113,9 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
         log.warning(s"Request finished unsuccessfully with status code: $statusCode")
       }
       finalResponse
-    case parseException: JsonParseException =>
+    case parseOrMappingException @ (_:JsonParseException | _:JsonMappingException) =>
       HttpResponse(BadRequest,
-        HttpUtil.toJsonErrorsMap(Option(parseException.getMessage).getOrElse("")))
-    case mappingException: JsonMappingException =>
-      HttpResponse(BadRequest,
-        HttpUtil.toJsonErrorsMap(Option(mappingException.getMessage).getOrElse("")))
+        HttpUtil.toJsonErrorsMap(Option(parseOrMappingException.getMessage).getOrElse("")))
     case otherException: Exception =>
       HttpResponse(InternalServerError,
         HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")))
