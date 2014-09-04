@@ -16,6 +16,7 @@
 package com.paypal.cascade.http.resource
 
 import akka.actor._
+import com.fasterxml.jackson.databind.JsonMappingException
 import scala.compat.Platform._
 import scala.util.{Success, Try}
 import spray.http._
@@ -112,9 +113,9 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
         log.warning(s"Request finished unsuccessfully with status code: $statusCode")
       }
       finalResponse
-    case parseException: JsonParseException =>
+    case parseOrMappingException @ (_:JsonParseException | _:JsonMappingException) =>
       HttpResponse(BadRequest,
-        HttpUtil.toJsonErrorsMap(Option(parseException.getMessage).getOrElse("")))
+        HttpUtil.toJsonErrorsMap(Option(parseOrMappingException.getMessage).getOrElse("")))
     case otherException: Exception =>
       HttpResponse(InternalServerError,
         HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")))
