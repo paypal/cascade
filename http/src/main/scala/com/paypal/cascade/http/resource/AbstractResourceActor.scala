@@ -21,6 +21,7 @@ import com.paypal.cascade.common.option._
 import com.paypal.cascade.http.util.HttpUtil
 import com.paypal.cascade.json._
 import akka.event.LoggingReceive
+import scala.compat.Platform._
 import scala.util.{Success, Failure}
 import spray.http.HttpResponse
 import com.paypal.cascade.http.resource.HttpResourceActor.RequestIsProcessed
@@ -34,7 +35,9 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   /**
    * The receive function for this resource. Should not be overridden - implement [[resourceReceive]] instead
    */
-  override final def receive: Actor.Receive = LoggingReceive { super.receive orElse resourceReceive }
+  override final def receive: Actor.Receive = LoggingReceive {
+    super.receive orElse resourceReceive orElse failureReceive
+  }
 
   /**
    * This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
@@ -47,6 +50,26 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @return The receive function to be applied when a parsed request object or other actor message is received
    */
   protected def resourceReceive: Actor.Receive
+
+  /**
+   * Receive Status.Failure last, so that clients can receive on it.<br/>
+   *
+   * There was an error somewhere along the way, so translate it to an HttpResponse (using handleError),
+   * send the exception to returnActor and stop.
+   */
+  private def failureReceive: Actor.Receive = {
+    case s @ Status.Failure(t: Throwable) =>
+      setNextStep[HttpResponse]
+      log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTrace.mkString("", EOL, EOL))
+      t match {
+        case e: Exception => {
+          val respFromError = handleError(e)
+          val respPlusHeaders = respFromError.withHeaders(addLanguageHeader(responseLanguage, respFromError.headers))
+          self ! respPlusHeaders
+        }
+        case t: Throwable => throw t
+      }
+  }
 
   /**
    * Complete a successful request
