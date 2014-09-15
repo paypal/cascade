@@ -130,7 +130,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
 
   private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
 
-  private def setNextStep[T](implicit classTag: ClassTag[T]): Unit = {
+  private[resource] def setNextStep[T](implicit classTag: ClassTag[T]): Unit = {
     pendingStep = classTag.runtimeClass
   }
 
@@ -220,20 +220,6 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
       }
       context.stop(self)
 
-    //there was an error somewhere along the way, so translate it to an HttpResponse (using handleError),
-    //send the exception to returnActor and stop
-    case s @ Status.Failure(t) =>
-      setNextStep[HttpResponse]
-      log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTrace.mkString("", EOL, EOL))
-      t match {
-        case e: Exception => {
-          val respFromError = handleError(e)
-          val respPlusHeaders = respFromError.withHeaders(addLanguageHeader(responseLanguage, respFromError.headers))
-          self ! respPlusHeaders
-        }
-        case t: Throwable => throw t
-      }
-
     //the actor didn't receive a message before the current ReceiveTimeout
     case ReceiveTimeout =>
       val timeoutMillis = if (pendingStep == classOf[RequestIsProcessed]) {
@@ -281,7 +267,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
    * @param headers the current list of headers
    * @return augmented list of `HttpHeader` object, or the same list as `response.headers` if no modifications needed
    */
-  private def addLanguageHeader(responseLanguage: Option[Language], headers: List[HttpHeader]) : List[HttpHeader] = {
+  private[resource] def addLanguageHeader(responseLanguage: Option[Language], headers: List[HttpHeader]) : List[HttpHeader] = {
     responseLanguage match {
       case Some(lang) =>
         if (headers.exists(_.lowercaseName == HttpUtil.CONTENT_LANGUAGE_LC)) {
