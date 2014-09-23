@@ -137,7 +137,7 @@ object Dependencies {
   val slf4jVersion = "1.7.7"
   val fasterXmlJacksonVersion = "2.4.1"
   val sprayVersion = "1.3.1"
-  val akkaVersion = "2.3.3"
+  val akkaVersion = "2.3.6"
   val parboiledVersion = "1.1.6"
   val specs2Version = "2.3.12"
 
