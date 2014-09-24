@@ -12,6 +12,25 @@ carefully designed to:
 5. Related to (4) - use the features of the Scala standard library before
 building their own.
 
+# Getting Started
+
+To use Cascade libraries in your project, simply add a dependency to your
+build system. In an SBT project, add the following to your `build.sbt` or
+`Build.scala` file:
+
+```scala
+"com.paypal" %% "cascade-$projectName" % "0.1.4"
+```
+
+For example, to use the Akka library:
+
+```scala
+"com.paypal" %% "cascade-akka" % "0.1.4"
+```
+
+If you're starting a new project, we recommend using SBT along with
+[Horizon](https://github.com/paypal/horizon)
+
 # Usage
 
 The libraries live in separate sub-projects in this repository:
@@ -31,25 +50,6 @@ The libraries in Cascade all follow some similar patterns.
 Current Version: 0.1.4
 
 [View the ScalaDocs](https://paypal.github.io/Cascade/api/0.1.4/index.html#com.paypal.cascade.package)
-
-# Dependencies
-
-To use Cascade libraries in your project, simply add a dependency to your
-build system. In an SBT project, add the following to your `build.sbt` or
-`Build.scala` file:
-
-```scala
-"com.paypal" %% "cascade-$projectName" % "0.1.4"
-```
-
-For example, to use the Akka library:
-
-```scala
-"com.paypal" %% "cascade-akka" % "0.1.4"
-```
-
-If you're starting a new project, we recommend using SBT along with
-[Horizon](https://github.com/paypal/horizon)
 
 # Library Details
 
