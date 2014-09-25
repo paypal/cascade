@@ -275,7 +275,8 @@ object CommonBuild extends Build {
   lazy val examples = Project("cascade-examples", file("examples"),
     dependencies = Seq(
       common % "compile->compile;test->test",
-      json   % "compile->compile;test->test"
+      json   % "compile->compile;test->test",
+      http   % "compile->compile;test->test"
     ),
     settings = standardSettings ++ Seq(
       name := "cascade-examples",
