@@ -39,8 +39,6 @@ See below for more details.
 - `/status`
 - `/stats`
 
-Read on for details on each.
-
 ## Status
 `/status` returns current build information for the project. This includes the
 service name, dependencies, and Git branch and commit information.
