@@ -1,5 +1,9 @@
 # Cascade
 
+![Cascade logo](doc/cascade.png)
+
+[![Build Status](https://travis-ci.org/paypal/cascade.png?branch=develop)](https://travis-ci.org/paypal/cascade)
+
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
 used in Scala applications and servers at PayPal. The libraries herein are
