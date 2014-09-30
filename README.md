@@ -98,7 +98,8 @@ Please see [the getting started guide](doc/HTTP_RESOURCE.md) for a quick
 introduction on how to build a HTTP server with `http`. For more details, read
 on.
 
-This library contains the following utilities:
+### Library Pieces
+This library contains the following pieces:
 
 - `AbstractResource` is a starting point for HTTP resources.
 - `ResourceActor` provides an implementation of a basic HTTP request handling pipeline.
@@ -109,8 +110,10 @@ This library contains the following utilities:
 - `SprayConfigurationComponent` defines basic config for a Spray service.
 - `url` package object contains methods to break a query parameter list into a list or map.
 - `HttpUtil` pacakage object contains convenience methods for interacting with URLs.
+- `ResourceServiceComponent` contains a wrapper for your spray routes. See below for more details.
 
-http also provides two endpoints for projects that use it, implemented in the `ResourceServiceComponent`:
+### `ResourceServiceComponent`
+`ResourceServiceComponent` automatically adds two routes to your defined routes:
 
 - `/status` returns current build information for the project. This includes the service name, dependencies, and Git branch and commit information.
   Must include the `x-service-status` header in request. For example, after running your project locally:
@@ -149,7 +152,9 @@ http also provides two endpoints for projects that use it, implemented in the `R
           "requestTimeouts":0
         }
 
-Useful test objects include:
+### Testing
+
+`http` also includes a few useful utilities for testing:
 
 - `DummyResource` for testing request logic.
 - `SprayMatchers` for confirming request/response patterns.
