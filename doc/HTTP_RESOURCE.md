@@ -1,7 +1,14 @@
 # HTTP Resources
+
 Cascade includes a powerful system for building
 [REST](http://en.wikipedia.org/wiki/Representational_state_transfer) servers
 on top of Spray and Akka.
+
+This document contains a detailed discussion of how Cascade's HTTP support
+works. If you'd rather start building immediately, please see our
+[getting started guide](HTTP_RESOURCE_GETTING_STARTED.md).
+
+## Introduction
 
 Cascade's primary building block for REST servers is a **Resource**, which
 abstracts a full HTTP request lifetime.
@@ -23,87 +30,68 @@ your resource actor. When you write your resource, you extend this class.
 itself returns a function which can be immediately be passed to
 `spray-routing`'s `complete` function.
 * `ResourceService` - a trait that you mixin to your route definitions. mixing
-in this trait automatically provides
-you with a `/status` and `/stats` endpoint.
+in this trait automatically provides you with a `/status` and `/stats` endpoint.
+See below for more details.
 
-# Organization
-Below is the most common organization of a Cascade HTTP server. If you're
-building your first Cascade server, start with this layout.
+# ResourceService
+`ResourceService` automatically adds two routes to your defined routes:
 
-## Routes
-Your HTTP server must have 1 or more routes (`GET /hello`, for example). You'll
-define your routes in a Cake pattern **module**, which will also include
-`SprayActorComponent`, `ActorSystemComponent`, `ServiceNameComponent`,
-`SprayConfigurationComponent`, and `ResourceServiceComponent`. Create a parent
-module called `ServerModule` that defines all of those other components and
-then a single child module that implements your production server.
+- `/status`
+- `/stats`
 
-You'll define your routes in your child module(s), and each route should
-call `ResourceDriver.serve(...)`
+Read on for details on each.
 
-Example:
+## Status
+`/status` returns current build information for the project. This includes the
+service name, dependencies, and Git branch and commit information.
+In order to get this information, make a `GET` request to `/status` with a
+`x-service-status` header in request (the value of the header doesn't matter.)
 
-```scala
-trait ServerModule
-  extends SprayActorComponent
-  with ActorSystemComponent
-  with ServiceNameComponent
-  with SprayConfigurationComponent
-  with ResourceServiceComponent
+For example, after running your project locally:
 
-object ProductionServerModule extends ServerModule {
-  override lazy val serviceName = ???
-  override lazy val port = ???
-  override lazy val backlog = ???
+```bash
+curl -H "x-service-status:true" http://localhost:9090/status
+```
 
-  //you can use spray-routing or your own logic here. Call
-  //ResourceDriver.serve(yourResource, ...) to return the
-  //RequestContext => Unit that implements your functionality.
-  override lazy val route: RequestContext => Unit = get {
-    path("hello") {
-      ResourceDriver.serve({ resourceContext =>
-        new MyResource(resourceContext)
-      }, { req =>
-        parseRequest(req)
-      })
-    }
+That `curl` call returns json data that looks like the following:
+
+```json
+{
+  "status":"ok",
+  "service-name":"your-service",
+  "dependencies":["all dependencies"],
+  "git-info": {
+    "branch":"develop",
+    "branch-is-clean":"true",
+    "commit-sha":"some-sha",
+    "commit-date":"Wed Apr 16 12:01:28 PDT 2014"
   }
 }
 ```
 
-See the [example server](/examples/src/main/scala/com/paypal/cascade/examples/http/resource/MyHttpServerModule.scala)
-for working code.
+## Stats
+`/stats` returns internal Spray monitoring information for the build. In order
+to get this information, make a `GET` request to `/stats` with a
+`x-service-stats` header in the request (the value of the header doesn't
+matter.)
 
-## Resource
-You defined the HTTP routes in your module, and you implement them in the
-resource. A resource is a class that extends `AbstractResourceActor` and
-defines a `resourceReceive` method, which should accept `ProcessRequest`
-messages to process requests. The values inside those messages will be the
-parsed values that `ResourceDriver` produced (see below). Example:
+For example, after running your project locally:
 
-```scala
-class MyResource(ctx: ResourceContext) extends AbstractResourceActor(ctx) {
-    override def resourceReceive = {
-        //processing a request that was not parsed at all
-        case ProcessRequest(req: HttpRequest) => completeToJSON(StatusCodes.OK, "hello world!")
-        //processing a request that was parsed by the ResourceDriver
-        case ProcessRequest(req: GetHelloWorld) => completeToJSON(StatusCodes.OK, "hello world 2!")
-    }
-}
+```bash
+curl -H "x-service-stats:true" http://localhost:9090/stats
 ```
 
-## Entry Point
+That `curl` call returns json data that looks like the following:
 
-The last and simplest piece of the puzzle is the code to start your server,
-which I'll call the entry point here. To build your entry point, simply create
-an `object` that extends `CascadeApp` and call `ProductionServerModule.start`
-to begin running your server. Note that `start` is defined on
-`SprayActorComponent`, which is mixed in by `ServerModule`. See below for a
-complete example.
-
-```scala
-object MyHttpServer extends ProductionServerModule {
-  MyHttpServerModule.start
-
+```json
+{
+  "uptime":{"finite":true},
+  "totalRequests":3,
+  "openRequests":1,
+  "maxOpenRequests":1,
+  "totalConnections":3,
+  "openConnections":1,
+  "maxOpenConnections":1,
+  "requestTimeouts":0
 }
 ```

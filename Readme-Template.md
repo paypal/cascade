@@ -94,72 +94,9 @@ Useful test objects include:
 ## http
 
 The `http` library has base objects and traits for creating Spray HTTP servers.
-Please see [the getting started guide](doc/HTTP_RESOURCE.md) for a quick
-introduction on how to build a HTTP server with `http`. For more details, read
-on.
-
-### Library Pieces
-This library contains the following pieces:
-
-- `AbstractResource` is a starting point for HTTP resources.
-- `ResourceActor` provides an implementation of a basic HTTP request handling pipeline.
-- `ResourceDriver` spawns a ResourceActor, which should happen per request.
-- `ResourceService` is a routing base for HTTP services.
-- `resource` package object contains implicit classes for converting objects into Futures and Trys that return an exception on error.
-- `SprayActorComponent` provides the root actor implementation used by Spray.
-- `SprayConfigurationComponent` defines basic config for a Spray service.
-- `url` package object contains methods to break a query parameter list into a list or map.
-- `HttpUtil` pacakage object contains convenience methods for interacting with URLs.
-- `ResourceServiceComponent` contains a wrapper for your spray routes. See below for more details.
-
-### `ResourceServiceComponent`
-`ResourceServiceComponent` automatically adds two routes to your defined routes:
-
-- `/status` returns current build information for the project. This includes the service name, dependencies, and Git branch and commit information.
-  Must include the `x-service-status` header in request. For example, after running your project locally:
-
-        curl -H "x-service-status:true" "http://localhost:9090/status
-
-  returns something like
-
-        {
-          "status":"ok",
-          "service-name":"your-service",
-          "dependencies":["all dependencies"],
-          "git-info": {
-            "branch":"develop",
-            "branch-is-clean":"true",
-            "commit-sha":"some-sha",
-            "commit-date":"Wed Apr 16 12:01:28 PDT 2014"
-          }
-        }
-
-- `/stats` returns internal Spray monitoring information for the build.
-  Must include the `x-service-stats` header in request, For example, after running your project locally:
-
-        curl -H "x-service-stats:true" "http://localhost:9090/stats
-
-  returns something like
-
-        {
-          "uptime":{"finite":true},
-          "totalRequests":3,
-          "openRequests":1,
-          "maxOpenRequests":1,
-          "totalConnections":3,
-          "openConnections":1,
-          "maxOpenConnections":1,
-          "requestTimeouts":0
-        }
-
-### Testing
-
-`http` also includes a few useful utilities for testing:
-
-- `DummyResource` for testing request logic.
-- `SprayMatchers` for confirming request/response patterns.
-- `SprayRoutingClient` for use in integration tests to test the full service stack, including Spray routes.
-  Provides the `makeRequest` methodfor interacting with a Spray service as if via HTTP, using the declared routes.
+This library is intended to complement the functionality that Spray and Akka
+already have. Please see our [getting started guide](doc/HTTP_RESOURCE_GETTING_STARTED.md)
+and [detailed documentation](doc/HTTP_RESOURCE.md) for more.
 
 ## akka
 
