@@ -129,6 +129,9 @@ Simply fork this repository, make your changes, and submit a PR to us.
 If you are fixing an issue in your PR, please make sure to write `Fixes #123`
 in the description, so that the issue is closed after your PR gets merged.
 
+**Note:** If you want to modify this file (`README.md`) in your PR, edit
+[`Readme-Template.md`](Readme-Template.md) and then run `genReadme` in SBT.
+
 ## Development
 
 If you have [Vagrant](http://vagrantup.com), simply `vagrant up` in this
