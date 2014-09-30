@@ -93,7 +93,12 @@ Useful test objects include:
 
 ## http
 
-Base objects and traits for creating Spray HTTP resources:
+The `http` library has base objects and traits for creating Spray HTTP servers.
+Please see [the getting started guide](doc/HTTP_RESOURCE.md) for a quick
+introduction on how to build a HTTP server with `http`. For more details, read
+on.
+
+This library contains the following utilities:
 
 - `AbstractResource` is a starting point for HTTP resources.
 - `ResourceActor` provides an implementation of a basic HTTP request handling pipeline.
@@ -104,7 +109,6 @@ Base objects and traits for creating Spray HTTP resources:
 - `SprayConfigurationComponent` defines basic config for a Spray service.
 - `url` package object contains methods to break a query parameter list into a list or map.
 - `HttpUtil` pacakage object contains convenience methods for interacting with URLs.
-
 
 http also provides two endpoints for projects that use it, implemented in the `ResourceServiceComponent`:
 
