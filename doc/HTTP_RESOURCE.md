@@ -71,7 +71,8 @@ object ProductionServerModule extends ServerModule {
 }
 ```
 
-See the example server for working code. TODO: link to the file.
+See the [example server](/examples/src/main/scala/com/paypal/cascade/examples/http/resource/MyHttpServerModule.scala)
+for working code.
 
 ## Resource
 You defined the HTTP routes in your module, and you implement them in the
