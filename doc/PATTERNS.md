@@ -43,7 +43,8 @@ Most projects have a single `object` module for the main entry point (e.g.
 `object MyServer extends App with MyServiceComponent`) and 1 or more modules
 for test configuration (e.g. stubbing out the database driver).
 
-Please see [CAKEPATTERN.md](CAKEPATTERN.md) for thorough details and examples.
+Please see [our cake pattern document](./CAKE_PATTERN.md) for thorough details
+and examples.
 
 # Naming
 The following naming conventions were chosen by the Cascade development team:

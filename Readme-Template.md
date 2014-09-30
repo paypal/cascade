@@ -1,5 +1,9 @@
 # Cascade
 
+![Cascade logo](doc/cascade.png)
+
+[![Build Status](https://travis-ci.org/paypal/cascade.png?branch=develop)](https://travis-ci.org/paypal/cascade)
+
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
 used in Scala applications and servers at PayPal. The libraries herein are
@@ -11,6 +15,25 @@ carefully designed to:
 4. Minimize the number of external dependencies.
 5. Related to (4) - use the features of the Scala standard library before
 building their own.
+
+# Getting Started
+
+To use Cascade libraries in your project, simply add a dependency to your
+build system. In an SBT project, add the following to your `build.sbt` or
+`Build.scala` file:
+
+```scala
+"com.paypal" %% "cascade-$projectName" % "0.1.4"
+```
+
+For example, to use the Akka library:
+
+```scala
+"com.paypal" %% "cascade-akka" % "0.1.4"
+```
+
+If you're starting a new project, we recommend using SBT along with
+[Horizon](https://github.com/paypal/horizon)
 
 # Usage
 
@@ -26,7 +49,7 @@ Although they have internal dependencies on each other (e.g. many libraries
 depend on `common`), you can mix and match which libraries you use.
 
 The libraries in Cascade all follow some similar patterns.
-[PATTERNS.md](PATTERNS.md) describes them in detail.
+[PATTERNS.md](doc/PATTERNS.md) describes them in detail.
 
 Current Version: {{version}}
 
