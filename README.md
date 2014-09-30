@@ -74,7 +74,7 @@ For example, to use the Akka library:
 If you're starting a new project, we recommend using SBT along with
 [Horizon](https://github.com/paypal/horizon)
 
-# Library Details
+# The Libraries
 
 ## common
 
