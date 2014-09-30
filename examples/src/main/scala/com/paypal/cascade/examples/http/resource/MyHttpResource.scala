@@ -21,13 +21,16 @@ import spray.http.{StatusCodes, HttpRequest}
 import scala.util.Try
 
 /**
- * MyHttpResource implements the {{{PartialFunction}}} to process incoming HTTP requests.
- * Under the hood, it's a plain Akka actor that adds extra utilities (logging, authorization, parsing, etc...)
- * before and after your {{{resourceReceive}}} functionality executes. When this actor receives
- * a {{{ProcessRequest}}} message, that means that the Content-Type is supported & acceptable, and the request
- * was parsed successfully. After you complete processing, call {{{complete*}}}, or {{{sendError*}}} to continue
- * processing the request. After you do that, the processing will continue with appending appropriate response headers,
- * handling timeouts, returning to spray, etc...
+ * MyHttpResource implements the {{{PartialFunction}}} to process incoming HTTP
+ * requests.
+ * Under the hood, it's a plain Akka actor that adds extra utilities (logging,
+ * authorization, parsing, etc...) before and after your {{{resourceReceive}}}
+ * functionality executes. When this actor receives a {{{ProcessRequest}}}
+ * message, that means that the Content-Type is supported & acceptable, and the
+ * request was parsed successfully. After you complete processing, call
+ * {{{complete...}}}, or {{{sendError...}}} to continue processing the request.
+ * After you do that, the processing will continue with appending appropriate
+ * response headers, handling timeouts, returning to spray, etc...
  * @param ctx the resource context. will be passed by {{{ResourceDriver}}}
  */
 class MyHttpResource(ctx: ResourceContext) extends AbstractResourceActor(ctx) {
@@ -49,7 +52,8 @@ object MyHttpResource {
   /**
    * the parser for MyHttpResource
    * @param req the request to be parsed
-   * @return the result of the parse. {{{Success}}} if it was parsed correctly, {{{Failure}}} otherwise.
+   * @return the result of the parse. {{{Success}}} if it was parsed correctly,
+   * {{{Failure}}} otherwise.
    */
   def requestParser(req: HttpRequest): Try[AnyRef] = {
     Try(req)
