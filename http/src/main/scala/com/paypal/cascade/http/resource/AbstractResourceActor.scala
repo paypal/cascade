@@ -30,7 +30,8 @@ import com.paypal.cascade.http.resource.HttpResourceActor.RequestIsProcessed
  * Base class for HTTP resources built with Spray.
  * @param resourceContext Context containing information needed to service the request, such as the parent actor
  */
-abstract class AbstractResourceActor(private val resourceContext: HttpResourceActor.ResourceContext) extends HttpResourceActor(resourceContext) {
+abstract class AbstractResourceActor(private val resourceContext: HttpResourceActor.ResourceContext)
+  extends HttpResourceActor(resourceContext) {
 
   /**
    * The receive function for this resource. Should not be overridden - implement [[resourceReceive]] instead

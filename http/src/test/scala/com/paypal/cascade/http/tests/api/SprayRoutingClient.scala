@@ -67,7 +67,7 @@ class SprayRoutingClient {
     //waits for the response from spray, see a few lines below
     private val latch: CountDownLatch = new CountDownLatch(1)
     private var response: Option[HttpResponse] = none
-    override def actorRefFactory = context
+    override val actorRefFactory = context
 
     def makeRequest(method: HttpMethod, url: String, headers: List[HttpHeader], body: Option[HttpEntity]): HttpResponse = {
       val req = HttpRequest(method = method, uri = url, headers = headers, entity = body getOrElse HttpEntity.Empty)

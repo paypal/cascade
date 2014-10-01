@@ -50,6 +50,8 @@ trait ResourceService extends HttpService {
    */
   val actorSystemWrapper: ActorSystemWrapper
 
+  override implicit val actorRefFactory = actorSystemWrapper.actorRefFactory
+
   private implicit lazy val actorSystem = actorSystemWrapper.system
   private implicit lazy val executionContext = actorSystemWrapper.executionContext
 

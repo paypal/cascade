@@ -16,19 +16,19 @@
 package com.paypal.cascade.http.tests.resource
 
 import org.specs2._
-import com.paypal.cascade.http.tests.api.SprayRoutingClientComponent
+import com.paypal.cascade.http.tests.api.SprayRoutingClient
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 import spray.http.{StatusCodes, HttpMethods}
 import spray.http.HttpHeaders.RawHeader
 import com.paypal.cascade.json._
-import akka.actor.{ActorSystem, Props, Actor}
+import akka.actor.{Props, Actor}
 import scala.concurrent.duration.FiniteDuration
 import java.util.concurrent.TimeUnit
 import spray.can.server.{Stats => SprayStats}
 import spray.can.Http.GetStats
 
 /**
- * Tests for [[com.paypal.cascade.http.resource.ResourceServiceComponent.ResourceService]]
+ * Tests for [[com.paypal.cascade.http.resource.ResourceService]]
  */
 class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is=s2"""
 
@@ -52,22 +52,19 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is=s2
     }
   }
 
-  class TestEnv extends DummyResourceService with SprayRoutingClientComponent {
-    override implicit lazy val system = ActorSystem()
-    system.actorOf(Props(new ParentActor), "IO-HTTP")
-  }
-
-  class FailTestEnv extends DummyResourceService with SprayRoutingClientComponent
-
   class Context extends CommonImmutableSpecificationContext {
-    val env = new TestEnv
-    val failEnv = new FailTestEnv
+    protected lazy val sprayRoutingClient = new SprayRoutingClient
+    protected lazy val dummyResourceService = new DummyResourceService()
   }
 
   case class Status() extends Context {
     def ok = {
       val matcherKeys = Seq("status", "service-name", "dependencies", "git-info")
-      val res = env.sprayRoutingClient.makeRequest(HttpMethods.GET, "/status", List(RawHeader("x-service-status", "true")), None)
+      val res = sprayRoutingClient.makeRequest(HttpMethods.GET,
+        "/status",
+        List(RawHeader("x-service-status", "true")),
+        None)(dummyResourceService.config, dummyResourceService.actorSystemWrapper)
+
       val success = res.status must beEqualTo(StatusCodes.OK)
       val mappedData = res.entity.data.asString.fromJson[Map[String, Any]].get
       val keys = mappedData.map { item =>
@@ -78,9 +75,13 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is=s2
       success and entityMatches
     }
   }
+
   case class Stats() extends Context {
     def ok = {
-      val res = env.sprayRoutingClient.makeRequest(HttpMethods.GET, "/stats", List(RawHeader("x-service-stats", "true")), None)
+      val res = sprayRoutingClient.makeRequest(HttpMethods.GET,
+        "/stats",
+        List(RawHeader("x-service-stats", "true")),
+        None)(dummyResourceService.config, dummyResourceService.actorSystemWrapper)
       val correctStatus = res.status must beEqualTo(StatusCodes.OK)
       val mappedData = res.entity.data.asString.fromJson[Map[String, Any]].get
       val values = mappedData.map { item =>
@@ -95,8 +96,12 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is=s2
       }
       correctStatus and dataMatches
     }
+
     def fails = {
-      val res = failEnv.sprayRoutingClient.makeRequest(HttpMethods.GET, "/stats", List(RawHeader("x-service-stats", "true")), None)
+      val res = sprayRoutingClient.makeRequest(HttpMethods.GET,
+        "/stats",
+        List(RawHeader("x-service-stats", "true")),
+        None)(dummyResourceService.config, dummyResourceService.actorSystemWrapper)
       // server actor not started, so this throws a 500
       val success = res.status must beEqualTo(StatusCodes.InternalServerError)
       success

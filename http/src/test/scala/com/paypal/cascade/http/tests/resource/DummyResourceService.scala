@@ -15,12 +15,12 @@
  */
 package com.paypal.cascade.http.tests.resource
 
-import com.paypal.cascade.common.service.ServiceNameComponent
+import com.paypal.cascade.akka.actor.ActorSystemWrapper
+import com.paypal.cascade.http.server.SprayConfiguration
 import spray.routing.Directives._
-import com.paypal.cascade.http.resource.{HttpResourceActor, ResourceServiceComponent, ResourceDriver}
+import com.paypal.cascade.http.resource.{ResourceService, HttpResourceActor, ResourceDriver}
 import spray.http.HttpRequest
 import scala.util.Try
-import com.paypal.cascade.akka.actor.ActorSystemComponent
 import com.paypal.cascade.http.tests.resource.DummyResource.GetRequest
 import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
 import com.paypal.cascade.http.resource.ResourceDriver.RewriteFunction
@@ -29,13 +29,11 @@ import com.paypal.cascade.http.resource.ResourceDriver.RewriteFunction
  * A dummy resource service implementation for use with [[com.paypal.cascade.http.tests.resource.DummyResource]].
  * Only accepts requests to the "/ping" endpoint.
  */
-trait DummyResourceService
-  extends ServiceNameComponent
-  with ResourceServiceComponent
-  with ActorSystemComponent {
+class DummyResourceService extends ResourceService {
 
-  /** This resource */
-  val dummy: ResourceContext => DummyResource = new DummyResource(_)
+  def dummyResource(ctx: ResourceContext): DummyResource = {
+    new DummyResource(ctx)
+  }
 
   val parseRequest: HttpResourceActor.RequestParser = { _ : HttpRequest =>
     Try (GetRequest("bar"))
@@ -45,20 +43,20 @@ trait DummyResourceService
     Try((req,GetRequest("bar")))
   }
 
-  /** The route for this resource */
-  override val route = {
+  private val serviceName = "dummyResourceService"
+
+  override lazy val config = SprayConfiguration(serviceName, 8080, 15) {
     path("ping") {
       get {
-        ResourceDriver.serve(dummy, parseRequest)
+        ResourceDriver.serve(dummyResource, parseRequest)
       }
     } ~
     path("ping-rewrite") {
       get {
-        ResourceDriver.serveWithRewrite(dummy)(rewriteRequest)
+        ResourceDriver.serveWithRewrite(dummyResource)(rewriteRequest)
       }
     }
   }
 
-  override lazy val serviceName = "tests"
-
+  override lazy val actorSystemWrapper = new ActorSystemWrapper(serviceName)
 }
