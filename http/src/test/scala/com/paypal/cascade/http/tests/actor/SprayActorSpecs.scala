@@ -49,7 +49,7 @@ class SprayActorSpecs
   case class Initialize() extends Context {
     def ok() = apply {
       //do this to make sure no exceptions on startup
-      SprayActor.start(wrapper, config)(mock[ServerSSLEngineProvider]) must beAnInstanceOf[Unit]
+      SprayActor.start(wrapper, config)(mock[ServerSSLEngineProvider]) must beEqualTo(())
     }
   }
 }
