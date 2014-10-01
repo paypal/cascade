@@ -30,8 +30,7 @@ import spray.io.ServerSSLEngineProvider
  * The root actor implementation used by spray
  */
 class SprayActor(override val config: SprayConfiguration,
-                 override val actorSystemWrapper: ActorSystemWrapper,
-                 override val route: Route) extends Actor with ResourceService {
+                 override val actorSystemWrapper: ActorSystemWrapper) extends Actor with ResourceService {
   //lifting implicits so we can pass them explicitly to runRoute below
   private val exceptionHandler = implicitly[ExceptionHandler]
   private val rejectionHandler = implicitly[RejectionHandler]
@@ -61,7 +60,7 @@ object SprayActor {
     //used for AkkaIO(...)
     implicit val actorSystem = systemWrapper.system
 
-    val sprayActorProps = Props(new SprayActor(config, systemWrapper, config.route))
+    val sprayActorProps = Props(new SprayActor(config, systemWrapper))
     val sprayActor = systemWrapper.system.actorOf(sprayActorProps)
 
     AkkaIO(Http) ! Http.Bind(sprayActor, interface = "0.0.0.0", port = config.port, backlog = config.backlog)
