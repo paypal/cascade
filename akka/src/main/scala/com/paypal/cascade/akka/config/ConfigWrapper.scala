@@ -18,11 +18,8 @@ package com.paypal.cascade.akka.config
 import com.typesafe.config.ConfigFactory
 
 /**
- * Simple component which provides access to a configuration file
+ * Simple wrapper to hold parsed Typesafe config files
  */
-trait ConfigComponent {
-
-  /* Loads application.conf */
+class ConfigWrapper() {
   lazy val config = ConfigFactory.load()
-
 }

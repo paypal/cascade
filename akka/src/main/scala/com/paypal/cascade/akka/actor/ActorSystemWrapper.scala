@@ -17,42 +17,40 @@ package com.paypal.cascade.akka.actor
 
 import akka.actor.{ActorRefFactory, ActorSystem}
 import com.paypal.cascade.common.logging._
-import com.paypal.cascade.common.service.ServiceNameComponent
 import scala.concurrent.ExecutionContext
 
 /**
  * Provides the root actor which supervises other actors and handles spray http
- * requests. Use this component as a dependency (in the cake pattern) wherever
- * you need to get access to an `ActorSystem`, `ActorRefFactory`, or
- * `ExecutionContext`.
+ * requests. Use this wrapper as input anywhere you need access to an `ActorSystem`, `ActorRefFactory`, or
+ * `ExecutionContext`. Since an app generally has one `ActorSystem`, treat this wrapper like a singleton -
+ * create it on app startup and pass it to everywhere you need it.
  */
-trait ActorSystemComponent {
-  //Dependencies
-  self: ServiceNameComponent =>
+
+class ActorSystemWrapper(serviceName: String) {
 
   /**
-   * The default ActorSystem.
+   * the [[akka.actor.ActorSystem]] that this wrapper wraps.
+   * the system will be configured to shut down gracefully on JVM shutdown.
    */
-  implicit lazy val system = {
-    val newSystem = ActorSystem(serviceName)
+  lazy val system = {
+    val s = ActorSystem(serviceName)
     sys.addShutdownHook {
-      newSystem.shutdown()
+      s.shutdown()
       flushAllLogs()
     }
-    newSystem
+    s
   }
 
   /**
    * The default [[akka.actor.ActorRefFactory]]
-   * comes from the implicit system in this component.
+   * comes from the implicit `system`.
    */
-  implicit lazy val actorRefFactory: ActorRefFactory = system
+  lazy val actorRefFactory: ActorRefFactory = system
 
   /**
    * The default [[scala.concurrent.ExecutionContext]].
-   * comes from the implicit system in this component.
-   * All components that depend on this one automatically inherit this.
+   * comes from the implicit `system`.
    */
-  implicit lazy val ec: ExecutionContext = system.dispatcher
-
+  lazy val executionContext: ExecutionContext = system.dispatcher
 }
+
