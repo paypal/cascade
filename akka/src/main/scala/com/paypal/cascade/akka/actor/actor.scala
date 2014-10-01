@@ -15,26 +15,13 @@
  */
 package com.paypal.cascade.akka
 
-import scala.concurrent.ExecutionContext
 import scala.util.Try
-import akka.actor.{ActorRefFactory, ActorSystem, Status}
+import akka.actor.Status
 
 /**
  * Convenience methods and implicit wrappers for working with [[akka.actor.Actor]] classes
  */
 package object actor {
-
-  implicit def actorSystemWrapperToSystem(wrapper: ActorSystemWrapper): ActorSystem = {
-    wrapper.system
-  }
-
-  implicit def actorSystemWrapperToFactory(wrapper: ActorSystemWrapper): ActorRefFactory = {
-    wrapper.actorRefFactory
-  }
-
-  implicit def actorSystemWrapperToExecutionContext(wrapper: ActorSystemWrapper): ExecutionContext = {
-    wrapper.executionContext
-  }
 
   /**
    * Implicit wrapper for Try objects, with methods that interoperate with Actors

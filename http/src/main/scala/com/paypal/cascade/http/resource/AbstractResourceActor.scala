@@ -62,11 +62,10 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
       setNextStep[HttpResponse]
       log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTrace.mkString("", EOL, EOL))
       t match {
-        case e: Exception => {
+        case e: Exception =>
           val respFromError = handleError(e)
           val respPlusHeaders = respFromError.withHeaders(addLanguageHeader(responseLanguage, respFromError.headers))
           self ! respPlusHeaders
-        }
         case t: Throwable => throw t
       }
   }

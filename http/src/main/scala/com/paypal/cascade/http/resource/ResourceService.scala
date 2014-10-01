@@ -15,6 +15,7 @@
  */
 package com.paypal.cascade.http.resource
 
+import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import spray.can.Http.GetStats
 import spray.can.server.Stats
 import spray.http._
@@ -22,14 +23,12 @@ import spray.http.ContentTypes
 import spray.http.HttpEntity
 import spray.http.StatusCodes._
 import spray.routing._
-import com.paypal.cascade.akka.actor.ActorSystemComponent
-import com.paypal.cascade.common.service.ServiceNameComponent
 import com.paypal.cascade.common.properties.BuildProperties
 import com.paypal.cascade.json._
-import com.paypal.cascade.http.server.StatusResponse
+import com.paypal.cascade.http.server.{SprayConfiguration, StatusResponse}
 import scala.util.{Failure, Success}
 import scala.concurrent.duration._
-import akka.actor.{ActorSystem, ActorSelection}
+import akka.actor.ActorSelection
 import akka.pattern.ask
 
 /**
@@ -41,8 +40,11 @@ import akka.pattern.ask
  *
  */
 trait ResourceService extends HttpService {
-  val serviceName: String
-  val actorSystem: ActorSystem
+  val config: SprayConfiguration
+  val actorSystemWrapper: ActorSystemWrapper
+
+  private implicit val actorSystem = actorSystemWrapper.system
+  private implicit val executionContext = actorSystemWrapper.executionContext
 
   /**
    * Configuration value provided
@@ -53,7 +55,7 @@ trait ResourceService extends HttpService {
   // A source of build-specific values for this service
   protected lazy val buildProps = new BuildProperties
 
-  private lazy val statusResponse = StatusResponse.getStatusResponse(buildProps, serviceName)
+  private lazy val statusResponse = StatusResponse.getStatusResponse(buildProps, config.serviceName)
 
   private lazy val statusError = """{"status":"error"}"""
 
