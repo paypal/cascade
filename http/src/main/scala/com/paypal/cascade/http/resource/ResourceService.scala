@@ -40,17 +40,24 @@ import akka.pattern.ask
  *
  */
 trait ResourceService extends HttpService {
+  /**
+   * the configuration of the server
+   */
   val config: SprayConfiguration
+
+  /**
+   * the actor system for the server to dispatch requests on
+   */
   val actorSystemWrapper: ActorSystemWrapper
 
-  private implicit val actorSystem = actorSystemWrapper.system
-  private implicit val executionContext = actorSystemWrapper.executionContext
+  private implicit lazy val actorSystem = actorSystemWrapper.system
+  private implicit lazy val executionContext = actorSystemWrapper.executionContext
 
   /**
    * Configuration value provided
    * The routing rules for this service
    */
-  val route: Route
+  lazy val route: Route = config.route
 
   // A source of build-specific values for this service
   protected lazy val buildProps = new BuildProperties
