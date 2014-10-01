@@ -32,8 +32,7 @@ import spray.io.ServerSSLEngineProvider
 class SprayActor(override val config: SprayConfiguration,
                  override val actorSystemWrapper: ActorSystemWrapper,
                  override val route: Route) extends Actor with ResourceService {
-  //lifting implicits
-  //Why are these here? Because implicit scoping is not bringing them into the inner class here
+  //lifting implicits so we can pass them explicitly to runRoute below
   private val exceptionHandler = implicitly[ExceptionHandler]
   private val rejectionHandler = implicitly[RejectionHandler]
   private val routingSettings = implicitly[RoutingSettings]
@@ -47,7 +46,7 @@ class SprayActor(override val config: SprayConfiguration,
 }
 
 //companion object for creating the spray actor
-private object SprayActor {
+object SprayActor {
   /**
    * Convenience method to start the spray actor.
    * This should be called at startup by the application.
