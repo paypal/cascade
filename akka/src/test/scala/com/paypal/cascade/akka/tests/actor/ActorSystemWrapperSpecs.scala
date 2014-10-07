@@ -42,20 +42,20 @@ class ActorSystemWrapperSpecs
 
   object Initialize {
     case class ActorSystem() extends Context {
-      def ok = this {
+      def ok = apply {
         (wrapper.system must not beNull) and
           (wrapper.system must beAnInstanceOf[akka.actor.ActorSystem])
       }
     }
     case class ActorRefFactory() extends Context {
-      def ok = this {
+      def ok = apply {
         (wrapper.actorRefFactory must not beNull) and
           (wrapper.actorRefFactory must beAnInstanceOf[akka.actor.ActorRefFactory]) and
           (wrapper.actorRefFactory must beEqualTo(wrapper.system))
       }
     }
     case class ExecutionContext() extends Context {
-      def ok = this {
+      def ok = apply {
         (wrapper.executionContext must not beNull) and
           (wrapper.executionContext must beAnInstanceOf[scala.concurrent.ExecutionContext]) and
           (wrapper.executionContext must beEqualTo(wrapper.system.dispatcher))
