@@ -20,10 +20,10 @@ import spray.routing.Route
 /**
  * This class provides configuration information for a spray service
  */
-class SprayConfiguration(val serviceName: String, val port: Int, val backlog: Int)(val route: Route)
+class SprayConfiguration(val serviceName: String, val port: Int, val backlog: Int, val route: Route)
 
 object SprayConfiguration {
   def apply(serviceName: String, port: Int, backlog: Int)(route: Route): SprayConfiguration = {
-    new SprayConfiguration(serviceName, port, backlog)(route)
+    new SprayConfiguration(serviceName, port, backlog, route)
   }
 }

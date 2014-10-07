@@ -26,7 +26,6 @@ import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import spray.io.ServerSSLEngineProvider
 
 /**
- * Implementation
  * The root actor implementation used by spray
  */
 class SprayActor(override val config: SprayConfiguration,
