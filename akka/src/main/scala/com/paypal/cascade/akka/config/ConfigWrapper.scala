@@ -20,6 +20,6 @@ import com.typesafe.config.ConfigFactory
 /**
  * Simple wrapper to hold parsed Typesafe config files
  */
-class ConfigWrapper() {
+object ConfigWrapper {
   lazy val config = ConfigFactory.load()
 }
