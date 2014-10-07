@@ -43,7 +43,7 @@ class SprayActorSpecs
     val route = mock[Route]
 
     val wrapper = new ActorSystemWrapper(serviceName)
-    val config = new SprayConfiguration(serviceName, port, backlog)(route)
+    val config = new SprayConfiguration(serviceName, port, backlog, route)
   }
 
   case class Initialize() extends Context {
