@@ -29,8 +29,12 @@ import com.paypal.cascade.common.option._
 /**
  * Provides the client to make requests against Spray routes without starting a server and without incurring
  * any network traffic
+ * @param config The configuration of the Spray server, including the routes.
+ *               Since this method won't start up a real server, the port and backlog
+ *               members of this object are ignored.
+ * @param actorSystemWrapper The wrapper for the test-wide ActorSystem. Use one ActorSystemWrapper for your whole test.
  */
-class SprayRoutingClient {
+class SprayRoutingClient(config: SprayConfiguration, actorSystemWrapper: ActorSystemWrapper) {
 
   /**
    * Make a request against the spray routes defined in config
@@ -38,19 +42,12 @@ class SprayRoutingClient {
    * @param url Relative path indicating route to use
    * @param headers Headers in the request
    * @param body Body of the request, None if no body; defaults to None
-   * @param config The configuration of the Spray server, including the routes.
-   *               Since this method won't start up a real server, the port and backlog
-   *               members of this object are ignored.
-   * @param actorSystemWrapper The wrapper for the test-wide ActorSystem. You should use
-   *                           one ActorSystemWrapper for your entire test.
    * @return A spray HttpResponse with the server's response
    */
   def makeRequest(method: HttpMethod,
                   url: String,
                   headers: List[HttpHeader],
-                  body: Option[HttpEntity] = None)
-                 (config: SprayConfiguration,
-                  actorSystemWrapper: ActorSystemWrapper): HttpResponse = {
+                  body: Option[HttpEntity] = None): HttpResponse = {
     implicit val system = actorSystemWrapper.system
     val testActor = TestActorRef(new RequestRunner(config, actorSystemWrapper))
     testActor.underlyingActor.makeRequest(method, url, headers, body)
