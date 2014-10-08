@@ -80,7 +80,9 @@ package object future {
      * @return a Future of type Unit.
      */
     def toUnit(implicit ctx: ExecutionContext): Future[Unit] = {
-      v.transform(_ => (), identity)
+      v.map { _ =>
+        ()
+      }
     }
 
   }
