@@ -73,6 +73,16 @@ package object future {
       v.transform(identity, f.applyOrElse(_, identity[Throwable]))
     }
 
+    /**
+     * Converts a Future of any type into a Future with no contained return value.  This is useful when you care about
+     * the completion of a Future and it's success or failure but not the value of a success.
+     * @param ctx implicitly, the execution context of this Future
+     * @return a Future of type Unit.
+     */
+    def toUnit(implicit ctx: ExecutionContext): Future[Unit] = {
+      v.transform(_ => (), identity)
+    }
+
   }
 
 }
