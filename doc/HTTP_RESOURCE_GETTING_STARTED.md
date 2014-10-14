@@ -2,85 +2,97 @@
 
 This document will walk you through building an HTTP server on top of Spray,
 Akka and Cascade. All of the code examples are based on our
-[working HTTP server example](/examples/src/main/scala/com/paypal/cascade/examples/http/resource/)
+[working HTTP server example](/examples/src/main/scala/com/paypal/cascade/examples/http/resource/).
 
-## Routes
-Your HTTP server must have 1 or more routes (`GET /hello`, for example). You'll
-define your routes in a Cake pattern **module**, which will also include
-`SprayActorComponent`, `ActorSystemComponent`, `ServiceNameComponent`,
-`SprayConfigurationComponent`, and `ResourceServiceComponent`.
+For more details on how Cascade's HTTP support works, see
+[HTTP_RESOURCE.md](HTTP_RESOURCE.md).
 
-Create a parent module called `ServerModule` that defines all of those other
-components and then a single child module that implements your production server.
+## Resources
+A resource implements handlers for incoming requests. Each resource is a class
+that extends `AbstractResourceActor` (which eventually extends Akka `Actor`),
+that implements a `resourceReceive` method.
 
-You'll define your routes in your child module(s), and each route should
-call `ResourceDriver.serve(...)`.
+`resourceReceive` is similar to the `receive` in Akka. It's a `PartialFunction`
+that can accept multiple messages. Each message represents an individual
+request, and all messages will be wrapped in a `ProcessRequest` case class.
 
-Example:
-
-```scala
-trait ServerModule
-  extends SprayActorComponent
-  with ActorSystemComponent
-  with ServiceNameComponent
-  with SprayConfigurationComponent
-  with ResourceServiceComponent
-
-object ProductionServerModule extends ServerModule {
-  override lazy val serviceName = ???
-  override lazy val port = ???
-  override lazy val backlog = ???
-
-  //you can use spray-routing or your own logic here. Call
-  //ResourceDriver.serve(yourResource, ...) to return the
-  //RequestContext => Unit that implements your functionality.
-  override lazy val route: RequestContext => Unit = get {
-    path("hello") {
-      ResourceDriver.serve({ resourceContext =>
-        new MyResource(resourceContext)
-      }, { req =>
-        parseRequest(req)
-      })
-    }
-  }
-}
-```
-
-See the [example `ServerModule`](/examples/src/main/scala/com/paypal/cascade/examples/http/resource/MyHttpServerModule.scala)
-for working code.
-
-## Resource
-You defined the HTTP routes in your module, and you implement them in the
-resource. A resource is a class that extends `AbstractResourceActor` and
-defines a `resourceReceive` method, which should accept `ProcessRequest`
-messages to process requests. The values inside those messages will be the
-parsed values that `ResourceDriver` produced (see below). Example:
+Below is an example resource.
 
 ```scala
 class MyResource(ctx: ResourceContext) extends AbstractResourceActor(ctx) {
-    override def resourceReceive = {
-        //processing a request that was not parsed at all
-        case ProcessRequest(req: HttpRequest) => completeToJSON(StatusCodes.OK, "hello world!")
-        //processing a request that was parsed by the ResourceDriver
-        case ProcessRequest(req: GetHelloWorld) => completeToJSON(StatusCodes.OK, "hello world 2!")
-    }
+  override def resourceReceive = {
+    //processing a request that was not parsed at all.
+    case ProcessRequest(req: HttpRequest) =>
+      completeToJSON(StatusCodes.OK, "hello world!")
+    //processing a request that was parsed by the ResourceDriver
+    case ProcessRequest(req: GetHelloWorld) =>
+      completeToJSON(StatusCodes.OK, "hello world 2!")
+  }
 }
-```
 
-## Entry Point
-
-The last and simplest part will bind to the right port and run the server when
-the JVM starts. That code simply looks like the following:
-
-```scala
-object MyHttpServer extends CascadeApp {
-  ProductionServerModule.start
-
+object MyResource {
+  //this is a convenience method used as a a parameter in
+  //ResourceDriver.serve, which you'll see later.
+  def apply(ctx: ResourceContext): MyResource = {
+    new MyResource(ctx)
+  }
 }
 ```
 
 A few notes:
 
-- Make sure your `object` extends `CascadeApp`.
-- The `ProductionServerModule.start` method is defined on `SprayActorComponent`,
-which is mixed in by `ServerModule`.
+- Resources don't define routes to bind to, nor do they couple tightly with
+the functionality to parse a request into a Scala type. Cascade makes routes,
+parsing and resources orthogonal on purpose. You can take advantage of that
+orthogonality in a lot of ways. Here are a few ideas:
+  - re-use routes for different servers (e.g. a dev and a prod server)
+  - switch parsers at runtime (e.g. for different request body encodings)
+  - switch resources at runtime (e.g. to do dependency injection)
+- You can create a new resource instance for each incoming request or reuse a
+resource across requests. We recommend the former so that a single resource
+actor can safely store state for a single request. Also, we only built support
+for the first pattern in `ResourceDriver` (see below.)
+
+## Routes & Startup
+As mentioned in the last section, your HTTP server has a set of routes that
+execute your resources when a request matches a route.
+
+You define your routes and spray server configs at the same time inside a
+`SprayConfiguration` class.
+
+As mentioned above, we recommend that you call `ResourceDriver.serve(...)`
+inside each route, to create a new resource actor for each request. That
+pattern follows what Spray does for HTTP handler actors.
+
+As you'll see in the example below, `ResourceDriver.serve(...)` takes in a
+resource construction function and a request parsing function. Your resource
+can have multiple handlers, so you can use one resource actor with multiple
+different parsers. Your server will still work as long as the resource works
+with the different parsed bodies you send to it.
+
+```scala
+object MyServer extends CascadeApp {
+  val svcName = "sample-service"
+  val cfg = SprayConfiguration(serviceName = svcName, port = 8080, backlog = 5) {
+    //This is where you put your routes. We recommend using spray-routing here,
+    //but you can also write your own routing code that returns a
+    //spray.routing.Route.
+    get {
+      path("hello") {
+        ResourceDriver.serve(MyResource.apply, parseRequest)
+      }
+    }
+  }
+  val sysWrapper = new ActorSystemWrapper(svcName)
+  //this is what actually starts your server
+  SprayActor.start(sysWrapper, cfg)
+}
+```
+
+One final note - make sure your `MyServer` object extends `CascadeApp`. Doing
+so will set up some global logging and exception handling features that work
+best with Spray/Akka servers.
+
+See the
+[example `ServerModule`](/examples/src/main/scala/com/paypal/cascade/examples/http/resource/MyHttpServerModule.scala)
+for working code.
