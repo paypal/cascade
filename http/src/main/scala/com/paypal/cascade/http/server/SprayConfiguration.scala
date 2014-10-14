@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.cascade.akka.config
+package com.paypal.cascade.http.server
 
-import com.typesafe.config.ConfigFactory
+import spray.routing.Route
 
 /**
- * Simple component which provides access to a configuration file
+ * This class provides configuration information for a spray service
  */
-trait ConfigComponent {
+class SprayConfiguration(val serviceName: String, val port: Int, val backlog: Int, val route: Route)
 
-  /* Loads application.conf */
-  lazy val config = ConfigFactory.load()
-
+object SprayConfiguration {
+  def apply(serviceName: String, port: Int, backlog: Int)(route: Route): SprayConfiguration = {
+    new SprayConfiguration(serviceName, port, backlog, route)
+  }
 }
