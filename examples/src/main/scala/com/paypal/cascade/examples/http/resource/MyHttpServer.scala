@@ -24,6 +24,17 @@ import com.paypal.cascade.http.actor.SprayActor
  * useful logging and exception handling logic for you.
  */
 object MyHttpServer extends CascadeApp {
-  SprayActor.start(MyActorSystemWrapper, MySprayConfiguration)
+  val MyActorSystemWrapper = new ActorSystemWrapper("MyHttpService")
 
+  private implicit val actorRefFactory = MyActorSystemWrapper.actorRefFactory
+
+  val MySprayConfiguration  = SprayConfiguration("my-http-server", 8080, 5) {
+    get {
+      path("hello") {
+        ResourceDriver.serve(MyHttpResource.apply, MyHttpResource.requestParser)
+      }
+    }
+  }
+
+  SprayActor.start(MyActorSystemWrapper, MySprayConfiguration)
 }
