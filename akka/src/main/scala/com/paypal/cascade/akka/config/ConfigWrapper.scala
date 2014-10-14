@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.cascade.http.server
+package com.paypal.cascade.akka.config
+
+import com.typesafe.config.ConfigFactory
 
 /**
- * This component provides configuration information for a spray service
+ * Simple wrapper to hold parsed Typesafe config files
  */
-trait SprayConfigurationComponent {
-
-  //configuration variables provided below
-
-  /**
-   * The port the spray service should listen on
-   */
-  val port: Int
-
-  /**
-   * Number of backlogged connections spray should allow before resetting connections
-   */
-  val backlog: Int
-
+object ConfigWrapper {
+  lazy val config = ConfigFactory.load()
 }

@@ -30,7 +30,8 @@ import com.paypal.cascade.http.resource.HttpResourceActor.RequestIsProcessed
  * Base class for HTTP resources built with Spray.
  * @param resourceContext Context containing information needed to service the request, such as the parent actor
  */
-abstract class AbstractResourceActor(private val resourceContext: HttpResourceActor.ResourceContext) extends HttpResourceActor(resourceContext) {
+abstract class AbstractResourceActor(private val resourceContext: HttpResourceActor.ResourceContext)
+  extends HttpResourceActor(resourceContext) {
 
   /**
    * The receive function for this resource. Should not be overridden - implement [[resourceReceive]] instead
@@ -62,11 +63,10 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
       setNextStep[HttpResponse]
       log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTrace.mkString("", EOL, EOL))
       t match {
-        case e: Exception => {
+        case e: Exception =>
           val respFromError = handleError(e)
           val respPlusHeaders = respFromError.withHeaders(addLanguageHeader(responseLanguage, respFromError.headers))
           self ! respPlusHeaders
-        }
         case t: Throwable => throw t
       }
   }
