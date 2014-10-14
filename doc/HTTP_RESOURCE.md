@@ -8,38 +8,50 @@ This document contains a detailed discussion of how Cascade's HTTP support
 works. If you'd rather start building immediately, please see our
 [getting started guide](HTTP_RESOURCE_GETTING_STARTED.md).
 
-## Introduction
+# Public Facing Components
 
-Cascade's primary building block for REST servers is a **Resource**, which
-abstracts a full HTTP request lifetime.
+Cascade's primary building block for REST servers is a **Resource**. A resource
+is an actor that you write to handle an incoming HTTP request. When you define
+your routes, you create a new resource actor each time the route is called.
 
-Resources are organized into the following logical pieces:
+There are a few other pieces of a Cascade HTTP server that work with
+resources. They're listed below.
 
-* `HttpResourceActor` - similar to the Spray HTTP actor, an instance of this
-actor gets started for each request. This
-actor runs a state machine for the HTTP request it was started for. For example,
-the state machine starts with ensuring
-that the `Content-Type` header represents an acceptable and supported content
-type. It then moves to parsing the request,
-and so on.
-* `AbstractResourceActor` - extends `HttpResourceActor` and provides convenience
-methods for you to write
-your resource actor. When you write your resource, you extend this class.
-* `ResourceDriver` - an object that contains a `serve` function that sets up an
-`AbstractResourceActor` and tells it to start processing a request. `serve`
-itself returns a function which can be immediately be passed to
-`spray-routing`'s `complete` function.
-* `ResourceService` - a trait that you mixin to your route definitions. mixing
-in this trait automatically provides you with a `/status` and `/stats` endpoint.
-See below for more details.
+* `AbstractResourceActor` - this is an Akka `Actor` that you extend when you
+write your resource.
+* `ResourceDriver` - this is an `object` that contains a `serve` function
+intended to be called inside a route to create the resource actor, run the HTTP
+state machine (mentioned above), and complete the response. `serve` itself
+returns a function that is compatible with `spray-routing`'s `complete`
+function.
+* `SprayActor` - this is an actor that starts a Spray HTTP server. It registers
+your routes, adds some of its own utility routes (e.g. `/stats` and `/status`)
+and sets up some configuration parameters (e.g. the Spray backlog). Use this
+actor to start up your server.
 
-# ResourceService
-`ResourceService` automatically adds two routes to your defined routes:
+# Internals
 
-- `/status`
-- `/stats`
+The remainder of this document describes the internals HTTP components of
+Cascade.
 
-## Status
+## HttpResourceActor
+
+This is an internal Akka `Actor` that runs a request through a state machine
+for part of an HTTP request lifecycle.
+
+For example, the state machine ensures that the `Content-Type` header on the
+request is acceptable and supported before it moves on to parsing the request.
+`AbstractResourceActor` extends `HttpResourceActor`, so your resource also
+extends `HttpResourceActor` transitively.
+
+## ResourceService
+This is an internal `trait` that `SprayActor` (see above) mixes in.
+`ResourceService` automatically adds a `/status` and `/stats` endpoint to all
+`SprayActor`-based servers.
+
+See below for details on the two endpoints
+
+### Status
 `/status` returns current build information for the project. This includes the
 service name, dependencies, and Git branch and commit information.
 In order to get this information, make a `GET` request to `/status` with a
@@ -67,7 +79,7 @@ That `curl` call returns json data that looks like the following:
 }
 ```
 
-## Stats
+### Stats
 `/stats` returns internal Spray monitoring information for the build. In order
 to get this information, make a `GET` request to `/stats` with a
 `x-service-stats` header in the request (the value of the header doesn't
