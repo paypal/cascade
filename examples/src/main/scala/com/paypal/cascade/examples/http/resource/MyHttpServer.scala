@@ -16,6 +16,7 @@
 package com.paypal.cascade.examples.http.resource
 
 import com.paypal.cascade.common.app.CascadeApp
+import com.paypal.cascade.http.actor.SprayActor
 
 /**
  * MyHttpServer is the entrypoint to your HTTP server.
@@ -23,6 +24,6 @@ import com.paypal.cascade.common.app.CascadeApp
  * useful logging and exception handling logic for you.
  */
 object MyHttpServer extends CascadeApp {
-  MyHttpServerModule.start
+  SprayActor.start(MyActorSystemWrapper, MySprayConfiguration)
 
 }
