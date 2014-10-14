@@ -70,11 +70,11 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is = 
         ResourceDriver.serve(createDummyResource, parseRequest)(actorSystemWrapper.actorRefFactory)
       }
     } ~
-      path("ping-rewrite") {
-        get {
-          ResourceDriver.serveWithRewrite(createDummyResource)(rewriteRequest)(actorSystemWrapper.actorRefFactory)
-        }
+    path("ping-rewrite") {
+      get {
+        ResourceDriver.serveWithRewrite(createDummyResource)(rewriteRequest)(actorSystemWrapper.actorRefFactory)
       }
+    }
   }
 
   val statsObject = SprayStats(new FiniteDuration(1L, TimeUnit.SECONDS), 1L, 1L, 1L, 1L, 1L, 1L, 1L)
