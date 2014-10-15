@@ -55,7 +55,8 @@ object BuildSettings {
     releaseProcess := BuildUtilities.defaultReleaseProcess
   )
 
-  lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ bintrayPublishSettings ++ Seq(
+  lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
+    licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0")),
     organization := org,
     scalaVersion := scalaVsn,
     crossScalaVersions := Seq(scalaVsn, "2.10.4"),
@@ -90,11 +91,11 @@ object BuildSettings {
       links.collect { case Some(d) => d }.toMap
     },
     publishTo := {
-      val nexus = s"https://oss.sonatype.org/"
+      val bintray = "http://jcenter.bintray.com"
       if (isSnapshot.value) {
-        Some("snapshots" at nexus + "content/repositories/snapshots")
+        Some("snapshots" at bintray)
       } else {
-        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+        Some("releases" at bintray)
       }
     },
     conflictManager := ConflictManager.strict,
@@ -221,7 +222,7 @@ object CommonBuild extends Build {
   import Dependencies._
 
   lazy val parent = Project("parent", file("."),
-    settings = standardSettings ++ BuildUtilities.utilitySettings ++ standardReleaseSettings ++ Seq(
+    settings = standardSettings ++ bintrayPublishSettings ++ BuildUtilities.utilitySettings ++ standardReleaseSettings ++ Seq(
       name := "parent",
       unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(examples),
       publish := {}
