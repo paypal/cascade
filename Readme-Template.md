@@ -162,4 +162,42 @@ synched with your host machine. Edit your code on the host machine and build/run
 If you don't have Vagrant, you'll need [Scala 2.11.2](http://scala-lang.org/download/) and
 [SBT 0.13.5](http://www.scala-sbt.org/download.html) to build and run this project.
 
+# Releasing A New Version
+When it's time to release a new version of Cascade, use the SBT console to do
+so.
+
+## Preliminary Steps
+You only have to do these steps once to set up your computer or VM.
+
+### Sonatype Credentials File
+Make sure you have a `~/.sbt/0.13/sonatype.sbt` file that looks like this:
+
+```scala
+credentials += Credentials("Sonatype Nexus Repository Manager",
+  "oss.sonatype.org",
+  "$YourUsername",
+  "$YourPassword")
+```
+
+`$YourUsername` and `$YourPassword` need to be the same as your authentication
+information at [oss.sonatype.org](https://oss.sonatype.org).
+
+### GPG Key Generation
+Open up an SBT console in the Cascade repo, then do these steps:
+
+- `set pgpReadOnly := false`
+- `pgp-cmd gen-key`
+- `pgp-cmd send-key $name hkp://keyserver.ubuntu.com`
+  - `$name` is the name of the key you set in step 2.
+
+## Publishing And Closing A New Version
+
+- `publishSigned`
+  - If it prompts for a GPG password, use the one you set when you ran
+  `pgp-cmd gen-key`.
+- `sonatypeRelease`
+  - If there are multiple staged repositories opened, go to
+  [the sonatype UI](https://oss.sonatype.org) and find yours. When you do,
+  record the name and `sonatypeRelease $your_repo`.
+
 {{auto-gen}}
