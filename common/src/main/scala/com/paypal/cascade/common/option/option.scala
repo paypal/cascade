@@ -170,7 +170,7 @@ package object option {
      * Either the value inside this option, or false
      * @return the value inside this option, or false
      */
-    def orFalse: Boolean = optionBoolean.orFalse
+    def orFalse: Boolean = optionBoolean.getOrElse(false)
 
     /**
      * Either the value inside this option, or true
