@@ -170,13 +170,26 @@ package object option {
      * Either the value inside this option, or false
      * @return the value inside this option, or false
      */
-    def orFalse: Boolean = optionBoolean.getOrElse(false)
+    def orFalse: Boolean = optionBoolean.orFalse
 
     /**
      * Either the value inside this option, or true
      * @return the value inside this option, or true
      */
     def orTrue: Boolean = optionBoolean.getOrElse(true)
+  }
+
+  /**
+   * Convenience methods for working with Option[List[A]]
+   * @param optionList this Option[List[T]]
+   */
+  implicit class OptionList[T](optionList: Option[List[T]]) {
+
+    /**
+     * Either the return value inside this option, or Nil
+     * @return the value inside this option, or Nil
+     */
+    def orNil: List[T] = optionList.getOrElse(Nil)
   }
 
 }
