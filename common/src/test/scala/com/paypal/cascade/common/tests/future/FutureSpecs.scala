@@ -31,6 +31,10 @@ class FutureSpecs extends Specification with ScalaCheck with LoggingSugar { def 
     Converts Throwable to different type via full function                    ${FutureMapFailure().fullFuncSuccess}
     Converts Throwable to different type via partial function                 ${FutureMapFailure().pfSuccess}
 
+  toUnit:
+    Converts a successful Future[T] to Future[Unit]                           ${FutureToUnit().successful}
+    Converts a failed Future[T] to Future[Unit]                               ${FutureToUnit().failed}
+
 """
   implicit val ec: ExecutionContext = sequentialExecutionContext(getLogger[FutureSpecs])
   case class CustomException(message: String) extends Exception(message)
@@ -49,6 +53,19 @@ class FutureSpecs extends Specification with ScalaCheck with LoggingSugar { def 
         case e: Exception => new CustomException(e.getMessage)
       }
       mapped.toTry must beAFailedTry[Unit].withThrowable[CustomException]
+    }
+  }
+
+  case class FutureToUnit() {
+    def successful = {
+      val fut = Future.successful("This is a Future[String]")
+      val unitFut = fut.toUnit
+      unitFut.toTry must beASuccessfulTry[Unit]
+    }
+    def failed = {
+      val fut = Future.failed[String](new CustomException("This is a failed Future[String]"))
+      val unitFut = fut.toUnit
+      unitFut.toTry must beAFailedTry[Unit].withThrowable[CustomException]
     }
   }
 

@@ -15,6 +15,7 @@
  */
 package com.paypal.cascade.http.tests.resource
 
+import com.fasterxml.jackson.databind.JsonMappingException
 import org.specs2.SpecificationLike
 import akka.testkit.{TestActorRef, TestKit}
 import akka.actor.ActorSystem
@@ -51,6 +52,7 @@ class HttpResourceActorSpecs
     The ResourceActor will still succeed if blocking code takes too long. DON'T BLOCK in HttpActors!                         ${Start().timeOutFailsOnBlockingRequestProcessor}
 
     If the request parser is a failure due to malformed json, Status.Failure is called and a 400 is returned                 ${JsonParseFail().reqParserFail}
+    If the request parser is a failure due to wrong data type in json, Status.Failure is called and a 400 is returned        ${JsonParseFail().reqParserFail}
 
     The actor calls the before() method                                                                                      ${BeforeAfter().beforeCalled}
     The actor calls the after() method                                                                                       ${BeforeAfter().afterCalled}
@@ -178,6 +180,20 @@ class HttpResourceActorSpecs
   case class JsonParseFail() extends Context {
     override protected lazy val reqParser: HttpResourceActor.RequestParser = { req: HttpRequest =>
       Failure(new JsonParseException("could not parse json", JsonLocation.NA))
+    }
+    def reqParserFail = apply {
+      val refAndProbe = RefAndProbe(TestActorRef(new DummyResource(ResourceContext(dummyReqCtx, reqParser))))
+      refAndProbe.ref ! HttpResourceActor.Start
+      val failedRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
+        case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.BadRequest)
+      }
+      failedRes
+    }
+  }
+
+  case class JsonMapFail() extends Context {
+    override protected lazy val reqParser: HttpResourceActor.RequestParser = { req: HttpRequest =>
+      Failure(new JsonMappingException("could not map json to right type", JsonLocation.NA))
     }
     def reqParserFail = apply {
       val refAndProbe = RefAndProbe(TestActorRef(new DummyResource(ResourceContext(dummyReqCtx, reqParser))))

@@ -1,4 +1,5 @@
 # The Cake Pattern
+
 [PATTERNS.md](PATTERNS.md) briefly describes the Cake pattern. Since this
 document shows thorough details and examples of the pattern in action,
 please make sure to read the patterns document first.
