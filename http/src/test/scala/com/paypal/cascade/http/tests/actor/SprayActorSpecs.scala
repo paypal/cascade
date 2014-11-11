@@ -47,7 +47,7 @@ class SprayActorSpecs
 
     val wrapper = new ActorSystemWrapper(serviceName)
     val config = new SprayConfiguration(serviceName, port, backlog, route)
-    implicit val timeout = Timeout(1, TimeUnit.SECONDS)
+    implicit val timeout = Timeout(10, TimeUnit.SECONDS)
   }
 
   case class Initialize() extends Context {
@@ -55,7 +55,7 @@ class SprayActorSpecs
     def ok() = apply {
       //do this to make sure no exceptions on startup
       val fut = SprayActor.start(wrapper, config)(mock[ServerSSLEngineProvider], timeout)
-      Await.result(fut, timeout.duration) must beEqualTo(Http.Bound)
+      Await.result(fut, timeout.duration) must beAnInstanceOf[Http.Bound]
     }
   }
 }
