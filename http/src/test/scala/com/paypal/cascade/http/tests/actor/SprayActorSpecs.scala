@@ -25,6 +25,7 @@ import com.paypal.cascade.http.actor._
 import com.paypal.cascade.http.server._
 import spray.routing._
 import spray.io.ServerSSLEngineProvider
+import scala.concurrent.Await
 
 /**
  * Tests for [[com.paypal.cascade.http.actor.SprayActor]]
@@ -50,9 +51,11 @@ class SprayActorSpecs
   }
 
   case class Initialize() extends Context {
+    import spray.can._
     def ok() = apply {
       //do this to make sure no exceptions on startup
-      SprayActor.start(wrapper, config)(mock[ServerSSLEngineProvider], timeout) must beEqualTo(())
+      val fut = SprayActor.start(wrapper, config)(mock[ServerSSLEngineProvider], timeout)
+      Await.result(fut, timeout.duration) must beEqualTo(Http.Bound)
     }
   }
 }
