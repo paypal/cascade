@@ -59,17 +59,19 @@ object SprayActor {
    * @param sslEngineProvider the SSL provider to be used by this spray service. A sane default is provided. See
    *                          <a href="http://spray.io/documentation/1.2.1/spray-can/http-server/#ssl-support">
    *                            spray-can HTTP Server SSL support</a>.
+   * @return a Future[Any] that will contain Http.Bound if the server successfully started.
+   *         see http://spray.io/documentation/1.2.2/spray-can/http-server/ under
+   *         "starting and stopping" for details on failure modes
    */
   def start(systemWrapper: ActorSystemWrapper,
             sprayConfig: SprayConfiguration)
-           (implicit sslEngineProvider: ServerSSLEngineProvider): Future[Http.Bound] = {
+           (implicit sslEngineProvider: ServerSSLEngineProvider,
+            timeout: Timeout): Future[Any] = {
     //used for AkkaIO(...)
     implicit val actorSystem = systemWrapper.system
 
     val sprayActorProps = Props(new SprayActor(sprayConfig, systemWrapper))
     val sprayActor = systemWrapper.system.actorOf(sprayActorProps)
-    implicit val timeout = Timeout.apply(1, TimeUnit.SECONDS)
-    (AkkaIO(Http) ? Http.Bind(sprayActor, interface = "0.0.0.0", port = sprayConfig.port, backlog = sprayConfig.backlog)).mapTo[Http.Bound]
+    AkkaIO(Http) ? Http.Bind(sprayActor, interface = "0.0.0.0", port = sprayConfig.port, backlog = sprayConfig.backlog)
   }
 }
-
