@@ -15,6 +15,8 @@
  */
 package com.paypal.cascade.http.tests.actor
 
+import java.util.concurrent.TimeUnit
+import akka.util.Timeout
 import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import org.specs2._
 import org.specs2.mock.Mockito
@@ -44,12 +46,13 @@ class SprayActorSpecs
 
     val wrapper = new ActorSystemWrapper(serviceName)
     val config = new SprayConfiguration(serviceName, port, backlog, route)
+    implicit val timeout = Timeout(1, TimeUnit.SECONDS)
   }
 
   case class Initialize() extends Context {
     def ok() = apply {
       //do this to make sure no exceptions on startup
-      SprayActor.start(wrapper, config)(mock[ServerSSLEngineProvider]) must beEqualTo(())
+      SprayActor.start(wrapper, config)(mock[ServerSSLEngineProvider], timeout) must beEqualTo(())
     }
   }
 }
