@@ -34,7 +34,7 @@ import com.paypal.cascade.common.option._
  *               members of this object are ignored.
  * @param actorSystemWrapper The wrapper for the test-wide ActorSystem. Use one ActorSystemWrapper for your whole test.
  */
-class SprayRoutingClient(config: SprayConfiguration, actorSystemWrapper: ActorSystemWrapper) {
+class SprayRoutingClient(sprayConfig: SprayConfiguration, actorSystemWrapper: ActorSystemWrapper) {
 
   /**
    * Make a request against the spray routes defined in config
@@ -49,7 +49,7 @@ class SprayRoutingClient(config: SprayConfiguration, actorSystemWrapper: ActorSy
                   headers: List[HttpHeader],
                   body: Option[HttpEntity] = None): HttpResponse = {
     implicit val system = actorSystemWrapper.system
-    val testActor = TestActorRef(new RequestRunner(config, actorSystemWrapper))
+    val testActor = TestActorRef(new RequestRunner(sprayConfig, actorSystemWrapper))
     testActor.underlyingActor.makeRequest(method, url, headers, body)
   }
 
@@ -59,7 +59,7 @@ class SprayRoutingClient(config: SprayConfiguration, actorSystemWrapper: ActorSy
   //This actor is not started conventionally, instead makeRequest() starts it up as a TestActorRef within akka's test framework
   //Taken from Doug's old SprayRoutingHttpClient
   //TODO: use ResponseHandlerActor and DummyRequestContext here, so we can eliminate the latch
-  private class RequestRunner(override val config: SprayConfiguration,
+  private class RequestRunner(override val sprayConfig: SprayConfiguration,
                               override val actorSystemWrapper: ActorSystemWrapper) extends Actor with ResourceService {
     //waits for the response from spray, see a few lines below
     private val latch: CountDownLatch = new CountDownLatch(1)

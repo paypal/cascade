@@ -15,20 +15,27 @@
  */
 package com.paypal.cascade.http.actor
 
-import akka.actor.{Props, Actor}
-import spray.routing.{Route, RoutingSettings, RejectionHandler, ExceptionHandler}
-import com.paypal.cascade.http.resource.ResourceService
-import spray.util.LoggingContext
-import spray.can.Http
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.Future
+
+import akka.actor.{Actor, Props}
 import akka.io.{IO => AkkaIO}
-import com.paypal.cascade.http.server.SprayConfiguration
-import com.paypal.cascade.akka.actor.ActorSystemWrapper
+import akka.pattern.ask
+import akka.util.Timeout
+import spray.can.Http
 import spray.io.ServerSSLEngineProvider
+import spray.routing.{ExceptionHandler, RejectionHandler, RoutingSettings}
+import spray.util.LoggingContext
+
+import com.paypal.cascade.akka.actor.ActorSystemWrapper
+import com.paypal.cascade.http.resource.ResourceService
+import com.paypal.cascade.http.server.SprayConfiguration
 
 /**
  * The root actor implementation used by spray
  */
-class SprayActor(override val config: SprayConfiguration,
+class SprayActor(override val sprayConfig: SprayConfiguration,
                  override val actorSystemWrapper: ActorSystemWrapper) extends Actor with ResourceService {
   //lifting implicits so we can pass them explicitly to runRoute below
   private val exceptionHandler = implicitly[ExceptionHandler]
@@ -54,15 +61,15 @@ object SprayActor {
    *                            spray-can HTTP Server SSL support</a>.
    */
   def start(systemWrapper: ActorSystemWrapper,
-            config: SprayConfiguration)
-           (implicit sslEngineProvider: ServerSSLEngineProvider): Unit = {
+            sprayConfig: SprayConfiguration)
+           (implicit sslEngineProvider: ServerSSLEngineProvider): Future[Http.Bound] = {
     //used for AkkaIO(...)
     implicit val actorSystem = systemWrapper.system
 
-    val sprayActorProps = Props(new SprayActor(config, systemWrapper))
+    val sprayActorProps = Props(new SprayActor(sprayConfig, systemWrapper))
     val sprayActor = systemWrapper.system.actorOf(sprayActorProps)
-
-    AkkaIO(Http) ! Http.Bind(sprayActor, interface = "0.0.0.0", port = config.port, backlog = config.backlog)
+    implicit val timeout = Timeout.apply(1, TimeUnit.SECONDS)
+    (AkkaIO(Http) ? Http.Bind(sprayActor, interface = "0.0.0.0", port = sprayConfig.port, backlog = sprayConfig.backlog)).mapTo[Http.Bound]
   }
 }
 
