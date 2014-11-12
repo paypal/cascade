@@ -66,12 +66,16 @@ object SprayActor {
   def start(systemWrapper: ActorSystemWrapper,
             sprayConfig: SprayConfiguration)
            (implicit sslEngineProvider: ServerSSLEngineProvider,
-            timeout: Timeout): Future[Any] = {
+            timeout: Timeout): Future[Http.Event] = {
     //used for AkkaIO(...)
     implicit val actorSystem = systemWrapper.system
 
     val sprayActorProps = Props(new SprayActor(sprayConfig, systemWrapper))
     val sprayActor = systemWrapper.system.actorOf(sprayActorProps)
-    AkkaIO(Http) ? Http.Bind(sprayActor, interface = "0.0.0.0", port = sprayConfig.port, backlog = sprayConfig.backlog)
+    val bindMsg = Http.Bind(sprayActor,
+      interface = "0.0.0.0",
+      port = sprayConfig.port,
+      backlog = sprayConfig.backlog)
+    (AkkaIO(Http) ? bindMsg).mapTo[Http.Event]
   }
 }
