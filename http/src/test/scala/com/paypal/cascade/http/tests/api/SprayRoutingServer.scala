@@ -26,8 +26,7 @@ import spray.http._
 import spray.routing.RequestContext
 
 /**
- * RequestRunner is the Actor that SprayRoutingClient uses as a fake spray server. the request is made with the
- * `makeRequest` call, and
+ * SprayRoutingServer is a fake spray server. Clients can simulate requests on the server with `makeRequest`
  * TODO: use ResponseHandlerActor and DummyRequestContext here, so we can eliminate the latch
  * @param config the configuration that the fake server should run with
  * @param actorSystemWrapper the actor system information that the server should run with
