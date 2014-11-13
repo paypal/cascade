@@ -15,8 +15,12 @@
  */
 package com.paypal.cascade.examples.http.resource
 
+import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import com.paypal.cascade.common.app.CascadeApp
 import com.paypal.cascade.http.actor.SprayActor
+import com.paypal.cascade.http.resource.ResourceDriver
+import com.paypal.cascade.http.server.SprayConfiguration
+import spray.routing.Directives._
 
 /**
  * MyHttpServer is the entrypoint to your HTTP server.
@@ -24,11 +28,11 @@ import com.paypal.cascade.http.actor.SprayActor
  * useful logging and exception handling logic for you.
  */
 object MyHttpServer extends CascadeApp {
-  val MyActorSystemWrapper = new ActorSystemWrapper("MyHttpService")
+  val systemWrapper = new ActorSystemWrapper("MyHttpService")
 
-  private implicit val actorRefFactory = MyActorSystemWrapper.actorRefFactory
+  private implicit val actorRefFactory = systemWrapper.actorRefFactory
 
-  val MySprayConfiguration  = SprayConfiguration("my-http-server", 8080, 5) {
+  val config  = SprayConfiguration("my-http-server", 8080, 5) {
     get {
       path("hello") {
         ResourceDriver.serve(MyHttpResource.apply, MyHttpResource.requestParser)
@@ -36,5 +40,5 @@ object MyHttpServer extends CascadeApp {
     }
   }
 
-  SprayActor.start(MyActorSystemWrapper, MySprayConfiguration)
+  SprayActor.start(systemWrapper, config)
 }

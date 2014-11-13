@@ -34,7 +34,7 @@ import scala.util.Try
  * @param ctx the resource context. will be passed by {{{ResourceDriver}}}
  */
 class MyHttpResource(ctx: ResourceContext) extends AbstractResourceActor(ctx) {
-  override def resourceReceive = {
+  override def resourceReceive: Receive = {
     case ProcessRequest(req: HttpRequest) => completeToJSON(StatusCodes.OK, "world!")
   }
 }

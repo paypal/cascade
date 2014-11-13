@@ -276,7 +276,8 @@ object CommonBuild extends Build {
     dependencies = Seq(
       common % "compile->compile;test->test",
       json   % "compile->compile;test->test",
-      http   % "compile->compile;test->test"
+      http   % "compile->compile;test->test",
+      akka   % "compile->compile;test->test"
     ),
     settings = standardSettings ++ Seq(
       name := "cascade-examples",
