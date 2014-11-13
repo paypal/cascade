@@ -54,7 +54,7 @@ class SprayRoutingServer(override val config: SprayConfiguration,
     val req = HttpRequest(method = method, uri = url, headers = headers, entity = body getOrElse HttpEntity.Empty)
     fullRoute(RequestContext(req, self, req.uri.path))
     latch.await(10, TimeUnit.SECONDS)
-    response getOrElse (throw new IllegalStateException("Request timed out"))
+    response.orThrow(new IllegalStateException("Request timed out"))
   }
 
   override def receive: Actor.Receive = {
