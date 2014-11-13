@@ -17,7 +17,7 @@ package com.paypal.cascade.http.tests.api
 
 import java.util.concurrent.{TimeUnit, CountDownLatch}
 
-import akka.actor.Actor
+import akka.actor.{ActorSelection, Actor}
 import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import com.paypal.cascade.common.option._
 import com.paypal.cascade.http.resource.ResourceService
@@ -33,11 +33,14 @@ import spray.routing.RequestContext
  * @param actorSystemWrapper the actor system information that the server should run with
  */
 class SprayRoutingServer(override val config: SprayConfiguration,
-                         override val actorSystemWrapper: ActorSystemWrapper) extends Actor with ResourceService {
+                         override val actorSystemWrapper: ActorSystemWrapper,
+                         serverActorOverride: ActorSelection) extends Actor with ResourceService {
   //waits for the response from spray, see a few lines below
   private val latch: CountDownLatch = new CountDownLatch(1)
   private var response: Option[HttpResponse] = none
   override val actorRefFactory = context
+
+  override protected lazy val serverActor = serverActorOverride
 
   /**
    * makeRequest assembles an HttpRequest from the given parameters, makes the request against the fake server,
