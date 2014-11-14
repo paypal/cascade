@@ -109,7 +109,6 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is = 
         "/stats",
         List(RawHeader("x-service-stats", "true")),
         None)
-      println(res)
       val correctStatus = res.status must beEqualTo(StatusCodes.OK)
       val mappedData = res.entity.data.asString.fromJson[Map[String, Any]].get
       val values = mappedData.map { item =>
