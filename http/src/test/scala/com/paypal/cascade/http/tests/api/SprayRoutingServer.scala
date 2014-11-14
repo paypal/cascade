@@ -31,7 +31,7 @@ import spray.routing.RequestContext
  * @param config the configuration that the fake server should run with
  * @param actorSystemWrapper the actor system information that the server should run with
  */
-class SprayRoutingServer(override val config: SprayConfiguration,
+class SprayRoutingServer(override val sprayConfig: SprayConfiguration,
                          override val actorSystemWrapper: ActorSystemWrapper,
                          serverActorOverride: ActorSelection) extends Actor with ResourceService {
   //waits for the response from spray, see a few lines below
