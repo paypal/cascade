@@ -75,7 +75,7 @@ trait ResourceService extends HttpService {
     }
   }
 
-  private lazy val serverActor: ActorSelection = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
+  protected lazy val serverActor: ActorSelection = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
 
   private lazy val statsError = """{"stats":"error"}"""
 
