@@ -15,8 +15,12 @@
  */
 package com.paypal.cascade.examples.http.resource
 
+import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import com.paypal.cascade.common.app.CascadeApp
 import com.paypal.cascade.http.actor.SprayActor
+import com.paypal.cascade.http.resource.ResourceDriver
+import com.paypal.cascade.http.server.SprayConfiguration
+import spray.routing.Directives._
 
 /**
  * MyHttpServer is the entrypoint to your HTTP server.
