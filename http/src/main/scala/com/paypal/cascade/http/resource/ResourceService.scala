@@ -43,7 +43,7 @@ trait ResourceService extends HttpService {
   /**
    * the configuration of the server
    */
-  val config: SprayConfiguration
+  val sprayConfig: SprayConfiguration
 
   /**
    * the actor system for the server to dispatch requests on
@@ -59,12 +59,12 @@ trait ResourceService extends HttpService {
    * Configuration value provided
    * The routing rules for this service
    */
-  lazy val route: Route = config.route
+  lazy val route: Route = sprayConfig.route
 
   // A source of build-specific values for this service
   protected lazy val buildProps = new BuildProperties
 
-  private lazy val statusResponse = StatusResponse.getStatusResponse(buildProps, config.serviceName)
+  private lazy val statusResponse = StatusResponse.getStatusResponse(buildProps, sprayConfig.serviceName)
 
   private lazy val statusError = """{"status":"error"}"""
 
