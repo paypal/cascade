@@ -15,12 +15,15 @@
  */
 package com.paypal.cascade.examples.http.resource
 
+import java.util.concurrent.TimeUnit
+
 import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import com.paypal.cascade.common.app.CascadeApp
 import com.paypal.cascade.http.actor.SprayActor
 import com.paypal.cascade.http.resource.ResourceDriver
 import com.paypal.cascade.http.server.SprayConfiguration
 import spray.routing.Directives._
+import akka.util.Timeout
 
 /**
  * MyHttpServer is the entrypoint to your HTTP server.
@@ -31,7 +34,7 @@ object MyHttpServer extends CascadeApp {
   val systemWrapper = new ActorSystemWrapper("MyHttpService")
 
   private implicit val actorRefFactory = systemWrapper.actorRefFactory
-
+  private implicit val timeout = new Timeout(10, TimeUnit.SECONDS)
   val config  = SprayConfiguration("my-http-server", 8080, 5) {
     get {
       path("hello") {
