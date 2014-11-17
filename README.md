@@ -16,6 +16,25 @@ carefully designed to:
 5. Related to (4) - use the features of the Scala standard library before
 building their own.
 
+# Getting Started
+
+To use Cascade libraries in your project, simply add a dependency to your
+build system. In an SBT project, add the following to your `build.sbt` or
+`Build.scala` file:
+
+```scala
+"com.paypal" %% "cascade-$projectName" % "0.1.4"
+```
+
+For example, to use the Akka library:
+
+```scala
+"com.paypal" %% "cascade-akka" % "0.1.4"
+```
+
+If you're starting a new project, we recommend using SBT along with
+[Horizon](https://github.com/paypal/horizon)
+
 # Usage
 
 The libraries live in separate sub-projects in this repository:
@@ -30,7 +49,7 @@ Although they have internal dependencies on each other (e.g. many libraries
 depend on `common`), you can mix and match which libraries you use.
 
 The libraries in Cascade all follow some similar patterns.
-[PATTERNS.md](PATTERNS.md) describes them in detail.
+[PATTERNS.md](doc/PATTERNS.md) describes them in detail.
 
 Current Version: 0.1.4
 
@@ -55,7 +74,7 @@ For example, to use the Akka library:
 If you're starting a new project, we recommend using SBT along with
 [Horizon](https://github.com/paypal/horizon)
 
-# Library Details
+# The Libraries
 
 ## common
 
@@ -74,64 +93,10 @@ Useful test objects include:
 
 ## http
 
-Base objects and traits for creating Spray HTTP resources:
-
-- `AbstractResource` is a starting point for HTTP resources.
-- `ResourceActor` provides an implementation of a basic HTTP request handling pipeline.
-- `ResourceDriver` spawns a ResourceActor, which should happen per request.
-- `ResourceService` is a routing base for HTTP services.
-- `resource` package object contains implicit classes for converting objects into Futures and Trys that return an exception on error.
-- `SprayActorComponent` provides the root actor implementation used by Spray.
-- `SprayConfigurationComponent` defines basic config for a Spray service.
-- `url` package object contains methods to break a query parameter list into a list or map.
-- `HttpUtil` pacakage object contains convenience methods for interacting with URLs.
-
-
-http also provides two endpoints for projects that use it, implemented in the `ResourceServiceComponent`:
-
-- `/status` returns current build information for the project. This includes the service name, dependencies, and Git branch and commit information.
-  Must include the `x-service-status` header in request. For example, after running your project locally:
-
-        curl -H "x-service-status:true" "http://localhost:9090/status
-
-  returns something like
-
-        {
-          "status":"ok",
-          "service-name":"your-service",
-          "dependencies":["all dependencies"],
-          "git-info": {
-            "branch":"develop",
-            "branch-is-clean":"true",
-            "commit-sha":"some-sha",
-            "commit-date":"Wed Apr 16 12:01:28 PDT 2014"
-          }
-        }
-
-- `/stats` returns internal Spray monitoring information for the build.
-  Must include the `x-service-stats` header in request, For example, after running your project locally:
-
-        curl -H "x-service-stats:true" "http://localhost:9090/stats
-
-  returns something like
-
-        {
-          "uptime":{"finite":true},
-          "totalRequests":3,
-          "openRequests":1,
-          "maxOpenRequests":1,
-          "totalConnections":3,
-          "openConnections":1,
-          "maxOpenConnections":1,
-          "requestTimeouts":0
-        }
-
-Useful test objects include:
-
-- `DummyResource` for testing request logic.
-- `SprayMatchers` for confirming request/response patterns.
-- `SprayRoutingClient` for use in integration tests to test the full service stack, including Spray routes.
-  Provides the `makeRequest` methodfor interacting with a Spray service as if via HTTP, using the declared routes.
+The `http` library has base objects and traits for creating Spray HTTP servers.
+This library is intended to complement the functionality that Spray and Akka
+already have. Please see our [getting started guide](doc/HTTP_RESOURCE_GETTING_STARTED.md)
+and [detailed documentation](doc/HTTP_RESOURCE.md) for more.
 
 ## akka
 
@@ -157,13 +122,27 @@ decode a `String` using `.fromJson[T]` and you can encode an `Any`
 (any type) using `.toJson`.
 
 
-# Development
+# Contributing
 
-If you have [Vagrant](http://vagrantup.com), simply `vagrant up` in this project to get a VM with all the necessary
-tools for development. When inside the VM, the sources for this project are inside `/vagrant`, and they're
-synched with your host machine. Edit your code on the host machine and build/run it inside the VM.
+As normal, if you want to contribute to Cascade, we gladly accept pull requests.
+Simply fork this repository, make your changes, and submit a PR to us.
+If you are fixing an issue in your PR, please make sure to write `Fixes #123`
+in the description, so that the issue is closed after your PR gets merged.
 
-If you don't have Vagrant, you'll need [Scala 2.11.2](http://scala-lang.org/download/) and
-[SBT 0.13.5](http://www.scala-sbt.org/download.html) to build and run this project.
+**Note:** If you want to modify this file (`README.md`) in your PR, edit
+[`Readme-Template.md`](Readme-Template.md) and then run `genReadme` in SBT.
+
+## Development
+
+If you have [Vagrant](http://vagrantup.com), simply `vagrant up` in this
+project to get a VM with all the necessary tools for development. When inside
+the VM, the sources for this project are inside `/vagrant`, and they're synched
+with your host machine. Edit your code on the host machine and build/run it
+inside the VM.
+
+If you don't have Vagrant, you'll need
+[Scala 2.11.4](http://scala-lang.org/download/) and
+[SBT 0.13.6](http://www.scala-sbt.org/download.html) to build and run this
+project.
 
 THIS FILE WAS AUTO GENERATED BY THE README TEMPLATE. DO NOT EDIT DIRECTLY.
