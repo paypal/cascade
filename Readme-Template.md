@@ -186,6 +186,7 @@ publish a PGP Key Pair
   - `pgp-cmd send-key $EMAILADDR hkp://keyserver.ubuntu.com`
 5. Close SBT in Cascade, then run these commands:
   - `sbt -Dchangelog.author=“…” -Dchangelog.msg=“…” release cross with-defaults`
+  - Accept the defaults for release version and next version and wait for the tests to pass.
   - `sbt publishSigned`
 6. Go to https://oss.sonatype.org. Click "Release" and then click "Close"
 
