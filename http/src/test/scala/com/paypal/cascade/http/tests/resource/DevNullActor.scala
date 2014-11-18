@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.cascade.common.service
+package com.paypal.cascade.http.tests.resource
+
+import akka.actor.Actor
 
 /**
- * Base trait for named services.
+ * DevNullActor is an Actor that accepts all messages and does nothing
  */
-trait ServiceNameComponent {
-  /** The name of this service */
-  val serviceName: String
+class DevNullActor extends Actor {
+  override def receive: Receive = {
+    case _ =>
+  }
 }

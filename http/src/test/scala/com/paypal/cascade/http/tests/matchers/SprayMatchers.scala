@@ -29,7 +29,7 @@ import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
 
 /**
  * Utility match cases for testing [[com.paypal.cascade.http.resource.AbstractResourceActor]]
- * and [[com.paypal.cascade.http.resource.ResourceServiceComponent.ResourceService]] implementations
+ * and [[com.paypal.cascade.http.resource.ResourceService]] implementations
  */
 trait SprayMatchers {
 

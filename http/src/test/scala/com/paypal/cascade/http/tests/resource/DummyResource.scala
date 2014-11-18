@@ -17,13 +17,10 @@ package com.paypal.cascade.http.tests.resource
 
 import spray.http._
 import StatusCodes._
-import spray.http.HttpResponse
 import scala.concurrent._
 import com.paypal.cascade.http.resource._
-import spray.http.HttpHeaders.RawHeader
 import akka.actor.{Props, Actor}
 import com.paypal.cascade.http.tests.resource.DummyResource._
-import com.paypal.cascade.http.resource.HttpResourceActor.{ResourceContext, ProcessRequest}
 import com.paypal.cascade.http.tests.resource.DummyResource.SleepRequest
 import com.paypal.cascade.http.tests.resource.DummyResource.PostRequest
 import com.paypal.cascade.http.resource.HttpResourceActor.ProcessRequest

@@ -50,6 +50,10 @@ class AbstractResourceActorSpecs
     send back a serialized JSON response                         ${test().jsonResponse}
     send an error if response object can't be serialized         ${test().badJsonResponse}
 
+   Overriding resourceReceive should
+    allow for Status.Failure case                                ${test().overriddenStatusFailure}
+    and fall back to default one otherwise                       ${test().fallbackStatusFailure}
+
   """
 
   trait Context extends CommonImmutableSpecificationContext {
@@ -71,6 +75,7 @@ class AbstractResourceActorSpecs
         case ProcessRequest("errorResponse") => sendErrorResponse(InternalServerError, ErrorResponse("oops"))
         case ProcessRequest("errorResponseMap") => sendErrorMapResponse(InternalServerError, "oops")
         case ProcessRequest("") => complete(HttpResponse(OK, "pong"))
+        case Status.Failure(CustomException) => sendErrorResponse(InternalServerError, ErrorResponse("got custom exception"))
       }
 
       case class PongResponse(resp: String)
@@ -88,6 +93,7 @@ class AbstractResourceActorSpecs
     }
 
     case object GenericException extends Exception("generic downstream exception")
+    case object CustomException extends Exception("this is a custom exception")
   }
 
   case class test() extends Context {
@@ -95,6 +101,20 @@ class AbstractResourceActorSpecs
     private def probeAndTest[T](parsedMessage: String, expectedResponse: HttpResponse): Result = {
       val probe = TestProbe()
       val resourceRef = system.actorOf(Props(new TestResource(fakeContext(probe.ref, parsedMessage))))
+      resourceRef ! Start
+      try {
+        probe.receiveOne(Duration(2, TimeUnit.SECONDS)) must beEqualTo (expectedResponse)
+      } catch {
+        case t: Throwable => org.specs2.execute.Failure(t.getMessage)
+      }
+    }
+
+    private def probeAndTestStatusFailure[T](t: Throwable, expectedResponse: HttpResponse): Result = {
+      val probe = TestProbe()
+      val ctx = ResourceContext(RequestContext(HttpRequest(), probe.ref, Uri.Path("")),
+                                _ => scala.util.Failure(t),
+                                Some(probe.ref), Duration(2, TimeUnit.SECONDS))
+      val resourceRef = system.actorOf(Props(new TestResource(ctx)))
       resourceRef ! Start
       try {
         probe.receiveOne(Duration(2, TimeUnit.SECONDS)) must beEqualTo (expectedResponse)
@@ -129,6 +149,14 @@ class AbstractResourceActorSpecs
 
     def errResponseMap: Result = {
       probeAndTest("errorResponseMap", HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`,"""{"errors":["oops"]}""")))
+    }
+
+    def overriddenStatusFailure: Result = {
+      probeAndTestStatusFailure(CustomException, HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, """{"error":"got custom exception"}""")))
+    }
+
+    def fallbackStatusFailure: Result = {
+      probeAndTestStatusFailure(GenericException, HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, """{"errors":["generic downstream exception"]}""")))
     }
 
   }
