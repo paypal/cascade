@@ -172,19 +172,21 @@ The following should be done for step #3 in the above "Releasing A New Version
 of Cascade" section. They publish a Cascade artifact to OSS Sonatype and then
 to Maven Central.
 
-1. Follow http://www.scala-sbt.org/sbt-pgp/usage.html to create and
+1. Make sure you have an account at http://issues.sonatype.org/
+2. Request publish access at https://issues.sonatype.org/browse/OSSRH-11183
+3. Follow http://www.scala-sbt.org/sbt-pgp/usage.html to create and
 publish a PGP Key Pair
   - Make sure you have a `~/.sbt/0.13/plugins/gpg.sbt` file
   - add `addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.3”)` to your
   `gpg.sbt` file
-2. Open SBT in Cascade, then run these commands:
+4. Open SBT in Cascade, then run these commands:
   - `set pgpReadOnly := false`
   - `pgp-cmd gen-key`. Take note of the email address you set. You'll use
   it in the next command
   - `pgp-cmd send-key $EMAILADDR hkp://keyserver.ubuntu.com`
-3. Close SBT in Cascade, then run these commands:
+5. Close SBT in Cascade, then run these commands:
   - `sbt -Dchangelog.author=“…” -Dchangelog.msg=“…” release cross with-defaults`
   - `sbt publishSigned`
-4. Go to https://oss.sonatype.org. Click "Release" and then click "Close"
+6. Go to https://oss.sonatype.org. Click "Release" and then click "Close"
 
 {{auto-gen}}
