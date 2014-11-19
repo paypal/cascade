@@ -1,0 +1,192 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>json - com.paypal.cascade.json</title>
+          <meta name="description" content="json - com.paypal.cascade.json" />
+          <meta name="keywords" content="json com.paypal.cascade.json" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'com.paypal.cascade.json.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../package.html" class="extype" name="com">com</a>.<a href="../../package.html" class="extype" name="com.paypal">paypal</a>.<a href="../package.html" class="extype" name="com.paypal.cascade">cascade</a></p>
+        <h1>json</h1> <span class="permalink">
+      <a href="../../../../index.html#com.paypal.cascade.json.package" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">json</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Convenience implicits for reading objects from and writing objects to JSON Strings
+</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="com.paypal.cascade.json"><span>json</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="com.paypal.cascade.json.Marshallable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Marshallable[T]extendsAnyRef"></a>
+      <a id="Marshallable[T]:Marshallable[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Marshallable.html"><span class="name">Marshallable</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#com.paypal.cascade.json.package@Marshallable[T]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversions from a given object of type <code>T</code> to a JSON String</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversions from a given object of type <code>T</code> to a JSON String</p><pre><span class="kw">import</span> com.paypal.cascade.common.json._
+<span class="kw">case</span> <span class="kw">class</span> AnObject(v1: <span class="std">String</span>, v2: <span class="std">Long</span>, v3: <span class="std">List</span>[<span class="std">String</span>])
+<span class="kw">val</span> a = AnObject(<span class="lit">"value"</span>, <span class="num">5</span>L, <span class="std">List</span>(<span class="lit">"hi"</span>, <span class="lit">"there"</span>)
+a.toJson</pre></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the type of this object
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.json.Unmarshallable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="UnmarshallableextendsAnyRef"></a>
+      <a id="Unmarshallable:Unmarshallable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$Unmarshallable.html"><span class="name">Unmarshallable</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#com.paypal.cascade.json.package@UnmarshallableextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit conversions from a JSON String to a variety of object types</p><div class="fullcomment"><div class="comment cmt"><p>Implicit conversions from a JSON String to a variety of object types</p><pre><span class="kw">import</span> com.paypal.cascade.common.json._
+<span class="lit">""</span><span class="lit">"{"</span>key<span class="lit">":"</span>value<span class="lit">"}"</span><span class="lit">""</span>.toMap</pre></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="com.paypal.cascade.json.JsonUtil" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="JsonUtil"></a>
+      <a id="JsonUtil:JsonUtil"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="JsonUtil$.html"><span class="name">JsonUtil</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#com.paypal.cascade.json.package@JsonUtil" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Created by awharris on 1/17/14.</p><div class="fullcomment"><div class="comment cmt"><p>Created by awharris on 1/17/14.</p><p>Patterns adapted from https://coderwall.com/p/o--apg</p><p>Known caveats:</p><ul><li>If Jackson is instructed to deserialize a non-conforming numeric from a String, it will fail, e.g attempting
+   to deser an Int from &quot;hello&quot;. Conversely, if Jackson is instructed to deser a String from a numeric, it will
+   succeed, e.g. &quot;100&quot; from 100. If an object has an obvious String representation, Jackson will attempt to treat
+   it as such.</li><li>Null values will be treated as valid JSON. This is because <code>null</code> is a valid JSON value. Case classes that will
+   be serialized/deser'd need to include their own validation to guard against unintentional nulls.</li></ul></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
