@@ -18,7 +18,7 @@ package com.paypal.cascade.akka.tests.actor
 import org.specs2._
 import org.scalacheck.Prop._
 import org.scalacheck.Arbitrary._
-import akka.pattern.ask
+import akka.pattern.{AskTimeoutException, ask}
 import akka.actor._
 import akka.testkit._
 import akka.util.Timeout
@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit
 import com.paypal.cascade.akka.actor.{UnhandledMessageException, ServiceActor}
 import com.paypal.cascade.common.tests.future._
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
+
+import scala.concurrent.duration.FiniteDuration
 
 /**
  * Tests [[com.paypal.cascade.akka.actor.CommonActor]]
@@ -36,27 +38,37 @@ class CommonActorSpecs
   with ScalaCheck
   with ActorSpecification { override def is = s2"""
 
-  Passing an unhandled exception results in an UnhandledMessageException ${Message().failureCase}
+  Passing an unhandled exception results in an UnhandledMessageException ${Message().unhandledMessage}
+  Passing an unhandled Status.Failure does not result in a response      ${Message().unhandledFailure}
 
   """
 
   trait Context
     extends CommonImmutableSpecificationContext {
 
-    class TestActor extends ServiceActor {
+    case class SendSelfFailure(t: Throwable)
+
+    class ServiceActorExample extends ServiceActor {
       def receive = {
         case num: Int =>
       }
     }
 
-    lazy val testActor: ActorRef = TestActorRef(new TestActor)
+    lazy val testActor: TestActorRef[ServiceActorExample] = TestActorRef(new ServiceActorExample)
     implicit lazy val timeout = Timeout(10, TimeUnit.SECONDS)
   }
 
   case class Message() extends Context {
 
-    def failureCase = forAll(arbitrary[String]) { str =>
+    def unhandledMessage = forAll(arbitrary[String]) { str =>
       (testActor ? str).mapTo[String].toTry must beFailedTry[String].withThrowable[UnhandledMessageException]
+    }
+
+    def unhandledFailure = forAll(arbitrary[String]) { str =>
+      val shortTimeout = Timeout(30, TimeUnit.MILLISECONDS)
+      val actorToListen = system.actorOf(Props(new ServiceActorExample))
+      val result = actorToListen.ask(Status.Failure(new java.lang.Exception(str)))(shortTimeout).mapTo[String].toTry
+      result must beFailedTry[String].withThrowable[AskTimeoutException]
     }
 
   }

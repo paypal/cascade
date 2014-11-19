@@ -59,6 +59,9 @@ trait ServiceActor extends CommonActor {
   override def unhandled(message: Any): Unit = {
     message match {
       case em: ExpiredLetter => context.system.eventStream.publish(UnhandledMessage(message, sender(), self))
+      case Status.Failure(t: Throwable) =>
+        super.unhandled(message)
+        log.error(s"Unhandled failure message for actor: ${self.path}, sender: ${sender()}, message: ${t.getClass}")
       case _ =>
         super.unhandled(message)
         val ex = new UnhandledMessageException(s"Unhandled message received by actor: ${self.path}, sender: ${sender()}, message: ${message.getClass}")

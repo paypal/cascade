@@ -32,7 +32,7 @@ object BuildSettings {
   import Dependencies._
 
   val org = "com.paypal"
-  val scalaVsn = "2.11.2"
+  val scalaVsn = "2.11.4"
 
   val defaultArgs = Seq(
     "-Xmx4096m",
@@ -63,7 +63,7 @@ object BuildSettings {
     crossScalaVersions := Seq(scalaVsn, "2.10.4"),
     exportJars := true,
     fork := true,
-    incOptions := incOptions.value.withNameHashing(true),
+    incOptions := incOptions.value.withNameHashing(nameHashing = true),
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-target:jvm-1.7"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     scalacOptions in (Compile, doc) ++= docScalacOptions,
@@ -278,7 +278,9 @@ object CommonBuild extends Build {
   lazy val examples = Project("cascade-examples", file("examples"),
     dependencies = Seq(
       common % "compile->compile;test->test",
-      json   % "compile->compile;test->test"
+      json   % "compile->compile;test->test",
+      http   % "compile->compile;test->test",
+      akka   % "compile->compile;test->test"
     ),
     settings = standardSettings ++ Seq(
       name := "cascade-examples",

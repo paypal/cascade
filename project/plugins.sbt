@@ -14,4 +14,4 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.4.0")
 
 addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.6")
 
-addSbtPlugin("com.paypal" % "horizon" % "0.1.3")
+addSbtPlugin("com.paypal" % "horizon" % "0.1.4" exclude("org.scala-sbt", "sbt"))
