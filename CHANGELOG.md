@@ -1,4 +1,7 @@
 
+# 0.1.6 11/21/14 released by ronnchen@paypal.com
+* 0.1.6
+
 # 0.1.4 08/29/14 released by arschles
 * releasing to com.paypal instead of com.paypal.cascade
 
