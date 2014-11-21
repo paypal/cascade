@@ -5,3 +5,4 @@ scala:
   - 2.11.2
 
 sudo: false
+
