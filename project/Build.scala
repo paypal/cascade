@@ -159,7 +159,7 @@ object Dependencies {
 
   lazy val specs2              = "org.specs2"                     %% "specs2"                % specs2Version     % "test"
   lazy val scalacheck          = "org.scalacheck"                 %% "scalacheck"            % "1.11.3"          % "test"
-  lazy val mockito             = "org.mockito"                    %  "mockito-all"           % "1.9.5"           % "test"
+  lazy val mockito             = "org.mockito"                    %  "mockito-all"           % "1.10.3"           % "test"
   lazy val hamcrest            = "org.hamcrest"                   %  "hamcrest-all"          % "1.3"             % "test"
   lazy val pegdown             = "org.pegdown"                    %  "pegdown"               % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
   lazy val parboiledJava       = "org.parboiled"                  %  "parboiled-java"        % parboiledVersion  % "test"
