@@ -22,6 +22,8 @@ import org.scalacheck.Arbitrary._
 import com.paypal.cascade.common.option._
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 
+import scala.util.Try
+
 /**
  * Tests for implicit [[com.paypal.cascade.common.option.Any2Option]]
  */
@@ -54,9 +56,7 @@ class Any2OptionSpecs extends Specification with ScalaCheck { override def is = 
     }
     def someNull = {
       val s: String = null
-      s.some must beSome.like {
-        case o => o must beNull
-      }
+      Try(s.some) must beFailedTry.withThrowable[IllegalArgumentException]
     }
   }
 

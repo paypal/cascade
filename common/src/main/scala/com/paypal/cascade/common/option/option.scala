@@ -47,12 +47,13 @@ package object option {
     /**
      * Wraps the given object in a Some.
      *
-     * NOTE: calling `.some` on a null value will return `Some(null): Some[T]`, which is legal but broken.
-     * This behavior is equivalent to directly crafting a `Some[T](null)`, which is also legal but broken.
+     * NOTE: calling `.some` on a null value will throw an IllegalArgumentException. Therefore, only use `.some` when
+     * you absolutely know that the parameter is a constant and always will be.
      * Overall, prefer `.opt` for null safety.
      * @return the wrapped object
      */
-    def some: Option[T] = Some(any)
+    @throws[IllegalArgumentException]
+    def some: Option[T] = Option(any).sideEffectNone(throw new IllegalArgumentException("You attempted to put a null in a Some!"))
 
     /**
      * Wraps the given object in an Option, which resolves to None if the given object reference is null.
