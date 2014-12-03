@@ -34,7 +34,7 @@ class Any2OptionSpecs extends Specification with ScalaCheck { override def is = 
     some should
       return Some(val) given val: AnyVal                                  ${SomeTest().someAnyVal}
       return Some(val) given val: AnyRef                                  ${SomeTest().someAnyRef}
-      return Some(null) given null string                                 ${SomeTest().someNull}
+      throw an Exception given null string                                ${SomeTest().someNull}
 
     opt should
       return Some(val) given val: AnyVal                                  ${OptTest().optAnyVal}
