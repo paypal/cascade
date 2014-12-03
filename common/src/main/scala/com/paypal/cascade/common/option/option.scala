@@ -53,7 +53,13 @@ package object option {
      * @return the wrapped object
      */
     @throws[IllegalArgumentException]
-    def some: Option[T] = Option(any).sideEffectNone(throw new IllegalArgumentException("You attempted to put a null in a Some!"))
+    def some: Option[T] = {
+      val wrapped = Option(any)
+      if (!wrapped.isDefined) {
+        throw new IllegalArgumentException("null must not be in a Some")
+      }
+      wrapped
+    }
 
     /**
      * Wraps the given object in an Option, which resolves to None if the given object reference is null.
