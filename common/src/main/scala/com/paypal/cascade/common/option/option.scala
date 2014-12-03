@@ -55,8 +55,8 @@ package object option {
     @throws[IllegalArgumentException]
     def some: Option[T] = {
       val wrapped = Option(any)
-      if (!wrapped.isDefined) {
-        throw new IllegalArgumentException("null must not be in a Some")
+      if (wrapped.isEmpty) {
+        throw new IllegalArgumentException("Some(null) is forbidden.")
       }
       wrapped
     }
