@@ -108,6 +108,7 @@ object BuildSettings {
     },
     publishMavenStyle := true,
     publishArtifact in Test := false,
+    pomIncludeRepository := { _ => false },
     pomExtra := (
       <url>https://github.com/paypal/cascade</url>
       <licenses>
