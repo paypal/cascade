@@ -76,37 +76,6 @@ package object option {
   implicit class RichOption[T](option: Option[T]) {
 
     /**
-     * If this Option is None, perform the action in fn
-     * @param fn the action to perform
-     * @return the wrapped Option (identity)
-     */
-    def executeIfNone(fn: => Unit): Option[T] = {
-      sideEffectNone(fn)
-    }
-
-    /**
-     * If this Option is none, perform the action in fn
-     * @param fn the action to perform
-     * @return the wrapped Option (identity)
-     */
-    def sideEffectNone(fn: => Unit): Option[T] = {
-      if(option.isEmpty) {
-        fn
-      }
-      option
-    }
-
-    /**
-     * If this Option is Some, perform the action in fn which acts on the value
-     * @param fn the action to perform
-     * @return the wrapped Option (identity)
-     */
-    def sideEffectSome(fn: T => Unit): Option[T] = {
-      option.foreach(fn)
-      option
-    }
-
-    /**
      * If this Option is None, throw the given Throwable; else, return the value inside the Option
      * @param t the Throwable to potentially throw
      * @return the value inside the wrapped Option
