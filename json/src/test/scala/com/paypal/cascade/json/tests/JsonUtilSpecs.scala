@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package com.paypal.cascade.json.tests
+package com.paypal.cascade.json.tests
 
 import scala.util.Try
 
@@ -57,6 +57,7 @@ class JsonUtilSpecs
 
   JsonUtil should serialize and deserialize case classes, such as
     a case class containing a single data member                             ${CaseClasses.OneMember().ok}
+    a case class containing a single polymorphic member                      ${CaseClasses.OneMemberAny().ok}
     a case class containing multiple members of mixed basic types            ${CaseClasses.TwoMemberMixedBasic().ok}
     a case class containing mutliple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
     a case class containing an optional AnyVal type                          ${CaseClasses.OptionalAnyValMember().ok}
@@ -69,6 +70,7 @@ class JsonUtilSpecs
     not deserialize malformed json                                           ${Badness.MalformedJson().fails}
     not deserialize json that is type mismatched                             ${Badness.MismatchedTypes().fails}
     not convert between incompatible types                                   ${Badness.BadValueConversions().fails}
+    deserialize null from Any with None, and deserialize Some(_) otherwise   ${Badness.AnyToNullConversion().ok}
     deserialize json that is missing an AnyVal, with a default value         ${Badness.MissingAnyVal().ok}
     deserialize json that is missing an AnyRef, with a null value            ${Badness.MissingAnyRef().ok}
 
@@ -87,23 +89,28 @@ class JsonUtilSpecs
     }
 
     case class Strings() {
-      def ok = forAll(genJsonString) { str => basicMatcher(str, "\"%s\"".format(str)) }
+      def ok = forAll(genJsonString) { str =>
+        basicMatcher(str, "\"%s\"".format(str)) }
     }
 
     case class Ints() {
-      def ok = forAll(arbitrary[Int]) { i => basicMatcher(i, i.toString) }
+      def ok = forAll(arbitrary[Int]) { i =>
+        basicMatcher(i, i.toString) }
     }
 
     case class Longs() {
-      def ok = forAll(arbitrary[Long]) { i => basicMatcher(i, i.toString) }
+      def ok = forAll(arbitrary[Long]) { i =>
+        basicMatcher(i, i.toString) }
     }
 
     case class Floats() {
-      def ok = forAll(arbitrary[Float]) { i => basicMatcher(i, i.toString) }
+      def ok = forAll(arbitrary[Float]) { i =>
+        basicMatcher(i, i.toString) }
     }
 
     case class Doubles() {
-      def ok = forAll(arbitrary[Double]) { i => basicMatcher(i, i.toString) }
+      def ok = forAll(arbitrary[Double]) { i =>
+        basicMatcher(i, i.toString) }
     }
 
     case class Dates() {
@@ -249,6 +256,34 @@ class JsonUtilSpecs
       }
     }
 
+    case class OneMemberAny() {
+      def ok = forAll(genJsonString, arbitrary[Int], option(genJsonString)) { (v, i, mbS) =>
+        val stringData = OneMemberAnyData(v)//, """{"value":"%s"}""".format(v)) and
+        val intData = OneMemberAnyData(i)//, """{"value":%d}""".format(v))
+        val nestedData = OneMemberAnyData(stringData)
+        val optionalAnyData = OneMemberAnyData(OneMemberOptionalAnyData(mbS))
+
+        // these force a JSON conversion ping-pong, going to and from a JSON String,
+        // to make sure that we lose the original input data type along the way,
+        // and are forced to convert it out with `convertValue`
+        val sdJson = stringData.toJson.get.fromJson[OneMemberAnyData].get.value.convertValue[String].get
+        val idJson = intData.toJson.get.fromJson[OneMemberAnyData].get.value.convertValue[Int].get
+        val ndJson = nestedData.toJson.get.fromJson[OneMemberAnyData].get.value.convertValue[OneMemberAnyData].get
+        val ndJsonInner = ndJson.value.convertValue[String].get
+
+        // force a two-step conversion
+        val optionalAnyDataJson = optionalAnyData.toJson.get.fromJson[OneMemberAnyData].get
+        val optionalAnyDataInnerJson = optionalAnyDataJson.value.convertValue[OneMemberOptionalAnyData].get
+        val optionalAnyDataJsonValue = optionalAnyDataInnerJson.value.convertValue[Option[String]].get
+
+        (sdJson must beEqualTo(v)) and
+          (idJson must beEqualTo(i)) and
+          (ndJson must beEqualTo(stringData)) and
+          (ndJsonInner must beEqualTo(v)) and
+          (optionalAnyDataJsonValue must beEqualTo(mbS))
+      }
+    }
+
     case class TwoMemberMixedBasic() {
       def ok = forAll(genJsonString, arbitrary[Int]) { (s, i) =>
         caseClassMatcher(TwoMemberMixedBasicData(s, i), """{"one":"%s","two":%d}""".format(s, i))
@@ -391,8 +426,14 @@ class JsonUtilSpecs
           nonEmptyListOf(genJsonString.suchThat(s => Try {Integer.decode(s)}.isFailure))) { (s, il, sl) =>
           val omd = OneMemberData(s)
 
-          // We can't test List[Int] => List[String] because of
-          // the aforementioned quirk regarding converting Int to String
+          /*
+           We can't test List[Int] => List[String] because of
+           the aforementioned quirk regarding converting Int to String.
+
+           What happens instead is that the List[Int] gets successfully converted
+           to a List[String] because Jackson knows that Ints have a String
+           representation. This is a known quirk, and we test for it elsewhere.
+           */
 
           (omd.asInstanceOf[Any].convertValue[String] must beFailedTry) and
             (omd.asInstanceOf[Any].convertValue[List[Int]] must beFailedTry) and
@@ -407,7 +448,30 @@ class JsonUtilSpecs
             (sl.asInstanceOf[Any].convertValue[List[Int]] must beFailedTry)
         }
       }
+    }
 
+    case class AnyToNullConversion() {
+      def ok = {
+        forAll(option(genJsonString)) { mbS =>
+          val data = OneMemberAnyData(mbS)
+          val json = data.toJson.get.fromJson[OneMemberAnyData].get
+          val value = json.value.convertValue[Option[String]].get
+
+          /*
+           This was discovered during testing: if you serialize a None, which with the settings in
+           this module are simply not serialized, and then deserialize it to an Any, Jackson doesn't know
+           what to do and will deserialize a null instead.
+
+           If that behavior is fixed in the future, this test will begin failing. :)
+           */
+          mbS match {
+            case Some(s) => value must beSome.like { case v: String =>
+              v must beEqualTo(s)
+            }
+            case None => value must beNull
+          }
+        }
+      }
     }
 
     case class MissingAnyVal() {
@@ -427,13 +491,13 @@ class JsonUtilSpecs
         from must beEqualTo(TwoMemberMixedBasicData(null, k))
       }
     }
-
   }
 }
 
 object JsonUtilSpecs {
   case class OneMemberData(value: String)
   case class OneMemberAnyData(value: Any)
+  case class OneMemberOptionalAnyData(value: Option[Any])
   case class TwoMemberMixedBasicData(one: String, two: Int)
   case class TwoMemberMixedComplexData(one: List[String], two: Map[String, Int])
   case class OptionalAnyValData(one: String, mbTwo: Option[Int])
