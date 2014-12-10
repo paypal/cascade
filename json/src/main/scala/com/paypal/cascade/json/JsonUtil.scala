@@ -15,16 +15,15 @@
  */
 package com.paypal.cascade.json
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.{SerializationFeature, DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import com.fasterxml.jackson.module.scala._
-import com.fasterxml.jackson.datatype.joda.JodaModule
 import scala.util.Try
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
+import com.fasterxml.jackson.datatype.joda.JodaModule
+import com.fasterxml.jackson.module.scala._
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
+
 /**
- * Created by awharris on 1/17/14.
- *
  * Patterns adapted from https://coderwall.com/p/o--apg
  *
  * Known caveats:
@@ -67,6 +66,23 @@ object JsonUtil {
    */
   def fromJson[T : Manifest](json: String): Try[T] = Try {
     mapper.readValue[T](json)
+  }
+
+  /**
+   * Convert an arbitrary JSON object to a `T`, where `T` is some context bound type.
+   *
+   * @note This proxy method exists as an alternative to exposing the entire private `mapper` through a
+   *       `getInstance` or `copy` method, so that the `mapper` remains a strict singleton and its
+   *       configuration remains obscured. Otherwise, this is a direct proxy of the `mapper.convertValue`
+   *       method from `ScalaObjectMapper` in Jackson, with added exception catching.
+   *
+   * @param obj the object to convert
+   * @tparam T a context bound type
+   * @return a [[scala.util.Try]] that is either the object of type `T`, or a
+   *         [[java.lang.IllegalArgumentException]] in the case of a cast to an incompatible type.
+   */
+  def convertValue[T : Manifest](obj: Any): Try[T] = Try {
+    mapper.convertValue[T](obj)
   }
 
 }

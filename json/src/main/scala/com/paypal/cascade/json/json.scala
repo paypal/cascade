@@ -25,10 +25,10 @@ package object json {
   // patterns adapted from https://coderwall.com/p/o--apg
 
   /**
-   * Implicit conversions from a JSON String to a variety of object types
+   * Implicit conversions from a JSON String to a variety of object types.
    *
    * {{{
-   *   import com.paypal.cascade.common.json._
+   *   import com.paypal.cascade.json._
    *   """{"key":"value"}""".toMap
    * }}}
    *
@@ -37,18 +37,51 @@ package object json {
   implicit class Unmarshallable(str: String) {
 
     /**
-     * Attempts to convert this String into an object of type `T`
-     * @tparam T the type of the object into which the String will be mapped
-     * @return a Try of either an object of type `T`, or a Throwable conversion failure
+     * Convert a JSON string to a `T`, where `T` is some context bound type.
+     *
+     * @tparam T a context bound type
+     * @return a [[scala.util.Try]] that is either the object of type `T`, or one of
+     *         [[java.io.IOException]], [[com.fasterxml.jackson.core.JsonParseException]],
+     *         or [[com.fasterxml.jackson.databind.JsonMappingException]]
      */
     def fromJson[T : Manifest]: Try[T] =  JsonUtil.fromJson[T](str)
+  }
+
+  /**
+   * Implicit conversions from an arbitrary JSON object to a variety of object types.
+   *
+   * {{{
+   *   import com.paypal.cascade.json._
+   *   case class JsonPatch(op: String, path: String, value: Option[Any])
+   *   case class AnObject(...)
+   *   val a = someJsonStr.fromJson[JsonPatch].get  // assume `value` exists and is some `AnObject`
+   *   val inner = a.value.get.convertValue[AnObject]
+   * }}}
+   *
+   * @param convertMe this object
+   */
+  implicit class Convertible(convertMe: Any) {
+
+    /**
+      * Convert an arbitrary JSON object to a `T`, where `T` is some context bound type.
+      *
+      * @note This proxy method exists as an alternative to exposing the entire private `mapper` through a
+      *       `getInstance` or `copy` method, so that the `mapper` remains a strict singleton and its
+      *       configuration remains obscured. Otherwise, this is a direct proxy of the `mapper.convertValue`
+      *       method from `ScalaObjectMapper` in Jackson, with added exception catching.
+      *
+      * @tparam T a context bound type
+      * @return a [[scala.util.Try]] that is either the object of type `T`, or a
+      *         [[java.lang.IllegalArgumentException]] in the case of a cast to an incompatible type.
+     */
+    def convertValue[T : Manifest]: Try[T] = JsonUtil.convertValue[T](convertMe)
   }
 
   /**
    * Implicit conversions from a given object of type `T` to a JSON String
    *
    * {{{
-   *   import com.paypal.cascade.common.json._
+   *   import com.paypal.cascade.json._
    *   case class AnObject(v1: String, v2: Long, v3: List[String])
    *   val a = AnObject("value", 5L, List("hi", "there")
    *   a.toJson
@@ -60,8 +93,10 @@ package object json {
   implicit class Marshallable[T](marshallMe: T) {
 
     /**
-     * Attempts to convert this object into a JSON String
-     * @return a Try of either a JSON String, or a Throwable conversion failure
+     * Convert an object to a JSON string representation.
+     *
+     * @return a [[scala.util.Try]] that is either the JSON string representation,
+     *         or a [[com.fasterxml.jackson.core.JsonProcessingException]]
      */
     def toJson: Try[String] = JsonUtil.toJson(marshallMe)
   }
