@@ -167,7 +167,7 @@ class JsonUtilSpecs
     }
 
     case class StringToListListString() {
-      def ok = forAllNoShrink(genJsonString, nonEmptyListOf(nonEmptyListOf(genJsonString))) { (k, l) =>
+      def ok = forAll(genJsonString, nonEmptyListOf(nonEmptyListOf(genJsonString))) { (k, l) =>
         val to = Map(k -> l).toJson.get
         val from = to.fromJson[Map[String, List[List[String]]]].get
         val toConvert: Any = from.asInstanceOf[Any]
