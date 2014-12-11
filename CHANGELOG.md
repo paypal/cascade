@@ -1,3 +1,5 @@
+# 0.2.0 12/11/14 released by ronnchen@paypal.com
+* updated sbt, exposed jackson convertvalue, fixed sendError bug
 
 # 0.1.6 11/21/14 released by ronnchen@paypal.com
 * removed Cake pattern dependency injection
