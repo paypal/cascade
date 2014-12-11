@@ -15,16 +15,15 @@
  */
 package com.paypal.cascade.json
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.{SerializationFeature, DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import com.fasterxml.jackson.module.scala._
-import com.fasterxml.jackson.datatype.joda.JodaModule
 import scala.util.Try
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
+import com.fasterxml.jackson.datatype.joda.JodaModule
+import com.fasterxml.jackson.module.scala._
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
+
 /**
- * Created by awharris on 1/17/14.
- *
  * Patterns adapted from https://coderwall.com/p/o--apg
  *
  * Known caveats:
@@ -67,6 +66,46 @@ object JsonUtil {
    */
   def fromJson[T : Manifest](json: String): Try[T] = Try {
     mapper.readValue[T](json)
+  }
+
+  /**
+   * Convert an arbitrary JSON object to a `T`, where `T` is some context bound type. Useful for
+   * secondary JSON conversion, e.g. for polymorphic data members. A direct use-case
+   * is in JSON-Patch, where the expected value may be any of a raw value (String, Int, etc.),
+   * a full JSON object, or nothing.
+   *
+   * {{{
+   *   import com.paypal.cascade.json._
+   *   case class JsonPatch(op: String, path: String, value: Option[Any])
+   *   case class AnObject(...)
+   *   val jsonStr = JsonUtil.toJson(JsonPatch("add", "/-", Some(AnObject(...)))).get
+   *   val a = JsonUtil.fromJson[JsonPatch](jsonStr).get
+   *   val inner = JsonUtil.convertValue[Option[AnObject]](a.value).get
+   * }}}
+   *
+   * @note In general, [[fromJson]] should be preferred for String-to-Object conversion. This method is
+   *       intended for secondary conversion after [[fromJson]] has been applied.
+   *
+   * @note This proxy method exists as an alternative to exposing the entire private `mapper` through a
+   *       `getInstance` or `copy` method, so that the `mapper` remains a strict singleton and its
+   *       configuration remains obscured. Otherwise, this is a direct proxy of the `mapper.convertValue`
+   *       method from `ScalaObjectMapper` in Jackson, with added exception catching.
+   *
+   * @note Discovered via testing, this method does not play well with Optional data stored in `Any` fields.
+   *       If you know that you need to serialize Optional values, please state them as Optional in
+   *       their type declaration, e.g. in the example here with `Foo` and `Bar`. If a `None` is serialized
+   *       in an object with an `Any` field, and you try to convert this as an `Option`, it will instead
+   *       come out as a `null` value and you will have to post-process it as such. Instead, if the field
+   *       is declared as a `Option[Any]` and a `None` is serialized, it will correctly be converted here
+   *       as a `None`.
+   *
+   * @param obj the object to convert
+   * @tparam T a context bound type
+   * @return a [[scala.util.Try]] that is either the object of type `T`, or a
+   *         [[java.lang.IllegalArgumentException]] in the case of a cast to an incompatible type.
+   */
+  def convertValue[T : Manifest](obj: Any): Try[T] = Try {
+    mapper.convertValue[T](obj)
   }
 
 }
