@@ -25,6 +25,7 @@ import sbt._
 import Keys._
 import sbtunidoc.Plugin._
 import sbtunidoc.Plugin.UnidocKeys._
+import bintray.Plugin._
 
 object BuildSettings {
 
@@ -54,7 +55,9 @@ object BuildSettings {
     releaseProcess := BuildUtilities.defaultReleaseProcess
   )
 
-  lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
+  lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ bintraySettings ++ Seq(
+    bintray.Keys.bintrayOrganization := Some("paypal"),
+    licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0")),
     organization := org,
     scalaVersion := scalaVsn,
     crossScalaVersions := Seq(scalaVsn, "2.10.4"),
@@ -89,11 +92,11 @@ object BuildSettings {
       links.collect { case Some(d) => d }.toMap
     },
     publishTo := {
-      val nexus = s"https://oss.sonatype.org/"
+      val bintray = "https://jcenter.bintray.com"
       if (isSnapshot.value) {
-        Some("snapshots" at nexus + "content/repositories/snapshots")
+        Some("snapshots" at bintray)
       } else {
-        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+        Some("releases" at bintray)
       }
     },
     conflictManager := ConflictManager.strict,
