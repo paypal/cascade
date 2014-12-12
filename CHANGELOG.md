@@ -1,3 +1,6 @@
+
+# 0.2.0 12/11/14 released by ronnchen@paypal.com
+* v0.2.0
 # 0.2.0 12/11/14 released by ronnchen@paypal.com
 * updated sbt, exposed jackson convertvalue, fixed sendError bug
 
