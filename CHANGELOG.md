@@ -1,3 +1,8 @@
+# 0.2.0 12/11/14 released by ronnchen@paypal.com
+* updated sbt, exposed jackson convertvalue, fixed sendError bug
+
+# 0.1.6 11/21/14 released by ronnchen@paypal.com
+* removed Cake pattern dependency injection
 
 # 0.1.4 08/29/14 released by arschles
 * releasing to com.paypal instead of com.paypal.cascade
