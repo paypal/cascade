@@ -109,7 +109,7 @@ object BuildSettings {
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
-    pomExtra := (
+    pomExtra :=
       <url>https://github.com/paypal/cascade</url>
       <licenses>
         <license>
@@ -129,7 +129,6 @@ object BuildSettings {
           <url>https://github.com/arschles</url>
         </developer>
       </developers>
-    )
   )
 }
 
@@ -137,10 +136,10 @@ object Dependencies {
 
   val slf4jVersion = "1.7.7"
   val fasterXmlJacksonVersion = "2.4.1"
-  val sprayVersion = "1.3.1"
-  val akkaVersion = "2.3.6"
+  val sprayVersion = "1.3.2"
+  val akkaVersion = "2.3.8"
   val parboiledVersion = "1.1.6"
-  val specs2Version = "2.3.12"
+  val specs2Version = "2.3.13"
 
   lazy val logback             = "ch.qos.logback"                 %  "logback-classic"       % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
@@ -166,7 +165,7 @@ object Dependencies {
   lazy val parboiledJava       = "org.parboiled"                  %  "parboiled-java"        % parboiledVersion  % "test"
   lazy val parboiledScala      = "org.parboiled"                  %% "parboiled-scala"       % parboiledVersion  % "test"
 
-  lazy val sprayTestKit        = "io.spray"                       %% "spray-testkit"         % sprayVersion      % "test" exclude("com.typesafe.akka", "akka-testkit_2.11") exclude("com.typesafe.akka", "akka-testkit_2.10")
+  lazy val sprayTestKit        = "io.spray"                       %% "spray-testkit"         % sprayVersion      % "test" exclude("org.specs2", "specs2_2.11") exclude("org.specs2", "specs2_2.10") exclude("com.typesafe.akka", "akka-testkit_2.11") exclude("com.typesafe.akka", "akka-testkit_2.10")
   lazy val akkaTestKit         = "com.typesafe.akka"              %% "akka-testkit"          % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
