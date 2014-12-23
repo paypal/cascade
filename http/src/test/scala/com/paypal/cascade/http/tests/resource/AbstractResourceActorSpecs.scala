@@ -89,7 +89,7 @@ class AbstractResourceActorSpecs
     def fakeContext(ref: ActorRef, parsedString: String = ""): ResourceContext = {
       ResourceContext(RequestContext(HttpRequest(), ref, Uri.Path("")),
                       _ => scala.util.Success(parsedString),
-                      Some(ref), Duration(2, TimeUnit.SECONDS))
+                      Option(ref), Duration(2, TimeUnit.SECONDS))
     }
 
     case object GenericException extends Exception("generic downstream exception")
@@ -113,7 +113,7 @@ class AbstractResourceActorSpecs
       val probe = TestProbe()
       val ctx = ResourceContext(RequestContext(HttpRequest(), probe.ref, Uri.Path("")),
                                 _ => scala.util.Failure(t),
-                                Some(probe.ref), Duration(2, TimeUnit.SECONDS))
+                                Option(probe.ref), Duration(2, TimeUnit.SECONDS))
       val resourceRef = system.actorOf(Props(new TestResource(ctx)))
       resourceRef ! Start
       try {
