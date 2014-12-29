@@ -106,6 +106,7 @@ object BuildSettings {
         "org.scala-lang.modules" %% "scala-parser-combinators"  % "1.0.2"
       )
     },
+    resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
