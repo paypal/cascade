@@ -145,49 +145,42 @@ If you don't have Vagrant, you'll need
 [SBT 0.13.6](http://www.scala-sbt.org/download.html) to build and run this
 project.
 
+## Publishing to Sonatype OSS
+
+This section is for Cascade core contributors only.
+
+The following should be done once prior to attempting to release a new version of Cascade.
+
+1. Make sure you have an account at http://issues.sonatype.org/
+2. Request publish access at https://issues.sonatype.org/browse/OSSRH-11183
+3. Create ```~/.sbt/0.13/sonatype.sbt```
+```scala
+credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", <username>, <password>)
+```
+4. If you haven't done so previously, open sbt in Cascade to create and publish a PGP key pair using these commands:
+  - ```set pgpReadOnly := false```
+  - ```pgp-cmd gen-key```. Take note of the email address you set. You'll use it in the next command.
+  - ```pgp-cmd send-key $EMAILADDR hkp://keyserver.ubuntu.com```
+  - See http://www.scala-sbt.org/sbt-pgp/usage.html for more information
+5. Close sbt in Cascade
+
 ## Releasing A New Version of Cascade
 
 This section is for Cascade core contributors only.
 
 All releases must be done from a release branch that merges into master.
-Below are steps:
 
-1. create a `release/$RELEASENAME` branch
-2. [open a pull request](https://github.com/paypal/cascade/compare) merging
-your branch from (1) into `master`, and get it
-3. follow steps below to publish to Sonatype OSS
-4. merge your PR from (2), then merge `master` into `develop`
-  - `git checkout master; git pull origin master`
-  - `git checkout develop; git merge --no-ff master`
-5. [create a new release](https://github.com/paypal/cascade/releases/new) with
-a tag on your branch from (1)
-6. delete your branch from (1)
-  - `git checkout develop; git branch -D release/$RELEASENAME`
-
-## Publishing to Sonatype OSS
-
-This section is for Cascade core contributors only.
-
-The following should be done for step #3 in the above "Releasing A New Version
-of Cascade" section. They publish a Cascade artifact to OSS Sonatype and then
-to Maven Central.
-
-1. Make sure you have an account at http://issues.sonatype.org/
-2. Request publish access at https://issues.sonatype.org/browse/OSSRH-11183
-3. Follow http://www.scala-sbt.org/sbt-pgp/usage.html to create and
-publish a PGP Key Pair
-  - Make sure you have a `~/.sbt/0.13/plugins/gpg.sbt` file
-  - add `addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.3”)` to your
-  `gpg.sbt` file
-4. Open SBT in Cascade, then run these commands:
-  - `set pgpReadOnly := false`
-  - `pgp-cmd gen-key`. Take note of the email address you set. You'll use
-  it in the next command
-  - `pgp-cmd send-key $EMAILADDR hkp://keyserver.ubuntu.com`
-5. Close SBT in Cascade, then run these commands:
-  - `sbt -Dchangelog.author=“…” -Dchangelog.msg=“…” release cross with-defaults`
-  - Accept the defaults for release version and next version and wait for the tests to pass.
-  - `sbt publishSigned`
-6. Go to https://oss.sonatype.org. Click "Release" and then click "Close"
+1. Complete the steps in the "Publishing to Sonatype OSS" section above
+2. Create a `release/$RELEASENAME` branch
+3. [Open a pull request](https://github.com/paypal/cascade/compare) merging your branch from (2) into `master`
+4. Perform the release:
+  - Set the CHANGELOG_MSG and CHANGELOG_AUTHOR environment variables to work around an issue with sbt 0.13.6+
+  - ```sbt "release cross with-defaults"```
+5. Go to http://oss.sonatype.org and login
+6. Go to “Staging Repositories” (on left side)
+7. Find your repo (at the bottom) 
+8. Click close
+9. Click release
+10. Merge your PR from (3), then merge `release/$RELEASENAME` into `develop`
 
 {{auto-gen}}
