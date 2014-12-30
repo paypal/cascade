@@ -1,0 +1,1369 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>AbstractResourceActor - com.paypal.cascade.http.resource.AbstractResourceActor</title>
+          <meta name="description" content="AbstractResourceActor - com.paypal.cascade.http.resource.AbstractResourceActor" />
+          <meta name="keywords" content="AbstractResourceActor com.paypal.cascade.http.resource.AbstractResourceActor" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'com.paypal.cascade.http.resource.AbstractResourceActor';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img src="../../../../../lib/class_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="com">com</a>.<a href="../../../package.html" class="extype" name="com.paypal">paypal</a>.<a href="../../package.html" class="extype" name="com.paypal.cascade">cascade</a>.<a href="../package.html" class="extype" name="com.paypal.cascade.http">http</a>.<a href="package.html" class="extype" name="com.paypal.cascade.http.resource">resource</a></p>
+        <h1>AbstractResourceActor</h1> <span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">AbstractResourceActor</span><span class="result"> extends <a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Base class for HTTP resources built with Spray.</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a>, <a href="../../akka/actor/ServiceActor.html" class="extype" name="com.paypal.cascade.akka.actor.ServiceActor">ServiceActor</a>, <a href="../../akka/actor/CommonActor.html" class="extype" name="com.paypal.cascade.akka.actor.CommonActor">CommonActor</a>, <span class="extype" name="akka.actor.ActorLogging">ActorLogging</span>, <span class="extype" name="akka.actor.Actor">Actor</span>, <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="com.paypal.cascade.http.resource.AbstractResourceActor"><span>AbstractResourceActor</span></li><li class="in" name="com.paypal.cascade.http.resource.HttpResourceActor"><span>HttpResourceActor</span></li><li class="in" name="com.paypal.cascade.akka.actor.ServiceActor"><span>ServiceActor</span></li><li class="in" name="com.paypal.cascade.akka.actor.CommonActor"><span>CommonActor</span></li><li class="in" name="akka.actor.ActorLogging"><span>ActorLogging</span></li><li class="in" name="akka.actor.Actor"><span>Actor</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+                <span class="filtertype">Implicitly<br />
+                </span>
+                <ol id="implicits"> <li class="in" name="scala.Predef.any2stringadd" data-hidden="true"><span>by any2stringadd</span></li><li class="in" name="scala.Predef.StringFormat" data-hidden="true"><span>by StringFormat</span></li><li class="in" name="scala.Predef.Ensuring" data-hidden="true"><span>by Ensuring</span></li><li class="in" name="scala.Predef.ArrowAssoc" data-hidden="true"><span>by ArrowAssoc</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="com.paypal.cascade.http.resource.AbstractResourceActor#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;init&gt;(resourceContext:com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext):com.paypal.cascade.http.resource.AbstractResourceActor"></a>
+      <a id="&lt;init&gt;:AbstractResourceActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">AbstractResourceActor</span><span class="params">(<span name="resourceContext">resourceContext: <a href="HttpResourceActor$$ResourceContext.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext">ResourceContext</a></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@&lt;init&gt;(resourceContext:com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext):com.paypal.cascade.http.resource.AbstractResourceActor" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">resourceContext</dt><dd class="cmt"><p>Context containing information needed to service the request, such as the parent actor
+</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="akka.actor.Actor.Receive" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Receive=akka.actor.Actor.Receive"></a>
+      <a id="Receive:Receive"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Receive</span><span class="result"> = <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.PartialFunction" class="extype" target="_top">PartialFunction</a>[<a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a>, <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@Receive=akka.actor.Actor.Receive" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor.RequestIsParsed" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RequestIsParsedextendsProductwithSerializable"></a>
+      <a id="RequestIsParsed:RequestIsParsed"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="HttpResourceActor$RequestIsParsed.html"><span class="name">RequestIsParsed</span></a><span class="params">(<span name="parsedRequest">parsedRequest: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.HttpResourceActor@RequestIsParsedextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></dd></dl></div>
+    </li></ol>
+            </div>
+
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="com.paypal.cascade.http.resource.AbstractResourceActor#resourceReceive" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="resourceReceive:akka.actor.Actor.Receive"></a>
+      <a id="resourceReceive:akka.actor.Actor.Receive"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">resourceReceive</span><span class="result">: <span class="extype" name="akka.actor.Actor.Receive">akka.actor.Actor.Receive</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@resourceReceive:akka.actor.Actor.Receive" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This method is overridden by the end-user to execute the requests served by this resource.</p><div class="fullcomment"><div class="comment cmt"><p>This method is overridden by the end-user to execute the requests served by this resource. The ParsedRequest object
+will be sent to this message from ResourceActor via a tell. As an actor will be spun up for each request, it is
+safe to store mutable state during this receive function.
+When the request is finished, one of the provided complete methods must be called</p><p>This receive should handle </p><pre>ProcessRequest(_)</pre><p> messages.</p><p>ProcessRequest(_)
+}}}
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>The receive function to be applied when a parsed request object or other actor message is received
+</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li></ol>
+            </div>
+
+        <div id="values" class="values members">
+              <h3>Concrete Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@##():Int" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Predef.any2stringadd#+" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="+(other:String):String"></a>
+      <a id="+(String):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $plus" class="implicit">+</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@+(other:String):String" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to
+            <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>] performed by method any2stringadd in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>any2stringadd</dd></dl></div>
+    </li><li name="scala.Predef.ArrowAssoc#-&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="-&gt;[B](y:B):(A,B)"></a>
+      <a id="-&gt;[B](B):(AbstractResourceActor,B)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $minus$greater" class="implicit">-&gt;</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>, <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@-&gt;[B](y:B):(A,B)" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>] performed by method ArrowAssoc in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd><dt>Annotations</dt><dd>
+                <span class="name">@inline</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor.BeforeExecuted" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="BeforeExecuted"></a>
+      <a id="BeforeExecuted:BeforeExecuted"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HttpResourceActor$BeforeExecuted$.html"><span class="name">BeforeExecuted</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.HttpResourceActor@BeforeExecuted" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor.ResponseContentTypeIsAcceptable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ResponseContentTypeIsAcceptable"></a>
+      <a id="ResponseContentTypeIsAcceptable:ResponseContentTypeIsAcceptable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HttpResourceActor$ResponseContentTypeIsAcceptable$.html"><span class="name">ResponseContentTypeIsAcceptable</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.HttpResourceActor@ResponseContentTypeIsAcceptable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor#acceptableContentTypes" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="acceptableContentTypes:List[spray.http.ContentType]"></a>
+      <a id="acceptableContentTypes:List[ContentType]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">acceptableContentTypes</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="spray.http.ContentType">ContentType</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@acceptableContentTypes:List[spray.http.ContentType]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A list of content types that that this server can accept, by default <code>application/json</code>.</p><div class="fullcomment"><div class="comment cmt"><p>A list of content types that that this server can accept, by default <code>application/json</code>.
+These will be matched against the <code>Content-Type</code> header of incoming requests.</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a list of content types
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor#after" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="after(resp:spray.http.HttpResponse):Unit"></a>
+      <a id="after(HttpResponse):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">after</span><span class="params">(<span name="resp">resp: <span class="extype" name="spray.http.HttpResponse">HttpResponse</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@after(resp:spray.http.HttpResponse):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This method will always be invoked after request processing is finished.</p><div class="fullcomment"><div class="comment cmt"><p>This method will always be invoked after request processing is finished.</p><p>If the method throws, the error will be logged and the given response will still be returned. As always, personally
+identifiable information should never be included in exception messages.</p></div><dl class="paramcmts block"><dt class="param">resp</dt><dd class="cmt"><p>The response to be returned to the client
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></dd></dl></div>
+    </li><li name="akka.actor.Actor#aroundPostRestart" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aroundPostRestart(reason:Throwable):Unit"></a>
+      <a id="aroundPostRestart(Throwable):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aroundPostRestart</span><span class="params">(<span name="reason">reason: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@aroundPostRestart(reason:Throwable):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="akka.actor.Actor#aroundPostStop" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aroundPostStop():Unit"></a>
+      <a id="aroundPostStop():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aroundPostStop</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@aroundPostStop():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="akka.actor.Actor#aroundPreRestart" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aroundPreRestart(reason:Throwable,message:Option[Any]):Unit"></a>
+      <a id="aroundPreRestart(Throwable,Option[Any]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aroundPreRestart</span><span class="params">(<span name="reason">reason: <span class="extype" name="scala.Throwable">Throwable</span></span>, <span name="message">message: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a>]</span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@aroundPreRestart(reason:Throwable,message:Option[Any]):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="akka.actor.Actor#aroundPreStart" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aroundPreStart():Unit"></a>
+      <a id="aroundPreStart():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aroundPreStart</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@aroundPreStart():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="akka.actor.Actor#aroundReceive" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="aroundReceive(receive:akka.actor.Actor.Receive,msg:Any):Unit"></a>
+      <a id="aroundReceive(akka.actor.Actor.Receive,Any):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">aroundReceive</span><span class="params">(<span name="receive">receive: <span class="extype" name="akka.actor.Actor.Receive">akka.actor.Actor.Receive</span></span>, <span name="msg">msg: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@aroundReceive(receive:akka.actor.Actor.Receive,msg:Any):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../akka/package.html" class="extype" name="akka">akka</a>] </dd><dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor#before" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="before(method:spray.http.HttpMethod):Unit"></a>
+      <a id="before(HttpMethod):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">before</span><span class="params">(<span name="method">method: <span class="extype" name="spray.http.HttpMethod">HttpMethod</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@before(method:spray.http.HttpMethod):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This method will always be invoked before request processing begins.</p><div class="fullcomment"><div class="comment cmt"><p>This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.</p><p>If the method throws, an internal server error will be returned. As always, personally identifiable information should
+never be included in exception messages.</p></div><dl class="paramcmts block"><dt class="param">method</dt><dd class="cmt"><p>The Http method of the request in question
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@clone():Object" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.AbstractResourceActor#complete" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="complete(resp:spray.http.HttpResponse,location:String):Unit"></a>
+      <a id="complete(HttpResponse,String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">complete</span><span class="params">(<span name="resp">resp: <span class="extype" name="spray.http.HttpResponse">HttpResponse</span></span>, <span name="location">location: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@complete(resp:spray.http.HttpResponse,location:String):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Complete a successful request</p><div class="fullcomment"><div class="comment cmt"><p>Complete a successful request</p></div><dl class="paramcmts block"><dt class="param">resp</dt><dd class="cmt"><p>The HttpResponse to be returned</p></dd><dt class="param">location</dt><dd class="cmt"><p>Value for the HTTP location header
+</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.AbstractResourceActor#complete" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="complete(resp:spray.http.HttpResponse):Unit"></a>
+      <a id="complete(HttpResponse):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">complete</span><span class="params">(<span name="resp">resp: <span class="extype" name="spray.http.HttpResponse">HttpResponse</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@complete(resp:spray.http.HttpResponse):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Complete a successful request</p><div class="fullcomment"><div class="comment cmt"><p>Complete a successful request</p></div><dl class="paramcmts block"><dt class="param">resp</dt><dd class="cmt"><p>The HttpResponse to be returned
+</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.AbstractResourceActor#completeToJSON" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="completeToJSON[T](code:spray.http.StatusCode,response:T,location:String):Unit"></a>
+      <a id="completeToJSON[T](StatusCode,T,String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">completeToJSON</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="code">code: <span class="extype" name="spray.http.StatusCode">StatusCode</span></span>, <span name="response">response: <span class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor.completeToJSON.T">T</span></span>, <span name="location">location: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@completeToJSON[T](code:spray.http.StatusCode,response:T,location:String):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Complete a successful request with a JSON response</p><div class="fullcomment"><div class="comment cmt"><p>Complete a successful request with a JSON response</p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>Type of the object to be returned
+</p></dd><dt class="param">code</dt><dd class="cmt"><p>Status code to return</p></dd><dt class="param">response</dt><dd class="cmt"><p>Object to be serialized in the response</p></dd><dt class="param">location</dt><dd class="cmt"><p>Value for the HTTP Location header</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.AbstractResourceActor#completeToJSON" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="completeToJSON[T](code:spray.http.StatusCode,response:T):Unit"></a>
+      <a id="completeToJSON[T](StatusCode,T):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">completeToJSON</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="code">code: <span class="extype" name="spray.http.StatusCode">StatusCode</span></span>, <span name="response">response: <span class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor.completeToJSON.T">T</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@completeToJSON[T](code:spray.http.StatusCode,response:T):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Complete a successful request with a JSON response</p><div class="fullcomment"><div class="comment cmt"><p>Complete a successful request with a JSON response</p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>Type of the object to be returned
+</p></dd><dt class="param">code</dt><dd class="cmt"><p>Status code to return</p></dd><dt class="param">response</dt><dd class="cmt"><p>Object to be serialized in the response</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="akka.actor.Actor#context" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="context:akka.actor.ActorContext"></a>
+      <a id="context:ActorContext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">context</span><span class="result">: <span class="extype" name="akka.actor.ActorContext">ActorContext</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@context:akka.actor.ActorContext" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A"></a>
+      <a id="ensuring((AbstractResourceActor)⇒Boolean,⇒Any):AbstractResourceActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>) ⇒ <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:A=&gt;Boolean):A"></a>
+      <a id="ensuring((AbstractResourceActor)⇒Boolean):AbstractResourceActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>) ⇒ <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@ensuring(cond:A=&gt;Boolean):A" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:Boolean,msg:=&gt;Any):A"></a>
+      <a id="ensuring(Boolean,⇒Any):AbstractResourceActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@ensuring(cond:Boolean,msg:=&gt;Any):A" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:Boolean):A"></a>
+      <a id="ensuring(Boolean):AbstractResourceActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@ensuring(cond:Boolean):A" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.Predef.StringFormat#formatted" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="formatted(fmtstr:String):String"></a>
+      <a id="formatted(String):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">formatted</span><span class="params">(<span name="fmtstr">fmtstr: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@formatted(fmtstr:String):String" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to
+            <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>] performed by method StringFormat in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>StringFormat</dd><dt>Annotations</dt><dd>
+                <span class="name">@inline</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor#handleError" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="handleError(exception:Exception):spray.http.HttpResponse"></a>
+      <a id="handleError(Exception):HttpResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">handleError</span><span class="params">(<span name="exception">exception: <span class="extype" name="scala.Exception">Exception</span></span>)</span><span class="result">: <span class="extype" name="spray.http.HttpResponse">HttpResponse</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@handleError(exception:Exception):spray.http.HttpResponse" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Exception handler for creating an http error response when Status.Failure is received.</p><div class="fullcomment"><div class="comment cmt"><p>Exception handler for creating an http error response when Status.Failure is received.
+</p></div><dl class="paramcmts block"><dt class="param">exception</dt><dd class="cmt"><p>the exception</p></dd><dt>returns</dt><dd class="cmt"><p>a crafted HttpResponse from the error message
+</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="akka.actor.ActorLogging#log" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="log:akka.event.LoggingAdapter"></a>
+      <a id="log:LoggingAdapter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">log</span><span class="result">: <span class="extype" name="akka.event.LoggingAdapter">LoggingAdapter</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@log:akka.event.LoggingAdapter" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>ActorLogging</dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="com.paypal.cascade.akka.actor.CommonActor#postRestart" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="postRestart(reason:Throwable):Unit"></a>
+      <a id="postRestart(Throwable):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">postRestart</span><span class="params">(<span name="reason">reason: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@postRestart(reason:Throwable):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Can be overridden in subsequent actor implementations, but <code>super.postRestart(reason)</code> should also be called
+to preserve consistent behavior</p><div class="fullcomment"><div class="comment cmt"><p>Can be overridden in subsequent actor implementations, but <code>super.postRestart(reason)</code> should also be called
+to preserve consistent behavior</p></div><dl class="paramcmts block"><dt class="param">reason</dt><dd class="cmt"><p>what triggered this restart cycle
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../akka/actor/CommonActor.html" class="extype" name="com.paypal.cascade.akka.actor.CommonActor">CommonActor</a> → Actor</dd></dl></div>
+    </li><li name="akka.actor.Actor#postStop" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="postStop():Unit"></a>
+      <a id="postStop():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">postStop</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@postStop():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Actor</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Exception]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="akka.actor.Actor#preRestart" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="preRestart(reason:Throwable,message:Option[Any]):Unit"></a>
+      <a id="preRestart(Throwable,Option[Any]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">preRestart</span><span class="params">(<span name="reason">reason: <span class="extype" name="scala.Throwable">Throwable</span></span>, <span name="message">message: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a>]</span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@preRestart(reason:Throwable,message:Option[Any]):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Actor</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Exception]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="akka.actor.Actor#preStart" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="preStart():Unit"></a>
+      <a id="preStart():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">preStart</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@preStart():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Actor</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Exception]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.AbstractResourceActor#receive" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="receive:akka.actor.Actor.Receive"></a>
+      <a id="receive:akka.actor.Actor.Receive"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">receive</span><span class="result">: <span class="extype" name="akka.actor.Actor.Receive">akka.actor.Actor.Receive</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@receive:akka.actor.Actor.Receive" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The receive function for this resource.</p><div class="fullcomment"><div class="comment cmt"><p>The receive function for this resource. Should not be overridden - implement <a href="#resourceReceive:akka.actor.Actor.Receive" class="extmbr" name="com.paypal.cascade.http.resource.AbstractResourceActor#resourceReceive">resourceReceive</a> instead
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> → <a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a> → Actor</dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor#responseContentType" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="responseContentType:spray.http.ContentType"></a>
+      <a id="responseContentType:ContentType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">responseContentType</span><span class="result">: <span class="extype" name="spray.http.ContentType">ContentType</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@responseContentType:spray.http.ContentType" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The content type that this server provides, by default <code>application/json</code></p><div class="fullcomment"><div class="comment cmt"><p>The content type that this server provides, by default <code>application/json</code></p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a list of content types
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor#responseLanguage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="responseLanguage:Option[spray.http.Language]"></a>
+      <a id="responseLanguage:Option[Language]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">responseLanguage</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="spray.http.Language">Language</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@responseLanguage:Option[spray.http.Language]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">The language of the data in the response, to for the Content-Language header
+</p><div class="fullcomment"><div class="comment cmt"><p>The language of the data in the response, to for the Content-Language header
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a spray.http.Language value in an Option, or None, if the Content-Language header
+        does not need to be set for this resource
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></dd></dl></div>
+    </li><li name="akka.actor.Actor#self" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="self:akka.actor.ActorRef"></a>
+      <a id="self:ActorRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">self</span><span class="result">: <span class="extype" name="akka.actor.ActorRef">ActorRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@self:akka.actor.ActorRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.AbstractResourceActor#sendError" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sendError(f:Throwable):Unit"></a>
+      <a id="sendError(Throwable):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sendError</span><span class="params">(<span name="f">f: <span class="extype" name="scala.Throwable">Throwable</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@sendError(f:Throwable):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Return an internal server error in response to a throwable</p><div class="fullcomment"><div class="comment cmt"><p>Return an internal server error in response to a throwable</p></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>The error to be logged
+</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.AbstractResourceActor#sendErrorCodeResponse" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sendErrorCodeResponse(code:spray.http.StatusCode):Unit"></a>
+      <a id="sendErrorCodeResponse(StatusCode):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sendErrorCodeResponse</span><span class="params">(<span name="code">code: <span class="extype" name="spray.http.StatusCode">StatusCode</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@sendErrorCodeResponse(code:spray.http.StatusCode):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Return an error with the specified Status code</p><div class="fullcomment"><div class="comment cmt"><p>Return an error with the specified Status code</p></div><dl class="paramcmts block"><dt class="param">code</dt><dd class="cmt"><p>The error code to return
+</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.AbstractResourceActor#sendErrorMapResponse" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sendErrorMapResponse(code:spray.http.StatusCode,msg:String):Unit"></a>
+      <a id="sendErrorMapResponse(StatusCode,String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sendErrorMapResponse</span><span class="params">(<span name="code">code: <span class="extype" name="spray.http.StatusCode">StatusCode</span></span>, <span name="msg">msg: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@sendErrorMapResponse(code:spray.http.StatusCode,msg:String):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Return an error with the specified Status code</p><div class="fullcomment"><div class="comment cmt"><p>Return an error with the specified Status code</p></div><dl class="paramcmts block"><dt class="param">code</dt><dd class="cmt"><p>The error code to return</p></dd><dt class="param">msg</dt><dd class="cmt"><p>Message to be returned, will be converted to JSON
+</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.AbstractResourceActor#sendErrorResponse" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sendErrorResponse[T](code:spray.http.StatusCode,error:T)(implicitevidence$1:Manifest[T]):Unit"></a>
+      <a id="sendErrorResponse[T](StatusCode,T)(Manifest[T]):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sendErrorResponse</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="code">code: <span class="extype" name="spray.http.StatusCode">StatusCode</span></span>, <span name="error">error: <span class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor.sendErrorResponse.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="arg0">arg0: <span class="extype" name="scala.Predef.Manifest">Manifest</span>[<span class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor.sendErrorResponse.T">T</span>]</span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@sendErrorResponse[T](code:spray.http.StatusCode,error:T)(implicitevidence$1:Manifest[T]):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Return an error with the specified status code and error object.</p><div class="fullcomment"><div class="comment cmt"><p>Return an error with the specified status code and error object.
+</p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>Type of the error
+</p></dd><dt class="param">code</dt><dd class="cmt"><p>The error code to return</p></dd><dt class="param">error</dt><dd class="cmt"><p>Error to return, will be converted to JSON</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="akka.actor.Actor#sender" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sender():akka.actor.ActorRef"></a>
+      <a id="sender():ActorRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sender</span><span class="params">()</span><span class="result">: <span class="extype" name="akka.actor.ActorRef">ActorRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@sender():akka.actor.ActorRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Actor</dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor#supervisorStrategy" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="supervisorStrategy:akka.actor.OneForOneStrategy"></a>
+      <a id="supervisorStrategy:OneForOneStrategy"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">supervisorStrategy</span><span class="result">: <span class="extype" name="akka.actor.OneForOneStrategy">OneForOneStrategy</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@supervisorStrategy:akka.actor.OneForOneStrategy" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a> → Actor</dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@toString():String" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="com.paypal.cascade.akka.actor.ServiceActor#unhandled" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="unhandled(message:Any):Unit"></a>
+      <a id="unhandled(Any):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unhandled</span><span class="params">(<span name="message">message: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@unhandled(message:Any):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Triggered when an actor receives a message that it doesn't recognize.</p><div class="fullcomment"><div class="comment cmt"><p>Triggered when an actor receives a message that it doesn't recognize. In order:</p><p>1) Publishes an unhandled message to the actor system's event stream.
+2) Replies with a <span class="extype" name="akka.actor.Status.Failure">akka.actor.Status.Failure</span> message to the sender.
+3) Throws an <a href="../../akka/actor/UnhandledMessageException.html" class="extype" name="com.paypal.cascade.akka.actor.UnhandledMessageException">UnhandledMessageException</a> for delegation to the supervisor.</p><p><a href="../../akka/mailbox/ExpiredLetter.html" class="extype" name="com.paypal.cascade.akka.mailbox.ExpiredLetter">com.paypal.cascade.akka.mailbox.ExpiredLetter</a> messages from an <a href="../../akka/mailbox/ExpiringBoundedMailbox.html" class="extype" name="com.paypal.cascade.akka.mailbox.ExpiringBoundedMailbox">com.paypal.cascade.akka.mailbox.ExpiringBoundedMailbox</a>
+are published to the system eventstream, similar to the dead letter stream, and are otherwise ignored.
+</p></div><dl class="paramcmts block"><dt class="param">message</dt><dd class="cmt"><p>The unhandled message</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../akka/actor/ServiceActor.html" class="extype" name="com.paypal.cascade.akka.actor.ServiceActor">ServiceActor</a> → Actor</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="scala.this.throws.&lt;init&gt;$default$1[com.paypal.cascade.akka.actor.UnhandledMessageException]">...</span>
+    </span>)</span>
+              
+        </dd><dt>Exceptions thrown</dt><dd><span class="cmt">UnhandledMessageException<p>The unhandled message exception.
+</p></span></dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.Predef.ArrowAssoc#→" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="→[B](y:B):(A,B)"></a>
+      <a id="→[B](B):(AbstractResourceActor,B)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $u2192" class="implicit">→</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>, <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.AbstractResourceActor@→[B](y:B):(A,B)" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>] performed by method ArrowAssoc in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="com.paypal.cascade.http.resource.HttpResourceActor">
+              <h3>Inherited from <a href="HttpResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</a></h3>
+            </div><div class="parent" name="com.paypal.cascade.akka.actor.ServiceActor">
+              <h3>Inherited from <a href="../../akka/actor/ServiceActor.html" class="extype" name="com.paypal.cascade.akka.actor.ServiceActor">ServiceActor</a></h3>
+            </div><div class="parent" name="com.paypal.cascade.akka.actor.CommonActor">
+              <h3>Inherited from <a href="../../akka/actor/CommonActor.html" class="extype" name="com.paypal.cascade.akka.actor.CommonActor">CommonActor</a></h3>
+            </div><div class="parent" name="akka.actor.ActorLogging">
+              <h3>Inherited from <span class="extype" name="akka.actor.ActorLogging">ActorLogging</span></h3>
+            </div><div class="parent" name="akka.actor.Actor">
+              <h3>Inherited from <span class="extype" name="akka.actor.Actor">Actor</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.4/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        <div class="conversion" name="scala.Predef.any2stringadd">
+              <h3>Inherited by implicit conversion any2stringadd from
+                <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.StringFormat">
+              <h3>Inherited by implicit conversion StringFormat from
+                <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.Ensuring">
+              <h3>Inherited by implicit conversion Ensuring from
+                <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.ArrowAssoc">
+              <h3>Inherited by implicit conversion ArrowAssoc from
+                <a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a> to <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">AbstractResourceActor</a>]
+              </h3>
+            </div>
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
