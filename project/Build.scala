@@ -106,6 +106,8 @@ object BuildSettings {
         "org.scala-lang.modules" %% "scala-parser-combinators"  % "1.0.2"
       )
     },
+    // scalaz-stream_2.10 is not on Maven Central, until that changes, this line needs to stay in
+    resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
@@ -139,7 +141,7 @@ object Dependencies {
   val sprayVersion = "1.3.2"
   val akkaVersion = "2.3.8"
   val parboiledVersion = "1.1.6"
-  val specs2Version = "2.3.13"
+  val specs2Version = "2.4.15"
 
   lazy val logback             = "ch.qos.logback"                 %  "logback-classic"       % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
@@ -158,7 +160,7 @@ object Dependencies {
   lazy val akka                = "com.typesafe.akka"              %% "akka-actor"            % akkaVersion
 
   lazy val specs2              = "org.specs2"                     %% "specs2"                % specs2Version     % "test"
-  lazy val scalacheck          = "org.scalacheck"                 %% "scalacheck"            % "1.11.3"          % "test"
+  lazy val scalacheck          = "org.scalacheck"                 %% "scalacheck"            % "1.12.1"          % "test"
   lazy val mockito             = "org.mockito"                    %  "mockito-all"           % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"                   %  "hamcrest-all"          % "1.3"             % "test"
   lazy val pegdown             = "org.pegdown"                    %  "pegdown"               % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")
