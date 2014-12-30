@@ -151,20 +151,26 @@ This section is for Cascade core contributors only.
 
 The following should be done once prior to attempting to release a new version of Cascade.
 
-1. Make sure you have an account at http://issues.sonatype.org/
+1. Create an account at http://issues.sonatype.org
 2. Request publish access at https://issues.sonatype.org/browse/OSSRH-11183
-3. Create ```~/.sbt/0.13/sonatype.sbt```
+3. Create an account at http://oss.sonatype.org
+4. Create a user token:
+ - Login into Sonatype OSS with the credentials from the previous step
+ - Open up your profile
+ - Select user token from the profile settings dropdown
+ - Click access user token
+5. Create ```~/.sbt/0.13/sonatype.sbt``` using the user token from the previous step:
 
   ```scala
   credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", <username>, <password>)
   ```
-  
-4. If you haven't done so previously, open sbt in Cascade to create and publish a PGP key pair using these commands:
+
+6. If you haven't done so previously, open sbt in Cascade to create and publish a PGP key pair using these commands:
   - ```set pgpReadOnly := false```
   - ```pgp-cmd gen-key```. Take note of the email address you set. You'll use it in the next command.
   - ```pgp-cmd send-key $EMAILADDR hkp://keyserver.ubuntu.com```
   - See http://www.scala-sbt.org/sbt-pgp/usage.html for more information
-5. Close sbt in Cascade
+7. Close sbt in Cascade
 
 ## Releasing A New Version of Cascade
 
