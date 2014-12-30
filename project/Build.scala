@@ -44,6 +44,15 @@ object BuildSettings {
     "-XX:+CMSClassUnloadingEnabled"
   )
 
+  // enable correctly spaced messages for sbt 13.6+
+  Option(System.getenv("CHANGELOG_MSG")).foreach { msg =>
+    System.setProperty("changelog.msg", msg)
+  }
+
+  Option(System.getenv("CHANGELOG_AUTHOR")).foreach { author =>
+    System.setProperty("changelog.author", author)
+  }
+
   val runArgs = defaultArgs
   val testArgs = defaultArgs
 
@@ -134,6 +143,11 @@ object BuildSettings {
           <id>taylorleese</id>
           <name>Taylor Leese</name>
           <url>https://github.com/taylorleese</url>
+        </developer>
+        <developer>
+          <id>ronnieftw</id>
+          <name>Ronnie Chen</name>
+          <url>https://github.com/ronnieftw</url>
         </developer>
       </developers>
   )
