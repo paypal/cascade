@@ -139,6 +139,11 @@ object BuildSettings {
           <name>Aaron Schlesinger</name>
           <url>https://github.com/arschles</url>
         </developer>
+        <developer>
+          <id>ronnieftw</id>
+          <name>Ronnie Chen</name>
+          <url>https://github.com/ronnieftw</url>
+        </developer>
       </developers>
   )
 }
