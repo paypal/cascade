@@ -1,3 +1,7 @@
+
+# 0.3.0 12/29/14 released by ronnchen@paypal.com
+* removed sideEffectNone and sideEffectSome. updated specs2, scalastyle. 
+
 # 0.2.0 12/11/14 released by ronnchen@paypal.com
 * updated sbt, exposed jackson convertvalue, fixed sendError bug
 
