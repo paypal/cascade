@@ -27,13 +27,6 @@ import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 class RichOptionSpecs extends Specification { override def is = s2"""
   RichOption is a wrapper for Option[T] types
 
-  executeIfNone should
-    exeute the given function only if the contained option is None    ${ExecuteIfNone().executesOnlyIfNone}
-
-  sideEffectNone should
-    execute the given function only if the contained option is None   ${SideEffectNone().executesOnlyIfNone}
-    execute the given function only if the contained option is Some   ${SideEffectSome().executesOnlyIfSome}
-
   orThrow should
     throw only if the contained option is None                        ${OrThrow().throwsOnlyIfNone}
 
@@ -46,39 +39,6 @@ class RichOptionSpecs extends Specification { override def is = s2"""
 
   trait Context extends CommonImmutableSpecificationContext {
     protected val someValue = 20
-  }
-
-  case class ExecuteIfNone() extends Context {
-    def executesOnlyIfNone = apply {
-      val int = new AtomicInteger(0)
-      val wrappedNone = Option.empty[Int]
-      val wrappedSome = Option(someValue)
-      wrappedNone.executeIfNone { int.set(1) }
-      wrappedSome.executeIfNone { int.set(5) }
-      int.get must beEqualTo(1)
-    }
-  }
-
-  case class SideEffectNone() extends Context {
-    def executesOnlyIfNone = apply {
-      val int = new AtomicInteger(0)
-      val wrappedNone = Option.empty[Int]
-      val wrappedSome = Option(someValue)
-      wrappedNone.sideEffectNone { int.set(1) }
-      wrappedSome.sideEffectNone { int.set(5) }
-      int.get must beEqualTo(1)
-    }
-  }
-
-  case class SideEffectSome() extends Context {
-    def executesOnlyIfSome = apply {
-      val int = new AtomicInteger(0)
-      val wrappedNone = Option.empty[Int]
-      val wrappedSome = Option(someValue)
-      wrappedNone.sideEffectSome { _ => int.set(-1) }
-      wrappedSome.sideEffectSome { x => int.set(x) }
-      int.get must beEqualTo(someValue)
-    }
   }
 
   case class OrThrow() extends Context {

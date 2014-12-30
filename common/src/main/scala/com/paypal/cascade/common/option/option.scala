@@ -47,12 +47,19 @@ package object option {
     /**
      * Wraps the given object in a Some.
      *
-     * NOTE: calling `.some` on a null value will return `Some(null): Some[T]`, which is legal but broken.
-     * This behavior is equivalent to directly crafting a `Some[T](null)`, which is also legal but broken.
+     * NOTE: calling `.some` on a null value will throw an IllegalArgumentException. Therefore, only use `.some` when
+     * you absolutely know that the parameter is a constant and always will be.
      * Overall, prefer `.opt` for null safety.
      * @return the wrapped object
      */
-    def some: Option[T] = Some(any)
+    @throws[IllegalArgumentException]
+    def some: Option[T] = {
+      val wrapped = Option(any)
+      if (wrapped.isEmpty) {
+        throw new IllegalArgumentException("Some(null) is forbidden.")
+      }
+      wrapped
+    }
 
     /**
      * Wraps the given object in an Option, which resolves to None if the given object reference is null.
@@ -67,37 +74,6 @@ package object option {
    * @tparam T the type of the optional value
    */
   implicit class RichOption[T](option: Option[T]) {
-
-    /**
-     * If this Option is None, perform the action in fn
-     * @param fn the action to perform
-     * @return the wrapped Option (identity)
-     */
-    def executeIfNone(fn: => Unit): Option[T] = {
-      sideEffectNone(fn)
-    }
-
-    /**
-     * If this Option is none, perform the action in fn
-     * @param fn the action to perform
-     * @return the wrapped Option (identity)
-     */
-    def sideEffectNone(fn: => Unit): Option[T] = {
-      if(option.isEmpty) {
-        fn
-      }
-      option
-    }
-
-    /**
-     * If this Option is Some, perform the action in fn which acts on the value
-     * @param fn the action to perform
-     * @return the wrapped Option (identity)
-     */
-    def sideEffectSome(fn: T => Unit): Option[T] = {
-      option.foreach(fn)
-      option
-    }
 
     /**
      * If this Option is None, throw the given Throwable; else, return the value inside the Option
