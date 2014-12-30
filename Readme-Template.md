@@ -154,9 +154,11 @@ The following should be done once prior to attempting to release a new version o
 1. Make sure you have an account at http://issues.sonatype.org/
 2. Request publish access at https://issues.sonatype.org/browse/OSSRH-11183
 3. Create ```~/.sbt/0.13/sonatype.sbt```
-```scala
-credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", <username>, <password>)
-```
+
+  ```scala
+  credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", <username>, <password>)
+  ```
+  
 4. If you haven't done so previously, open sbt in Cascade to create and publish a PGP key pair using these commands:
   - ```set pgpReadOnly := false```
   - ```pgp-cmd gen-key```. Take note of the email address you set. You'll use it in the next command.
