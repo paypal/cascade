@@ -17,7 +17,6 @@ package com.paypal.cascade.http.resource
 
 import akka.actor._
 import com.fasterxml.jackson.databind.JsonMappingException
-import scala.compat.Platform._
 import scala.util.{Success, Try}
 import spray.http._
 import spray.http.StatusCodes._
@@ -30,7 +29,6 @@ import com.paypal.cascade.akka.actor._
 import com.paypal.cascade.common.constants.ValueConstants._
 import com.paypal.cascade.http.util.HttpUtil
 import scala.concurrent.duration._
-import scala.reflect.ClassTag
 import akka.actor.SupervisorStrategy.Escalate
 import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
 import com.fasterxml.jackson.core.JsonParseException
@@ -38,13 +36,9 @@ import com.fasterxml.jackson.core.JsonParseException
 /**
  * the actor to manage the execution of an [[com.paypal.cascade.http.resource.AbstractResourceActor]]. Create one of these per request
  */
-abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
+private[http] abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
 
   import HttpResourceActor._
-
-  /*
-   * Publicly overrideable
-   */
 
   /**
    * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.
@@ -85,10 +79,6 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
    */
   val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
-  /*
-   * Overrideable by subclasses
-   */
-
   /**
    * Exception handler for creating an http error response when Status.Failure is received.
    *
@@ -128,12 +118,6 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
   case object BeforeExecuted
   case object ResponseContentTypeIsAcceptable
 
-  private var pendingStep: Class[_] = HttpResourceActor.Start.getClass
-
-  private[resource] def setNextStep[T](implicit classTag: ClassTag[T]): Unit = {
-    pendingStep = classTag.runtimeClass
-  }
-
   private val request = resourceContext.reqContext.request
 
   context.setReceiveTimeout(resourceContext.recvTimeout)
@@ -146,37 +130,26 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
 
   override def receive: Actor.Receive = { // scalastyle:ignore cyclomatic.complexity scalastyle:ignore method.length
 
-    //begin processing the request. check if content type is supported and response content type is acceptable
+    /**
+     * begin processing the request:
+     *   a) check if the content type is supported and response content type is acceptable
+     *   b) next parse the request
+     *   c) then process the request
+     */
     case Start =>
-      setNextStep[BeforeExecuted.type]
-      self ! Try {
-        before(request.method)
-        BeforeExecuted
-      }.orFailure
-
-    case BeforeExecuted =>
-      setNextStep[ResponseContentTypeIsAcceptable.type]
-      self ! ensureContentTypeSupportedAndAcceptable.map { _ =>
-        ResponseContentTypeIsAcceptable
-      }.orFailure
-
-    //the response content type is acceptable, now parse the request
-    case ResponseContentTypeIsAcceptable =>
-      setNextStep[RequestIsParsed]
-      self ! resourceContext.reqParser.apply(request).map { p =>
-        RequestIsParsed(p)
-      }.orFailure
-
-    //the request has been parsed, now process the request
-    case RequestIsParsed(p) =>
-      setNextStep[RequestIsProcessed]
-      //account for extremely long processing times
-      context.setReceiveTimeout(resourceContext.processRecvTimeout)
-      self ! ProcessRequest(p)
+      val processRequest = for {
+        _ <- Try(before(request.method))
+        _ <- ensureContentTypeSupportedAndAcceptable
+        req <- resourceContext.reqParser.apply(request).map(ProcessRequest)
+      } yield req
+      processRequest.foreach { _ =>
+        //account for extremely long processing times
+        context.setReceiveTimeout(resourceContext.processRecvTimeout)
+      }
+      self ! processRequest.orFailure
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
-      setNextStep[HttpResponse]
       context.setReceiveTimeout(resourceContext.recvTimeout)
       val responseWithLocation = addHeaderOnCode(resp, Created) {
         // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
@@ -222,11 +195,7 @@ abstract class HttpResourceActor(resourceContext: ResourceContext) extends Servi
 
     //the actor didn't receive a message before the current ReceiveTimeout
     case ReceiveTimeout =>
-      val timeoutMillis = if (pendingStep == classOf[RequestIsProcessed]) {
-        resourceContext.processRecvTimeout.toMillis
-      } else { resourceContext.recvTimeout.toMillis }
-      log.error(
-        s"$self didn't receive message within $timeoutMillis milliseconds of the last one. next expected message was ${pendingStep.getName}")
+      log.error(s"$self didn't receive message within ${context.receiveTimeout} milliseconds.")
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
   }
 
@@ -341,12 +310,12 @@ object HttpResourceActor {
    * @return the new [[akka.actor.Props]]
    */
   def props(resourceActorProps: ResourceContext => AbstractResourceActor,
-                           reqContext: RequestContext,
-                           reqParser: RequestParser,
-                           mbResponseActor: Option[ActorRef],
-                           recvTimeout: FiniteDuration = defaultRecvTimeout,
-                           processRecvTimeout: FiniteDuration = defaultProcessRecvTimeout): Props = {
-    Props.apply(resourceActorProps(ResourceContext(reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout)))
+            reqContext: RequestContext,
+            reqParser: RequestParser,
+            mbResponseActor: Option[ActorRef],
+            recvTimeout: FiniteDuration = defaultRecvTimeout,
+            processRecvTimeout: FiniteDuration = defaultProcessRecvTimeout): Props = {
+    Props(resourceActorProps(ResourceContext(reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout)))
       .withMailbox("single-consumer-mailbox")
   }
 
