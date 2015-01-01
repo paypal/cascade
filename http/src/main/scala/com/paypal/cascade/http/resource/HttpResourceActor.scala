@@ -140,7 +140,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
       val processRequest = for {
         _ <- Try(before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
-        req <- resourceContext.reqParser.apply(request).map(ProcessRequest)
+        req <- resourceContext.reqParser(request).map(ProcessRequest)
       } yield req
       processRequest.foreach { _ =>
         //account for extremely long processing times
@@ -242,7 +242,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
         if (headers.exists(_.lowercaseName == HttpUtil.CONTENT_LANGUAGE_LC)) {
           headers
         } else {
-          RawHeader(HttpUtil.CONTENT_LANGUAGE, lang.toString()) :: headers
+          RawHeader(HttpUtil.CONTENT_LANGUAGE, lang.toString) :: headers
         }
       case None => headers
     }
