@@ -18,8 +18,7 @@ package com.paypal.cascade.http.tests
 import spray.http.{HttpResponse, HttpRequest}
 import com.paypal.cascade.http.resource.{HttpResourceActor, ResourceDriver, AbstractResourceActor}
 import scala.concurrent.Future
-import scala.util.Try
-import akka.actor.{Props, ActorRef, ActorSystem}
+import akka.actor.ActorSystem
 import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
 
 package object resource {

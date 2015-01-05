@@ -34,7 +34,7 @@ package object seq {
      */
     def get(i: Int): Option[T] = {
       if(i >= 0 && i < seq.length) {
-        Some(seq.apply(i))
+        Some(seq(i))
       } else {
         None
       }

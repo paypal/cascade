@@ -20,7 +20,6 @@ import akka.actor.{Status, Actor}
 import com.paypal.cascade.common.option._
 import com.paypal.cascade.http.util.HttpUtil
 import com.paypal.cascade.json._
-import akka.event.LoggingReceive
 import scala.compat.Platform._
 import scala.util.{Success, Failure}
 import spray.http.HttpResponse
@@ -36,7 +35,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   /**
    * The receive function for this resource. Should not be overridden - implement [[resourceReceive]] instead
    */
-  override final def receive: Actor.Receive = LoggingReceive {
+  override final def receive: Actor.Receive = {
     super.receive orElse resourceReceive orElse failureReceive
   }
 
@@ -66,7 +65,6 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param t the error that occurred
    */
   private def handleUnexpectedRequestError(t: Throwable): Unit = {
-    setNextStep[HttpResponse]
     log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTrace.mkString("", EOL, EOL))
     t match {
       case e: Exception =>
