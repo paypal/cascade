@@ -3,17 +3,17 @@
 
 VAGRANTFILE_API_VERSION = "2"
 
-#script to install openjdk 7, scala 2.11.2 and sbt 0.13.5
+#script to install openjdk 7, scala 2.11.4 and sbt 0.13.7
 $script = <<SCRIPT
 apt-get update
 apt-get -y install openjdk-7-jdk
-wget http://www.scala-lang.org/files/archive/scala-2.11.2.deb
-dpkg -i scala-2.11.2.deb
+wget http://www.scala-lang.org/files/archive/scala-2.11.4.deb
+dpkg -i scala-2.11.4.deb
 apt-get -y update
 apt-get -y install scala
 
-wget http://dl.bintray.com/sbt/debian/sbt-0.13.5.deb
-dpkg -i sbt-0.13.5.deb
+wget http://dl.bintray.com/sbt/debian/sbt-0.13.7.deb
+dpkg -i sbt-0.13.7.deb
 apt-get -y update
 apt-get -y install sbt
 SCRIPT
