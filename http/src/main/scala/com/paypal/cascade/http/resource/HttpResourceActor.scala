@@ -177,26 +177,30 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
           HttpEntity(responseContentType, entity.data)
       })
 
-      self ! finalResponse
+      handleHttpResponse(finalResponse)
 
-    //we got a response to return (either through successful processing or an error handling),
+    //we got an http response to return via error handling,
     //so return it to the spray context and return actor and then stop
     case r: HttpResponse =>
-      Try {
-        after(r)
-      }.recover {
-        case t: Throwable => log.error(t, "An error occurred executing after()")
-      }
-      resourceContext.reqContext.complete(r)
-      resourceContext.mbReturnActor.foreach { returnActor =>
-        returnActor ! r
-      }
-      context.stop(self)
+      handleHttpResponse(r)
 
     //the actor didn't receive a message before the current ReceiveTimeout
     case ReceiveTimeout =>
       log.error(s"$self didn't receive message within ${context.receiveTimeout} milliseconds.")
       self ! HttpResponse(StatusCodes.ServiceUnavailable)
+  }
+
+  private def handleHttpResponse(r: HttpResponse): Unit = {
+    Try {
+      after(r)
+    }.recover {
+      case t: Throwable => log.error(t, "An error occurred executing after()")
+    }
+    resourceContext.reqContext.complete(r)
+    resourceContext.mbReturnActor.foreach { returnActor =>
+      returnActor ! r
+    }
+    context.stop(self)
   }
 
   /**
