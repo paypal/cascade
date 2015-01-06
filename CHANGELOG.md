@@ -1,4 +1,7 @@
 
+# 0.4.0 01/05/15 released by taylorleese
+* Cleaned up HttpResourceActor, bumped Horizon to 0.3.0, and used signed release process
+
 # 0.3.0 12/29/14 released by ronnchen@paypal.com
 * removed sideEffectNone and sideEffectSome. updated specs2, scalastyle. 
 
