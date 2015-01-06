@@ -47,7 +47,7 @@ package object actor {
    * @param t the Try to wrap
    * @tparam A the type of the Try
    */
-  implicit class TryOrFailure[A](t: Try[A]) {
+  implicit class TryOrFailure[A >: Any](t: Try[A]) {
 
     /**
      * Returns the value of the Try if successful, or a [[akka.actor.Status.Failure]] message wrapping the exception if failed
