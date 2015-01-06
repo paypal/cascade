@@ -44,6 +44,15 @@ object BuildSettings {
     "-XX:+CMSClassUnloadingEnabled"
   )
 
+  // enable correctly spaced messages for sbt 13.6+
+  Option(System.getenv("CHANGELOG_MSG")).foreach { msg =>
+    System.setProperty("changelog.msg", msg)
+  }
+
+  Option(System.getenv("CHANGELOG_AUTHOR")).foreach { author =>
+    System.setProperty("changelog.author", author)
+  }
+
   val runArgs = defaultArgs
   val testArgs = defaultArgs
 
@@ -51,7 +60,7 @@ object BuildSettings {
 
   lazy val standardReleaseSettings = releaseSettings ++ Seq(
     tagName <<= (version in ThisBuild).map(a => a),
-    releaseProcess := BuildUtilities.defaultReleaseProcess
+    releaseProcess := BuildUtilities.signedReleaseProcess
   )
 
   lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
@@ -129,6 +138,16 @@ object BuildSettings {
           <id>arschles</id>
           <name>Aaron Schlesinger</name>
           <url>https://github.com/arschles</url>
+        </developer>
+        <developer>
+          <id>taylorleese</id>
+          <name>Taylor Leese</name>
+          <url>https://github.com/taylorleese</url>
+        </developer>
+        <developer>
+          <id>ronnieftw</id>
+          <name>Ronnie Chen</name>
+          <url>https://github.com/ronnieftw</url>
         </developer>
       </developers>
   )
@@ -225,7 +244,7 @@ object CommonBuild extends Build {
     settings = standardSettings ++ BuildUtilities.utilitySettings ++ standardReleaseSettings ++ Seq(
       name := "parent",
       unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(examples),
-      publish := {}
+      publishArtifact := false
     ),
     aggregate = Seq(common, json, akka, http, examples)
   )
@@ -283,7 +302,7 @@ object CommonBuild extends Build {
     ),
     settings = standardSettings ++ Seq(
       name := "cascade-examples",
-      publish := {}
+      publishArtifact := false
     )
   )
 
