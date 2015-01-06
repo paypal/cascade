@@ -44,6 +44,8 @@ package object actor {
    *   actor ! t.orFailureWith(CustomException(_))
    * }}}
    *
+   * See https://issues.scala-lang.org/browse/SI-8806 for the rationale behind A >: Any.
+   *
    * @param t the Try to wrap
    * @tparam A the type of the Try
    */
