@@ -19,7 +19,7 @@ import java.net.URL
 import com.paypal.cascade.http.util.HttpUtil
 
 /**
- * Convenience type and implicits for working with [[java.net.URL]] objects
+ * Convenience type and implicits for working with `java.net.URL` objects
  */
 package object url {
 

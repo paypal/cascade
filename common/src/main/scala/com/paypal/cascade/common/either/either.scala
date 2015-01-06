@@ -18,7 +18,7 @@ package com.paypal.cascade.common
 import scala.util.{Success, Failure, Try}
 
 /**
- * Convenience methods and implicits for working with [[scala.util.Either]].
+ * Convenience methods and implicits for working with `scala.util.Either`.
  *
  * When working with Either, our convention is to right-bias correct values. That is, when working with an Either,
  * prefer to use `Either[Failure, Success]` as the pattern.
@@ -29,7 +29,7 @@ import scala.util.{Success, Failure, Try}
 package object either {
 
   /**
-   * Implicit wrapper to convert regular objects to [[scala.util.Either]]
+   * Implicit wrapper to convert regular objects to `scala.util.Either`
    *
    * {{{
    *   import com.paypal.cascade.common.either._
@@ -43,15 +43,15 @@ package object either {
    */
   implicit class EitherOps[A](self: A) {
     /**
-     * Wraps the object in a [[scala.util.Right]]
-     * @tparam X the [[scala.util.Left]] type for the resulting Either
+     * Wraps the object in a `scala.util.Right`
+     * @tparam X the `scala.util.Left` type for the resulting Either
      * @return an Either containing the object as its Right
      */
     def toRight[X]: Either[X, A] = Right(self)
 
     /**
-     * Wraps the object in a [[scala.util.Left]]
-     * @tparam X the [[scala.util.Right]] type for the resulting Either
+     * Wraps the object in a `scala.util.Left`
+     * @tparam X the `scala.util.Right` type for the resulting Either
      * @return an Either containing the object as its Left
      */
     def toLeft[X]: Either[A, X] = Left(self)

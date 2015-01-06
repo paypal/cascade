@@ -29,7 +29,7 @@ import scala.concurrent.ExecutionContext
 class ActorSystemWrapper(serviceName: String) {
 
   /**
-   * the [[akka.actor.ActorSystem]] that this wrapper wraps.
+   * the `akka.actor.ActorSystem` that this wrapper wraps.
    * the system will be configured to shut down gracefully on JVM shutdown.
    */
   lazy val system = {

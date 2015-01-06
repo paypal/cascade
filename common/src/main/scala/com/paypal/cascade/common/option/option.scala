@@ -18,9 +18,8 @@ package com.paypal.cascade.common
 import scala.concurrent.Future
 
 /**
- * Convenience methods and implicit wrappers for working with [[scala.Option]]
+ * Convenience methods and implicit wrappers for working with `scala.Option`
  */
-
 package object option {
 
   /**

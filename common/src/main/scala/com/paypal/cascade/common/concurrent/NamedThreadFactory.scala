@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * The root thread is the top-most thread of the current JVM. A method is provided here to obtain a factor that
  * creates daemon children directly under that root thread.
  *
- * Refer to documentation on [[java.lang.Thread]] for distinctions between daemon/non-daemon threads.
+ * Refer to documentation on `java.lang.Thread` for distinctions between daemon/non-daemon threads.
  * Short version: daemon threads die immediately when their parent dies; non-daemon threads are allowed to finish.
  */
 trait NamedThreadFactory {

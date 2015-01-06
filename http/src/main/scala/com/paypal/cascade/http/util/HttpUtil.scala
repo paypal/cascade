@@ -30,7 +30,7 @@ import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
  * Convenience methods for interacting with URLs and other parts of an HTTP request.
  *
  * Methods found within [[spray.http]] objects should be preferred over these, wherever Spray objects are already
- * in use. For example, if working with a [[spray.http.Uri]], prefer to access its query string pairs using
+ * in use. For example, if working with a `spray.http.Uri`, prefer to access its query string pairs using
  * [spray.http.Uri.Query$.toMap] instead of using `parseQueryStringToMap` found here
  */
 object HttpUtil {

@@ -33,7 +33,7 @@ package com.paypal.cascade.common
  * https://github.com/FasterXML/jackson-module-scala/wiki/Enumeration for more information.
  *
  * For these reasons, our custom Enumeration type should be preferred instead of [[scala.Enumeration]] or
- * [[java.util.Enumeration]]. See the examples subproject for a sample implementation.
+ * `java.util.Enumeration`. See the examples subproject for a sample implementation.
  */
 
 package object enumeration {
