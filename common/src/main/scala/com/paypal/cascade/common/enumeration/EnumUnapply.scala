@@ -16,6 +16,19 @@
 package com.paypal.cascade.common.enumeration
 
 /**
+ * Our custom Enumeration type.
+ */
+trait Enumeration extends Serializable {
+  override def toString: String = stringVal
+
+  /** Forces stable serialization by requiring a String representation */
+  def stringVal: String
+
+  /** Provides a quick interface to compare Enumeration values */
+  def matches(s: String): Boolean = s.toLowerCase.equals(stringVal)
+}
+
+/**
  * Allows pattern matching on String values that correspond to [[com.paypal.cascade.common.enumeration.Enumeration]]
  * subtypes. Note that the type returned by the extractor is the general sealed trait `T`, not an Enumeration instance.
  *

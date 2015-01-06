@@ -42,8 +42,6 @@ import scala.concurrent.duration._
  */
 package object config {
 
-  class ConfigError(name: String) extends Error(name)
-
   /**
    * Implicit wrapper on Option to getOrElse throw ConfigError.
    *
