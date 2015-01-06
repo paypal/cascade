@@ -70,7 +70,7 @@ object BuildSettings {
     exportJars := true,
     fork := true,
     incOptions := incOptions.value.withNameHashing(nameHashing = true),
-    scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-Xlint", "-Xfatal-warnings", "-target:jvm-1.7"),
+    scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-Xlint", "-target:jvm-1.7"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     scalacOptions in (Compile, doc) ++= docScalacOptions,
     scalacOptions in (Test, doc) ++= docScalacOptions,
