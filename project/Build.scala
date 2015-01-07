@@ -70,7 +70,7 @@ object BuildSettings {
     exportJars := true,
     fork := true,
     incOptions := incOptions.value.withNameHashing(nameHashing = true),
-    scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-Xlint", "-Xfatal-warnings", "-target:jvm-1.7"),
+    scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-Xlint", "-target:jvm-1.7"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     scalacOptions in (Compile, doc) ++= docScalacOptions,
     scalacOptions in (Test, doc) ++= docScalacOptions,
@@ -87,7 +87,8 @@ object BuildSettings {
         findManagedDependency("org.scala-lang", "scala-library").value.map(d => d -> url(s"http://www.scala-lang.org/api/$scalaVsn/")),
         findManagedDependency("com.typesafe.akka", "akka-actor").value.map(d => d -> url(s"http://doc.akka.io/api/akka/$akkaVersion/")),
         findManagedDependency("com.typesafe", "config").value.map(d => d -> url("http://typesafehub.github.io/config/latest/api/")),
-        findManagedDependency("com.fasterxml.jackson.core", "jackson-core").value.map(d => d -> url(s"http://fasterxml.github.io/jackson-core/javadoc/2.4/")),
+        findManagedDependency("com.fasterxml.jackson.core", "jackson-core").value.map(d => d -> url("http://fasterxml.github.io/jackson-core/javadoc/2.4/")),
+        findManagedDependency("com.fasterxml.jackson.core", "jackson-databind").value.map(d => d -> url("http://fasterxml.github.io/jackson-databind/javadoc/2.4/")),
         // this is the only scaladoc location listed on the spray site
         findManagedDependency("io.spray", "spray-http").value.map(d => d -> url("http://spray.io/documentation/1.1-SNAPSHOT/api/")),
         findManagedDependency("io.spray", "spray-routing").value.map(d => d -> url("http://spray.io/documentation/1.1-SNAPSHOT/api/")),

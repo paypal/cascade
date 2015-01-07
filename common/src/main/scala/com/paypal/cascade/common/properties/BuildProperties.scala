@@ -43,7 +43,7 @@ class BuildProperties extends LoggingSugar {
   }
 
   /**
-   * Retrieves an optional value from a [[java.util.Properties]] object
+   * Retrieves an optional value from a `java.util.Properties` object
    * @param key the key to retrieve
    * @return an optional String value for the given `key`
    */

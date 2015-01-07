@@ -130,7 +130,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 
   override def receive: Actor.Receive = { // scalastyle:ignore cyclomatic.complexity scalastyle:ignore method.length
 
-    /**
+    /*
      * begin processing the request:
      *   a) check if the content type is supported and response content type is acceptable
      *   b) next parse the request
@@ -258,9 +258,9 @@ object HttpResourceActor {
 
   /**
    * ResourceContext contains all information needed to start an AbstractResourceActor
-   * @param reqContext the spray [[spray.routing.RequestContext]] for this request
+   * @param reqContext the spray `spray.routing.RequestContext` for this request
    * @param reqParser the function to parse the request into a valid scala type
-   * @param mbReturnActor the actor to send the successful [[spray.http.HttpResponse]] or the failed [[java.lang.Throwable]].
+   * @param mbReturnActor the actor to send the successful [[spray.http.HttpResponse]] or the failed `java.lang.Throwable`.
    *                      optional - pass None to not do this
    * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
    *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[spray.http.HttpResponse]] indicating the error to the
@@ -289,7 +289,7 @@ object HttpResourceActor {
   type RequestParser = HttpRequest => Try[AnyRef]
 
   /**
-   * the only message to send each [[com.paypal.cascade.http.resource.HttpResourceActor]]. it begins processing the
+   * the only message to send each `com.paypal.cascade.http.resource.HttpResourceActor`. it begins processing the
    * [[com.paypal.cascade.http.resource.AbstractResourceActor]] that it contains
    */
   object Start
@@ -305,13 +305,13 @@ object HttpResourceActor {
   val defaultProcessRecvTimeout = 4.seconds
 
   /**
-   * create the [[akka.actor.Props]] for a new [[com.paypal.cascade.http.resource.HttpResourceActor]]
+   * create the `akka.actor.Props` for a new `com.paypal.cascade.http.resource.HttpResourceActor`
    * @param resourceActorProps function for creating props for an actor which will handle the request
    * @param reqContext the [[com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext]] to pass to the
-   *                   [[com.paypal.cascade.http.resource.HttpResourceActor]]
-   * @param reqParser the parser function to pass to the [[com.paypal.cascade.http.resource.HttpResourceActor]]
-   * @param mbResponseActor the optional actor to pass to the [[com.paypal.cascade.http.resource.HttpResourceActor]]
-   * @return the new [[akka.actor.Props]]
+   *                   `com.paypal.cascade.http.resource.HttpResourceActor`
+   * @param reqParser the parser function to pass to the `com.paypal.cascade.http.resource.HttpResourceActor`
+   * @param mbResponseActor the optional actor to pass to the `com.paypal.cascade.http.resource.HttpResourceActor`
+   * @return the new `akka.actor.Props`
    */
   def props(resourceActorProps: ResourceContext => AbstractResourceActor,
             reqContext: RequestContext,

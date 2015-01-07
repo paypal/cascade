@@ -41,7 +41,7 @@ package object json {
      *
      * @tparam T a context bound type
      * @return a [[scala.util.Try]] that is either the object of type `T`, or one of
-     *         [[java.io.IOException]], [[com.fasterxml.jackson.core.JsonParseException]],
+     *         `java.io.IOException`, [[com.fasterxml.jackson.core.JsonParseException]],
      *         or [[com.fasterxml.jackson.databind.JsonMappingException]]
      */
     def fromJson[T : Manifest]: Try[T] =  JsonUtil.fromJson[T](str)
@@ -88,7 +88,7 @@ package object json {
      *
      * @tparam T a context bound type
      * @return a [[scala.util.Try]] that is either the object of type `T`, or a
-     *         [[java.lang.IllegalArgumentException]] in the case of a cast to an incompatible type.
+     *         `java.lang.IllegalArgumentException` in the case of a cast to an incompatible type.
      */
     def convertValue[T : Manifest]: Try[T] = JsonUtil.convertValue[T](convertMe)
   }
