@@ -26,6 +26,10 @@ import org.joda.time.{DateTimeZone, DateTime}
 
 /**
  * Custom generators for use with ScalaCheck
+ *
+ * Word to the wise: because of the way that Gen.suchThat is implemented, you actually have to re-attach it any time
+ * you construct a new Gen, e.g. when you map over Gens. That's why some of our generators do that, and if you use them,
+ * you might have to do it as well. See https://github.com/rickynils/scalacheck/issues/129
  */
 
 package object scalacheck {
