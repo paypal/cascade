@@ -250,7 +250,7 @@ object CommonBuild extends Build {
   )
 
   lazy val common = Project("cascade-common", file("common"),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "cascade-common",
       libraryDependencies ++= commonDependencies ++ commonTestDependencies,
       publishArtifact in Test := true,
@@ -260,7 +260,7 @@ object CommonBuild extends Build {
 
   lazy val json = Project("cascade-json", file("json"),
     dependencies = Seq(common % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "cascade-json",
       libraryDependencies ++= jsonDependencies,
       publishArtifact in Test := true,
@@ -270,7 +270,7 @@ object CommonBuild extends Build {
 
   lazy val akka = Project("cascade-akka", file("akka"),
     dependencies = Seq(common % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "cascade-akka",
       libraryDependencies ++= akkaDependencies ++ akkaTestDependencies,
       publishArtifact in Test := true,
@@ -284,7 +284,7 @@ object CommonBuild extends Build {
       json   % "compile->compile;test->test",
       akka   % "compile->compile;test->test"
     ),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "cascade-http",
       libraryDependencies ++= httpDependencies ++ httpTestDependencies,
       publishArtifact in Test := true,
