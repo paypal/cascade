@@ -53,11 +53,11 @@ package object scalacheck {
   lazy val genAlphaLowerNumChar: Gen[Char] = Gen.frequency((9, Gen.alphaLowerChar), (1, Gen.numChar))
 
   /** Generates a non-empty String comprised of alphabetics */
-  lazy val genNonEmptyAlphaStr: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString)
+  lazy val genNonEmptyAlphaStr: Gen[String] = Gen.nonEmptyListOf(Gen.alphaChar).map(_.mkString).suchThat(_.size > 0)
 
   /** Generates a non-empty String comprised of alphabetics and digits */
   lazy val genNonEmptyAlphaNumStr: Gen[String] =
-    Gen.nonEmptyListOf(Gen.frequency((52, Gen.alphaChar), (10, Gen.numChar))).map(_.mkString)
+    Gen.nonEmptyListOf(Gen.frequency((52, Gen.alphaChar), (10, Gen.numChar))).map(_.mkString).suchThat(_.size > 0)
 
   // an optimization over letting Scalacheck try to create these objects
   private lazy val unicodeChars = (Character.MIN_VALUE to Character.MAX_VALUE).filter(Character.isDefined).toArray
@@ -94,7 +94,7 @@ package object scalacheck {
   lazy val genJsonChar: Gen[Char] = choose(0, jsonChars.size - 1).map(jsonChars(_))
 
   /** Legal JSON strings */
-  lazy val genJsonString: Gen[String] = nonEmptyListOf(genJsonChar).map(_.mkString)
+  lazy val genJsonString: Gen[String] = nonEmptyListOf(genJsonChar).map(_.mkString).suchThat(_.size > 0)
 
   /**
    * Generates a List[T] of size between `min` and `max`
@@ -109,7 +109,7 @@ package object scalacheck {
       n <- Gen.choose(min, max)
       lst <- Gen.listOfN(n, gen)
     } yield lst
-  }
+  }.suchThat(l => l.size >= min && l.size <= max)
 
   /**
    * Generates a String of length between `min` and `max`
@@ -119,7 +119,7 @@ package object scalacheck {
    * @return a String of length between `min` and `max`
    */
   def genStringWithSizeInRange(min: Int, max: Int, gen: Gen[Char]): Gen[String] = {
-    genListWithSizeInRange(min, max, gen).map(_.mkString)
+    genListWithSizeInRange(min, max, gen).map(_.mkString).suchThat(s => s.size >= min && s.size <= max)
   }
 
   /**
