@@ -153,7 +153,7 @@ The following should be done once prior to attempting to release a new version o
 
 1. Create an account at http://issues.sonatype.org
 2. Request publish access at https://issues.sonatype.org/browse/OSSRH-11183
-3. Create an account at http://oss.sonatype.org
+3. Log in with that same account at http://oss.sonatype.org
 4. Create a user token:
  - Login into Sonatype OSS with the credentials from the previous step
  - Open up your profile
