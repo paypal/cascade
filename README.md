@@ -23,13 +23,13 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal" %% "cascade-$projectName" % "0.4.0"
+"com.paypal" %% "cascade-$projectName" % "0.4.1"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal" %% "cascade-akka" % "0.4.0"
+"com.paypal" %% "cascade-akka" % "0.4.1"
 ```
 
 If you're starting a new project, we recommend using SBT along with
@@ -51,9 +51,9 @@ depend on `common`), you can mix and match which libraries you use.
 The libraries in Cascade all follow some similar patterns.
 [PATTERNS.md](doc/PATTERNS.md) describes them in detail.
 
-Current Version: 0.4.0
+Current Version: 0.4.1
 
-[View the ScalaDocs](https://paypal.github.io/cascade/api/0.4.0/index.html#com.paypal.cascade.package)
+[View the ScalaDocs](https://paypal.github.io/cascade/api/0.4.1/index.html#com.paypal.cascade.package)
 
 # Dependencies
 
@@ -62,13 +62,13 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal" %% "cascade-$projectName" % "0.4.0"
+"com.paypal" %% "cascade-$projectName" % "0.4.1"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal" %% "cascade-akka" % "0.4.0"
+"com.paypal" %% "cascade-akka" % "0.4.1"
 ```
 
 If you're starting a new project, we recommend using SBT along with

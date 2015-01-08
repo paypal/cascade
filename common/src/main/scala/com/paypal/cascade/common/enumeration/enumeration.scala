@@ -33,29 +33,10 @@ package com.paypal.cascade.common
  * https://github.com/FasterXML/jackson-module-scala/wiki/Enumeration for more information.
  *
  * For these reasons, our custom Enumeration type should be preferred instead of [[scala.Enumeration]] or
- * [[java.util.Enumeration]]. See the examples subproject for a sample implementation.
+ * `java.util.Enumeration`. See the examples subproject for a sample implementation.
  */
 
 package object enumeration {
-
-  /**
-   * Our custom Enumeration type.
-   */
-  trait Enumeration extends Serializable {
-    override def toString: String = stringVal
-
-    /** Forces stable serialization by requiring a String representation */
-    def stringVal: String
-
-    /** Provides a quick interface to compare Enumeration values */
-    def matches(s: String): Boolean = s.toLowerCase.equals(stringVal)
-  }
-
-  /**
-   * Exception type for failed String-to-Enumeration reading
-   * @param unknownValue the supposed stringVal of the failed Enumeration read
-   */
-  class EnumerationException(unknownValue: String) extends Exception("Unknown enumeration value " + unknownValue)
 
   /**
    * Creates an [[com.paypal.cascade.common.enumeration.EnumReader]]

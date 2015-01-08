@@ -149,7 +149,7 @@ package object resource {
   }
 
   /**
-   * Implicit wrapper to allow right-biased, left Throwable [[scala.util.Either]] values to halt or throw
+   * Implicit wrapper to allow right-biased, left Throwable `scala.util.Either` values to halt or throw
    *
    * {{{
    *   import com.paypal.cascade.http.resource._
@@ -213,7 +213,7 @@ package object resource {
 
   /**
    * Implicit wrapper to allow [[scala.util.Try]] values to halt or throw.
-   * Handled internally as a right-biased [[scala.util.Either]] with a Throwable left.
+   * Handled internally as a right-biased `scala.util.Either` with a Throwable left.
    *
    * {{{
    *   import com.paypal.cascade.http.resource._
@@ -227,7 +227,7 @@ package object resource {
   implicit class RichTryHalt[A](t: Try[A]) extends RichEitherThrowableHalt(t.toEither)
 
   /**
-   * Implicit wrapper to allow right-biased [[scala.util.Either]] values, of any left type, to halt or throw
+   * Implicit wrapper to allow right-biased `scala.util.Either` values, of any left type, to halt or throw
    *
    * {{{
    *   import com.paypal.cascade.http.resource._

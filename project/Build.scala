@@ -70,7 +70,7 @@ object BuildSettings {
     exportJars := true,
     fork := true,
     incOptions := incOptions.value.withNameHashing(nameHashing = true),
-    scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-target:jvm-1.7"),
+    scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-Xlint", "-target:jvm-1.7"),
     scalacOptions in Test ++= Seq("-Yrangepos"),
     scalacOptions in (Compile, doc) ++= docScalacOptions,
     scalacOptions in (Test, doc) ++= docScalacOptions,
@@ -87,7 +87,8 @@ object BuildSettings {
         findManagedDependency("org.scala-lang", "scala-library").value.map(d => d -> url(s"http://www.scala-lang.org/api/$scalaVsn/")),
         findManagedDependency("com.typesafe.akka", "akka-actor").value.map(d => d -> url(s"http://doc.akka.io/api/akka/$akkaVersion/")),
         findManagedDependency("com.typesafe", "config").value.map(d => d -> url("http://typesafehub.github.io/config/latest/api/")),
-        findManagedDependency("com.fasterxml.jackson.core", "jackson-core").value.map(d => d -> url(s"http://fasterxml.github.io/jackson-core/javadoc/2.4/")),
+        findManagedDependency("com.fasterxml.jackson.core", "jackson-core").value.map(d => d -> url("http://fasterxml.github.io/jackson-core/javadoc/2.4/")),
+        findManagedDependency("com.fasterxml.jackson.core", "jackson-databind").value.map(d => d -> url("http://fasterxml.github.io/jackson-databind/javadoc/2.4/")),
         // this is the only scaladoc location listed on the spray site
         findManagedDependency("io.spray", "spray-http").value.map(d => d -> url("http://spray.io/documentation/1.1-SNAPSHOT/api/")),
         findManagedDependency("io.spray", "spray-routing").value.map(d => d -> url("http://spray.io/documentation/1.1-SNAPSHOT/api/")),
@@ -250,7 +251,7 @@ object CommonBuild extends Build {
   )
 
   lazy val common = Project("cascade-common", file("common"),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "cascade-common",
       libraryDependencies ++= commonDependencies ++ commonTestDependencies,
       publishArtifact in Test := true,
@@ -260,7 +261,7 @@ object CommonBuild extends Build {
 
   lazy val json = Project("cascade-json", file("json"),
     dependencies = Seq(common % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "cascade-json",
       libraryDependencies ++= jsonDependencies,
       publishArtifact in Test := true,
@@ -270,7 +271,7 @@ object CommonBuild extends Build {
 
   lazy val akka = Project("cascade-akka", file("akka"),
     dependencies = Seq(common % "compile->compile;test->test"),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "cascade-akka",
       libraryDependencies ++= akkaDependencies ++ akkaTestDependencies,
       publishArtifact in Test := true,
@@ -284,7 +285,7 @@ object CommonBuild extends Build {
       json   % "compile->compile;test->test",
       akka   % "compile->compile;test->test"
     ),
-    settings = standardSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
       name := "cascade-http",
       libraryDependencies ++= httpDependencies ++ httpTestDependencies,
       publishArtifact in Test := true,

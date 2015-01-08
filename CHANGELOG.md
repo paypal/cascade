@@ -1,4 +1,7 @@
 
+# 0.4.1 01/08/15 released by angarrett
+* Fixes doc, the sbt release plugin, upgrades horizon, fixes shrinking in generators.
+
 # 0.4.0 01/05/15 released by taylorleese
 * Cleaned up HttpResourceActor, bumped Horizon to 0.3.0, and used signed release process
 

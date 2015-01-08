@@ -36,7 +36,8 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * The receive function for this resource. Should not be overridden - implement [[resourceReceive]] instead
    */
   override final def receive: Actor.Receive = {
-    super.receive orElse resourceReceive orElse failureReceive
+    // needs extra type inference assistance to prevent a lint error
+    super.receive.orElse[Any, Unit](resourceReceive).orElse[Any, Unit](failureReceive)
   }
 
   /**

@@ -32,7 +32,7 @@ object HaltException {
   /**
    * Convenience constructor for HaltException that builds an HttpResponse based on given parameters
    * @param status the [[spray.http.StatusCode]] to use
-   * @param entity an [[spray.http.HttpEntity]] to include, if any
+   * @param entity an `spray.http.HttpEntity` to include, if any
    * @param headers a list of [[spray.http.HttpHeader]] objects to include, if any
    * @return a fully specified HaltException
    */

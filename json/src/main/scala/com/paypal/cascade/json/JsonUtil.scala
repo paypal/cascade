@@ -61,7 +61,7 @@ object JsonUtil {
    * @param json the JSON string
    * @tparam T a context bound type
    * @return a [[scala.util.Try]] that is either the object of type `T`, or one of
-   *         [[java.io.IOException]], [[com.fasterxml.jackson.core.JsonParseException]],
+   *         `java.io.IOException`, [[com.fasterxml.jackson.core.JsonParseException]],
    *         or [[com.fasterxml.jackson.databind.JsonMappingException]]
    */
   def fromJson[T : Manifest](json: String): Try[T] = Try {
@@ -102,7 +102,7 @@ object JsonUtil {
    * @param obj the object to convert
    * @tparam T a context bound type
    * @return a [[scala.util.Try]] that is either the object of type `T`, or a
-   *         [[java.lang.IllegalArgumentException]] in the case of a cast to an incompatible type.
+   *         `java.lang.IllegalArgumentException` in the case of a cast to an incompatible type.
    */
   def convertValue[T : Manifest](obj: Any): Try[T] = Try {
     mapper.convertValue[T](obj)
