@@ -1,13 +1,10 @@
 language: scala
-
-env:
-  global:
-    secure: "Cg5IC14UrPf4/PsGrjbvypjrkQqth5L9ANoM4DjY1fgpaaLDqo+GMyBFeBrQH0zY/jRL57ebtrdjaXeKrooCsx0yYQJnqcugHTW2XqIkUv48l1DQvTUasOpTVFjZbZnjMrpxjAWdAWLaKa+RZitVLgPeuJlAaKX9DyOEiyYDMD8="
 scala:
   - 2.10.4
   - 2.11.4
-
 sudo: false
-
+env:
+  global:
+    secure: "Cg5IC14UrPf4/PsGrjbvypjrkQqth5L9ANoM4DjY1fgpaaLDqo+GMyBFeBrQH0zY/jRL57ebtrdjaXeKrooCsx0yYQJnqcugHTW2XqIkUv48l1DQvTUasOpTVFjZbZnjMrpxjAWdAWLaKa+RZitVLgPeuJlAaKX9DyOEiyYDMD8="
 script: "sbt clean coverage test"
-after_success: "sbt coverageAggregate coveralls"
+after_success: "sbt coveralls"
