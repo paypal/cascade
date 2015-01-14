@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 import com.paypal.horizon.BuildUtilities
-import de.johoop.jacoco4sbt._
-import JacocoPlugin._
 import net.virtualvoid.sbt.graph.Plugin
 import org.scalastyle.sbt.ScalastylePlugin
 import sbtrelease._
@@ -76,7 +74,6 @@ object BuildSettings {
     scalacOptions in (Test, doc) ++= docScalacOptions,
     javacOptions ++= Seq("-source", "1.7", "-target", "1.7"),
     javaOptions in run ++= runArgs,
-    javaOptions in jacoco.Config ++= testArgs,
     javaOptions in Test ++= testArgs,
     testOptions in Test += Tests.Argument("html", "console"),
     apiURL := Some(url("https://paypal.github.io/cascade/api/")),
@@ -251,32 +248,29 @@ object CommonBuild extends Build {
   )
 
   lazy val common = Project("cascade-common", file("common"),
-    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(
       name := "cascade-common",
       libraryDependencies ++= commonDependencies ++ commonTestDependencies,
-      publishArtifact in Test := true,
-      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
+      publishArtifact in Test := true
     )
   )
 
   lazy val json = Project("cascade-json", file("json"),
     dependencies = Seq(common % "compile->compile;test->test"),
-    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(
       name := "cascade-json",
       libraryDependencies ++= jsonDependencies,
-      publishArtifact in Test := true,
-      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
+      publishArtifact in Test := true
     )
   )
 
   lazy val akka = Project("cascade-akka", file("akka"),
     dependencies = Seq(common % "compile->compile;test->test"),
-    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(
       name := "cascade-akka",
       libraryDependencies ++= akkaDependencies ++ akkaTestDependencies,
-      publishArtifact in Test := true,
-      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
-  )
+      publishArtifact in Test := true
+    )
   )
 
   lazy val http = Project("cascade-http", file("http"),
@@ -285,12 +279,10 @@ object CommonBuild extends Build {
       json   % "compile->compile;test->test",
       akka   % "compile->compile;test->test"
     ),
-    settings = standardSettings ++ releaseSettings ++ Seq(jacoco.settings: _*) ++ Seq(
+    settings = standardSettings ++ releaseSettings ++ Seq(
       name := "cascade-http",
       libraryDependencies ++= httpDependencies ++ httpTestDependencies,
-      publishArtifact in Test := true,
-      jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
-
+      publishArtifact in Test := true
     )
   )
 
