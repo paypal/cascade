@@ -3,6 +3,7 @@
 ![Cascade logo](doc/cascade.png)
 
 [![Build Status](https://travis-ci.org/paypal/cascade.png?branch=develop)](https://travis-ci.org/paypal/cascade)
+[![Coverage Status](https://coveralls.io/repos/paypal/cascade/badge.svg?branch=develop)](https://coveralls.io/r/paypal/cascade?branch=develop)
 
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
