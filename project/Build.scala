@@ -31,7 +31,7 @@ object BuildSettings {
   import Dependencies._
 
   val org = "com.paypal"
-  val scalaVsn = "2.11.4"
+  val scalaVsn = "2.11.5"
 
   val defaultArgs = Seq(
     "-Xmx4096m",
