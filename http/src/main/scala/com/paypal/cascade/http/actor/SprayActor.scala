@@ -76,6 +76,7 @@ object SprayActor {
       interface = "0.0.0.0",
       port = sprayConfig.port,
       backlog = sprayConfig.backlog)
+
     (AkkaIO(Http) ? bindMsg).mapTo[Http.Event]
   }
 }
