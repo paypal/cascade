@@ -5,3 +5,7 @@ scala:
   - 2.11.5
 
 sudo: false
+
+cache:
+  directories:
+    - $HOME/.ivy2
