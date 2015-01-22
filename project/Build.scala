@@ -122,6 +122,7 @@ object BuildSettings {
     resolvers += Resolver.bintrayRepo("scalaz", "releases"),
     compileScalastyle := scalastyle.in(Compile).toTask("").value,
     (compile in Compile) <<= (compile in Compile).dependsOn(compileScalastyle),
+    (scalastyleFailOnError in Compile) := true,
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
