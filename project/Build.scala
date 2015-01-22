@@ -66,7 +66,7 @@ object BuildSettings {
   lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
-    crossScalaVersions := Seq(scalaVsn, "2.11.4", "2.10.4"),
+    crossScalaVersions := Seq(scalaVsn, "2.10.4"),
     exportJars := true,
     fork := true,
     incOptions := incOptions.value.withNameHashing(nameHashing = true),
