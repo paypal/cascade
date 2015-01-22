@@ -5,5 +5,3 @@ scala:
   - 2.11.5
 
 sudo: false
-
-script: "sbt clean test scalastyle"
