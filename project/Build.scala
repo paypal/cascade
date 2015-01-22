@@ -63,7 +63,7 @@ object BuildSettings {
     releaseProcess := BuildUtilities.signedReleaseProcess
   )
 
-  lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.Settings ++ Seq(
+  lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
     crossScalaVersions := Seq(scalaVsn, "2.10.4"),
@@ -117,7 +117,7 @@ object BuildSettings {
       )
     },
     // scalaz-stream_2.10 is not on Maven Central, until that changes, this line needs to stay in
-    resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
+    resolvers += Resolver.bintrayRepo("scalaz", "releases"),
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
