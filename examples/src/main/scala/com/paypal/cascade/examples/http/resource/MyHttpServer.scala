@@ -33,13 +33,13 @@ import akka.util.Timeout
 object MyHttpServer extends CascadeApp {
   val systemWrapper = new ActorSystemWrapper("MyHttpService")
 
-  val timeoutSecs = 10
-  val port = 8080
-  val backlog = 5
+  val TimeoutSecs = 10
+  val Port = 8080
+  val Backlog = 5
 
   private implicit val actorRefFactory = systemWrapper.actorRefFactory
-  private implicit val timeout = new Timeout(timeoutSecs, TimeUnit.SECONDS)
-  val config  = SprayConfiguration("my-http-server", port, backlog) {
+  private implicit val timeout = new Timeout(TimeoutSecs, TimeUnit.SECONDS)
+  val config  = SprayConfiguration("my-http-server", Port, Backlog) {
     get {
       path("hello") {
         ResourceDriver.serve(MyHttpResource.apply, MyHttpResource.requestParser)
