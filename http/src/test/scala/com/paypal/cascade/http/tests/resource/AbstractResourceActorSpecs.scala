@@ -69,7 +69,7 @@ class AbstractResourceActorSpecs
        */
       override protected def resourceReceive: PartialFunction[Any, Unit] = {
         case ProcessRequest("json") => completeToJSON(OK, PongResponse("pong"))
-        case ProcessRequest("badjson") => completeToJSON(OK, testActor) //trying to serialize something we shouldn't
+        case ProcessRequest("badjson") => completeToJSON(OK, SourObject) //trying to serialize something we shouldn't
         case ProcessRequest("error") => sendError(GenericException)
         case ProcessRequest("errorCode") => sendErrorCodeResponse(InternalServerError)
         case ProcessRequest("errorResponse") => sendErrorResponse(InternalServerError, ErrorResponse("oops"))
@@ -94,6 +94,11 @@ class AbstractResourceActorSpecs
 
     case object GenericException extends Exception("generic downstream exception")
     case object CustomException extends Exception("this is a custom exception")
+    object SourObject {
+      lazy val thisWillThrow = {
+        throw new RuntimeException("accessor throws an exception, and Jackson will respond with a failure")
+      }
+    }
   }
 
   case class test() extends Context {
