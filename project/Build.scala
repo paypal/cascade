@@ -63,8 +63,6 @@ object BuildSettings {
     releaseProcess := BuildUtilities.signedReleaseProcess
   )
 
-  lazy val compileScalastyle = taskKey[Unit]("compileScalastyle")
-
   lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
@@ -120,8 +118,6 @@ object BuildSettings {
     },
     // scalaz-stream_2.10 is not on Maven Central, until that changes, this line needs to stay in
     resolvers += Resolver.bintrayRepo("scalaz", "releases"),
-    compileScalastyle := scalastyle.in(Compile).toTask("").value,
-    compile in Compile <<= (compile in Compile).dependsOn(compileScalastyle),
     scalastyleConfigUrl in Compile := Option(url("https://raw.githubusercontent.com/paypal/scala-style-guide/develop/scalastyle-config.xml")),
     scalastyleFailOnError in Compile := true,
     publishMavenStyle := true,
