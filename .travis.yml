@@ -4,4 +4,9 @@ scala:
   - 2.10.4
   - 2.11.5
 
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
+
 sudo: false
