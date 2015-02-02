@@ -19,12 +19,11 @@ import org.specs2._
 import scala.concurrent.ExecutionContext
 import com.paypal.cascade.common.future._
 import scala.concurrent.Future
-import com.paypal.cascade.common.logging.LoggingSugar
 
 /**
  * Tests implicit classes in [[com.paypal.cascade.common.future]]
  */
-class FutureSpecs extends Specification with ScalaCheck with LoggingSugar { def is=s2"""
+class FutureSpecs extends Specification with ScalaCheck { def is=s2"""
 
   mapFailure:
 
@@ -36,7 +35,7 @@ class FutureSpecs extends Specification with ScalaCheck with LoggingSugar { def 
     Converts a failed Future[T] to Future[Unit]                               ${FutureToUnit().failed}
 
 """
-  implicit val ec: ExecutionContext = sequentialExecutionContext(getLogger[FutureSpecs])
+
   case class CustomException(message: String) extends Exception(message)
 
   case class FutureMapFailure() {
