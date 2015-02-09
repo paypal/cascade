@@ -16,27 +16,11 @@
 package com.paypal.cascade.common
 
 import scala.concurrent._
-import org.slf4j.Logger
 
 /**
  * Convenience methods and implicits for working with Futures.
  */
 package object future {
-
-  /**
-   * An [[scala.concurrent.ExecutionContext]] that runs tasks immediately, and logs errors to the given logger.
-   * This context is useful for mapping functions that are cheap to compute (ie: simple transformations, etc)
-   * @param logger the logger to which to log errors
-   * @return the new [[scala.concurrent.ExecutionContext]]
-   */
-  def sequentialExecutionContext(logger: Logger): ExecutionContext = new ExecutionContext {
-    override def reportFailure(t: Throwable): Unit = {
-      logger.error(t.getMessage, t)
-    }
-    override def execute(runnable: Runnable): Unit = {
-      runnable.run()
-    }
-  }
 
   /**
    * Implicits to provide slightly cleaner patterns for handling Futures
