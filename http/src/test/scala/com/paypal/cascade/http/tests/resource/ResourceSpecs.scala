@@ -45,16 +45,16 @@ class ResourceSpecs extends Specification { override def is = s2"""
     throw a Halt Exception if left                              ${REitherThrowableHalt.orThrowHaltExceptionWithErrorMessage().failure}
 
   RichEitherThrowableHalt#orErrorWithMessage should
-    wrap value in successful future if right                    ${REitherThrowableHalt.orErrorWithMessage().ok}
-    return a failed future with halt exception if left          ${REitherThrowableHalt.orErrorWithMessage().failure}
+    wrap value in successful Try if right                       ${REitherThrowableHalt.orErrorWithMessage().ok}
+    return a failed Try with halt exception if left             ${REitherThrowableHalt.orErrorWithMessage().failure}
 
   RichTryHalt#orThrowHaltExceptionWithErrorMessage should
     return the value if success                                 ${RTryHalt.orThrowHaltExceptionWithErrorMessage().ok}
     throw a Halt Exception on failure                           ${RTryHalt.orThrowHaltExceptionWithErrorMessage().failure}
 
   RichTryHalt#orErrorWithMessage should
-    wrap value in successful future if success                  ${RTryHalt.orErrorWithMessage().ok}
-    return a failed future with halt exception on failure       ${RTryHalt.orErrorWithMessage().failure}
+    wrap value in successful Try if success                     ${RTryHalt.orErrorWithMessage().ok}
+    return a failed Try with halt exception on failure          ${RTryHalt.orErrorWithMessage().failure}
 
   RichEitherHalt#orError should
     wrap value in successful future if right                    ${REitherHalt.orError().ok}
@@ -128,12 +128,12 @@ class ResourceSpecs extends Specification { override def is = s2"""
     }
     case class orErrorWithMessage() {
       def ok = {
-        val successfulFuture = Right("hi").orErrorWithMessage()
-        successfulFuture.value.get must beSuccessfulTry[String].withValue("hi")
+        val successfulTry = Right("hi").orErrorWithMessage()
+        successfulTry must beSuccessfulTry[String].withValue("hi")
       }
       def failure = {
-        val failedFuture = Left[Throwable, Unit](new Throwable("fail")).orErrorWithMessage()
-        failedFuture.value.get must beFailedTry[Unit].withThrowable[HaltException]
+        val failedTry = Left[Throwable, Unit](new Throwable("fail")).orErrorWithMessage()
+        failedTry must beFailedTry[Unit].withThrowable[HaltException]
       }
     }
   }
@@ -149,12 +149,12 @@ class ResourceSpecs extends Specification { override def is = s2"""
     }
     case class orErrorWithMessage() {
       def ok = {
-        val successfulFuture = Try { "hi" }.orErrorWithMessage()
-        successfulFuture.value.get must beSuccessfulTry[String].withValue("hi")
+        val successfulTry = Try("hi").orErrorWithMessage()
+        successfulTry must beSuccessfulTry[String].withValue("hi")
       }
       def failure = {
-        val failedFuture = Try[Unit] { throw new Throwable("fail") }.orErrorWithMessage()
-        failedFuture.value.get must beFailedTry[Unit].withThrowable[HaltException]
+        val failedTry = Try[Unit] { throw new Throwable("fail") }.orErrorWithMessage()
+        failedTry must beFailedTry[Unit].withThrowable[HaltException]
       }
     }
   }

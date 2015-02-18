@@ -193,21 +193,21 @@ package object resource {
      * Return the value on the right, or halt
      * @param status the response code to return on left
      * @param f an optional function that can manipulate the left message
-     * @return the value on the right, or a failed Future with the left message
+     * @return the value on the right, or a failed Try with the left message
      */
     def orHaltWithMessage(status: StatusCode)
-                         (f: String => String = identity): Future[A] = either.fold(
-      l => Future.failed(new HaltException(HttpResponse(status, f(l.getMessage)))),
-      r => r.continue
+                         (f: String => String = identity): Try[A] = either.fold(
+      l => Failure(new HaltException(HttpResponse(status, f(l.getMessage)))),
+      r => Success(r)
     )
 
     /**
      * Return the value on the right, or halt with the message on the left and an error code
      * of 500 Internal Server Error
      * @param f an optional function that can manipulate the left message
-     * @return the value on the right, or a failed future with the left message and a 500 error
+     * @return the value on the right, or a failed Try with the left message and a 500 error
      */
-    def orErrorWithMessage(f: String => String = identity): Future[A] = orHaltWithMessage(InternalServerError)(f)
+    def orErrorWithMessage(f: String => String = identity): Try[A] = orHaltWithMessage(InternalServerError)(f)
 
   }
 
