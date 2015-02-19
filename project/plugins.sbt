@@ -10,6 +10,4 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.6.0")
 
-addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.6")
-
 addSbtPlugin("com.paypal" % "horizon" % "0.3.2")
