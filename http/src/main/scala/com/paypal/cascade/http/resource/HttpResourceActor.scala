@@ -95,7 +95,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
         entity: NonEmpty =>
           entity.contentType match {
             case HttpUtil.errorResponseType => entity
-            case _ => HttpUtil.toJsonErrorsMap(entity.data.asString(charsetUtf8))
+            case _ => HttpUtil.toJsonBody(entity.data.asString(charsetUtf8))
           }
       })
       if (finalResponse.status.intValue >= 500) {
@@ -103,12 +103,8 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
         log.warning(s"Request finished unsuccessfully with status code: $statusCode")
       }
       finalResponse
-    case parseOrMappingException @ (_:JsonParseException | _:JsonMappingException) =>
-      HttpResponse(BadRequest,
-        HttpUtil.toJsonErrorsMap(Option(parseOrMappingException.getMessage).getOrElse("")))
     case otherException: Exception =>
-      HttpResponse(InternalServerError,
-        HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")))
+      HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${otherException.getClass.getSimpleName}"))
   }
 
   /*
@@ -140,7 +136,8 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
       val processRequest = for {
         _ <- Try(before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
-        req <- resourceContext.reqParser(request).map(ProcessRequest)
+        req <- resourceContext.reqParser(request)
+          .orHaltWithMessage(BadRequest)(t => s"Unable to parse request: ${t.getClass.getSimpleName}").map(ProcessRequest)
       } yield req
       processRequest.foreach { _ =>
         //account for extremely long processing times
@@ -179,18 +176,13 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 
       handleHttpResponse(finalResponse)
 
-    //we got an http response to return via error handling,
-    //so return it to the spray context and return actor and then stop
-    case r: HttpResponse =>
-      handleHttpResponse(r)
-
     //the actor didn't receive a message before the current ReceiveTimeout
     case ReceiveTimeout =>
       log.error(s"$self didn't receive message within ${context.receiveTimeout} milliseconds.")
-      self ! HttpResponse(StatusCodes.ServiceUnavailable)
+      handleHttpResponse(HttpResponse(StatusCodes.ServiceUnavailable))
   }
 
-  private def handleHttpResponse(r: HttpResponse): Unit = {
+  private[resource] def handleHttpResponse(r: HttpResponse): Unit = {
     Try {
       after(r)
     }.recover {

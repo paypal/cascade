@@ -15,15 +15,16 @@
  */
 package com.paypal.cascade.http.resource
 
-import spray.http._
-import spray.http.StatusCodes.{Success => _, _}
-import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
-import scala.util._
-import spray.routing.RequestContext
-import com.paypal.cascade.http.util.HttpUtil
-import akka.actor.{ActorRef, ActorRefFactory}
 import scala.concurrent.duration.FiniteDuration
+import scala.util._
+
+import akka.actor.{ActorRef, ActorRefFactory}
+import spray.http.StatusCodes.{Success => _, _}
+import spray.http._
+import spray.routing.RequestContext
+
 import com.paypal.cascade.http.resource.HttpResourceActor.{RequestParser, ResourceContext}
+import com.paypal.cascade.http.util.HttpUtil
 
 /**
  * Implementation of a basic HTTP request handling pipeline. Used to push along HTTP requests.
@@ -53,7 +54,7 @@ object ResourceDriver {
           serveFn(ctx.copy(request = request))
       }.recover {
         case e: Exception =>
-          ctx.complete(HttpResponse(InternalServerError, HttpUtil.toJsonErrorsMap(Option(e.getMessage).getOrElse(""))))
+          ctx.complete(HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${e.getClass.getSimpleName}")))
       }
   }
 

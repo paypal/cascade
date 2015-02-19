@@ -150,34 +150,16 @@ object HttpUtil {
    * Enforces the return of application/json as a content type, since this always serializes to json
    * @param t the object to serialize
    * @tparam T the type to serialize from
-   * @return an HttpResponse containing either the desired HttpEntity, or an error entity
+   * @return an HttpResponse containing either the desired HttpEntity, or an error entity with the quoted exception name
    */
   def toJsonBody[T : Manifest](t: T): HttpEntity = {
     // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
     JsonUtil.toJson(t) match {
       case Success(j) => HttpEntity(ContentTypes.`application/json`, j)
-      case Failure(e) => toJsonErrorsMap(Option(e.getMessage).getOrElse(""))
+      case Failure(e) => HttpEntity(ContentTypes.`application/json`, s"""Error serializing json body: "${e.getClass.getSimpleName}"""")
     }
   }
 
   val errorResponseType = ContentTypes.`application/json`
 
-  /**
-   * Used under the covers to force simple error strings into a JSON format
-   * @param body the body
-   * @return an HttpEntity containing an error JSON body
-   */
-  def toJsonErrorsMap(body: String): HttpEntity = {
-    toJsonBody(Map("errors" -> List(body)))
-  }
-
-  /**
-   * Used to convert error objects into JSON format.
-   * @param body object to convert
-   * @tparam T type of object
-   * @return JSONified body
-   */
-  def toJsonErrors[T : Manifest](body: T): HttpEntity = {
-    toJsonBody(body)
-  }
 }

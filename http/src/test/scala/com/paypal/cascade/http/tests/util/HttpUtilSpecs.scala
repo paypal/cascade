@@ -61,12 +61,7 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
   toJsonBody
     Success returns proper http response                                                                              ${JsonBody().ok}
     Failure returns error in json format                                                                              ${JsonBody().error}
-
-  toJsonErrors
-    converts errors to json from a case class                                                                         ${JsonError().caseClass}
-
-  toJsonErrorsMap
-    converts errors to json from a string                                                                             ${JsonError().string}
+    converts case classes to json                                                                                     ${JsonBody().caseClass}
 
   """
 
@@ -187,21 +182,13 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
       class Foo
       val body = new Foo
       val resp = HttpUtil.toJsonBody(body)
-      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must contain("errors"))
+      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must startWith("Error serializing json body: "))
     }
-  }
-
-  case class JsonError() extends Context {
     def caseClass = {
       case class Something(a: Int, b: String)
       val newSomething = Something(56, "Hello")
       val expected = """{"a":56,"b":"Hello"}"""
-      val resp = HttpUtil.toJsonErrors(newSomething)
-      (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
-    }
-    def string = {
-      val expected = """{"errors":["err"]}"""
-      val resp = HttpUtil.toJsonErrorsMap("err")
+      val resp = HttpUtil.toJsonBody(newSomething)
       (resp must beAnInstanceOf[HttpEntity]) and (resp.data.asString must beEqualTo(expected))
     }
   }

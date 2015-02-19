@@ -171,9 +171,9 @@ package object resource {
      */
     @throws[HaltException]
     def orThrowHaltExceptionWithMessage(status: StatusCode)
-                                       (f: String => String = identity): A = {
+                                       (f: Throwable => String = _.getMessage): A = {
       either.fold(
-        e => throw new HaltException(HttpResponse(status, f(e.getMessage))),
+        e => throw new HaltException(HttpResponse(status, f(e))),
         a => a
       )
     }
@@ -186,7 +186,7 @@ package object resource {
      * @throws HaltException containing the message on the left and a 500 error, if Left
      */
     @throws[HaltException]
-    def orThrowHaltExceptionWithErrorMessage(f: String => String = identity): A =
+    def orThrowHaltExceptionWithErrorMessage(f: Throwable => String = _.getMessage): A =
       orThrowHaltExceptionWithMessage(InternalServerError)(f)
 
     /**
@@ -196,8 +196,8 @@ package object resource {
      * @return the value on the right, or a failed Try with the left message
      */
     def orHaltWithMessage(status: StatusCode)
-                         (f: String => String = identity): Try[A] = either.fold(
-      l => Failure(new HaltException(HttpResponse(status, f(l.getMessage)))),
+                         (f: Throwable => String = _.getMessage): Try[A] = either.fold(
+      l => Failure(new HaltException(HttpResponse(status, f(l)))),
       r => Success(r)
     )
 
@@ -207,7 +207,7 @@ package object resource {
      * @param f an optional function that can manipulate the left message
      * @return the value on the right, or a failed Try with the left message and a 500 error
      */
-    def orErrorWithMessage(f: String => String = identity): Try[A] = orHaltWithMessage(InternalServerError)(f)
+    def orErrorWithMessage(f: Throwable => String = _.getMessage): Try[A] = orHaltWithMessage(InternalServerError)(f)
 
   }
 
