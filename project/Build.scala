@@ -26,6 +26,7 @@ import sbt._
 import Keys._
 import sbtunidoc.Plugin._
 import sbtunidoc.Plugin.UnidocKeys._
+import scoverage.ScoverageSbtPlugin.ScoverageKeys
 
 object BuildSettings {
 
@@ -99,6 +100,7 @@ object BuildSettings {
       )
       links.collect { case Some(d) => d }.toMap
     },
+    ScoverageKeys.coverageExcludedPackages := ".*examples.*",
     publishTo := {
       val nexus = s"https://oss.sonatype.org/"
       if (isSnapshot.value) {
@@ -278,7 +280,7 @@ object CommonBuild extends Build {
       libraryDependencies ++= akkaDependencies ++ akkaTestDependencies,
       publishArtifact in Test := true,
       jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
-  )
+    )
   )
 
   lazy val http = Project("cascade-http", file("http"),
@@ -292,7 +294,6 @@ object CommonBuild extends Build {
       libraryDependencies ++= httpDependencies ++ httpTestDependencies,
       publishArtifact in Test := true,
       jacoco.thresholds in jacoco.Config := Thresholds(instruction = 0, method = 0, branch = 0, complexity = 0, line = 85, clazz = 0)
-
     )
   )
 
