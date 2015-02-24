@@ -70,4 +70,27 @@ package object trys {
     }
   }
 
+  /**
+   * Transform Option[Try[A]] to Try[Option[A]]
+   *
+   * @param o Option[Try[A]] to transform
+   * @tparam A particular type of Try
+   * @return o Transformed to a Try[Option[A]]
+   */
+  def sequenceOptionTry[A](o: Option[Try[A]]): Try[Option[A]] = {
+    o.map(_.map(Option.apply)).getOrElse(Success(None))
+  }
+
+  /**
+   * Transform a List[Try[A]] to Try[List[A]]
+   *
+   * @param l List[Try[A]] to transform
+   * @tparam A specific type of Try[List]
+   * @return l transformed to a Try[List[A]]
+   */
+  def sequence[A](l: List[Try[A]]): Try[List[A]] = {
+    def addTry(builder: Try[Vector[A]], next: Try[A]): Try[Vector[A]] = builder.flatMap(t => next.map(t :+ _))
+    l.foldLeft(Try(Vector[A]()))(addTry).map(_.toList)
+  }
+
 }
