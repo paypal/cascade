@@ -85,26 +85,29 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    * @param exception the exception
    * @return a crafted HttpResponse from the error message
    */
-  protected def handleError(exception: Exception): HttpResponse = exception match {
-    case haltException: HaltException =>
-      val response = addHeaderOnCode(haltException.response, Unauthorized) {
-        `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
-      }
-      // If the error already has the right content type, let it through, otherwise coerce it
-      val finalResponse = response.withEntity(response.entity.flatMap {
-        entity: NonEmpty =>
-          entity.contentType match {
-            case HttpUtil.errorResponseType => entity
-            case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
-          }
-      })
-      if (finalResponse.status.intValue >= 500) {
-        val statusCode = finalResponse.status.intValue
-        log.warning(s"Request finished unsuccessfully with status code: $statusCode")
-      }
-      finalResponse
-    case otherException: Exception =>
-      HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${otherException.getClass.getSimpleName}"))
+  protected def handleError(exception: Exception): HttpResponse = {
+    val resp = exception match {
+      case haltException: HaltException =>
+        val response = addHeaderOnCode(haltException.response, Unauthorized) {
+          `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
+        }
+        // If the error already has the right content type, let it through, otherwise coerce it
+        val finalResponse = response.withEntity(response.entity.flatMap {
+          entity: NonEmpty =>
+            entity.contentType match {
+              case HttpUtil.errorResponseType => entity
+              case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
+            }
+        })
+        if (finalResponse.status.intValue >= 500) {
+          val statusCode = finalResponse.status.intValue
+          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
+        }
+        finalResponse
+      case otherException: Exception =>
+        HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${otherException.getClass.getSimpleName}"))
+    }
+    resp.withHeaders(addLanguageHeader(responseLanguage, resp.headers))
   }
 
   /*

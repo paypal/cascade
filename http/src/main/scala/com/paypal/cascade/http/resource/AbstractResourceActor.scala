@@ -15,15 +15,15 @@
  */
 package com.paypal.cascade.http.resource
 
-import spray.http._
-import akka.actor.{Status, Actor}
+import scala.util.{Failure, Success}
+
+import akka.actor.{Actor, Status}
+import spray.http.{HttpResponse, _}
+
 import com.paypal.cascade.common.option._
+import com.paypal.cascade.http.resource.HttpResourceActor.RequestIsProcessed
 import com.paypal.cascade.http.util.HttpUtil
 import com.paypal.cascade.json._
-import scala.compat.Platform._
-import scala.util.{Success, Failure}
-import spray.http.HttpResponse
-import com.paypal.cascade.http.resource.HttpResourceActor.RequestIsProcessed
 
 /**
  * Base class for HTTP resources built with Spray.
@@ -67,10 +67,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    */
   private def handleUnexpectedRequestError(t: Throwable): Unit = {
     t match {
-      case e: Exception =>
-        val respFromError = handleError(e)
-        val respPlusHeaders = respFromError.withHeaders(addLanguageHeader(responseLanguage, respFromError.headers))
-        handleHttpResponse(respPlusHeaders)
+      case e: Exception => handleHttpResponse(handleError(e))
       case t: Throwable => throw t
     }
   }
