@@ -43,8 +43,9 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
   /**
    * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.
    *
-   * If the method throws, an internal server error will be returned. As always, personally identifiable information should
-   * never be included in exception messages.
+   * If the method throws, an error response will be returned. The response will be determined by
+   * [[com.paypal.cascade.http.resource.HttpResourceActor#createErrorResponse createErrorResponse]].
+   * As always, personally identifiable information should never be included in exception messages.
    * @param method The Http method of the request in question
    */
   def before(method: HttpMethod): Unit = {}
