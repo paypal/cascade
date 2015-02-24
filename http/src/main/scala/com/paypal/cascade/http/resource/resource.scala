@@ -447,11 +447,11 @@ package object resource {
     /**
      * Wraps this Throwable in a HaltException, then in a failed Future
      * @param status the response code to return
-     * @param f an optional function that can manipulate the throwable's message
+     * @param f an optional function that produces the response body based on the throwable
      * @return the wrapped, failed Future
      */
-    def haltWith(status: => StatusCode)(f: String => String = identity): Future[Unit] = {
-      Future.failed(new HaltException(HttpResponse(status, f(t.getMessage))))
+    def haltWith(status: => StatusCode)(f: Throwable => String = _.getMessage): Future[Unit] = {
+      Future.failed(HaltException(status, f(t)))
     }
   }
 
