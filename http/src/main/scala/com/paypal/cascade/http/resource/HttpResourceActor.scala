@@ -80,12 +80,12 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
   val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
   /**
-   * Exception handler for creating an http error response when Status.Failure is received.
+   * Creates an appropriate HttpResponse for a given exception.
    *
    * @param exception the exception
    * @return a crafted HttpResponse from the error message
    */
-  protected def handleError(exception: Exception): HttpResponse = {
+  protected def createErrorResponse(exception: Exception): HttpResponse = {
     val resp = exception match {
       case haltException: HaltException =>
         val response = addHeaderOnCode(haltException.response, Unauthorized) {

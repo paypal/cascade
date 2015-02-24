@@ -61,13 +61,13 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   }
 
   /**
-   * There was an error somewhere along the way, so translate it to an HttpResponse (using handleError),
+   * There was an error somewhere along the way, so translate it to an HttpResponse (using createErrorResponse),
    * send the exception to returnActor and stop.
    * @param t the error that occurred
    */
   private def handleUnexpectedRequestError(t: Throwable): Unit = {
     t match {
-      case e: Exception => handleHttpResponse(handleError(e))
+      case e: Exception => handleHttpResponse(createErrorResponse(e))
       case t: Throwable => throw t
     }
   }
@@ -118,7 +118,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
 
   /**
    * Return an internal server error in response to a throwable. The type of the throwable should have a case in
-   * [[com.paypal.cascade.http.resource.HttpResourceActor#handleError handleError]].
+   * [[com.paypal.cascade.http.resource.HttpResourceActor#createErrorResponse createErrorResponse]].
    * @param f The error to be used for server response.
    */
   protected final def sendError(f: Throwable): Unit = {

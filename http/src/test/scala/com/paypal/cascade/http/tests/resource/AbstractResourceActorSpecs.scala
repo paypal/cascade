@@ -43,7 +43,7 @@ class AbstractResourceActorSpecs
   with ActorSpecification { override def is = s2"""
 
   When sending an error, AbstractResourceActor should
-    forward the error to handleError with sendError                          ${test().err}
+    forward the error to createErrorResponse with sendError                  ${test().err}
     send the specified error code with an empty body with sendErrorCode      ${test().errCode}
     send the specified error code and response body with sendErrorResponse   ${test().errResponse}
 
@@ -54,7 +54,7 @@ class AbstractResourceActorSpecs
 
   Overriding resourceReceive should
     allow for users to match on Status.Failure                               ${test().overriddenStatusFailure}
-    fall back to handleError otherwise                                       ${test().fallbackStatusFailure}
+    fall back to createErrorResponse otherwise                               ${test().fallbackStatusFailure}
 
   """
 
