@@ -66,7 +66,6 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param t the error that occurred
    */
   private def handleUnexpectedRequestError(t: Throwable): Unit = {
-    log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTrace.mkString("", EOL, EOL))
     t match {
       case e: Exception =>
         val respFromError = handleError(e)
@@ -121,8 +120,9 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   }
 
   /**
-   * Return an internal server error in response to a throwable
-   * @param f The error to be logged
+   * Return an internal server error in response to a throwable. The type of the throwable should have a case in
+   * [[com.paypal.cascade.http.resource.HttpResourceActor#handleError handleError]].
+   * @param f The error to be used for server response.
    */
   protected final def sendError(f: Throwable): Unit = {
     handleUnexpectedRequestError(f)
