@@ -173,7 +173,7 @@ package object resource {
     def orThrowHaltExceptionWithMessage(status: StatusCode)
                                        (f: Throwable => String = _.getMessage): A = {
       either.fold(
-        e => throw new HaltException(HttpResponse(status, f(e))),
+        e => throw HaltException(status, f(e)),
         a => a
       )
     }
@@ -197,7 +197,7 @@ package object resource {
      */
     def orHaltWithMessage(status: StatusCode)
                          (f: Throwable => String = _.getMessage): Try[A] = either.fold(
-      l => Failure(new HaltException(HttpResponse(status, f(l)))),
+      l => Failure(HaltException(status, f(l))),
       r => Success(r)
     )
 
