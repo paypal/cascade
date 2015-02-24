@@ -15,30 +15,30 @@
  */
 package com.paypal.cascade.http.resource
 
-import akka.actor._
-import com.fasterxml.jackson.databind.JsonMappingException
+import java.nio.charset.StandardCharsets.UTF_8
+
+import scala.concurrent.duration._
 import scala.util.{Success, Try}
-import spray.http._
+
+import akka.actor.SupervisorStrategy.Escalate
+import akka.actor._
+import spray.http.HttpEntity.{Empty, NonEmpty}
+import spray.http.HttpHeaders.{Location, RawHeader, `WWW-Authenticate`}
 import spray.http.StatusCodes._
 import spray.http.Uri.Path
-import spray.http.HttpHeaders.{RawHeader, `WWW-Authenticate`, Location}
-import spray.http.HttpEntity.{Empty, NonEmpty}
-import spray.http.{HttpRequest, HttpResponse}
+import spray.http.{HttpRequest, HttpResponse, _}
 import spray.routing.RequestContext
+
 import com.paypal.cascade.akka.actor._
-import com.paypal.cascade.common.constants.ValueConstants._
-import com.paypal.cascade.http.util.HttpUtil
-import scala.concurrent.duration._
-import akka.actor.SupervisorStrategy.Escalate
 import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
-import com.fasterxml.jackson.core.JsonParseException
+import com.paypal.cascade.http.util.HttpUtil
 
 /**
  * the actor to manage the execution of an [[com.paypal.cascade.http.resource.AbstractResourceActor]]. Create one of these per request
  */
 private[http] abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
 
-  import HttpResourceActor._
+  import com.paypal.cascade.http.resource.HttpResourceActor._
 
   /**
    * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.
@@ -95,7 +95,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
         entity: NonEmpty =>
           entity.contentType match {
             case HttpUtil.errorResponseType => entity
-            case _ => HttpUtil.toJsonBody(entity.data.asString(charsetUtf8))
+            case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
           }
       })
       if (finalResponse.status.intValue >= 500) {

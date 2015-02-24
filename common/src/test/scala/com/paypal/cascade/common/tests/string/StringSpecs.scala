@@ -15,11 +15,13 @@
  */
 package com.paypal.cascade.common.tests.string
 
-import org.specs2._
-import org.scalacheck.Prop._
-import com.paypal.cascade.common.string.RichString
-import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
+import java.nio.charset.StandardCharsets.UTF_8
+
 import org.scalacheck.Arbitrary._
+import org.scalacheck.Prop._
+import org.specs2._
+
+import com.paypal.cascade.common.string.RichString
 
 /**
  * Tests for [[com.paypal.cascade.common.string]]
@@ -35,7 +37,7 @@ class StringSpecs extends Specification with ScalaCheck { override def is = s2""
   case class GetBytes() {
     def ok = forAll(arbitrary[String]) { str =>
       val bytesArray = str.getBytesUTF8
-      val decoded = new String(bytesArray, charsetUtf8)
+      val decoded = new String(bytesArray, UTF_8)
       (bytesArray must beAnInstanceOf[Array[Byte]]) and
         (str must beEqualTo(decoded))
     }

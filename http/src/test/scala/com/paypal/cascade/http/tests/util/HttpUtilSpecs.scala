@@ -15,21 +15,20 @@
  */
 package com.paypal.cascade.http.tests.util
 
-import org.specs2.{ScalaCheck, Specification}
-import org.specs2.execute.{Result => SpecsResult}
-import com.paypal.cascade.common.logging.LoggingSugar
-import org.scalacheck.Gen
-import org.scalacheck.Prop._
-import org.scalacheck.Gen._
 import java.net.URLDecoder
-import com.paypal.cascade.http.url.StrPair
-import com.paypal.cascade.http.util.HttpUtil
+import java.nio.charset.StandardCharsets.UTF_8
+
 import spray.http.{HttpEntity, HttpResponse}
 import spray.http.StatusCodes._
-import org.scalacheck.Prop.Exception
-import java.nio.charset.Charset
-import com.paypal.cascade.common.constants.ValueConstants._
-import spray.http.HttpResponse
+import org.scalacheck.Gen
+import org.scalacheck.Gen._
+import org.scalacheck.Prop._
+import org.specs2.execute.{Result => SpecsResult}
+import org.specs2.{ScalaCheck, Specification}
+
+import com.paypal.cascade.common.logging.LoggingSugar
+import com.paypal.cascade.http.url.StrPair
+import com.paypal.cascade.http.util.HttpUtil
 
 /**
  * Tests features of [[com.paypal.cascade.http.util.HttpUtil]]
@@ -93,7 +92,7 @@ class HttpUtilSpecs extends Specification with ScalaCheck { override def is = s2
 
     def succeedsForURLEncodedString = forAll(genQueryPairs) { list =>
       val encoded = ("redirect_uri", "http%3A%2F%2Fstackmob.com")
-      val decoded = (URLDecoder.decode(encoded._1, HttpUtil.UTF_8), URLDecoder.decode(encoded._2, HttpUtil.UTF_8))
+      val decoded = (URLDecoder.decode(encoded._1, UTF_8.displayName), URLDecoder.decode(encoded._2, UTF_8.displayName))
       val qString = getQueryString(encoded :: list)
       HttpUtil.parseQueryStringToPairs(qString) must containTheSameElementsAs(decoded :: list)
     }

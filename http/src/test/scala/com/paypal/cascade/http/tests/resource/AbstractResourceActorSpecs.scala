@@ -15,22 +15,24 @@
  */
 package com.paypal.cascade.http.tests.resource
 
-import spray.http._
-import spray.http.StatusCodes._
-import spray.routing.RequestContext
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.Duration
+
 import akka.actor._
-import akka.testkit.{TestProbe, TestKit}
+import akka.testkit.{TestKit, TestProbe}
+import spray.http.StatusCodes._
+import spray.http._
+import spray.routing.RequestContext
 import com.fasterxml.jackson.databind.JsonMappingException
 import org.specs2.SpecificationLike
 import org.specs2.execute.Result
-import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
+
 import com.paypal.cascade.akka.tests.actor.ActorSpecification
-import com.paypal.cascade.common.constants.ValueConstants._
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
-import com.paypal.cascade.http.util.HttpUtil
-import com.paypal.cascade.http.resource._
 import com.paypal.cascade.http.resource.HttpResourceActor._
+import com.paypal.cascade.http.resource._
+import com.paypal.cascade.http.util.HttpUtil
 
 /**
  * Tests that exercise the [[com.paypal.cascade.http.resource.AbstractResourceActor]] abstract class

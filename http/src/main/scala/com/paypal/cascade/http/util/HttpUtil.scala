@@ -16,15 +16,15 @@
 package com.paypal.cascade.http.util
 
 import java.net.URLDecoder
-import spray.http._
+import java.nio.charset.StandardCharsets.UTF_8
+
 import scala.util.{Failure, Success, Try}
-import spray.http.HttpRequest
-import spray.http.HttpChallenge
+
 import spray.http.HttpEntity._
-import spray.http.HttpResponse
-import StatusCodes._
+import spray.http.StatusCodes._
+import spray.http.{HttpChallenge, HttpRequest, HttpResponse, _}
+
 import com.paypal.cascade.json._
-import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
 
 /**
  * Convenience methods for interacting with URLs and other parts of an HTTP request.
@@ -35,9 +35,6 @@ import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
  */
 object HttpUtil {
   import com.paypal.cascade.http.url.StrPair
-
-  /** Convenience value for `utf-8` */
-  val UTF_8 = "utf-8"
 
   val CONTENT_LANGUAGE = "Content-Language"
   val CONTENT_LANGUAGE_LC = CONTENT_LANGUAGE.toLowerCase
@@ -52,7 +49,8 @@ object HttpUtil {
     val queryStringPieces: List[String] = Option(queryString).map(_.split("&").toList).getOrElse(List())
     queryStringPieces.flatMap { piece: String =>
       piece.split("=").toList match {
-        case key :: value :: Nil if (key.length > 0 && value.length > 0) => List(URLDecoder.decode(key, UTF_8) -> URLDecoder.decode(value, UTF_8))
+        case key :: value :: Nil if key.length > 0 && value.length > 0 =>
+          List(URLDecoder.decode(key, UTF_8.displayName) -> URLDecoder.decode(value, UTF_8.displayName))
         case _ => List()
       }
     }.toList
@@ -109,7 +107,7 @@ object HttpUtil {
   }
 
   def parseType[T : Manifest](r: HttpRequest, data: Array[Byte]): Try[T] = {
-    parseType(r, new String(data, charsetUtf8))
+    parseType(r, new String(data, UTF_8))
   }
 
   /**
