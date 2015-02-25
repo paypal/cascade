@@ -61,34 +61,38 @@ class TrysSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   case class OptionTry() {
     def successSome = forAll(arbitrary[String]) { str =>
-      val e = Option(Try { str })
-      sequenceOptionTry(e) must beEqualTo(Success(Some(str)))
+      val e: Option[Try[String]] = Option(Try { str })
+      e.sequence must beEqualTo(Success(Some(str)))
     }
 
     def successNone = {
-      sequenceOptionTry(None) must beEqualTo(Success(None))
+      val o: Option[Try[String]] = None
+      o.sequence must beEqualTo(Success(None))
     }
 
     def failure = {
       val re = new RuntimeException("Ouch!")
-      val e = Option(Failure(re))
-      sequenceOptionTry(e) must beEqualTo(Failure(re))
+      val e: Option[Try[String]] = Option(Failure(re))
+      e.sequence must beEqualTo(Failure(re))
     }
   }
 
   case class ListTry() {
 
     def allSuccess = {
-      sequenceListTry(List(Success(1), Success(2))) must beEqualTo(Success(List(1,2)))
+      val l: List[Try[Int]] = List(Success(1), Success(2))
+      l.sequence must beEqualTo(Success(List(1,2)))
     }
 
     def someFailure = {
       val ex = new RuntimeException("Ouch!")
-      sequenceListTry(List(Success(1), Failure(ex))) must beEqualTo(Failure(ex))
+      val l: List[Try[Int]] = List(Success(1), Failure(ex))
+      l.sequence must beEqualTo(Failure(ex))
     }
 
     def empty = {
-      sequenceListTry(List.empty) must beEqualTo(Success(List.empty))
+      val l: List[Try[Int]] = List.empty
+      l.sequence must beEqualTo(Success(List.empty))
     }
 
   }

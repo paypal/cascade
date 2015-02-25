@@ -26,13 +26,15 @@ package object trys {
 
   /**
    * Implicit wrapper for Try objects
+   *
    * @param self the Try object to be wrapped
    * @tparam A the success type of the Try
    */
-  implicit class RichTry[A](self: => Try[A]) {
+  implicit class RichTry[A](self: Try[A]) {
 
     /**
      * Converts this `Try[A]` to an [[scala.util.Either]] with a Throwable Left type
+     *
      * @return an Either based on this Try
      */
     def toEither: Either[Throwable, A] = {
@@ -45,6 +47,7 @@ package object trys {
 
     /**
      * Converts this `Try[A]` to an [[scala.util.Either]] with an arbitrary Left type
+     * 
      * @param f converts from a Throwable to an arbitrary type
      * @tparam LeftT the Left type to use
      * @return an Either based on this Try
@@ -71,26 +74,38 @@ package object trys {
   }
 
   /**
-   * Transform Option[Try[A]] to Try[Option[A]]
+   * Implicit wrapper for Option[Try[A]]
    *
-   * @param o Option[Try[A]] to transform
-   * @tparam A particular type of Try
-   * @return o Transformed to a Try[Option[A]]
+   * @param optionTry the Option[Try[A]] to be wrapped.
+   * @tparam A the success type of the Try
    */
-  def sequenceOptionTry[A](o: Option[Try[A]]): Try[Option[A]] = {
-    o.map(_.map(Option.apply)).getOrElse(Success(None))
+  implicit class OptionTrySequencer[A](optionTry: Option[Try[A]]) {
+    /**
+     * Transform Option[Try[A]] to Try[Option[A]]
+     *
+     * @return o Transformed to a Try[Option[A]]
+     */
+    def sequence: Try[Option[A]] = {
+      optionTry.map(_.map(Option.apply)).getOrElse(Success(None))
+    }
   }
 
   /**
-   * Transform a List[Try[A]] to Try[List[A]]
+   * Implicit wrapper for List[Try[A]] objects.
    *
-   * @param l List[Try[A]] to transform
-   * @tparam A specific type of Try[List]
-   * @return l transformed to a Try[List[A]]
+   * @param listTry the List[Try[A]] to be wrapped
+   * @tparam A the success type of the Try
    */
-  def sequenceListTry[A](l: List[Try[A]]): Try[List[A]] = {
-    def addTry(builder: Try[Vector[A]], next: Try[A]): Try[Vector[A]] = builder.flatMap(t => next.map(t :+ _))
-    l.foldLeft(Try(Vector[A]()))(addTry).map(_.toList)
+  implicit class ListTrySequencer[A](listTry: List[Try[A]]) {
+    /**
+     * Transform a List[Try[A]] to Try[List[A]]
+     *
+     * @return l transformed to a Try[List[A]]
+     */
+    def sequence: Try[List[A]] = {
+      def addTry(builder: Try[Vector[A]], next: Try[A]): Try[Vector[A]] = builder.flatMap(t => next.map(t :+ _))
+      listTry.foldLeft(Try(Vector[A]()))(addTry).map(_.toList)
+    }
   }
 
 }
