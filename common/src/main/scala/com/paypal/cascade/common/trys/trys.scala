@@ -47,7 +47,7 @@ package object trys {
 
     /**
      * Converts this `Try[A]` to an [[scala.util.Either]] with an arbitrary Left type
-     * 
+     *
      * @param f converts from a Throwable to an arbitrary type
      * @tparam LeftT the Left type to use
      * @return an Either based on this Try
