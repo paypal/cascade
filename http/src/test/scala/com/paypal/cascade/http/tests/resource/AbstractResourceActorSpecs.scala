@@ -15,21 +15,24 @@
  */
 package com.paypal.cascade.http.tests.resource
 
-import spray.http._
-import spray.http.StatusCodes._
-import spray.routing.RequestContext
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.Duration
+
 import akka.actor._
-import akka.testkit.{TestProbe, TestKit}
+import akka.testkit.{TestKit, TestProbe}
+import spray.http.StatusCodes._
+import spray.http._
+import spray.routing.RequestContext
+import com.fasterxml.jackson.databind.JsonMappingException
 import org.specs2.SpecificationLike
 import org.specs2.execute.Result
-import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
+
 import com.paypal.cascade.akka.tests.actor.ActorSpecification
-import com.paypal.cascade.common.constants.ValueConstants._
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
-import com.paypal.cascade.http.util.HttpUtil
-import com.paypal.cascade.http.resource._
 import com.paypal.cascade.http.resource.HttpResourceActor._
+import com.paypal.cascade.http.resource._
+import com.paypal.cascade.http.util.HttpUtil
 
 /**
  * Tests that exercise the [[com.paypal.cascade.http.resource.AbstractResourceActor]] abstract class
@@ -40,19 +43,18 @@ class AbstractResourceActorSpecs
   with ActorSpecification { override def is = s2"""
 
   When sending an error, AbstractResourceActor should
-    forward that error                                           ${test().err}
-    forward the error code                                       ${test().errCode}
-    forward the serialized error response object                 ${test().errResponse}
-    forward the serialized error in a map                        ${test().errResponseMap}
+    forward the error to createErrorResponse with sendError                  ${test().err}
+    send the specified error code with an empty body with sendErrorCode      ${test().errCode}
+    send the specified error code and response body with sendErrorResponse   ${test().errResponse}
 
   Sending a request object should
-    send back a response                                         ${test().response}
-    send back a serialized JSON response                         ${test().jsonResponse}
-    send an error if response object can't be serialized         ${test().badJsonResponse}
+    send back a response                                                     ${test().response}
+    send back a serialized JSON response                                     ${test().jsonResponse}
+    send an error if response object can't be serialized                     ${test().badJsonResponse}
 
-   Overriding resourceReceive should
-    allow for Status.Failure case                                ${test().overriddenStatusFailure}
-    and fall back to default one otherwise                       ${test().fallbackStatusFailure}
+  Overriding resourceReceive should
+    allow for users to match on Status.Failure                               ${test().overriddenStatusFailure}
+    fall back to createErrorResponse otherwise                               ${test().fallbackStatusFailure}
 
   """
 
@@ -68,14 +70,13 @@ class AbstractResourceActorSpecs
        * @return The receive function to be applied when a parsed request object or other actor message is received
        */
       override protected def resourceReceive: PartialFunction[Any, Unit] = {
+        case ProcessRequest("") => complete(HttpResponse(OK, "pong"))
         case ProcessRequest("json") => completeToJSON(OK, PongResponse("pong"))
         case ProcessRequest("badjson") => completeToJSON(OK, SourObject) //trying to serialize something we shouldn't
-        case ProcessRequest("error") => sendError(GenericException)
+        case ProcessRequest("error") => sendError(CascadeUserException)
         case ProcessRequest("errorCode") => sendErrorCodeResponse(InternalServerError)
         case ProcessRequest("errorResponse") => sendErrorResponse(InternalServerError, ErrorResponse("oops"))
-        case ProcessRequest("errorResponseMap") => sendErrorMapResponse(InternalServerError, "oops")
-        case ProcessRequest("") => complete(HttpResponse(OK, "pong"))
-        case Status.Failure(CustomException) => sendErrorResponse(InternalServerError, ErrorResponse("got custom exception"))
+        case Status.Failure(CustomStatusFailureException) => sendErrorResponse(InternalServerError, ErrorResponse("got custom exception"))
       }
 
       case class PongResponse(resp: String)
@@ -92,8 +93,9 @@ class AbstractResourceActorSpecs
                       Option(ref), Duration(2, TimeUnit.SECONDS))
     }
 
+    case object CascadeUserException extends Exception("an exception defined by a cascade user")
     case object GenericException extends Exception("generic downstream exception")
-    case object CustomException extends Exception("this is a custom exception")
+    case object CustomStatusFailureException extends Exception("this is a custom exception that is matched in a Status.Failure")
     object SourObject {
       lazy val thisWillThrow = {
         throw new RuntimeException("accessor throws an exception, and Jackson will respond with a failure")
@@ -116,11 +118,8 @@ class AbstractResourceActorSpecs
 
     private def probeAndTestStatusFailure[T](t: Throwable, expectedResponse: HttpResponse): Result = {
       val probe = TestProbe()
-      val ctx = ResourceContext(RequestContext(HttpRequest(), probe.ref, Uri.Path("")),
-                                _ => scala.util.Failure(t),
-                                Option(probe.ref), Duration(2, TimeUnit.SECONDS))
-      val resourceRef = system.actorOf(Props(new TestResource(ctx)))
-      resourceRef ! Start
+      val resourceRef = system.actorOf(Props(new TestResource(fakeContext(probe.ref, "probeAndTestStatusFailure"))))
+      resourceRef ! Status.Failure(t)
       try {
         probe.receiveOne(Duration(2, TimeUnit.SECONDS)) must beEqualTo (expectedResponse)
       } catch {
@@ -137,11 +136,11 @@ class AbstractResourceActorSpecs
     }
 
     def badJsonResponse: Result = {
-      probeAndTest("badjson", HttpResponse(InternalServerError,  HttpEntity(ContentTypes.`application/json`, "\"Could not write response to json\"")))
+      probeAndTest("badjson", HttpResponse(InternalServerError,  HttpEntity(ContentTypes.`application/json`, s""""Could not write response to json: ${classOf[JsonMappingException].getSimpleName}"""")))
     }
 
     def err: Result = {
-      probeAndTest("error", HttpResponse(InternalServerError, HttpUtil.toJsonErrorsMap(GenericException.getMessage)))
+      probeAndTest("error", HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${CascadeUserException.getClass.getSimpleName}")))
     }
 
     def errCode: Result = {
@@ -152,16 +151,12 @@ class AbstractResourceActorSpecs
       probeAndTest("errorResponse", HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, """{"error":"oops"}""")))
     }
 
-    def errResponseMap: Result = {
-      probeAndTest("errorResponseMap", HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`,"""{"errors":["oops"]}""")))
-    }
-
     def overriddenStatusFailure: Result = {
-      probeAndTestStatusFailure(CustomException, HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, """{"error":"got custom exception"}""")))
+      probeAndTestStatusFailure(CustomStatusFailureException, HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, """{"error":"got custom exception"}""")))
     }
 
     def fallbackStatusFailure: Result = {
-      probeAndTestStatusFailure(GenericException, HttpResponse(InternalServerError, HttpEntity(ContentTypes.`application/json`, """{"errors":["generic downstream exception"]}""")))
+      probeAndTestStatusFailure(GenericException, HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${GenericException.getClass.getSimpleName}")))
     }
 
   }

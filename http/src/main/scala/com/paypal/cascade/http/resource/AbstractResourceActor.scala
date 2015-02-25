@@ -15,15 +15,15 @@
  */
 package com.paypal.cascade.http.resource
 
-import spray.http._
-import akka.actor.{Status, Actor}
+import scala.util.{Failure, Success}
+
+import akka.actor.{Actor, Status}
+import spray.http.{HttpResponse, _}
+
 import com.paypal.cascade.common.option._
+import com.paypal.cascade.http.resource.HttpResourceActor.RequestIsProcessed
 import com.paypal.cascade.http.util.HttpUtil
 import com.paypal.cascade.json._
-import scala.compat.Platform._
-import scala.util.{Success, Failure}
-import spray.http.HttpResponse
-import com.paypal.cascade.http.resource.HttpResourceActor.RequestIsProcessed
 
 /**
  * Base class for HTTP resources built with Spray.
@@ -61,17 +61,13 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   }
 
   /**
-   * There was an error somewhere along the way, so translate it to an HttpResponse (using handleError),
+   * There was an error somewhere along the way, so translate it to an HttpResponse (using createErrorResponse),
    * send the exception to returnActor and stop.
    * @param t the error that occurred
    */
   private def handleUnexpectedRequestError(t: Throwable): Unit = {
-    log.warning("Unexpected request error: {} , cause: {}, trace: {}", t.getMessage, t.getCause, t.getStackTrace.mkString("", EOL, EOL))
     t match {
-      case e: Exception =>
-        val respFromError = handleError(e)
-        val respPlusHeaders = respFromError.withHeaders(addLanguageHeader(responseLanguage, respFromError.headers))
-        self ! respPlusHeaders
+      case e: Exception => handleHttpResponse(createErrorResponse(e))
       case t: Throwable => throw t
     }
   }
@@ -91,9 +87,9 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @tparam T Type of the object to be returned
    */
   protected final def completeToJSON[T](code: StatusCode, response: T): Unit = {
-    response.toJson match {
+    response.toJson.orErrorWithMessage(t => s"Could not write response to json: ${t.getClass.getSimpleName}") match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr))
-      case Failure(_) => sendErrorResponse(StatusCodes.InternalServerError, "Could not write response to json")
+      case Failure(t) => handleUnexpectedRequestError(t)
     }
   }
 
@@ -105,9 +101,9 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @tparam T Type of the object to be returned
    */
   protected final def completeToJSON[T](code: StatusCode, response: T, location: String): Unit = {
-    response.toJson match {
+    response.toJson.orErrorWithMessage(t => s"Could not write response to json: ${t.getClass.getSimpleName}") match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr), location)
-      case Failure(_) => sendErrorResponse(StatusCodes.InternalServerError, "Could not write response to json")
+      case Failure(t) => handleUnexpectedRequestError(t)
     }
   }
 
@@ -121,8 +117,9 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   }
 
   /**
-   * Return an internal server error in response to a throwable
-   * @param f The error to be logged
+   * Return an internal server error in response to a throwable. The type of the throwable should have a case in
+   * [[com.paypal.cascade.http.resource.HttpResourceActor#createErrorResponse createErrorResponse]].
+   * @param f The error to be used for server response.
    */
   protected final def sendError(f: Throwable): Unit = {
     handleUnexpectedRequestError(f)
@@ -136,7 +133,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @tparam T Type of the error
    */
   protected final def sendErrorResponse[T : Manifest](code: StatusCode, error: T): Unit = {
-    handleUnexpectedRequestError(HaltException(code, HttpUtil.toJsonErrors(error)))
+    handleUnexpectedRequestError(HaltException(code, HttpUtil.toJsonBody(error)))
   }
 
   /**
@@ -145,15 +142,6 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    */
   protected final def sendErrorCodeResponse(code: StatusCode): Unit = {
     handleUnexpectedRequestError(HaltException(code))
-  }
-
-  /**
-   * Return an error with the specified Status code
-   * @param code The error code to return
-   * @param msg Message to be returned, will be converted to JSON
-   */
-  protected final def sendErrorMapResponse(code: StatusCode, msg: String): Unit = {
-    handleUnexpectedRequestError(HaltException(code, HttpUtil.toJsonErrorsMap(msg)))
   }
 
 }

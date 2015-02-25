@@ -15,7 +15,7 @@
  */
 package com.paypal.cascade.common
 
-import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
+import java.nio.charset.StandardCharsets.UTF_8
 
 /**
  * Convenience methods and implicit wrappers for working with Strings
@@ -33,7 +33,7 @@ package object string {
      * @return an array of bytes from UTF-8 encoding
      */
     def getBytesUTF8: Array[Byte] = {
-      inner.getBytes(charsetUtf8)
+      inner.getBytes(UTF_8)
     }
   }
 
