@@ -79,16 +79,16 @@ class TrysSpecs extends Specification with ScalaCheck { override def is = s2"""
   case class ListTry() {
 
     def allSuccess = {
-      sequence(List(Success(1), Success(2))) must beEqualTo(Success(List(1,2)))
+      sequenceListTry(List(Success(1), Success(2))) must beEqualTo(Success(List(1,2)))
     }
 
     def someFailure = {
       val ex = new RuntimeException("Ouch!")
-      sequence(List(Success(1), Failure(ex))) must beEqualTo(Failure(ex))
+      sequenceListTry(List(Success(1), Failure(ex))) must beEqualTo(Failure(ex))
     }
 
     def empty = {
-      sequence(List.empty) must beEqualTo(Success(List.empty))
+      sequenceListTry(List.empty) must beEqualTo(Success(List.empty))
     }
 
   }

@@ -88,7 +88,7 @@ package object trys {
    * @tparam A specific type of Try[List]
    * @return l transformed to a Try[List[A]]
    */
-  def sequence[A](l: List[Try[A]]): Try[List[A]] = {
+  def sequenceListTry[A](l: List[Try[A]]): Try[List[A]] = {
     def addTry(builder: Try[Vector[A]], next: Try[A]): Try[Vector[A]] = builder.flatMap(t => next.map(t :+ _))
     l.foldLeft(Try(Vector[A]()))(addTry).map(_.toList)
   }
