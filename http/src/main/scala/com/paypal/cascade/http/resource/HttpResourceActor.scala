@@ -80,6 +80,17 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    */
   val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
+  import context.dispatcher // used for cancellable below
+  /**
+   * A scheduled task which times the request out. Uses the timeout specified in resourceContext.
+   * See the Akka <a href="http://doc.akka.io/docs/akka/2.3.9/scala/scheduler.html">Scheduler</a> documentation.
+   *
+   * @return a Cancellable which will run after the context timeout unless it is cancelled via its cancel method.
+   */
+  protected final lazy val timeoutCancellable: Cancellable = {
+    context.system.scheduler.scheduleOnce(resourceContext.processRecvTimeout, self, RequestTimedOut)
+  }
+
   /**
    * Creates an appropriate HttpResponse for a given exception.
    *
@@ -115,12 +126,12 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    * Internal
    */
   case class RequestIsParsed(parsedRequest: AnyRef)
-  case object BeforeExecuted
-  case object ResponseContentTypeIsAcceptable
+  private case object RequestTimedOut
 
   private val request = resourceContext.reqContext.request
 
-  context.setReceiveTimeout(resourceContext.recvTimeout)
+  // we use the scheduler to enforce timeouts instead, see issue #92
+  context.setReceiveTimeout(Duration.Undefined)
 
   //crash on unhandled exceptions
   override val supervisorStrategy =
@@ -137,21 +148,18 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
      *   c) then process the request
      */
     case Start =>
+      timeoutCancellable // initialize the timeout event
       val processRequest = for {
         _ <- Try(before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
         req <- resourceContext.reqParser(request)
           .orHaltWithMessage(BadRequest)(t => s"Unable to parse request: ${t.getClass.getSimpleName}").map(ProcessRequest)
       } yield req
-      processRequest.foreach { _ =>
-        //account for extremely long processing times
-        context.setReceiveTimeout(resourceContext.processRecvTimeout)
-      }
       self ! processRequest.orFailure
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
-      context.setReceiveTimeout(resourceContext.recvTimeout)
+      timeoutCancellable.cancel() // preemptively cancel the timeout to reduce dead letters
       val responseWithLocation = addHeaderOnCode(resp, Created) {
         // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
         val newScheme = request.headers.find(_.name == "X-Forwarded-Proto") match {
@@ -180,13 +188,14 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 
       handleHttpResponse(finalResponse)
 
-    //the actor didn't receive a message before the current ReceiveTimeout
-    case ReceiveTimeout =>
-      log.error(s"$self didn't receive message within ${context.receiveTimeout} milliseconds.")
+    //the actor didn't complete the request before the request timeout
+    case RequestTimedOut =>
+      log.error(s"$self did not complete request within ${resourceContext.processRecvTimeout}. Returning 503.")
       handleHttpResponse(HttpResponse(StatusCodes.ServiceUnavailable))
   }
 
   private[resource] def handleHttpResponse(r: HttpResponse): Unit = {
+    timeoutCancellable.cancel() // we are about to stop the actor, so cancel to avoid a dead letter
     Try {
       after(r)
     }.recover {
