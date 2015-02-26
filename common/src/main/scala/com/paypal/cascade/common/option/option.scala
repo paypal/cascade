@@ -177,6 +177,6 @@ package object option {
      * Either the return value inside the option, or an empty map
      * @return the value inside the option, or an empty map
      */
-    def orEmpty = optionMap.getOrElse(Map.empty)
+    def orEmpty: Map[A, B] = optionMap.getOrElse(Map.empty)
   }
 }
