@@ -15,36 +15,37 @@
  */
 package com.paypal.cascade.http.resource
 
-import akka.actor._
-import com.fasterxml.jackson.databind.JsonMappingException
+import java.nio.charset.StandardCharsets.UTF_8
+
+import scala.concurrent.duration._
 import scala.util.{Success, Try}
-import spray.http._
+
+import akka.actor.SupervisorStrategy.Escalate
+import akka.actor._
+import spray.http.HttpEntity.{Empty, NonEmpty}
+import spray.http.HttpHeaders.{Location, RawHeader, `WWW-Authenticate`}
 import spray.http.StatusCodes._
 import spray.http.Uri.Path
-import spray.http.HttpHeaders.{RawHeader, `WWW-Authenticate`, Location}
-import spray.http.HttpEntity.{Empty, NonEmpty}
-import spray.http.{HttpRequest, HttpResponse}
+import spray.http.{HttpRequest, HttpResponse, _}
 import spray.routing.RequestContext
+
 import com.paypal.cascade.akka.actor._
-import com.paypal.cascade.common.constants.ValueConstants._
-import com.paypal.cascade.http.util.HttpUtil
-import scala.concurrent.duration._
-import akka.actor.SupervisorStrategy.Escalate
 import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
-import com.fasterxml.jackson.core.JsonParseException
+import com.paypal.cascade.http.util.HttpUtil
 
 /**
  * the actor to manage the execution of an [[com.paypal.cascade.http.resource.AbstractResourceActor]]. Create one of these per request
  */
 private[http] abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
 
-  import HttpResourceActor._
+  import com.paypal.cascade.http.resource.HttpResourceActor._
 
   /**
    * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.
    *
-   * If the method throws, an internal server error will be returned. As always, personally identifiable information should
-   * never be included in exception messages.
+   * If the method throws, an error response will be returned. The response will be determined by
+   * [[com.paypal.cascade.http.resource.HttpResourceActor#createErrorResponse createErrorResponse]].
+   * As always, personally identifiable information should never be included in exception messages.
    * @param method The Http method of the request in question
    */
   def before(method: HttpMethod): Unit = {}
@@ -80,35 +81,34 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
   val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
   /**
-   * Exception handler for creating an http error response when Status.Failure is received.
+   * Creates an appropriate HttpResponse for a given exception.
    *
    * @param exception the exception
    * @return a crafted HttpResponse from the error message
    */
-  protected def handleError(exception: Exception): HttpResponse = exception match {
-    case haltException: HaltException =>
-      val response = addHeaderOnCode(haltException.response, Unauthorized) {
-        `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
-      }
-      // If the error already has the right content type, let it through, otherwise coerce it
-      val finalResponse = response.withEntity(response.entity.flatMap {
-        entity: NonEmpty =>
-          entity.contentType match {
-            case HttpUtil.errorResponseType => entity
-            case _ => HttpUtil.toJsonErrorsMap(entity.data.asString(charsetUtf8))
-          }
-      })
-      if (finalResponse.status.intValue >= 500) {
-        val statusCode = finalResponse.status.intValue
-        log.warning(s"Request finished unsuccessfully with status code: $statusCode")
-      }
-      finalResponse
-    case parseOrMappingException @ (_:JsonParseException | _:JsonMappingException) =>
-      HttpResponse(BadRequest,
-        HttpUtil.toJsonErrorsMap(Option(parseOrMappingException.getMessage).getOrElse("")))
-    case otherException: Exception =>
-      HttpResponse(InternalServerError,
-        HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")))
+  protected def createErrorResponse(exception: Exception): HttpResponse = {
+    val resp = exception match {
+      case haltException: HaltException =>
+        val response = addHeaderOnCode(haltException.response, Unauthorized) {
+          `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
+        }
+        // If the error already has the right content type, let it through, otherwise coerce it
+        val finalResponse = response.withEntity(response.entity.flatMap {
+          entity: NonEmpty =>
+            entity.contentType match {
+              case HttpUtil.errorResponseType => entity
+              case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
+            }
+        })
+        if (finalResponse.status.intValue >= 500) {
+          val statusCode = finalResponse.status.intValue
+          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
+        }
+        finalResponse
+      case otherException: Exception =>
+        HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${otherException.getClass.getSimpleName}"))
+    }
+    resp.withHeaders(addLanguageHeader(responseLanguage, resp.headers))
   }
 
   /*
@@ -140,7 +140,8 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
       val processRequest = for {
         _ <- Try(before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
-        req <- resourceContext.reqParser(request).map(ProcessRequest)
+        req <- resourceContext.reqParser(request)
+          .orHaltWithMessage(BadRequest)(t => s"Unable to parse request: ${t.getClass.getSimpleName}").map(ProcessRequest)
       } yield req
       processRequest.foreach { _ =>
         //account for extremely long processing times
@@ -179,18 +180,13 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 
       handleHttpResponse(finalResponse)
 
-    //we got an http response to return via error handling,
-    //so return it to the spray context and return actor and then stop
-    case r: HttpResponse =>
-      handleHttpResponse(r)
-
     //the actor didn't receive a message before the current ReceiveTimeout
     case ReceiveTimeout =>
       log.error(s"$self didn't receive message within ${context.receiveTimeout} milliseconds.")
-      self ! HttpResponse(StatusCodes.ServiceUnavailable)
+      handleHttpResponse(HttpResponse(StatusCodes.ServiceUnavailable))
   }
 
-  private def handleHttpResponse(r: HttpResponse): Unit = {
+  private[resource] def handleHttpResponse(r: HttpResponse): Unit = {
     Try {
       after(r)
     }.recover {

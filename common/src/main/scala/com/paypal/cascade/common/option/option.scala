@@ -179,5 +179,4 @@ package object option {
      */
     def orEmpty = optionMap.getOrElse(Map.empty)
   }
-
 }

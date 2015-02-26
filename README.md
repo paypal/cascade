@@ -3,6 +3,7 @@
 ![Cascade logo](doc/cascade.png)
 
 [![Build Status](https://travis-ci.org/paypal/cascade.png?branch=develop)](https://travis-ci.org/paypal/cascade)
+[![Codacy Badge](https://www.codacy.com/project/badge/d722bb8e8a8847bd9a4497908368bd4e)](https://www.codacy.com/public/paypal/cascade)
 
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
