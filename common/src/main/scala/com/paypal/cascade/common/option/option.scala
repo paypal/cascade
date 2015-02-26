@@ -168,6 +168,23 @@ package object option {
   }
 
   /**
+   * Convenience methods for working with List[Option[A]]
+   * @param listOption the List[Option[A]]
+   */
+  implicit class RichListOption[T](listOption: List[Option[T]]) {
+
+    /**
+     * Converts a List[Option[T]] to an Option[List[T]]
+     * @return Some[List[T]] if all elements are some, None otherwise.
+     */
+    def sequence: Option[List[T]] = {
+      def addOption(builder: Option[Vector[T]], next: Option[T]): Option[Vector[T]] = builder.flatMap(t => next.map(t :+ _))
+      listOption.foldLeft(Option(Vector[T]()))(addOption).map(_.toList)
+    }
+  }
+
+
+  /**
    * Convenience methods for working with Option[Map[A, B]]
    * @param optionMap this Option[Map[A, B]]
    */
