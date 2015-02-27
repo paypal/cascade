@@ -91,16 +91,6 @@ class HttpResourceActorSpecs
       started must beASuccessfulTry
     }
 
-    def timesOut = {
-      val refAndProbe = RefAndProbe(TestActorRef(new DummyResource(ResourceContext(dummyReqCtx, reqParser, None, Duration.Zero))))
-
-      val stoppedRes = refAndProbe must beStopped
-      val failedRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
-        case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.ServiceUnavailable)
-      }
-      stoppedRes and failedRes
-    }
-
     def timesOutOnAsyncRequestProcessor = {
       // this test results in a dead letter for the FinishedSleeping message if it passes. no big deal
       val veryShortTimeout = Duration(50, TimeUnit.MILLISECONDS)
