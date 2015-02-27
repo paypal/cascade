@@ -288,7 +288,7 @@ object HttpResourceActor {
   /* responses */
   /**
    * Used to notify the resource actor that the server has processed the request and can complete it
-   * @param response the resposne to send
+   * @param response the response to send
    * @param mbLocation optional location for the returned resource if something was created
    */
   private[resource] case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
