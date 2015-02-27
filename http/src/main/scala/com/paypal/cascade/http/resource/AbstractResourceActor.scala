@@ -67,7 +67,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    */
   private def handleRequestError(t: Throwable): Unit = {
     t match {
-      case e: Exception => handleHttpResponse(createErrorResponse(e))
+      case e: Exception => completeRequest(createErrorResponse(e))
       case t: Throwable => throw t
     }
   }

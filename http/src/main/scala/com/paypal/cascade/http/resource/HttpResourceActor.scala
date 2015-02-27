@@ -128,7 +128,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    */
   private val request = resourceContext.reqContext.request
 
-  //crash on unhandled exceptions
+  /** crash on unhandled exceptions */
   override val supervisorStrategy =
     OneForOneStrategy() {
       case _ => Escalate
@@ -181,15 +181,19 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
           HttpEntity(responseContentType, entity.data)
       })
 
-      handleHttpResponse(finalResponse)
+      completeRequest(finalResponse)
 
     //the actor didn't complete the request before the request timeout
     case RequestTimedOut =>
       log.error(s"Did not complete request within ${resourceContext.resourceTimeout}.")
-      handleHttpResponse(createErrorResponse(HaltException(StatusCodes.ServiceUnavailable)))
+      completeRequest(createErrorResponse(HaltException(StatusCodes.ServiceUnavailable)))
   }
 
-  private[resource] def handleHttpResponse(r: HttpResponse): Unit = {
+  /**
+   * The only proper way to finish the request and kill this actor.
+   * @param r the response to send
+   */
+  private[resource] def completeRequest(r: HttpResponse): Unit = {
     timeoutCancellable.cancel() // we are about to stop the actor, so cancel to avoid a dead letter
     Try {
       after(r)
