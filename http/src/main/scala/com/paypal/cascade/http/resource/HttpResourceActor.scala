@@ -258,7 +258,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 }
 
 object HttpResourceActor {
-
+  /* requests */
   /**
    * Contains all information needed to start an HttpResourceActor.
    * @param reqContext the spray `spray.routing.RequestContext` for this request
@@ -274,26 +274,31 @@ object HttpResourceActor {
                              mbReturnActor: Option[ActorRef] = None,
                              resourceTimeout: FiniteDuration = HttpResourceActor.defaultResourceTimeout)
 
-  //requests
-  /**
-   * Sent to AbstractResourceActor to indicate that a request should be processed
-   * @param req The parsed request to process
-   */
-  case class ProcessRequest(req: Any)
-
-  //responses
-  case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
-
   /**
    * the function that parses an [[spray.http.HttpRequest]] into a type, or fails
    */
   type RequestParser = HttpRequest => Try[AnyRef]
 
   /**
+   * Sent to AbstractResourceActor to indicate that a request should be processed
+   * @param req The parsed request to process
+   */
+  case class ProcessRequest(req: Any)
+
+  /* responses */
+  /**
+   * Used to notify the resource actor that the server has processed the request and can complete it
+   * @param response the resposne to send
+   * @param mbLocation optional location for the returned resource if something was created
+   */
+  private[resource] case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
+
+  /**
    * the only message to send each `com.paypal.cascade.http.resource.HttpResourceActor`. it begins processing the
    * [[com.paypal.cascade.http.resource.AbstractResourceActor]] that it contains
    */
-  object Start
+  private[http] object Start
+
   /**
    * Signals that the request timed out.
    */
