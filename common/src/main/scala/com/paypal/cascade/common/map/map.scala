@@ -15,6 +15,8 @@
  */
 package com.paypal.cascade.common
 
+import com.paypal.cascade.common.option._
+
 /**
  * Convenience methods and implicit wrappers for working with `scala.collection.Map`
  */
@@ -30,7 +32,7 @@ package object map {
      * Returns the map as an Option, None if the map is empty.
      * @return Some[Map[A, B]] if the map has items, and None otherwise.
      */
-    def orNone: Option[Map[A, B]] =  if (self.isEmpty) None else Option(self)
+    def orNone: Option[Map[A, B]] =  self.some.filter(_.nonEmpty)
   }
 
 }
