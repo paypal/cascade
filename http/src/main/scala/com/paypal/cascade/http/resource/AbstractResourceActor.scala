@@ -57,7 +57,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    */
   private def failureReceive: Actor.Receive = {
     case s @ Status.Failure(t: Throwable) =>
-      handleUnexpectedRequestError(t)
+      handleRequestError(t)
   }
 
   /**
@@ -65,9 +65,9 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * send the exception to returnActor and stop.
    * @param t the error that occurred
    */
-  private def handleUnexpectedRequestError(t: Throwable): Unit = {
+  private def handleRequestError(t: Throwable): Unit = {
     t match {
-      case e: Exception => handleHttpResponse(createErrorResponse(e))
+      case e: Exception => completeRequest(createErrorResponse(e))
       case t: Throwable => throw t
     }
   }
@@ -89,7 +89,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   protected final def completeToJSON[T](code: StatusCode, response: T): Unit = {
     response.toJson.orErrorWithMessage(t => s"Could not write response to json: ${t.getClass.getSimpleName}") match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr))
-      case Failure(t) => handleUnexpectedRequestError(t)
+      case Failure(t) => handleRequestError(t)
     }
   }
 
@@ -103,7 +103,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
   protected final def completeToJSON[T](code: StatusCode, response: T, location: String): Unit = {
     response.toJson.orErrorWithMessage(t => s"Could not write response to json: ${t.getClass.getSimpleName}") match {
       case Success(jsonStr) => complete(HttpResponse(code, jsonStr), location)
-      case Failure(t) => handleUnexpectedRequestError(t)
+      case Failure(t) => handleRequestError(t)
     }
   }
 
@@ -122,7 +122,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param f The error to be used for server response.
    */
   protected final def sendError(f: Throwable): Unit = {
-    handleUnexpectedRequestError(f)
+    handleRequestError(f)
   }
 
   /**
@@ -133,7 +133,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @tparam T Type of the error
    */
   protected final def sendErrorResponse[T : Manifest](code: StatusCode, error: T): Unit = {
-    handleUnexpectedRequestError(HaltException(code, HttpUtil.toJsonBody(error)))
+    handleRequestError(HaltException(code, HttpUtil.toJsonBody(error)))
   }
 
   /**
@@ -141,7 +141,7 @@ abstract class AbstractResourceActor(private val resourceContext: HttpResourceAc
    * @param code The error code to return
    */
   protected final def sendErrorCodeResponse(code: StatusCode): Unit = {
-    handleUnexpectedRequestError(HaltException(code))
+    handleRequestError(HaltException(code))
   }
 
 }

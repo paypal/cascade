@@ -15,20 +15,17 @@
  */
 package com.paypal.cascade.http.tests.resource
 
-import spray.http._
-import StatusCodes._
 import scala.concurrent._
-import com.paypal.cascade.http.resource._
-import akka.actor.{Props, Actor}
-import com.paypal.cascade.http.tests.resource.DummyResource._
-import com.paypal.cascade.http.tests.resource.DummyResource.SleepRequest
-import com.paypal.cascade.http.tests.resource.DummyResource.PostRequest
-import com.paypal.cascade.http.resource.HttpResourceActor.ProcessRequest
-import com.paypal.cascade.http.tests.resource.DummyResource.GetRequest
-import spray.http.HttpResponse
-import com.paypal.cascade.http.tests.resource.DummyResource.LanguageRequest
+import scala.concurrent.duration._
+
+import akka.actor.Actor
 import spray.http.HttpHeaders.RawHeader
-import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
+import spray.http.StatusCodes._
+import spray.http.{HttpResponse, _}
+
+import com.paypal.cascade.http.resource.HttpResourceActor.{ProcessRequest, ResourceContext}
+import com.paypal.cascade.http.resource._
+import com.paypal.cascade.http.tests.resource.DummyResource.{GetRequest, LanguageRequest, PostRequest, SleepRequest, _}
 
 /**
  * Dummy implementation of a Spray resource. Does not perform additional parsing of requests, expects a basic type
@@ -74,14 +71,7 @@ class DummyResource(requestContext: ResourceContext)
    * @param req request object
    */
   def doSleep(req: SleepRequest): Unit = {
-    //spawn an actor and sleep in there
-    class SleepActor extends Actor {
-      def receive: Actor.Receive = {
-        case SleepRequest(m) => Thread.sleep(m); sender ! FinishedSleeping()
-      }
-    }
-    val sleeper = context.actorOf(Props(classOf[SleepActor], this), "sleeper")
-    sleeper ! req
+    context.system.scheduler.scheduleOnce(req.millis.milliseconds, self, FinishedSleeping())
   }
 
   def doSyncSleep(req: SyncSleep): Unit = {
@@ -119,7 +109,7 @@ class DummyResource(requestContext: ResourceContext)
     case ProcessRequest(req: SleepRequest) => doSleep(req)
     case ProcessRequest(req: SyncSleep) => doSyncSleep(req)
     //extra actor messages to respond to
-    case FinishedSleeping() => log.debug("finished sleeping"); complete(HttpResponse(OK, "pong"))
+    case FinishedSleeping() => log.info("finished sleeping"); complete(HttpResponse(OK, "pong"))
   }
 }
 
