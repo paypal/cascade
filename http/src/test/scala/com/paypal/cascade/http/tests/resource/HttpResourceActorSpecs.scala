@@ -15,24 +15,25 @@
  */
 package com.paypal.cascade.http.tests.resource
 
-import com.fasterxml.jackson.databind.JsonMappingException
-import org.specs2.SpecificationLike
-import akka.testkit.{TestActorRef, TestKit}
-import akka.actor.ActorSystem
-import com.paypal.cascade.http.resource.{AbstractResourceActor, HttpResourceActor}
-import spray.http.{HttpMethod, StatusCodes, HttpResponse, HttpRequest}
-import scala.util.{Try, Failure, Success}
+import java.util.concurrent.{CountDownLatch, TimeUnit}
+
 import scala.concurrent.Promise
+import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success, Try}
+
+import akka.actor.ActorSystem
+import akka.testkit.{TestActorRef, TestKit}
+import spray.http.{HttpMethod, HttpRequest, HttpResponse, StatusCodes}
+import org.specs2.SpecificationLike
+
+import com.paypal.cascade.akka.tests.actor.ActorSpecification
+import com.paypal.cascade.common.tests.future._
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
+import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
+import com.paypal.cascade.http.resource.{AbstractResourceActor, HttpResourceActor}
 import com.paypal.cascade.http.tests.actor.RefAndProbe
 import com.paypal.cascade.http.tests.matchers.RefAndProbeMatchers
-import com.paypal.cascade.akka.tests.actor.ActorSpecification
-import scala.concurrent.duration.Duration
-import com.paypal.cascade.common.tests.future._
-import java.util.concurrent.{CountDownLatch, TimeUnit}
-import com.paypal.cascade.http.tests.resource.DummyResource.{SyncSleep, SleepRequest, GetRequest}
-import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
-import com.fasterxml.jackson.core.{JsonLocation, JsonParseException}
+import com.paypal.cascade.http.tests.resource.DummyResource.{GetRequest, SleepRequest, SyncSleep}
 
 class HttpResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
@@ -50,9 +51,6 @@ class HttpResourceActorSpecs
 
     The ResourceActor should time out if the request processor takes too long in async code                                  ${Start().timesOutOnAsyncRequestProcessor}
     The ResourceActor will still succeed if blocking code takes too long. DON'T BLOCK in HttpActors!                         ${Start().timeOutFailsOnBlockingRequestProcessor}
-
-    If the request parser is a failure due to malformed json, Status.Failure is called and a 400 is returned                 ${JsonParseFail().reqParserFail}
-    If the request parser is a failure due to wrong data type in json, Status.Failure is called and a 400 is returned        ${JsonParseFail().reqParserFail}
 
     The actor calls the before() method                                                                                      ${BeforeAfter().beforeCalled}
     The actor calls the after() method                                                                                       ${BeforeAfter().afterCalled}
@@ -104,6 +102,7 @@ class HttpResourceActorSpecs
     }
 
     def timesOutOnAsyncRequestProcessor = {
+      // this test results in a dead letter for the FinishedSleeping message if it passes. no big deal
       val processRecvTimeout = Duration(50, TimeUnit.MILLISECONDS)
 
       lazy val resourceActorCtor = new DummyResource(ResourceContext(
@@ -120,6 +119,7 @@ class HttpResourceActorSpecs
     }
 
     def timeOutFailsOnBlockingRequestProcessor = {
+      // this test results in a dead letter for the timeout as a natural consequence of it blocking
       val processRecvTimeout = Duration(50, TimeUnit.MILLISECONDS)
 
       lazy val resourceActorCtor = new DummyResource(ResourceContext(
@@ -171,37 +171,11 @@ class HttpResourceActorSpecs
     }
 
     def writesToRequestContext = apply {
-      val recvRes = reqCtxHandlerActorFuture must beAnInstanceOf[HttpResponse].await
+      val recvRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
+        case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.BadRequest)
+      }
       val stoppedRes = resourceActorRefAndProbe must beStopped
       recvRes and stoppedRes
-    }
-  }
-
-  case class JsonParseFail() extends Context {
-    override protected lazy val reqParser: HttpResourceActor.RequestParser = { req: HttpRequest =>
-      Failure(new JsonParseException("could not parse json", JsonLocation.NA))
-    }
-    def reqParserFail = apply {
-      val refAndProbe = RefAndProbe(TestActorRef(new DummyResource(ResourceContext(dummyReqCtx, reqParser))))
-      refAndProbe.ref ! HttpResourceActor.Start
-      val failedRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
-        case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.BadRequest)
-      }
-      failedRes
-    }
-  }
-
-  case class JsonMapFail() extends Context {
-    override protected lazy val reqParser: HttpResourceActor.RequestParser = { req: HttpRequest =>
-      Failure(new JsonMappingException("could not map json to right type", JsonLocation.NA))
-    }
-    def reqParserFail = apply {
-      val refAndProbe = RefAndProbe(TestActorRef(new DummyResource(ResourceContext(dummyReqCtx, reqParser))))
-      refAndProbe.ref ! HttpResourceActor.Start
-      val failedRes = reqCtxHandlerActorFuture.toTry must beASuccessfulTry.like {
-        case HttpResponse(status, _, _, _) => status must beEqualTo(StatusCodes.BadRequest)
-      }
-      failedRes
     }
   }
 
