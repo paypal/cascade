@@ -189,7 +189,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     //the actor didn't complete the request before the request timeout
     case RequestTimedOut =>
       log.error(s"Did not complete request within ${resourceContext.resourceTimeout}.")
-      handleHttpResponse(HttpResponse(StatusCodes.ServiceUnavailable))
+      handleHttpResponse(createErrorResponse(HaltException(StatusCodes.ServiceUnavailable)))
   }
 
   private[resource] def handleHttpResponse(r: HttpResponse): Unit = {
