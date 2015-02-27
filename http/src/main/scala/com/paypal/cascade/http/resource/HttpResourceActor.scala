@@ -126,12 +126,6 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
   /*
    * Internal
    */
-
-  /**
-   * Signals that the request timed out.
-   */
-  case object RequestTimedOut
-
   private val request = resourceContext.reqContext.request
 
   // we use the scheduler to enforce timeouts instead, see issue #92
@@ -194,7 +188,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 
     //the actor didn't complete the request before the request timeout
     case RequestTimedOut =>
-      log.error(s"$self did not complete request within ${resourceContext.resourceTimeout}. Returning 503.")
+      log.error(s"Did not complete request within ${resourceContext.resourceTimeout}.")
       handleHttpResponse(HttpResponse(StatusCodes.ServiceUnavailable))
   }
 
@@ -300,6 +294,10 @@ object HttpResourceActor {
    * [[com.paypal.cascade.http.resource.AbstractResourceActor]] that it contains
    */
   object Start
+  /**
+   * Signals that the request timed out.
+   */
+  private case object RequestTimedOut
 
   /**
    * The default timeout for a request which is not completed in time. Not the same as spray's timeout.
