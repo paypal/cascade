@@ -82,13 +82,14 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 
   import context.dispatcher // used for cancellable below
   /**
-   * A scheduled task which times the request out. Uses the timeout specified in resourceContext.
+   * A scheduled task which times the request out after the
+   * [[com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext.resourceTimeout resourceTimeout]].
    * See the Akka <a href="http://doc.akka.io/docs/akka/2.3.9/scala/scheduler.html">Scheduler</a> documentation.
    *
    * @return a Cancellable which will run after the context timeout unless it is cancelled via its cancel method.
    */
   protected final lazy val timeoutCancellable: Cancellable = {
-    context.system.scheduler.scheduleOnce(resourceContext.processRecvTimeout, self, RequestTimedOut)
+    context.system.scheduler.scheduleOnce(resourceContext.resourceTimeout, self, RequestTimedOut)
   }
 
   /**
@@ -125,8 +126,11 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
   /*
    * Internal
    */
-  case class RequestIsParsed(parsedRequest: AnyRef)
-  private case object RequestTimedOut
+
+  /**
+   * Signals that the request timed out.
+   */
+  case object RequestTimedOut
 
   private val request = resourceContext.reqContext.request
 
@@ -190,7 +194,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 
     //the actor didn't complete the request before the request timeout
     case RequestTimedOut =>
-      log.error(s"$self did not complete request within ${resourceContext.processRecvTimeout}. Returning 503.")
+      log.error(s"$self did not complete request within ${resourceContext.resourceTimeout}. Returning 503.")
       handleHttpResponse(HttpResponse(StatusCodes.ServiceUnavailable))
   }
 
@@ -262,21 +266,19 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 object HttpResourceActor {
 
   /**
-   * ResourceContext contains all information needed to start an AbstractResourceActor
+   * Contains all information needed to start an HttpResourceActor.
    * @param reqContext the spray `spray.routing.RequestContext` for this request
    * @param reqParser the function to parse the request into a valid scala type
    * @param mbReturnActor the actor to send the successful [[spray.http.HttpResponse]] or the failed `java.lang.Throwable`.
    *                      optional - pass None to not do this
-   * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
-   *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[spray.http.HttpResponse]] indicating the error to the
-   *                    context and return actor.
-   * @param processRecvTimeout the longest time this actor will wait for `reqProcessor` to complete
+   * @param resourceTimeout the time after which the request will time out, from the start of the request (i.e. when
+   *                        the resource actor receives [[com.paypal.cascade.http.resource.HttpResourceActor.Start Start]].)
+   *                        Not the same as spray's timeout. This can be specified on a per-request basis and is more granular.
    */
   case class ResourceContext(reqContext: RequestContext,
                              reqParser: RequestParser,
                              mbReturnActor: Option[ActorRef] = None,
-                             recvTimeout: FiniteDuration = HttpResourceActor.defaultRecvTimeout,
-                             processRecvTimeout: FiniteDuration = HttpResourceActor.defaultProcessRecvTimeout)
+                             resourceTimeout: FiniteDuration = HttpResourceActor.defaultResourceTimeout)
 
   //requests
   /**
@@ -300,14 +302,9 @@ object HttpResourceActor {
   object Start
 
   /**
-   * the default receive timeout for most steps in ResourceActor
+   * The default timeout for a request which is not completed in time. Not the same as spray's timeout.
    */
-  val defaultRecvTimeout = 500.milliseconds
-
-  /**
-   * the receive timeout for the process function step in ResourceActor
-   */
-  val defaultProcessRecvTimeout = 4.seconds
+  val defaultResourceTimeout = 4000.milliseconds
 
   /**
    * create the `akka.actor.Props` for a new `com.paypal.cascade.http.resource.HttpResourceActor`
@@ -316,15 +313,16 @@ object HttpResourceActor {
    *                   `com.paypal.cascade.http.resource.HttpResourceActor`
    * @param reqParser the parser function to pass to the `com.paypal.cascade.http.resource.HttpResourceActor`
    * @param mbResponseActor the optional actor to pass to the `com.paypal.cascade.http.resource.HttpResourceActor`
+   * @param resourceTimeout the amount of time until the request times out after it has been started. Not the same as
+   *                        spray's timeout. This can be specified on a per-request basis and is more granular.
    * @return the new `akka.actor.Props`
    */
   def props(resourceActorProps: ResourceContext => AbstractResourceActor,
             reqContext: RequestContext,
             reqParser: RequestParser,
             mbResponseActor: Option[ActorRef],
-            recvTimeout: FiniteDuration = defaultRecvTimeout,
-            processRecvTimeout: FiniteDuration = defaultProcessRecvTimeout): Props = {
-    Props(resourceActorProps(ResourceContext(reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout)))
+            resourceTimeout: FiniteDuration = defaultResourceTimeout): Props = {
+    Props(resourceActorProps(ResourceContext(reqContext, reqParser, mbResponseActor, resourceTimeout)))
       .withMailbox("single-consumer-mailbox")
   }
 

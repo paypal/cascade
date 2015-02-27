@@ -37,20 +37,22 @@ object ResourceDriver {
   /**
    * Run the request on this resource, first applying a rewrite. This should not be overridden.
    * @param resourceActor function for creating the actorRef which will process the request
+   * @param mbResponseActor optional actor to send the response or failure
+   * @param resourceTimeout time until resource times out. Not the same as spray's timeout, since this can be specified
+   *                        per-request.
    * @param rewrite a method by which to rewrite the request
    * @tparam ParsedRequest the request after parsing
    * @return the rewritten request execution
    */
   final def serveWithRewrite[ParsedRequest <: AnyRef](resourceActor: ResourceContext => AbstractResourceActor,
                                             mbResponseActor: Option[ActorRef] = None,
-                                            recvTimeout: FiniteDuration = HttpResourceActor.defaultRecvTimeout,
-                                            processRecvTimeout: FiniteDuration = HttpResourceActor.defaultProcessRecvTimeout)
+                                            resourceTimeout: FiniteDuration = HttpResourceActor.defaultResourceTimeout)
                                            (rewrite: RewriteFunction[ParsedRequest])
                                            (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     ctx: RequestContext =>
       rewrite(ctx.request).map {
         case (request, parsed) =>
-          val serveFn = serve(resourceActor, (r => Success(parsed): Try[AnyRef]): RequestParser, mbResponseActor, recvTimeout, processRecvTimeout)
+          val serveFn = serve(resourceActor, (r => Success(parsed): Try[AnyRef]): RequestParser, mbResponseActor, resourceTimeout)
           serveFn(ctx.copy(request = request))
       }.recover {
         case e: Exception =>
@@ -61,16 +63,19 @@ object ResourceDriver {
   /**
    * Run the request on this resource
    * @param resourceActor function for creating the actorRef which will process the request
+   * @param requestParser parser function to parse request into scala data type
+   * @param mbResponseActor optional actor to send the response or failure
+   * @param resourceTimeout time until resource times out. Not the same as spray's timeout, since this can be specified
+   *                        per-request.
    * @return the request execution
    */
   final def serve(resourceActor: ResourceContext => AbstractResourceActor,
-                                 requestParser: HttpResourceActor.RequestParser,
-                                 mbResponseActor: Option[ActorRef] = None,
-                                 recvTimeout: FiniteDuration = HttpResourceActor.defaultRecvTimeout,
-                                 processRecvTimeout: FiniteDuration = HttpResourceActor.defaultProcessRecvTimeout)
-                                (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
+                  requestParser: HttpResourceActor.RequestParser,
+                  mbResponseActor: Option[ActorRef] = None,
+                  resourceTimeout: FiniteDuration = HttpResourceActor.defaultResourceTimeout)
+                 (implicit actorRefFactory: ActorRefFactory): RequestContext => Unit = {
     { ctx: RequestContext =>
-      val actor = actorRefFactory.actorOf(HttpResourceActor.props(resourceActor, ctx, requestParser, mbResponseActor, recvTimeout, processRecvTimeout))
+      val actor = actorRefFactory.actorOf(HttpResourceActor.props(resourceActor, ctx, requestParser, mbResponseActor, resourceTimeout))
       actor ! HttpResourceActor.Start
     }
   }

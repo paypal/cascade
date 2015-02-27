@@ -103,13 +103,13 @@ class HttpResourceActorSpecs
 
     def timesOutOnAsyncRequestProcessor = {
       // this test results in a dead letter for the FinishedSleeping message if it passes. no big deal
-      val processRecvTimeout = Duration(50, TimeUnit.MILLISECONDS)
+      val veryShortTimeout = Duration(50, TimeUnit.MILLISECONDS)
 
       lazy val resourceActorCtor = new DummyResource(ResourceContext(
         reqContext = dummyReqCtx,
         reqParser = request => Success(SleepRequest(500)),
         mbReturnActor = None,
-        processRecvTimeout = processRecvTimeout
+        resourceTimeout = veryShortTimeout
       ))
       val refAndProbe = RefAndProbe(TestActorRef(resourceActorCtor))
       refAndProbe.ref ! HttpResourceActor.Start
@@ -120,13 +120,13 @@ class HttpResourceActorSpecs
 
     def timeOutFailsOnBlockingRequestProcessor = {
       // this test results in a dead letter for the timeout as a natural consequence of it blocking
-      val processRecvTimeout = Duration(50, TimeUnit.MILLISECONDS)
+      val veryShortTimeout = Duration(50, TimeUnit.MILLISECONDS)
 
       lazy val resourceActorCtor = new DummyResource(ResourceContext(
         reqContext = dummyReqCtx,
         reqParser = request => Success(SyncSleep(500)),
         mbReturnActor = None,
-        processRecvTimeout = processRecvTimeout
+        resourceTimeout = veryShortTimeout
       ))
       val refAndProbe = RefAndProbe(TestActorRef(resourceActorCtor))
       refAndProbe.ref ! HttpResourceActor.Start
