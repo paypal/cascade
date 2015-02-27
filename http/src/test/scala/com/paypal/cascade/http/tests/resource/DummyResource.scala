@@ -119,7 +119,7 @@ class DummyResource(requestContext: ResourceContext)
     case ProcessRequest(req: SleepRequest) => doSleep(req)
     case ProcessRequest(req: SyncSleep) => doSyncSleep(req)
     //extra actor messages to respond to
-    case FinishedSleeping() => log.debug("finished sleeping"); complete(HttpResponse(OK, "pong"))
+    case FinishedSleeping() => log.info("finished sleeping"); complete(HttpResponse(OK, "pong"))
   }
 }
 
