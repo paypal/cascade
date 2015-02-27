@@ -128,9 +128,6 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    */
   private val request = resourceContext.reqContext.request
 
-  // we use the scheduler to enforce timeouts instead, see issue #92
-  context.setReceiveTimeout(Duration.Undefined)
-
   //crash on unhandled exceptions
   override val supervisorStrategy =
     OneForOneStrategy() {
