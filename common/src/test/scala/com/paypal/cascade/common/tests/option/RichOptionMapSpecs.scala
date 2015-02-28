@@ -15,14 +15,20 @@
  */
 package com.paypal.cascade.common.tests.option
 
+import org.scalacheck.Gen
 import org.specs2.Specification
+import org.scalacheck.Arbitrary._
+import org.scalacheck.Gen
+import org.scalacheck.Gen._
+import org.scalacheck.Prop._
+import org.specs2.ScalaCheck
 import com.paypal.cascade.common.option.RichOptionMap
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 
 /**
  * Tests for implicit [[com.paypal.cascade.common.option.RichOption]]
  */
-class RichOptionMapSpecs extends Specification { override def is = s2"""
+class RichOptionMapSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   RichOptionMap is a wrapper for Option[Map[A, B]]
 
@@ -33,7 +39,6 @@ class RichOptionMapSpecs extends Specification { override def is = s2"""
 """
   trait Context extends CommonImmutableSpecificationContext {
     protected lazy val e: Option[Map[Int, Int]] = None
-    protected lazy val m: Option[Map[Int, Int]] = Option(Map(1->2))
   }
 
   case class OrEmpty() extends Context {
@@ -43,7 +48,9 @@ class RichOptionMapSpecs extends Specification { override def is = s2"""
     }
 
     def nonEmpty = {
-      m.orEmpty must beEqualTo(Map(1->2))
+      forAll(nonEmptyMap[String, String](Gen.zip(arbitrary[String], arbitrary[String]))) { m =>
+        Option(m).orEmpty must beEqualTo(m)
+      }
     }
   }
 

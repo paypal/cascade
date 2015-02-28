@@ -16,13 +16,18 @@
 package com.paypal.cascade.common.tests.map
 
 import org.specs2.Specification
+import org.scalacheck.Arbitrary._
+import org.scalacheck.Gen
+import org.scalacheck.Gen._
+import org.scalacheck.Prop._
+import org.specs2.ScalaCheck
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.cascade.common.map.RichMap
 
 /**
  * Tests for implicit [[com.paypal.cascade.common.map.RichMap]]
  */
-class RichMapSpecs extends Specification { override def is = s2"""
+class RichMapSpecs extends Specification with ScalaCheck { override def is = s2"""
 
   RichMap is a wrapper for Map[A, B] for convenience methods.
 
@@ -33,14 +38,15 @@ class RichMapSpecs extends Specification { override def is = s2"""
 """
 
   trait Context extends CommonImmutableSpecificationContext {
-    protected lazy val m: Map[Int, Int] = Map(1 -> 2, 3 -> 4)
     protected lazy val e: Map[Int, Int] = Map.empty
   }
 
   case class OrNone() extends Context {
 
-    def nonEmpty = {
-      m.orNone must beSome
+    def nonEmpty = apply {
+      forAll(nonEmptyMap[String, String](Gen.zip(arbitrary[String], arbitrary[String]))) { m =>
+        m.orNone must beSome
+      }
     }
 
     def empty = {
