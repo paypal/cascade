@@ -158,7 +158,7 @@ package object option {
    * Convenience methods for working with Option[List[A]]
    * @param optionList this Option[List[T]]
    */
-  implicit class OptionList[T](optionList: Option[List[T]]) {
+  implicit class RichOptionList[T](optionList: Option[List[T]]) {
 
     /**
      * Either the return value inside this option, or Nil
@@ -171,7 +171,7 @@ package object option {
    * Convenience methods for working with List[Option[A]]
    * @param listOption the List[Option[A]]
    */
-  implicit class ListOption[T](listOption: List[Option[T]]) {
+  implicit class RichListOption[T](listOption: List[Option[T]]) {
 
     /**
      * Converts a List[Option[T]] to an Option[List[T]]
@@ -183,4 +183,17 @@ package object option {
     }
   }
 
+
+  /**
+   * Convenience methods for working with Option[Map[A, B]]
+   * @param optionMap this Option[Map[A, B]]
+   */
+  implicit class RichOptionMap[A, B](optionMap: Option[Map[A, B]]) {
+
+    /**
+     * Either the return value inside the option, or an empty map
+     * @return the value inside the option, or an empty map
+     */
+    def orEmpty: Map[A, B] = optionMap.getOrElse(Map.empty)
+  }
 }
