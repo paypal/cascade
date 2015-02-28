@@ -15,36 +15,37 @@
  */
 package com.paypal.cascade.http.resource
 
-import akka.actor._
-import com.fasterxml.jackson.databind.JsonMappingException
+import java.nio.charset.StandardCharsets.UTF_8
+
+import scala.concurrent.duration._
 import scala.util.{Success, Try}
-import spray.http._
+
+import akka.actor.SupervisorStrategy.Escalate
+import akka.actor._
+import spray.http.HttpEntity.{Empty, NonEmpty}
+import spray.http.HttpHeaders.{Location, RawHeader, `WWW-Authenticate`}
 import spray.http.StatusCodes._
 import spray.http.Uri.Path
-import spray.http.HttpHeaders.{RawHeader, `WWW-Authenticate`, Location}
-import spray.http.HttpEntity.{Empty, NonEmpty}
-import spray.http.{HttpRequest, HttpResponse}
+import spray.http.{HttpRequest, HttpResponse, _}
 import spray.routing.RequestContext
+
 import com.paypal.cascade.akka.actor._
-import com.paypal.cascade.common.constants.ValueConstants._
-import com.paypal.cascade.http.util.HttpUtil
-import scala.concurrent.duration._
-import akka.actor.SupervisorStrategy.Escalate
 import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
-import com.fasterxml.jackson.core.JsonParseException
+import com.paypal.cascade.http.util.HttpUtil
 
 /**
  * the actor to manage the execution of an [[com.paypal.cascade.http.resource.AbstractResourceActor]]. Create one of these per request
  */
 private[http] abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
 
-  import HttpResourceActor._
+  import com.paypal.cascade.http.resource.HttpResourceActor._
 
   /**
    * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.
    *
-   * If the method throws, an internal server error will be returned. As always, personally identifiable information should
-   * never be included in exception messages.
+   * If the method throws, an error response will be returned. The response will be determined by
+   * [[com.paypal.cascade.http.resource.HttpResourceActor#createErrorResponse createErrorResponse]].
+   * As always, personally identifiable information should never be included in exception messages.
    * @param method The Http method of the request in question
    */
   def before(method: HttpMethod): Unit = {}
@@ -79,50 +80,55 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    */
   val responseLanguage: Option[Language] = Option(Language("en", "US"))
 
+  import context.dispatcher // used for cancellable below
   /**
-   * Exception handler for creating an http error response when Status.Failure is received.
+   * A scheduled task which times the request out after the
+   * [[com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext.resourceTimeout resourceTimeout]].
+   * See the Akka <a href="http://doc.akka.io/docs/akka/2.3.9/scala/scheduler.html">Scheduler</a> documentation.
+   *
+   * @return a Cancellable which will run after the context timeout unless it is cancelled via its cancel method.
+   */
+  protected final lazy val timeoutCancellable: Cancellable = {
+    context.system.scheduler.scheduleOnce(resourceContext.resourceTimeout, self, RequestTimedOut)
+  }
+
+  /**
+   * Creates an appropriate HttpResponse for a given exception.
    *
    * @param exception the exception
    * @return a crafted HttpResponse from the error message
    */
-  protected def handleError(exception: Exception): HttpResponse = exception match {
-    case haltException: HaltException =>
-      val response = addHeaderOnCode(haltException.response, Unauthorized) {
-        `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
-      }
-      // If the error already has the right content type, let it through, otherwise coerce it
-      val finalResponse = response.withEntity(response.entity.flatMap {
-        entity: NonEmpty =>
-          entity.contentType match {
-            case HttpUtil.errorResponseType => entity
-            case _ => HttpUtil.toJsonErrorsMap(entity.data.asString(charsetUtf8))
-          }
-      })
-      if (finalResponse.status.intValue >= 500) {
-        val statusCode = finalResponse.status.intValue
-        log.warning(s"Request finished unsuccessfully with status code: $statusCode")
-      }
-      finalResponse
-    case parseOrMappingException @ (_:JsonParseException | _:JsonMappingException) =>
-      HttpResponse(BadRequest,
-        HttpUtil.toJsonErrorsMap(Option(parseOrMappingException.getMessage).getOrElse("")))
-    case otherException: Exception =>
-      HttpResponse(InternalServerError,
-        HttpUtil.toJsonErrorsMap(Option(otherException.getMessage).getOrElse("")))
+  protected def createErrorResponse(exception: Exception): HttpResponse = {
+    val resp = exception match {
+      case haltException: HaltException =>
+        val response = addHeaderOnCode(haltException.response, Unauthorized) {
+          `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
+        }
+        // If the error already has the right content type, let it through, otherwise coerce it
+        val finalResponse = response.withEntity(response.entity.flatMap {
+          entity: NonEmpty =>
+            entity.contentType match {
+              case HttpUtil.errorResponseType => entity
+              case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
+            }
+        })
+        if (finalResponse.status.intValue >= 500) {
+          val statusCode = finalResponse.status.intValue
+          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
+        }
+        finalResponse
+      case otherException: Exception =>
+        HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${otherException.getClass.getSimpleName}"))
+    }
+    resp.withHeaders(addLanguageHeader(responseLanguage, resp.headers))
   }
 
   /*
    * Internal
    */
-  case class RequestIsParsed(parsedRequest: AnyRef)
-  case object BeforeExecuted
-  case object ResponseContentTypeIsAcceptable
-
   private val request = resourceContext.reqContext.request
 
-  context.setReceiveTimeout(resourceContext.recvTimeout)
-
-  //crash on unhandled exceptions
+  /** crash on unhandled exceptions */
   override val supervisorStrategy =
     OneForOneStrategy() {
       case _ => Escalate
@@ -137,20 +143,18 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
      *   c) then process the request
      */
     case Start =>
+      timeoutCancellable // initialize the timeout event
       val processRequest = for {
         _ <- Try(before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
-        req <- resourceContext.reqParser(request).map(ProcessRequest)
+        req <- resourceContext.reqParser(request)
+          .orHaltWithMessage(BadRequest)(t => s"Unable to parse request: ${t.getClass.getSimpleName}").map(ProcessRequest)
       } yield req
-      processRequest.foreach { _ =>
-        //account for extremely long processing times
-        context.setReceiveTimeout(resourceContext.processRecvTimeout)
-      }
       self ! processRequest.orFailure
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
-      context.setReceiveTimeout(resourceContext.recvTimeout)
+      timeoutCancellable.cancel() // preemptively cancel the timeout to reduce dead letters
       val responseWithLocation = addHeaderOnCode(resp, Created) {
         // if an `X-Forwarded-Proto` header exists, read the scheme from that; else, preserve what was given to us
         val newScheme = request.headers.find(_.name == "X-Forwarded-Proto") match {
@@ -177,20 +181,20 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
           HttpEntity(responseContentType, entity.data)
       })
 
-      handleHttpResponse(finalResponse)
+      completeRequest(finalResponse)
 
-    //we got an http response to return via error handling,
-    //so return it to the spray context and return actor and then stop
-    case r: HttpResponse =>
-      handleHttpResponse(r)
-
-    //the actor didn't receive a message before the current ReceiveTimeout
-    case ReceiveTimeout =>
-      log.error(s"$self didn't receive message within ${context.receiveTimeout} milliseconds.")
-      self ! HttpResponse(StatusCodes.ServiceUnavailable)
+    //the actor didn't complete the request before the request timeout
+    case RequestTimedOut =>
+      log.error(s"Did not complete request within ${resourceContext.resourceTimeout}.")
+      completeRequest(createErrorResponse(HaltException(StatusCodes.ServiceUnavailable)))
   }
 
-  private def handleHttpResponse(r: HttpResponse): Unit = {
+  /**
+   * The only proper way to finish the request and kill this actor.
+   * @param r the response to send
+   */
+  private[resource] def completeRequest(r: HttpResponse): Unit = {
+    timeoutCancellable.cancel() // we are about to stop the actor, so cancel to avoid a dead letter
     Try {
       after(r)
     }.recover {
@@ -255,33 +259,21 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 }
 
 object HttpResourceActor {
-
+  /* requests */
   /**
-   * ResourceContext contains all information needed to start an AbstractResourceActor
+   * Contains all information needed to start an HttpResourceActor.
    * @param reqContext the spray `spray.routing.RequestContext` for this request
    * @param reqParser the function to parse the request into a valid scala type
    * @param mbReturnActor the actor to send the successful [[spray.http.HttpResponse]] or the failed `java.lang.Throwable`.
    *                      optional - pass None to not do this
-   * @param recvTimeout the longest time this actor will wait for any step (except the request processsing) to complete.
-   *                    if this actor doesn't execute a step in time, it immediately fails and sends an [[spray.http.HttpResponse]] indicating the error to the
-   *                    context and return actor.
-   * @param processRecvTimeout the longest time this actor will wait for `reqProcessor` to complete
+   * @param resourceTimeout the time after which the request will time out, from the start of the request (i.e. when
+   *                        the resource actor receives [[com.paypal.cascade.http.resource.HttpResourceActor.Start Start]].)
+   *                        Not the same as spray's timeout. This can be specified on a per-request basis and is more granular.
    */
   case class ResourceContext(reqContext: RequestContext,
                              reqParser: RequestParser,
                              mbReturnActor: Option[ActorRef] = None,
-                             recvTimeout: FiniteDuration = HttpResourceActor.defaultRecvTimeout,
-                             processRecvTimeout: FiniteDuration = HttpResourceActor.defaultProcessRecvTimeout)
-
-  //requests
-  /**
-   * Sent to AbstractResourceActor to indicate that a request should be processed
-   * @param req The parsed request to process
-   */
-  case class ProcessRequest(req: Any)
-
-  //responses
-  case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
+                             resourceTimeout: FiniteDuration = HttpResourceActor.defaultResourceTimeout)
 
   /**
    * the function that parses an [[spray.http.HttpRequest]] into a type, or fails
@@ -289,20 +281,34 @@ object HttpResourceActor {
   type RequestParser = HttpRequest => Try[AnyRef]
 
   /**
+   * Sent to AbstractResourceActor to indicate that a request should be processed
+   * @param req The parsed request to process
+   */
+  case class ProcessRequest(req: Any)
+
+  /* responses */
+  /**
+   * Used to notify the resource actor that the server has processed the request and can complete it
+   * @param response the response to send
+   * @param mbLocation optional location for the returned resource if something was created
+   */
+  private[resource] case class RequestIsProcessed(response: HttpResponse, mbLocation: Option[String])
+
+  /**
    * the only message to send each `com.paypal.cascade.http.resource.HttpResourceActor`. it begins processing the
    * [[com.paypal.cascade.http.resource.AbstractResourceActor]] that it contains
    */
-  object Start
+  private[http] object Start
 
   /**
-   * the default receive timeout for most steps in ResourceActor
+   * Signals that the request timed out.
    */
-  val defaultRecvTimeout = 500.milliseconds
+  private case object RequestTimedOut
 
   /**
-   * the receive timeout for the process function step in ResourceActor
+   * The default timeout for a request which is not completed in time. Not the same as spray's timeout.
    */
-  val defaultProcessRecvTimeout = 4.seconds
+  val defaultResourceTimeout = 4000.milliseconds
 
   /**
    * create the `akka.actor.Props` for a new `com.paypal.cascade.http.resource.HttpResourceActor`
@@ -311,15 +317,16 @@ object HttpResourceActor {
    *                   `com.paypal.cascade.http.resource.HttpResourceActor`
    * @param reqParser the parser function to pass to the `com.paypal.cascade.http.resource.HttpResourceActor`
    * @param mbResponseActor the optional actor to pass to the `com.paypal.cascade.http.resource.HttpResourceActor`
+   * @param resourceTimeout the amount of time until the request times out after it has been started. Not the same as
+   *                        spray's timeout. This can be specified on a per-request basis and is more granular.
    * @return the new `akka.actor.Props`
    */
   def props(resourceActorProps: ResourceContext => AbstractResourceActor,
             reqContext: RequestContext,
             reqParser: RequestParser,
             mbResponseActor: Option[ActorRef],
-            recvTimeout: FiniteDuration = defaultRecvTimeout,
-            processRecvTimeout: FiniteDuration = defaultProcessRecvTimeout): Props = {
-    Props(resourceActorProps(ResourceContext(reqContext, reqParser, mbResponseActor, recvTimeout, processRecvTimeout)))
+            resourceTimeout: FiniteDuration = defaultResourceTimeout): Props = {
+    Props(resourceActorProps(ResourceContext(reqContext, reqParser, mbResponseActor, resourceTimeout)))
       .withMailbox("single-consumer-mailbox")
   }
 

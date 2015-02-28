@@ -18,7 +18,7 @@ package com.paypal.cascade.common.tests.trys
 import org.specs2.{ScalaCheck, Specification}
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Prop._
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 import com.paypal.cascade.common.trys._
 
 /**
@@ -31,7 +31,15 @@ class TrysSpecs extends Specification with ScalaCheck { override def is = s2"""
   Try[A] returning value should be converted and return right           ${TryToEither().successCase}
   Try[A] returning exception should be converted and return left        ${TryToEither().errorCase}
 
+  sequenceOptionTry should
+    Return Success(Some)                                                ${OptionTry().successSome}
+    Return Success(None)                                                ${OptionTry().successNone}
+    Returns Failure                                                     ${OptionTry().failure}
 
+  sequence should
+    return a successful list                                            ${ListTry().allSuccess}
+    return a failure                                                    ${ListTry().someFailure}
+    return a successful empty list                                      ${ListTry().empty}
   """
 
   case class TryToEither() {
@@ -47,6 +55,44 @@ class TrysSpecs extends Specification with ScalaCheck { override def is = s2"""
       e must beLeft.like {
         case ex: Throwable => ex.getMessage must beEqualTo(th.getMessage)
       }
+    }
+
+  }
+
+  case class OptionTry() {
+    def successSome = forAll(arbitrary[String]) { str =>
+      val e: Option[Try[String]] = Option(Try { str })
+      e.sequence must beEqualTo(Success(Some(str)))
+    }
+
+    def successNone = {
+      val o: Option[Try[String]] = None
+      o.sequence must beEqualTo(Success(None))
+    }
+
+    def failure = {
+      val re = new RuntimeException("Ouch!")
+      val e: Option[Try[String]] = Option(Failure(re))
+      e.sequence must beEqualTo(Failure(re))
+    }
+  }
+
+  case class ListTry() {
+
+    def allSuccess = {
+      val l: List[Try[Int]] = List(Success(1), Success(2))
+      l.sequence must beEqualTo(Success(List(1,2)))
+    }
+
+    def someFailure = {
+      val ex = new RuntimeException("Ouch!")
+      val l: List[Try[Int]] = List(Success(1), Failure(ex))
+      l.sequence must beEqualTo(Failure(ex))
+    }
+
+    def empty = {
+      val l: List[Try[Int]] = List.empty
+      l.sequence must beEqualTo(Success(List.empty))
     }
 
   }

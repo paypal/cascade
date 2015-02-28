@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2014 PayPal
+ * Copyright 2013-2015 PayPal
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.cascade.common.constants
+package com.paypal.cascade.common
 
-import java.nio.charset.Charset
+import com.paypal.cascade.common.option._
 
 /**
- * Commonly used values and strings.
+ * Convenience methods and implicit wrappers for working with `scala.collection.Map`
  */
-object ValueConstants {
+package object map {
 
-  /** For JSON (and many other specs), Unicode is required and UTF-8 is default. */
-  val charsetUtf8: Charset = Charset.forName("UTF-8")
+  /**
+   * Implicit wrapper for Map[A, B]
+   * @param self the Map[A, B] to wrap
+   */
+  implicit class RichMap[A, B](self: Map[A, B]) {
+
+    /**
+     * Returns the map as an Option, None if the map is empty.
+     * @return Some[Map[A, B]] if the map has items, and None otherwise.
+     */
+    def orNone: Option[Map[A, B]] =  self.some.filter(_.nonEmpty)
+  }
+
 }

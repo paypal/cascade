@@ -2,6 +2,16 @@ language: scala
 
 scala:
   - 2.10.4
-  - 2.11.4
+  - 2.11.5
+
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
+
+script: "sbt clean test scalastyle coverageReport coverageAggregate codacyCoverage"
 
 sudo: false
+
+env:
+  - secure: "S+3vqAAmuhTh0/3c7Vd4zxlmZPX8ukm2XkODDpkfwq8RYYwdC3P4HokODpflmB9riUnaMRwIyzxya1JzK6MssxhDYFQmYYM5C9jHg1vE/k4s5FHVhn5UXs3MVSRVJDSwdcoYUZS7TqebTLnZdi2/irHtvUgTTrFbfC223NIKlc0="

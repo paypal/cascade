@@ -171,9 +171,9 @@ package object resource {
      */
     @throws[HaltException]
     def orThrowHaltExceptionWithMessage(status: StatusCode)
-                                       (f: String => String = identity): A = {
+                                       (f: Throwable => String = _.getMessage): A = {
       either.fold(
-        e => throw new HaltException(HttpResponse(status, f(e.getMessage))),
+        e => throw HaltException(status, f(e)),
         a => a
       )
     }
@@ -186,28 +186,28 @@ package object resource {
      * @throws HaltException containing the message on the left and a 500 error, if Left
      */
     @throws[HaltException]
-    def orThrowHaltExceptionWithErrorMessage(f: String => String = identity): A =
+    def orThrowHaltExceptionWithErrorMessage(f: Throwable => String = _.getMessage): A =
       orThrowHaltExceptionWithMessage(InternalServerError)(f)
 
     /**
      * Return the value on the right, or halt
      * @param status the response code to return on left
      * @param f an optional function that can manipulate the left message
-     * @return the value on the right, or a failed Future with the left message
+     * @return the value on the right, or a failed Try with the left message
      */
     def orHaltWithMessage(status: StatusCode)
-                         (f: String => String = identity): Future[A] = either.fold(
-      l => Future.failed(new HaltException(HttpResponse(status, f(l.getMessage)))),
-      r => r.continue
+                         (f: Throwable => String = _.getMessage): Try[A] = either.fold(
+      l => Failure(HaltException(status, f(l))),
+      r => Success(r)
     )
 
     /**
      * Return the value on the right, or halt with the message on the left and an error code
      * of 500 Internal Server Error
      * @param f an optional function that can manipulate the left message
-     * @return the value on the right, or a failed future with the left message and a 500 error
+     * @return the value on the right, or a failed Try with the left message and a 500 error
      */
-    def orErrorWithMessage(f: String => String = identity): Future[A] = orHaltWithMessage(InternalServerError)(f)
+    def orErrorWithMessage(f: Throwable => String = _.getMessage): Try[A] = orHaltWithMessage(InternalServerError)(f)
 
   }
 
@@ -447,11 +447,11 @@ package object resource {
     /**
      * Wraps this Throwable in a HaltException, then in a failed Future
      * @param status the response code to return
-     * @param f an optional function that can manipulate the throwable's message
+     * @param f an optional function that produces the response body based on the throwable
      * @return the wrapped, failed Future
      */
-    def haltWith(status: => StatusCode)(f: String => String = identity): Future[Unit] = {
-      Future.failed(new HaltException(HttpResponse(status, f(t.getMessage))))
+    def haltWith(status: => StatusCode)(f: Throwable => String = _.getMessage): Future[Unit] = {
+      Future.failed(HaltException(status, f(t)))
     }
   }
 

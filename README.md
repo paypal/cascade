@@ -3,6 +3,7 @@
 ![Cascade logo](doc/cascade.png)
 
 [![Build Status](https://travis-ci.org/paypal/cascade.png?branch=develop)](https://travis-ci.org/paypal/cascade)
+[![Codacy Badge](https://www.codacy.com/project/badge/d722bb8e8a8847bd9a4497908368bd4e)](https://www.codacy.com/public/paypal/cascade)
 
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
@@ -23,13 +24,13 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal" %% "cascade-$projectName" % "0.4.1"
+"com.paypal" %% "cascade-$projectName" % "0.4.2"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal" %% "cascade-akka" % "0.4.1"
+"com.paypal" %% "cascade-akka" % "0.4.2"
 ```
 
 If you're starting a new project, we recommend using SBT along with
@@ -51,9 +52,9 @@ depend on `common`), you can mix and match which libraries you use.
 The libraries in Cascade all follow some similar patterns.
 [PATTERNS.md](doc/PATTERNS.md) describes them in detail.
 
-Current Version: 0.4.1
+Current Version: 0.4.2
 
-[View the ScalaDocs](https://paypal.github.io/cascade/api/0.4.1/index.html#com.paypal.cascade.package)
+[View the ScalaDocs](https://paypal.github.io/cascade/api/0.4.2/index.html#com.paypal.cascade.package)
 
 # Dependencies
 
@@ -62,13 +63,13 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal" %% "cascade-$projectName" % "0.4.1"
+"com.paypal" %% "cascade-$projectName" % "0.4.2"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal" %% "cascade-akka" % "0.4.1"
+"com.paypal" %% "cascade-akka" % "0.4.2"
 ```
 
 If you're starting a new project, we recommend using SBT along with
@@ -141,7 +142,7 @@ with your host machine. Edit your code on the host machine and build/run it
 inside the VM.
 
 If you don't have Vagrant, you'll need
-[Scala 2.11.4](http://scala-lang.org/download/) and
+[Scala 2.11.5](http://scala-lang.org/download/) and
 [SBT 0.13.7](http://www.scala-sbt.org/download.html) to build and run this
 project.
 

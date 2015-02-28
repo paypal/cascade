@@ -93,4 +93,4 @@ One final note - make sure your `MyServer` object extends `CascadeApp`. Doing
 so will set up some global logging and exception handling features that work
 best with Spray/Akka servers.
 
-See the [example http server](examples/src/main/scala/com/paypal/cascade/examples/http/resource/MyHttpServer.scala) for working code.
+See the [example http server](/examples/src/main/scala/com/paypal/cascade/examples/http/resource/MyHttpServer.scala) for working code.

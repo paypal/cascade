@@ -16,15 +16,15 @@
 package com.paypal.cascade.http.util
 
 import java.net.URLDecoder
-import spray.http._
+import java.nio.charset.StandardCharsets.UTF_8
+
 import scala.util.{Failure, Success, Try}
-import spray.http.HttpRequest
-import spray.http.HttpChallenge
+
 import spray.http.HttpEntity._
-import spray.http.HttpResponse
-import StatusCodes._
+import spray.http.StatusCodes._
+import spray.http.{HttpChallenge, HttpRequest, HttpResponse, _}
+
 import com.paypal.cascade.json._
-import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
 
 /**
  * Convenience methods for interacting with URLs and other parts of an HTTP request.
@@ -35,9 +35,6 @@ import com.paypal.cascade.common.constants.ValueConstants.charsetUtf8
  */
 object HttpUtil {
   import com.paypal.cascade.http.url.StrPair
-
-  /** Convenience value for `utf-8` */
-  val UTF_8 = "utf-8"
 
   val CONTENT_LANGUAGE = "Content-Language"
   val CONTENT_LANGUAGE_LC = CONTENT_LANGUAGE.toLowerCase
@@ -52,7 +49,8 @@ object HttpUtil {
     val queryStringPieces: List[String] = Option(queryString).map(_.split("&").toList).getOrElse(List())
     queryStringPieces.flatMap { piece: String =>
       piece.split("=").toList match {
-        case key :: value :: Nil if (key.length > 0 && value.length > 0) => List(URLDecoder.decode(key, UTF_8) -> URLDecoder.decode(value, UTF_8))
+        case key :: value :: Nil if key.length > 0 && value.length > 0 =>
+          List(URLDecoder.decode(key, UTF_8.displayName) -> URLDecoder.decode(value, UTF_8.displayName))
         case _ => List()
       }
     }.toList
@@ -109,7 +107,7 @@ object HttpUtil {
   }
 
   def parseType[T : Manifest](r: HttpRequest, data: Array[Byte]): Try[T] = {
-    parseType(r, new String(data, charsetUtf8))
+    parseType(r, new String(data, UTF_8))
   }
 
   /**
@@ -150,34 +148,16 @@ object HttpUtil {
    * Enforces the return of application/json as a content type, since this always serializes to json
    * @param t the object to serialize
    * @tparam T the type to serialize from
-   * @return an HttpResponse containing either the desired HttpEntity, or an error entity
+   * @return an HttpResponse containing either the desired HttpEntity, or an error entity with the quoted exception name
    */
   def toJsonBody[T : Manifest](t: T): HttpEntity = {
     // TODO: convert Manifest patterns to use TypeTag, ClassTag when Jackson implements that
     JsonUtil.toJson(t) match {
       case Success(j) => HttpEntity(ContentTypes.`application/json`, j)
-      case Failure(e) => toJsonErrorsMap(Option(e.getMessage).getOrElse(""))
+      case Failure(e) => HttpEntity(ContentTypes.`application/json`, s"""Error serializing json body: "${e.getClass.getSimpleName}"""")
     }
   }
 
   val errorResponseType = ContentTypes.`application/json`
 
-  /**
-   * Used under the covers to force simple error strings into a JSON format
-   * @param body the body
-   * @return an HttpEntity containing an error JSON body
-   */
-  def toJsonErrorsMap(body: String): HttpEntity = {
-    toJsonBody(Map("errors" -> List(body)))
-  }
-
-  /**
-   * Used to convert error objects into JSON format.
-   * @param body object to convert
-   * @tparam T type of object
-   * @return JSONified body
-   */
-  def toJsonErrors[T : Manifest](body: T): HttpEntity = {
-    toJsonBody(body)
-  }
 }

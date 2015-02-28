@@ -3,6 +3,7 @@
 ![Cascade logo](doc/cascade.png)
 
 [![Build Status](https://travis-ci.org/paypal/cascade.png?branch=develop)](https://travis-ci.org/paypal/cascade)
+[![Codacy Badge](https://www.codacy.com/project/badge/d722bb8e8a8847bd9a4497908368bd4e)](https://www.codacy.com/public/paypal/cascade)
 
 Cascade is a collection of libraries that implement common patterns,
 convenience objects, implicit classes, utilities, and other foundational pieces
@@ -141,7 +142,7 @@ with your host machine. Edit your code on the host machine and build/run it
 inside the VM.
 
 If you don't have Vagrant, you'll need
-[Scala 2.11.4](http://scala-lang.org/download/) and
+[Scala 2.11.5](http://scala-lang.org/download/) and
 [SBT 0.13.7](http://www.scala-sbt.org/download.html) to build and run this
 project.
 
