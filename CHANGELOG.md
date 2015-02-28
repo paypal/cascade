@@ -1,4 +1,7 @@
 
+# 0.4.2 02/27/15 released by 2rs2ts
+* timeout overhauls, improved error handling, scoverage, codacy, more methods, akka upgrade, removed sequentialExecutionContext, bug fixes, improvements.
+
 # 0.4.1 01/08/15 released by angarrett
 * Fixes doc, the sbt release plugin, upgrades horizon, fixes shrinking in generators.
 
