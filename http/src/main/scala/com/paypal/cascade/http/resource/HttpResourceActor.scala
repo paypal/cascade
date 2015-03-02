@@ -123,6 +123,13 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     resp.withHeaders(addLanguageHeader(responseLanguage, resp.headers))
   }
 
+  /**
+   * Creates an appropriate error message for when a request could not be parsed.
+   * @param t the throwable which caused the error
+   * @return a message describing the parsing error
+   */
+  protected def parseErrorMessage(t: Throwable): String = s"Unable to parse request: ${t.getClass.getSimpleName}"
+
   /*
    * Internal
    */
@@ -147,8 +154,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
       val processRequest = for {
         _ <- Try(before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
-        req <- resourceContext.reqParser(request)
-          .orHaltWithMessage(BadRequest)(t => s"Unable to parse request: ${t.getClass.getSimpleName}").map(ProcessRequest)
+        req <- resourceContext.reqParser(request).orHaltWithMessage(BadRequest)(parseErrorMessage).map(ProcessRequest)
       } yield req
       self ! processRequest.orFailure
 
