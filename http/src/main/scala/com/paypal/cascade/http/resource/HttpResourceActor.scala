@@ -29,6 +29,9 @@ import spray.http.Uri.Path
 import spray.http.{HttpRequest, HttpResponse, _}
 import spray.routing.RequestContext
 
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.JsonMappingException
+
 import com.paypal.cascade.akka.actor._
 import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
 import com.paypal.cascade.http.util.HttpUtil
@@ -99,28 +102,31 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    * @return a crafted HttpResponse from the error message
    */
   protected def createErrorResponse(exception: Exception): HttpResponse = {
-    val resp = exception match {
-      case haltException: HaltException =>
-        val response = addHeaderOnCode(haltException.response, Unauthorized) {
-          `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
-        }
-        // If the error already has the right content type, let it through, otherwise coerce it
-        val finalResponse = response.withEntity(response.entity.flatMap {
-          entity: NonEmpty =>
-            entity.contentType match {
-              case HttpUtil.errorResponseType => entity
-              case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
-            }
-        })
-        if (finalResponse.status.intValue >= 500) {
-          val statusCode = finalResponse.status.intValue
-          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
-        }
-        finalResponse
-      case otherException: Exception =>
-        HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${otherException.getClass.getSimpleName}"))
+    val haltException = createHaltExceptionForResponse(exception)
+    val response = addHeaderOnCode(haltException.response, Unauthorized) {
+      `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
     }
-    resp.withHeaders(addLanguageHeader(responseLanguage, resp.headers))
+    // If the error already has the right content type, let it through, otherwise coerce it
+    val finalResponse = response.withEntity(response.entity.flatMap {
+      entity: NonEmpty =>
+        entity.contentType match {
+          case HttpUtil.errorResponseType => entity
+          case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
+        }
+    })
+    if (finalResponse.status.intValue >= 500) {
+      val statusCode = finalResponse.status.intValue
+      log.warning(s"Request finished unsuccessfully with status code: $statusCode")
+    }
+    finalResponse.withHeaders(addLanguageHeader(responseLanguage, finalResponse.headers))
+  }
+
+  private def createHaltExceptionForResponse(exception: Exception): HaltException = exception match {
+    case haltException: HaltException => haltException
+    case jsonException @ (_: JsonParseException | _:JsonMappingException) =>
+      HaltException(BadRequest, s"Unable to parse request: ${jsonException.getClass.getSimpleName}")
+    case otherException: Exception =>
+      HaltException(InternalServerError, s"Error in request execution: ${otherException.getClass.getSimpleName}")
   }
 
   /*
@@ -147,8 +153,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
       val processRequest = for {
         _ <- Try(before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
-        req <- resourceContext.reqParser(request)
-          .orHaltWithMessage(BadRequest)(t => s"Unable to parse request: ${t.getClass.getSimpleName}").map(ProcessRequest)
+        req <- resourceContext.reqParser(request).map(ProcessRequest)
       } yield req
       self ! processRequest.orFailure
 

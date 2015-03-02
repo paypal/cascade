@@ -24,6 +24,7 @@ import scala.util.{Failure, Success, Try}
 import akka.actor.ActorSystem
 import akka.testkit.{TestActorRef, TestKit}
 import spray.http.{HttpMethod, HttpRequest, HttpResponse, StatusCodes}
+import com.fasterxml.jackson.core.{JsonLocation, JsonParseException}
 import org.specs2.SpecificationLike
 
 import com.paypal.cascade.akka.tests.actor.ActorSpecification
@@ -149,7 +150,7 @@ class HttpResourceActorSpecs
   }
 
   case class Fails() extends Context {
-    private lazy val ex = new Exception("hello world")
+    private lazy val ex = new JsonParseException("hello world", JsonLocation.NA)
     override protected lazy val reqParser: HttpResourceActor.RequestParser = { req: HttpRequest =>
       Failure(ex)
     }
