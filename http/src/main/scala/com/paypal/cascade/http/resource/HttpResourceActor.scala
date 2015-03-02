@@ -123,7 +123,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
 
   private def createHaltExceptionForResponse(exception: Exception): HaltException = exception match {
     case haltException: HaltException => haltException
-    case jsonException @ (_: JsonParseException | _:JsonMappingException) =>
+    case jsonException @ (_: JsonParseException | _: JsonMappingException) =>
       HaltException(BadRequest, s"Unable to parse request: ${jsonException.getClass.getSimpleName}")
     case otherException: Exception =>
       HaltException(InternalServerError, s"Error in request execution: ${otherException.getClass.getSimpleName}")
