@@ -18,7 +18,7 @@ package com.paypal.cascade.http.resource
 import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.concurrent.duration._
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success, Try}
 
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
@@ -28,6 +28,9 @@ import spray.http.StatusCodes._
 import spray.http.Uri.Path
 import spray.http.{HttpRequest, HttpResponse, _}
 import spray.routing.RequestContext
+
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.JsonMappingException
 
 import com.paypal.cascade.akka.actor._
 import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
@@ -99,28 +102,31 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    * @return a crafted HttpResponse from the error message
    */
   protected def createErrorResponse(exception: Exception): HttpResponse = {
-    val resp = exception match {
-      case haltException: HaltException =>
-        val response = addHeaderOnCode(haltException.response, Unauthorized) {
-          `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
-        }
-        // If the error already has the right content type, let it through, otherwise coerce it
-        val finalResponse = response.withEntity(response.entity.flatMap {
-          entity: NonEmpty =>
-            entity.contentType match {
-              case HttpUtil.errorResponseType => entity
-              case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
-            }
-        })
-        if (finalResponse.status.intValue >= 500) {
-          val statusCode = finalResponse.status.intValue
-          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
-        }
-        finalResponse
-      case otherException: Exception =>
-        HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${otherException.getClass.getSimpleName}"))
+    val haltException = createHaltExceptionForResponse(exception)
+    val response = addHeaderOnCode(haltException.response, Unauthorized) {
+      `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
     }
-    resp.withHeaders(addLanguageHeader(responseLanguage, resp.headers))
+    // If the error already has the right content type, let it through, otherwise coerce it
+    val finalResponse = response.withEntity(response.entity.flatMap {
+      entity: NonEmpty =>
+        entity.contentType match {
+          case HttpUtil.errorResponseType => entity
+          case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
+        }
+    })
+    if (finalResponse.status.intValue >= 500) {
+      val statusCode = finalResponse.status.intValue
+      log.warning(s"Request finished unsuccessfully with status code: $statusCode")
+    }
+    finalResponse.withHeaders(addLanguageHeader(responseLanguage, finalResponse.headers))
+  }
+
+  private def createHaltExceptionForResponse(exception: Exception): HaltException = exception match {
+    case haltException: HaltException => haltException
+    case jsonException @ (_: JsonParseException | _: JsonMappingException) =>
+      HaltException(BadRequest, s"Unable to parse request: ${jsonException.getClass.getSimpleName}")
+    case otherException: Exception =>
+      HaltException(InternalServerError, s"Error in request execution: ${otherException.getClass.getSimpleName}")
   }
 
   /*
@@ -133,6 +139,18 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     OneForOneStrategy() {
       case _ => Escalate
     }
+
+  /**
+   * There was an error somewhere along the way, so translate it to an HttpResponse (using createErrorResponse),
+   * send the exception to returnActor and stop.
+   * @param t the error that occurred
+   */
+  private[http] final def handleRequestError(t: Throwable): Unit = {
+    t match {
+      case e: Exception => completeRequest(createErrorResponse(e))
+      case t: Throwable => throw t
+    }
+  }
 
   override def receive: Actor.Receive = { // scalastyle:ignore cyclomatic.complexity scalastyle:ignore method.length
 
@@ -147,10 +165,12 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
       val processRequest = for {
         _ <- Try(before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
-        req <- resourceContext.reqParser(request)
-          .orHaltWithMessage(BadRequest)(t => s"Unable to parse request: ${t.getClass.getSimpleName}").map(ProcessRequest)
+        req <- resourceContext.reqParser(request).map(ProcessRequest)
       } yield req
-      self ! processRequest.orFailure
+      processRequest match {
+        case Success(proc) => self ! proc
+        case Failure(t) => handleRequestError(t)
+      }
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
