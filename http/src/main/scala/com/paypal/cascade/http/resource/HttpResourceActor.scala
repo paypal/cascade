@@ -18,7 +18,7 @@ package com.paypal.cascade.http.resource
 import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.concurrent.duration._
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success, Try}
 
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
@@ -140,6 +140,18 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
       case _ => Escalate
     }
 
+  /**
+   * There was an error somewhere along the way, so translate it to an HttpResponse (using createErrorResponse),
+   * send the exception to returnActor and stop.
+   * @param t the error that occurred
+   */
+  private[http] final def handleRequestError(t: Throwable): Unit = {
+    t match {
+      case e: Exception => completeRequest(createErrorResponse(e))
+      case t: Throwable => throw t
+    }
+  }
+
   override def receive: Actor.Receive = { // scalastyle:ignore cyclomatic.complexity scalastyle:ignore method.length
 
     /*
@@ -155,7 +167,10 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
         _ <- ensureContentTypeSupportedAndAcceptable
         req <- resourceContext.reqParser(request).map(ProcessRequest)
       } yield req
-      self ! processRequest.orFailure
+      processRequest match {
+        case Success(proc) => self ! proc
+        case Failure(t) => handleRequestError(t)
+      }
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
