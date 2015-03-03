@@ -1,4 +1,7 @@
 
+# 0.4.3 03/02/15 released by 2rs2ts
+* adds parseErrorMessage to HttpResourceActor
+
 # 0.4.2 02/27/15 released by 2rs2ts
 * timeout overhauls, improved error handling, scoverage, codacy, more methods, akka upgrade, removed sequentialExecutionContext, bug fixes, improvements.
 
