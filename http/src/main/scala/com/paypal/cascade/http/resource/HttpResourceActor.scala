@@ -145,7 +145,9 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    * There was an error somewhere along the way, so translate it to an HttpResponse (using createErrorResponse),
    * send the exception to returnActor and stop.
    * @param t the error that occurred
+   * @throws Throwable if t is not of type `Exception`
    */
+  @throws[Throwable]
   private[http] final def handleRequestError(t: Throwable): Unit = {
     t match {
       case e: Exception => completeRequest(createErrorResponse(e))
