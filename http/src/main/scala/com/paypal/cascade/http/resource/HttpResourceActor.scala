@@ -18,7 +18,7 @@ package com.paypal.cascade.http.resource
 import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.concurrent.duration._
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success, Try}
 
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
@@ -123,6 +123,13 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     resp.withHeaders(addLanguageHeader(responseLanguage, resp.headers))
   }
 
+  /**
+   * Creates an appropriate error message for when a request could not be parsed.
+   * @param t the throwable which caused the error
+   * @return a message describing the parsing error
+   */
+  protected def parseErrorMessage(t: Throwable): String = s"Unable to parse request: ${t.getClass.getSimpleName}"
+
   /*
    * Internal
    */
@@ -133,6 +140,20 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     OneForOneStrategy() {
       case _ => Escalate
     }
+
+  /**
+   * There was an error somewhere along the way, so translate it to an HttpResponse (using createErrorResponse),
+   * send the exception to returnActor and stop.
+   * @param t the error that occurred
+   * @throws Throwable if t is not of type `Exception`
+   */
+  @throws[Throwable]
+  private[http] final def handleRequestError(t: Throwable): Unit = {
+    t match {
+      case e: Exception => completeRequest(createErrorResponse(e))
+      case t: Throwable => throw t
+    }
+  }
 
   override def receive: Actor.Receive = { // scalastyle:ignore cyclomatic.complexity scalastyle:ignore method.length
 
@@ -147,10 +168,12 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
       val processRequest = for {
         _ <- Try(before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
-        req <- resourceContext.reqParser(request)
-          .orHaltWithMessage(BadRequest)(t => s"Unable to parse request: ${t.getClass.getSimpleName}").map(ProcessRequest)
+        req <- resourceContext.reqParser(request).orHaltWithMessage(BadRequest)(parseErrorMessage).map(ProcessRequest)
       } yield req
-      self ! processRequest.orFailure
+      processRequest match {
+        case Success(proc) => self ! proc
+        case Failure(t) => handleRequestError(t)
+      }
 
     //the request has been processed, now construct the response, send it to the spray context, send it to the returnActor, and stop
     case RequestIsProcessed(resp, mbLocation) =>
