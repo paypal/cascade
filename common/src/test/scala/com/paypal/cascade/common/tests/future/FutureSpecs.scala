@@ -16,7 +16,6 @@
 package com.paypal.cascade.common.tests.future
 
 import org.specs2._
-import scala.concurrent.ExecutionContext
 import com.paypal.cascade.common.future._
 import scala.concurrent.Future
 
@@ -28,6 +27,7 @@ class FutureSpecs extends Specification with ScalaCheck { def is=s2"""
   mapFailure:
 
     Converts Throwable to different type via full function                    ${FutureMapFailure().fullFuncSuccess}
+    Converts Throwable to different type via new explicate throwable          ${FutureMapFailure().newThrowableSuccess}
     Converts Throwable to different type via partial function                 ${FutureMapFailure().pfSuccess}
 
   toUnit:
@@ -44,6 +44,11 @@ class FutureSpecs extends Specification with ScalaCheck { def is=s2"""
       val mapped = f.mapFailure { e =>
         new CustomException(e.getMessage)
       }
+      mapped.toTry must beAFailedTry[Unit].withThrowable[CustomException]
+    }
+    def newThrowableSuccess = {
+      val f = Future[Unit] { throw new Exception("fail") }
+      val mapped = f.mapFailure(new CustomException("custom fail"))
       mapped.toTry must beAFailedTry[Unit].withThrowable[CustomException]
     }
     def pfSuccess = {

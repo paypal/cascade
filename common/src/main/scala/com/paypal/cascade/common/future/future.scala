@@ -47,6 +47,16 @@ package object future {
     }
 
     /**
+     * Converts a Future Failure Throwable into a different Throwable type
+     * @param t the new Throwable
+     * @param ctx implicitly, the execution context of this Future
+     * @return a Future of the same type `T`, with Failures mapped into a different Throwable type
+     */
+    def mapFailure(t: => Throwable)(implicit ctx: ExecutionContext): Future[T] = {
+      mapFailure(_ => t)
+    }
+
+    /**
      * Converts, via a partial function, a Future Failure Throwable into a different Throwable type
      * @param f the conversion partial function
      * @param ctx implicitly, the execution context of this Future
