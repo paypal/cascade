@@ -15,9 +15,10 @@
  */
 package com.paypal.cascade.common.tests.option
 
+import java.util.NoSuchElementException
+
 import org.specs2.Specification
 import com.paypal.cascade.common.option._
-import java.util.concurrent.atomic.AtomicInteger
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 
 /**
@@ -28,13 +29,15 @@ class RichOptionSpecs extends Specification { override def is = s2"""
   RichOption is a wrapper for Option[T] types
 
   orThrow should
-    throw only if the contained option is None                        ${OrThrow().throwsOnlyIfNone}
+    throw only if the contained option is None                                         ${OrThrow().throwsOnlyIfNone}
 
   toFuture should
-    yield a future with the options value if some                     ${ToFuture().returnsValue}
-    yield a future with Throwable as its failure state if none        ${ToFuture().returnsThrowable}
+    yield a future with the options value if some                                      ${ToFuture().returnsValue}
+    yield a future with Throwable as its failure state if none                         ${ToFuture().returnsThrowable}
+    yield a future with the options value if some (no explicit exception)              ${ToFuture().returnsValueWithoutExplicitExceptionDefined}
+    yield a future with Throwable as its failure state if none (no explicit exception) ${ToFuture().returnsThrowableWithoutExplicitExceptionDefined}
 
-  Convenience method none[T] on option works                          ${None().works}
+  Convenience method none[T] on option works                                           ${None().works}
   """
 
   trait Context extends CommonImmutableSpecificationContext {
@@ -65,6 +68,19 @@ class RichOptionSpecs extends Specification { override def is = s2"""
       val failureState = wrappedNone.toFuture(ex)
       val result = failureState.value.get
       result must beFailedTry[Int].withThrowable[Exception](ex.getMessage)
+    }
+
+    def returnsValueWithoutExplicitExceptionDefined = apply {
+      val wrappedSome = Option(someValue)
+      val successState = wrappedSome.toFuture
+      successState must beEqualTo(someValue).await
+    }
+
+    def returnsThrowableWithoutExplicitExceptionDefined = apply {
+      val wrappedNone = Option.empty[Int]
+      val failureState = wrappedNone.toFuture
+      val result = failureState.value.get
+      result must beFailedTry[Int].withThrowable[NoSuchElementException]("None.get")
     }
   }
 

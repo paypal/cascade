@@ -15,6 +15,8 @@
  */
 package com.paypal.cascade.common
 
+import java.util.NoSuchElementException
+
 import scala.concurrent.Future
 
 /**
@@ -91,6 +93,15 @@ package object option {
      */
     def toFuture(t: => Throwable): Future[T] = {
       option.map(Future.successful).getOrElse(Future.failed(t))
+    }
+
+    /**
+     * Map the Option into Future success/fail states: if the Option is a Some, yield a Future with its value;
+     * if the Option is None, yield a Future with NoSuchElementException as its failure state
+     * @return the Future-wrapped value of this Option, or a Future-wrapped failure Throwable
+     */
+    def toFuture: Future[T] = {
+      toFuture(new NoSuchElementException("None.get"))
     }
   }
 
