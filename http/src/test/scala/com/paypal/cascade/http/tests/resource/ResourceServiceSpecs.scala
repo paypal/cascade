@@ -115,9 +115,8 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is = 
         val (_, v) = item
         v
       }
-      val dataMatches = values.map {
-        case dur: Map[_, _] => dur must beEqualTo(Map("finite" -> true))
-        case other => other must beEqualTo(1)
+      val dataMatches = values.map { statsValue =>
+        statsValue must beEqualTo(1)
       }.reduceLeft { (first, second) =>
         first and second
       }

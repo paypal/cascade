@@ -95,7 +95,7 @@ That `curl` call returns json data that looks like the following:
 
 ```json
 {
-  "uptime":{"finite":true},
+  "uptimeInSec":10,
   "totalRequests":3,
   "openRequests":1,
   "maxOpenRequests":1,
