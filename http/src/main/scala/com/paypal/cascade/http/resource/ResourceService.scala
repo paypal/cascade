@@ -25,7 +25,7 @@ import spray.http.StatusCodes._
 import spray.routing._
 import com.paypal.cascade.common.properties.BuildProperties
 import com.paypal.cascade.json._
-import com.paypal.cascade.http.server.{SprayConfiguration, StatusResponse}
+import com.paypal.cascade.http.server.{StatsResponse, SprayConfiguration, StatusResponse}
 import scala.util.{Failure, Success}
 import scala.concurrent.duration._
 import akka.actor.ActorSelection
@@ -82,7 +82,8 @@ trait ResourceService extends HttpService {
   private lazy val statsRoute: Route = (path("stats") & headerValueByName("x-service-stats")) { _ =>
     (ctx: RequestContext) => {
       (serverActor ? GetStats)(1.second).mapTo[Stats].onComplete {
-        case Success(stats) =>
+        case Success(sprayStats) =>
+          val stats = StatsResponse(sprayStats)
           val statsRespJson = JsonUtil.toJson(stats).getOrElse(statsError)
           ctx.complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statsRespJson)))
         case Failure(t) =>

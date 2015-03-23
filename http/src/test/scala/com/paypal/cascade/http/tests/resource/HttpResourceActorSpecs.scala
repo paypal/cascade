@@ -23,7 +23,7 @@ import scala.util.{Failure, Success, Try}
 
 import akka.actor.ActorSystem
 import akka.testkit.{TestActorRef, TestKit}
-import spray.http.{HttpMethod, HttpRequest, HttpResponse, StatusCodes}
+import spray.http._
 import org.specs2.SpecificationLike
 
 import com.paypal.cascade.akka.tests.actor.ActorSpecification
@@ -51,6 +51,11 @@ class HttpResourceActorSpecs
 
     The ResourceActor should time out if the request processor takes too long in async code                                  ${Start().timesOutOnAsyncRequestProcessor}
     The ResourceActor will still succeed if blocking code takes too long. DON'T BLOCK in HttpActors!                         ${Start().timeOutFailsOnBlockingRequestProcessor}
+
+    The ResourceActor should accept application/json without a charset                                                       ${ContentTypeWithoutCharset().success}
+    The ResourceActor should accept application/json with charset=utf-8                                                      ${ContentTypeWithCharset().success}
+    The ResourceActor should reject application/json with other charsets                                                     ${ContentTypeWithWrongCharset().reject}
+    The ResourceActor should reject other Content-Types                                                                      ${WrongContentType().reject}
 
     The actor calls the before() method                                                                                      ${BeforeAfter().beforeCalled}
     The actor calls the after() method                                                                                       ${BeforeAfter().afterCalled}
@@ -140,6 +145,62 @@ class HttpResourceActorSpecs
     def writesToRequestContext = apply {
       val recvRes = reqCtxHandlerActorFuture must beLike[HttpResponse] {
         case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.OK)
+      }.await
+
+      val stoppedRes = resourceActorRefAndProbe must beStopped
+
+      recvRes and stoppedRes
+    }
+  }
+
+  case class ContentTypeWithoutCharset() extends Context {
+    override lazy val req = HttpRequest(entity=HttpEntity(ContentType(MediaTypes.`application/json`), "hi"))
+
+    def success = apply {
+      val recvRes = returnActorFuture must beLike[HttpResponse] {
+        case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.OK)
+      }.await
+
+      val stoppedRes = resourceActorRefAndProbe must beStopped
+
+      recvRes and stoppedRes
+    }
+  }
+
+  case class ContentTypeWithCharset() extends Context {
+    override lazy val req = HttpRequest(entity=HttpEntity(ContentTypes.`application/json`, "hi"))
+
+    def success = apply {
+      val recvRes = returnActorFuture must beLike[HttpResponse] {
+        case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.OK)
+      }.await
+
+      val stoppedRes = resourceActorRefAndProbe must beStopped
+
+      recvRes and stoppedRes
+    }
+  }
+
+  case class ContentTypeWithWrongCharset() extends Context {
+    override lazy val req = HttpRequest(entity=HttpEntity(ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-16`), "hi"))
+
+    def reject = apply {
+      val recvRes = returnActorFuture must beLike[HttpResponse] {
+        case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.UnsupportedMediaType)
+      }.await
+
+      val stoppedRes = resourceActorRefAndProbe must beStopped
+
+      recvRes and stoppedRes
+    }
+  }
+
+  case class WrongContentType() extends Context {
+    override lazy val req = HttpRequest(entity="hi")  // text/plain
+
+    def reject = apply {
+      val recvRes = returnActorFuture must beLike[HttpResponse] {
+        case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.UnsupportedMediaType)
       }.await
 
       val stoppedRes = resourceActorRefAndProbe must beStopped
