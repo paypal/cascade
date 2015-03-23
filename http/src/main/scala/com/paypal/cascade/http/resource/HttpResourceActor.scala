@@ -64,7 +64,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    * These will be matched against the `Content-Type` header of incoming requests.
    * @return a list of content types
    */
-  val acceptableContentTypes: List[ContentType] = List(ContentTypes.`application/json`)
+  val acceptableContentTypes: List[ContentType] = List(ContentTypes.`application/json`, ContentTypes.`application/json`.withoutDefinedCharset)
 
   /**
    * The content type that this server provides, by default `application/json`
