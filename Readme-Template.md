@@ -143,7 +143,7 @@ inside the VM.
 
 If you don't have Vagrant, you'll need
 [Scala 2.11.6](http://scala-lang.org/download/) and
-[SBT 0.13.7](http://www.scala-sbt.org/download.html) to build and run this
+[SBT 0.13.8](http://www.scala-sbt.org/download.html) to build and run this
 project.
 
 ## Publishing to Sonatype OSS
