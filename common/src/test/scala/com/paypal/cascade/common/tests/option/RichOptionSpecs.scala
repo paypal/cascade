@@ -17,6 +17,8 @@ package com.paypal.cascade.common.tests.option
 
 import java.util.NoSuchElementException
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import org.specs2.Specification
 import com.paypal.cascade.common.option._
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext

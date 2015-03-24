@@ -17,7 +17,7 @@ package com.paypal.cascade.http.tests.resource
 
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-import scala.concurrent.Promise
+import scala.concurrent.{ExecutionContext, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
@@ -61,6 +61,8 @@ class HttpResourceActorSpecs
     The actor calls the after() method                                                                                       ${BeforeAfter().afterCalled}
   """
   private val resourceGen = new DummyResource(_)
+
+  implicit val executionContext: ExecutionContext = system.dispatcher
 
   sealed trait Context extends CommonImmutableSpecificationContext with RefAndProbeMatchers {
 

@@ -15,15 +15,16 @@
  */
 package com.paypal.cascade.http.tests.resource
 
-import org.specs2.Specification
-import spray.http.StatusCodes.BadRequest
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import spray.http.{HttpHeader, ContentTypes, HttpEntity, HttpResponse}
 import scala.util.Try
+
+import spray.http.StatusCodes.BadRequest
+import spray.http.{ContentTypes, HttpEntity, HttpResponse}
+import org.specs2.Specification
+
 import com.paypal.cascade.common.tests.future._
 import com.paypal.cascade.http.resource._
-import spray.http.HttpHeaders.`Content-Type`
-import com.paypal.cascade.http.server.exception.ServiceException
 
 /**
  * Tests resource.scala in [[com.paypal.cascade.http.resource]]
