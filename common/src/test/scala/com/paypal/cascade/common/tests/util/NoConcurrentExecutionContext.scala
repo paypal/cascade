@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.paypal.cascade.akka.tests.actor
+package com.paypal.cascade.common.tests.util
 
-import org.specs2.specification.{SpecificationStructure, Step, Fragments}
-import akka.testkit.{TestKitBase, TestKit}
+import org.specs2.matcher.ConcurrentExecutionContext
+import scala.concurrent.ExecutionContext
 
 /**
- * Test harness trait for Specs involving Akka Actors
+ * This trait can be used to deactive the implicit concurrent execution context.
+ * Added in Specs 2.4 via https://github.com/etorreborre/specs2/commit/a165db45ba213f1794b3738ab996aad383a1ba0e.
  */
-trait ActorSpecification extends SpecificationStructure {
-  this: TestKitBase =>
-
-  override def map(fs: => Fragments): Fragments = super.map(fs).add(Step(TestKit.shutdownActorSystem(system)))
-
+trait NoConcurrentExecutionContext extends ConcurrentExecutionContext {
+  override val concurrentExecutionContext: ExecutionContext = concurrent.ExecutionContext.Implicits.global
 }
