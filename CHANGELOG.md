@@ -1,4 +1,7 @@
 
+# 0.4.5 03/25/15 released by angarrett
+* Upgrading spray for vulnerability patch; upgrading scala, sbt, and parboiled as well
+
 # 0.4.4 03/23/15 released by angarrett
 * charset no longer required, stats endpoint returns uptimeInSec
 
