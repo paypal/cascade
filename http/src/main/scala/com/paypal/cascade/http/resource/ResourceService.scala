@@ -15,21 +15,21 @@
  */
 package com.paypal.cascade.http.resource
 
-import com.paypal.cascade.akka.actor.ActorSystemWrapper
-import spray.can.Http.GetStats
-import spray.can.server.Stats
-import spray.http._
-import spray.http.ContentTypes
-import spray.http.HttpEntity
-import spray.http.StatusCodes._
-import spray.routing._
-import com.paypal.cascade.common.properties.BuildProperties
-import com.paypal.cascade.json._
-import com.paypal.cascade.http.server.{StatsResponse, SprayConfiguration, StatusResponse}
-import scala.util.{Failure, Success}
 import scala.concurrent.duration._
+import scala.util.{Failure, Success}
+
 import akka.actor.ActorSelection
 import akka.pattern.ask
+import spray.can.Http.GetStats
+import spray.can.server.Stats
+import spray.http.StatusCodes._
+import spray.http.{ContentTypes, HttpEntity, _}
+import spray.routing._
+
+import com.paypal.cascade.akka.actor.ActorSystemWrapper
+import com.paypal.cascade.common.properties.BuildProperties
+import com.paypal.cascade.http.server.{SprayConfiguration, StatsResponse, StatusResponse}
+import com.paypal.cascade.json._
 
 /**
  * Base type for implementing resource-based services. Contains several often-used patterns, e.g. stats and status
@@ -52,8 +52,8 @@ trait ResourceService extends HttpService {
 
   override implicit val actorRefFactory = actorSystemWrapper.actorRefFactory
 
-  private implicit lazy val actorSystem = actorSystemWrapper.system
-  private implicit lazy val executionContext = actorSystemWrapper.executionContext
+  private[this] implicit lazy val actorSystem = actorSystemWrapper.system
+  private[this] implicit lazy val executionContext = actorSystemWrapper.executionContext
 
   /**
    * Configuration value provided
@@ -64,11 +64,11 @@ trait ResourceService extends HttpService {
   // A source of build-specific values for this service
   protected lazy val buildProps = new BuildProperties
 
-  private lazy val statusResponse = StatusResponse.getStatusResponse(buildProps, sprayConfig.serviceName)
+  private[this] lazy val statusResponse = StatusResponse.getStatusResponse(buildProps, sprayConfig.serviceName)
 
-  private lazy val statusError = """{"status":"error"}"""
+  private[this] lazy val statusError = """{"status":"error"}"""
 
-  private lazy val statusRoute: Route = (path("status") & headerValueByName("x-service-status")) { _ =>
+  private[this] lazy val statusRoute: Route = (path("status") & headerValueByName("x-service-status")) { _ =>
     (ctx: RequestContext) => {
       val statusRespJson = JsonUtil.toJson(statusResponse).getOrElse(statusError)
       ctx.complete(HttpResponse(OK, HttpEntity(ContentTypes.`application/json`, statusRespJson)))
@@ -77,9 +77,9 @@ trait ResourceService extends HttpService {
 
   protected lazy val serverActor: ActorSelection = actorRefFactory.actorSelection("/user/IO-HTTP/listener-0")
 
-  private lazy val statsError = """{"stats":"error"}"""
+  private[this] lazy val statsError = """{"stats":"error"}"""
 
-  private lazy val statsRoute: Route = (path("stats") & headerValueByName("x-service-stats")) { _ =>
+  private[this] lazy val statsRoute: Route = (path("stats") & headerValueByName("x-service-stats")) { _ =>
     (ctx: RequestContext) => {
       (serverActor ? GetStats)(1.second).mapTo[Stats].onComplete {
         case Success(sprayStats) =>
