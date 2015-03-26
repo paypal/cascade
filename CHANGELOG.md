@@ -1,4 +1,7 @@
 
+# 0.4.6 03/26/15 released by angarrett
+* Upgrades Jackson to fix deadlock bug
+
 # 0.4.5 03/25/15 released by angarrett
 * Upgrading spray for vulnerability patch; upgrading scala, sbt, and parboiled as well
 
