@@ -1,4 +1,7 @@
 
+# 0.4.4 03/23/15 released by angarrett
+* charset no longer required, stats endpoint returns uptimeInSec
+
 # 0.4.3 03/02/15 released by 2rs2ts
 * adds parseErrorMessage to HttpResourceActor
 

@@ -51,10 +51,6 @@ class DummyResource(requestContext: ResourceContext)
   /** Default response content type is `text/plain` */
   override val responseContentType: ContentType = ContentTypes.`text/plain`
 
-  /** Default accepted content types are `application/json` and `text/plain` */
-  override val acceptableContentTypes: List[ContentType] =
-    List(ContentTypes.`application/json`, ContentTypes.`text/plain`)
-
   /**
    * A dummy GET request must have a query param "foo=bar" and an Accept header with a single value `text/plain`
    * @param req the request
