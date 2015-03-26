@@ -158,7 +158,7 @@ object BuildSettings {
 object Dependencies {
 
   val slf4jVersion = "1.7.10"
-  val fasterXmlJacksonVersion = "2.4.1"
+  val fasterXmlJacksonVersion = "2.4.4"
   val sprayVersion = "1.3.3"
   val akkaVersion = "2.3.9"
   val parboiledVersion = "1.1.7"
