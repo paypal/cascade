@@ -31,7 +31,7 @@ object BuildSettings {
   import Dependencies._
 
   val org = "com.paypal"
-  val scalaVsn = "2.11.5"
+  val scalaVsn = "2.11.6"
 
   val defaultArgs = Seq(
     "-Xmx4096m",
@@ -159,9 +159,9 @@ object Dependencies {
 
   val slf4jVersion = "1.7.10"
   val fasterXmlJacksonVersion = "2.4.1"
-  val sprayVersion = "1.3.2"
+  val sprayVersion = "1.3.3"
   val akkaVersion = "2.3.9"
-  val parboiledVersion = "1.1.6"
+  val parboiledVersion = "1.1.7"
   val specs2Version = "2.4.15"
 
   lazy val logback             = "ch.qos.logback"                 %  "logback-classic"       % "1.1.2" exclude("org.slf4j", "slf4j-api")

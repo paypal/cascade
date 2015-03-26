@@ -133,7 +133,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
   /*
    * Internal
    */
-  private val request = resourceContext.reqContext.request
+  private[this] val request = resourceContext.reqContext.request
 
   /** crash on unhandled exceptions */
   override val supervisorStrategy =
@@ -235,7 +235,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    * and can respond in a format the the requester can accept, or halts
    * @return a Try containing the acceptable content type found, or a failure
    */
-  private def ensureContentTypeSupportedAndAcceptable: Try[ContentType] = {
+  private[this] def ensureContentTypeSupportedAndAcceptable: Try[ContentType] = {
     val supported = request.entity match {
       case Empty => Success(())
       case NonEmpty(ct, _) => acceptableContentTypes.contains(ct).orHaltWithT(UnsupportedMediaType)
@@ -251,7 +251,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    * @param header the header to conditionally add
    * @return a possibly modified response
    */
-  private def addHeaderOnCode(response: HttpResponse, status: StatusCode)
+  private[this] def addHeaderOnCode(response: HttpResponse, status: StatusCode)
                              (header: => HttpHeader): HttpResponse = {
     if(response.status == status) {
       response.withHeaders(header :: response.headers)
@@ -326,7 +326,7 @@ object HttpResourceActor {
   /**
    * Signals that the request timed out.
    */
-  private case object RequestTimedOut
+  private[HttpResourceActor] case object RequestTimedOut
 
   /**
    * The default timeout for a request which is not completed in time. Not the same as spray's timeout.
