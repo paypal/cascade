@@ -30,15 +30,13 @@ import spray.http.{HttpRequest, HttpResponse, _}
 import spray.routing.RequestContext
 
 import com.paypal.cascade.akka.actor._
-import com.paypal.cascade.http.resource.HttpResourceActor.ResourceContext
+import com.paypal.cascade.http.resource.HttpResourceActor._
 import com.paypal.cascade.http.util.HttpUtil
 
 /**
  * the actor to manage the execution of an [[com.paypal.cascade.http.resource.AbstractResourceActor]]. Create one of these per request
  */
 private[http] abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
-
-  import com.paypal.cascade.http.resource.HttpResourceActor._
 
   /**
    * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.

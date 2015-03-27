@@ -25,10 +25,11 @@ import Keys._
 import sbtunidoc.Plugin._
 import sbtunidoc.Plugin.UnidocKeys._
 import scoverage.ScoverageSbtPlugin.ScoverageKeys
+import BuildSettings._
+import BuildUtilities._
+import Dependencies._
 
 object BuildSettings {
-
-  import Dependencies._
 
   val org = "com.paypal"
   val scalaVsn = "2.11.6"
@@ -81,7 +82,6 @@ object BuildSettings {
     apiURL := Some(url("https://paypal.github.io/cascade/api/")),
     autoAPIMappings := true,
     apiMappings ++= {
-      import BuildUtilities._
       val links = Seq(
         findManagedDependency("org.scala-lang", "scala-library").value.map(d => d -> url(s"http://www.scala-lang.org/api/$scalaVsn/")),
         findManagedDependency("com.typesafe.akka", "akka-actor").value.map(d => d -> url(s"http://doc.akka.io/api/akka/$akkaVersion/")),
@@ -238,9 +238,6 @@ object Dependencies {
 }
 
 object CommonBuild extends Build {
-
-  import BuildSettings._
-  import Dependencies._
 
   lazy val parent = Project("parent", file("."),
     settings = standardSettings ++ BuildUtilities.utilitySettings ++ standardReleaseSettings ++ Seq(
