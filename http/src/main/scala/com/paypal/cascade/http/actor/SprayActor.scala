@@ -17,6 +17,8 @@ package com.paypal.cascade.http.actor
 
 import java.util.concurrent.TimeUnit
 
+import spray.can.server.ServerSettings
+
 import scala.concurrent.Future
 
 import akka.actor.{Actor, Props}
@@ -64,7 +66,8 @@ object SprayActor {
    *         "starting and stopping" for details on failure modes
    */
   def start(systemWrapper: ActorSystemWrapper,
-            sprayConfig: SprayConfiguration)
+            sprayConfig: SprayConfiguration,
+            serverSettings: Option[ServerSettings])
            (implicit sslEngineProvider: ServerSSLEngineProvider,
             timeout: Timeout): Future[Http.Event] = {
     //used for AkkaIO(...)
@@ -75,7 +78,8 @@ object SprayActor {
     val bindMsg = Http.Bind(sprayActor,
       interface = "0.0.0.0",
       port = sprayConfig.port,
-      backlog = sprayConfig.backlog)
+      backlog = sprayConfig.backlog,
+      settings = serverSettings)
     (AkkaIO(Http) ? bindMsg).mapTo[Http.Event]
   }
 }
