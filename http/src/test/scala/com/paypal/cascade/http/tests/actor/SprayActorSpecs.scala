@@ -54,7 +54,7 @@ class SprayActorSpecs
     import spray.can._
     def ok() = apply {
       //do this to make sure no exceptions on startup
-      val fut = SprayActor.start(wrapper, config, serverSettings = None)(mock[ServerSSLEngineProvider], timeout)
+      val fut = SprayActor.start(wrapper, config)(mock[ServerSSLEngineProvider], timeout)
       Await.result(fut, timeout.duration) must beAnInstanceOf[Http.Bound]
     }
   }
