@@ -1,4 +1,7 @@
 
+# 0.4.7 03/31/15 released by msv
+* Update spray actor start method and fix specs.
+
 # 0.4.6 03/26/15 released by angarrett
 * Upgrades Jackson to fix deadlock bug
 
