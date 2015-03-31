@@ -23,9 +23,11 @@ import org.specs2.mock.Mockito
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.cascade.http.actor._
 import com.paypal.cascade.http.server._
+import spray.can.server.ServerSettings
 import spray.routing._
 import spray.io.ServerSSLEngineProvider
 import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 /**
  * Tests for [[com.paypal.cascade.http.actor.SprayActor]]
@@ -53,8 +55,9 @@ class SprayActorSpecs
   case class Initialize() extends Context {
     import spray.can._
     def ok() = apply {
-      //do this to make sure no exceptions on startup
-      val fut = SprayActor.start(wrapper, config)(mock[ServerSSLEngineProvider], timeout)
+      val defaultSettings = ServerSettings(wrapper.system)
+      val overriddenBindTimeoutSettings = defaultSettings.copy(timeouts = defaultSettings.timeouts.copy(bindTimeout = timeout.duration))
+      val fut = SprayActor.start(wrapper, config, Option(overriddenBindTimeoutSettings))(mock[ServerSSLEngineProvider], timeout)
       Await.result(fut, timeout.duration) must beAnInstanceOf[Http.Bound]
     }
   }
