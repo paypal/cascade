@@ -1,0 +1,226 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>server - com.paypal.cascade.http.server</title>
+          <meta name="description" content="server - com.paypal.cascade.http.server" />
+          <meta name="keywords" content="server com.paypal.cascade.http.server" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'com.paypal.cascade.http.server.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="com">com</a>.<a href="../../../package.html" class="extype" name="com.paypal">paypal</a>.<a href="../../package.html" class="extype" name="com.paypal.cascade">cascade</a>.<a href="../package.html" class="extype" name="com.paypal.cascade.http">http</a></p>
+        <h1>server</h1><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.server.package" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">server</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="com.paypal.cascade.http.server.SprayConfiguration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SprayConfigurationextendsAnyRef"></a>
+      <a id="SprayConfiguration:SprayConfiguration"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SprayConfiguration.html"><span class="name">SprayConfiguration</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.server.package@SprayConfigurationextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This class provides configuration information for a spray service
+</p>
+    </li><li name="com.paypal.cascade.http.server.StatsResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StatsResponseextendsProductwithSerializable"></a>
+      <a id="StatsResponse:StatsResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="StatsResponse.html"><span class="name">StatsResponse</span></a><span class="params">(<span name="uptimeInSec">uptimeInSec: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="totalRequests">totalRequests: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="openRequests">openRequests: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="maxOpenRequests">maxOpenRequests: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="totalConnections">totalConnections: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="openConnections">openConnections: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="maxOpenConnections">maxOpenConnections: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="requestTimeouts">requestTimeouts: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.server.package@StatsResponseextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Container for the information generated by a <code>stats</code> endpoint request
+</p>
+    </li><li name="com.paypal.cascade.http.server.StatusResponse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StatusResponseextendsProductwithSerializable"></a>
+      <a id="StatusResponse:StatusResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="StatusResponse.html"><span class="name">StatusResponse</span></a><span class="params">(<span name="status">status: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="serviceName">serviceName: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="dependencies">dependencies: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="gitInfo">gitInfo: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.server.package@StatusResponseextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Container for the information generated by a <code>status</code> endpoint request</p><div class="fullcomment"><div class="comment cmt"><p>Container for the information generated by a <code>status</code> endpoint request</p></div><dl class="paramcmts block"><dt class="param">status</dt><dd class="cmt"><p>the status</p></dd><dt class="param">serviceName</dt><dd class="cmt"><p>the name</p></dd><dt class="param">dependencies</dt><dd class="cmt"><p>the dependencies used</p></dd><dt class="param">gitInfo</dt><dd class="cmt"><p>the repo info for this build
+</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="com.paypal.cascade.http.server.SprayConfiguration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SprayConfiguration"></a>
+      <a id="SprayConfiguration:SprayConfiguration"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SprayConfiguration$.html"><span class="name">SprayConfiguration</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.server.package@SprayConfiguration" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="com.paypal.cascade.http.server.StatsResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StatsResponse"></a>
+      <a id="StatsResponse:StatsResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="StatsResponse$.html"><span class="name">StatsResponse</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.server.package@StatsResponse" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="com.paypal.cascade.http.server.StatusResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StatusResponse"></a>
+      <a id="StatusResponse:StatusResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="StatusResponse$.html"><span class="name">StatusResponse</span></a><span class="result"> extends <a href="../../common/logging/LoggingSugar.html" class="extype" name="com.paypal.cascade.common.logging.LoggingSugar">LoggingSugar</a> with <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.server.package@StatusResponse" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="com.paypal.cascade.http.server.exception" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="exception"></a>
+      <a id="exception:exception"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="exception/package.html"><span class="name">exception</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.server.package@exception" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

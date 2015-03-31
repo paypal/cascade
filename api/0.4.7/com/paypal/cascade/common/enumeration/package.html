@@ -1,0 +1,292 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>enumeration - com.paypal.cascade.common.enumeration</title>
+          <meta name="description" content="enumeration - com.paypal.cascade.common.enumeration" />
+          <meta name="keywords" content="enumeration com.paypal.cascade.common.enumeration" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'com.paypal.cascade.common.enumeration.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="com">com</a>.<a href="../../../package.html" class="extype" name="com.paypal">paypal</a>.<a href="../../package.html" class="extype" name="com.paypal.cascade">cascade</a>.<a href="../package.html" class="extype" name="com.paypal.cascade.common">common</a></p>
+        <h1>enumeration</h1><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.common.enumeration.package" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">enumeration</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Contains a fully type-safe enumeration framework. Takes more setup &amp; code than the built-in <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Enumeration" class="extype" target="_top">scala.Enumeration</a>,
+but has two distinct advantages:</p><p>1. Configurable outcomes when a conversion from a String to Enumeration value fails
+2. Non-exhaustive match warnings when one or more Enumeration values are not included in a <code>match</code></p><p>By comparison, <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Enumeration" class="extype" target="_top">scala.Enumeration</a> will allow a <code>match</code> over as few as one Enumeration type, which runs the risk
+of a <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.MatchError" class="extype" target="_top">scala.MatchError</a>. This will alert at compile time as to the possibility of a <code>match</code> miss.</p><p>As of Jackson 2.x, a method exists to directly serialize <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Enumeration" class="extype" target="_top">scala.Enumeration</a>, which involves writing less
+up-front boilerplate. One distinct downside, however, is the need for a special Jackson annotation on case classes
+that use Enumerations in this way. The annotation must be applied directly to each case class member that is an
+Enumeration. In this way, serializing <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Enumeration" class="extype" target="_top">scala.Enumeration</a> in Jackson involves substantially more boilerplate
+effort than the custom Enumeration presented here. See
+https://github.com/FasterXML/jackson-module-scala/wiki/Enumeration for more information.</p><p>For these reasons, our custom Enumeration type should be preferred instead of <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Enumeration" class="extype" target="_top">scala.Enumeration</a> or
+<code>java.util.Enumeration</code>. See the examples subproject for a sample implementation.
+</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="com.paypal.cascade.common.enumeration"><span>enumeration</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="com.paypal.cascade.common.enumeration.EnumReader" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="EnumReader[T]extendsAnyRef"></a>
+      <a id="EnumReader[T]:EnumReader[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="EnumReader.html"><span class="name">EnumReader</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.common.enumeration.package@EnumReader[T]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base trait for reading Strings into our <a href="Enumeration.html" class="extype" name="com.paypal.cascade.common.enumeration.Enumeration">com.paypal.cascade.common.enumeration.Enumeration</a>.</p>
+    </li><li name="com.paypal.cascade.common.enumeration.EnumUnapply" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="EnumUnapply[T&lt;:com.paypal.cascade.common.enumeration.Enumeration]extendsAnyRef"></a>
+      <a id="EnumUnapply[T&lt;:Enumeration]:EnumUnapply[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="EnumUnapply.html"><span class="name">EnumUnapply</span></a><span class="tparams">[<span name="T">T &lt;: <a href="Enumeration.html" class="extype" name="com.paypal.cascade.common.enumeration.Enumeration">Enumeration</a></span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.common.enumeration.package@EnumUnapply[T&lt;:com.paypal.cascade.common.enumeration.Enumeration]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Allows pattern matching on String values that correspond to <a href="Enumeration.html" class="extype" name="com.paypal.cascade.common.enumeration.Enumeration">com.paypal.cascade.common.enumeration.Enumeration</a>
+subtypes.</p><div class="fullcomment"><div class="comment cmt"><p>Allows pattern matching on String values that correspond to <a href="Enumeration.html" class="extype" name="com.paypal.cascade.common.enumeration.Enumeration">com.paypal.cascade.common.enumeration.Enumeration</a>
+subtypes. Note that the type returned by the extractor is the general sealed trait <code>T</code>, not an Enumeration instance.</p><pre>scala&gt; <span class="lit">"SOMETYPE"</span> <span class="kw">match</span> { <span class="kw">case</span> AnEnumeration(a) <span class="kw">=&gt;</span> a; <span class="kw">case</span> _ <span class="kw">=&gt;</span> <span class="kw">throw</span> <span class="kw">new</span> Exception(<span class="lit">"fail!"</span>) }
+res0: com.project.AnEnumeration = SOMETYPE
+scala&gt; <span class="lit">"OTHERTYPE"</span> <span class="kw">match</span> { <span class="kw">case</span> AnEnumeration(a) <span class="kw">=&gt;</span> a; <span class="kw">case</span> _ <span class="kw">=&gt;</span> <span class="kw">throw</span> <span class="kw">new</span> Exception(<span class="lit">"fail!"</span>) }
+res1: com.project.AnEnumeration = OTHERTYPE
+scala&gt; <span class="lit">"not a type"</span> <span class="kw">match</span> { <span class="kw">case</span> AnEnumeration(a) <span class="kw">=&gt;</span> a; <span class="kw">case</span> _ <span class="kw">=&gt;</span> <span class="kw">throw</span> <span class="kw">new</span> Exception(<span class="lit">"fail!"</span>) }
+java.lang.Exception: fail!</pre></div></div>
+    </li><li name="com.paypal.cascade.common.enumeration.Enumeration" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="EnumerationextendsSerializable"></a>
+      <a id="Enumeration:Enumeration"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Enumeration.html"><span class="name">Enumeration</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.common.enumeration.package@EnumerationextendsSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Our custom Enumeration type.</p>
+    </li><li name="com.paypal.cascade.common.enumeration.EnumerationException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="EnumerationExceptionextendsException"></a>
+      <a id="EnumerationException:EnumerationException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="EnumerationException.html"><span class="name">EnumerationException</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.common.enumeration.package@EnumerationExceptionextendsException" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Exception type for failed String-to-Enumeration reading</p>
+    </li><li name="com.paypal.cascade.common.enumeration.RichStringEnumReader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichStringEnumReaderextendsAnyRef"></a>
+      <a id="RichStringEnumReader:RichStringEnumReader"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichStringEnumReader.html"><span class="name">RichStringEnumReader</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.common.enumeration.package@RichStringEnumReaderextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper for Strings to perform Enumeration reading,
+using an implicit <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">com.paypal.cascade.common.enumeration.EnumReader</a></p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="com.paypal.cascade.common.enumeration#enumReader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="enumReader[T&lt;:com.paypal.cascade.common.enumeration.Enumeration](reader:String=&gt;Option[T]):com.paypal.cascade.common.enumeration.EnumReader[T]"></a>
+      <a id="enumReader[T&lt;:Enumeration]((String)⇒Option[T]):EnumReader[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">enumReader</span><span class="tparams">[<span name="T">T &lt;: <a href="Enumeration.html" class="extype" name="com.paypal.cascade.common.enumeration.Enumeration">Enumeration</a></span>]</span><span class="params">(<span name="reader">reader: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="com.paypal.cascade.common.enumeration.enumReader.T">T</span>]</span>)</span><span class="result">: <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">EnumReader</a>[<span class="extype" name="com.paypal.cascade.common.enumeration.enumReader.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.common.enumeration.package@enumReader[T&lt;:com.paypal.cascade.common.enumeration.Enumeration](reader:String=&gt;Option[T]):com.paypal.cascade.common.enumeration.EnumReader[T]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">com.paypal.cascade.common.enumeration.EnumReader</a></p><div class="fullcomment"><div class="comment cmt"><p>Creates an <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">com.paypal.cascade.common.enumeration.EnumReader</a></p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the Enumeration type</p></dd><dt class="param">reader</dt><dd class="cmt"><p>the method to convert a String to an Enumeration</p></dd><dt>returns</dt><dd class="cmt"><p>an EnumReader that knows how to read a String to an Enumeration
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.common.enumeration#lowerEnumReader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="lowerEnumReader[T&lt;:com.paypal.cascade.common.enumeration.Enumeration](values:T*):com.paypal.cascade.common.enumeration.EnumReader[T]"></a>
+      <a id="lowerEnumReader[T&lt;:Enumeration](T*):EnumReader[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">lowerEnumReader</span><span class="tparams">[<span name="T">T &lt;: <a href="Enumeration.html" class="extype" name="com.paypal.cascade.common.enumeration.Enumeration">Enumeration</a></span>]</span><span class="params">(<span name="values">values: <span class="extype" name="com.paypal.cascade.common.enumeration.lowerEnumReader.T">T</span>*</span>)</span><span class="result">: <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">EnumReader</a>[<span class="extype" name="com.paypal.cascade.common.enumeration.lowerEnumReader.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.common.enumeration.package@lowerEnumReader[T&lt;:com.paypal.cascade.common.enumeration.Enumeration](values:T*):com.paypal.cascade.common.enumeration.EnumReader[T]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">com.paypal.cascade.common.enumeration.EnumReader</a> that converts a String to an Enumeration
+if the lowercase version of that String matches the lowercase of the Enumeration's stringVal</p><div class="fullcomment"><div class="comment cmt"><p>Creates an <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">com.paypal.cascade.common.enumeration.EnumReader</a> that converts a String to an Enumeration
+if the lowercase version of that String matches the lowercase of the Enumeration's stringVal</p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the Enumeration type</p></dd><dt class="param">values</dt><dd class="cmt"><p>the Enumeration values that are candidates to convert</p></dd><dt>returns</dt><dd class="cmt"><p>an EnumReader that has the aforementioned properties
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.common.enumeration#upperEnumReader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="upperEnumReader[T&lt;:com.paypal.cascade.common.enumeration.Enumeration](values:T*):com.paypal.cascade.common.enumeration.EnumReader[T]"></a>
+      <a id="upperEnumReader[T&lt;:Enumeration](T*):EnumReader[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">upperEnumReader</span><span class="tparams">[<span name="T">T &lt;: <a href="Enumeration.html" class="extype" name="com.paypal.cascade.common.enumeration.Enumeration">Enumeration</a></span>]</span><span class="params">(<span name="values">values: <span class="extype" name="com.paypal.cascade.common.enumeration.upperEnumReader.T">T</span>*</span>)</span><span class="result">: <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">EnumReader</a>[<span class="extype" name="com.paypal.cascade.common.enumeration.upperEnumReader.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.common.enumeration.package@upperEnumReader[T&lt;:com.paypal.cascade.common.enumeration.Enumeration](values:T*):com.paypal.cascade.common.enumeration.EnumReader[T]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">com.paypal.cascade.common.enumeration.EnumReader</a> that converts a String to an Enumeration
+if the uppercase version of that String matches the uppercase of the Enumeration's stringVal</p><div class="fullcomment"><div class="comment cmt"><p>Creates an <a href="EnumReader.html" class="extype" name="com.paypal.cascade.common.enumeration.EnumReader">com.paypal.cascade.common.enumeration.EnumReader</a> that converts a String to an Enumeration
+if the uppercase version of that String matches the uppercase of the Enumeration's stringVal</p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the Enumeration type</p></dd><dt class="param">values</dt><dd class="cmt"><p>the Enumeration values that are candidates to convert</p></dd><dt>returns</dt><dd class="cmt"><p>an EnumReader that has the aforementioned properties
+</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

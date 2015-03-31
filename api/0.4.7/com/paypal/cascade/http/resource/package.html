@@ -1,0 +1,511 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>resource - com.paypal.cascade.http.resource</title>
+          <meta name="description" content="resource - com.paypal.cascade.http.resource" />
+          <meta name="keywords" content="resource com.paypal.cascade.http.resource" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'com.paypal.cascade.http.resource.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="com">com</a>.<a href="../../../package.html" class="extype" name="com.paypal">paypal</a>.<a href="../../package.html" class="extype" name="com.paypal.cascade">cascade</a>.<a href="../package.html" class="extype" name="com.paypal.cascade.http">http</a></p>
+        <h1>resource</h1><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">resource</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Utility methods for turning everyday datatypes into Trys and Futures that can possibly return a
+<a href="HaltException.html" class="extype" name="com.paypal.cascade.http.resource.HaltException">com.paypal.cascade.http.resource.HaltException</a>. Methods of the form <code>orHalt</code> create a Future.
+Methods of the form <code>orHaltT</code> return a Try.
+</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="com.paypal.cascade.http.resource"><span>resource</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="com.paypal.cascade.http.resource.AbstractResourceActor" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AbstractResourceActorextendsHttpResourceActor"></a>
+      <a id="AbstractResourceActor:AbstractResourceActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="AbstractResourceActor.html"><span class="name">AbstractResourceActor</span></a><span class="result"> extends <span class="extype" name="com.paypal.cascade.http.resource.HttpResourceActor">HttpResourceActor</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@AbstractResourceActorextendsHttpResourceActor" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base class for HTTP resources built with Spray.</p>
+    </li><li name="com.paypal.cascade.http.resource.HaltException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HaltExceptionextendsExceptionwithProductwithSerializable"></a>
+      <a id="HaltException:HaltException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="HaltException.html"><span class="name">HaltException</span></a><span class="params">(<span name="response">response: <span class="extype" name="spray.http.HttpResponse">HttpResponse</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span> with <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@HaltExceptionextendsExceptionwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Specialized Exception type that encodes an HTTP error response, including an error code
+</p>
+    </li><li name="com.paypal.cascade.http.resource.NoAuth" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NoAuth=Unit"></a>
+      <a id="NoAuth:NoAuth"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">NoAuth</span><span class="result"> = <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@NoAuth=Unit" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">For resources that do not perform any degree of authorization of incoming requests</p>
+    </li><li name="com.paypal.cascade.http.resource.NoBody" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NoBody=Option[String]"></a>
+      <a id="NoBody:NoBody"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">NoBody</span><span class="result"> = <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@NoBody=Option[String]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">For resources that do not expect a body in requests</p>
+    </li><li name="com.paypal.cascade.http.resource.NoParsing" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="NoParsingextendsAnyRef"></a>
+      <a id="NoParsing:NoParsing"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="NoParsing.html"><span class="name">NoParsing</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@NoParsingextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Mix this into an <a href="AbstractResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">com.paypal.cascade.http.resource.AbstractResourceActor</a> implementation
+and use <span class="extype" name="spray.http.HttpRequest">spray.http.HttpRequest</span> as the <code>ParsedRequest</code> type to perform no additional parsing
+of incoming requests.</p><div class="fullcomment"><div class="comment cmt"><p>Mix this into an <a href="AbstractResourceActor.html" class="extype" name="com.paypal.cascade.http.resource.AbstractResourceActor">com.paypal.cascade.http.resource.AbstractResourceActor</a> implementation
+and use <span class="extype" name="spray.http.HttpRequest">spray.http.HttpRequest</span> as the <code>ParsedRequest</code> type to perform no additional parsing
+of incoming requests. Useful for status endpoints, etc.
+</p></div></div>
+    </li><li name="com.paypal.cascade.http.resource.ResourceService" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ResourceServiceextendsHttpService"></a>
+      <a id="ResourceService:ResourceService"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ResourceService.html"><span class="name">ResourceService</span></a><span class="result"> extends <span class="extype" name="spray.routing.HttpService">HttpService</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@ResourceServiceextendsHttpService" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base type for implementing resource-based services.</p><div class="fullcomment"><div class="comment cmt"><p>Base type for implementing resource-based services. Contains several often-used patterns, e.g. stats and status
+endpoints, and is driven by <a href="ResourceDriver$.html" class="extype" name="com.paypal.cascade.http.resource.ResourceDriver">com.paypal.cascade.http.resource.ResourceDriver</a>.</p><p>Implementing classes should override <code>route</code> with their own Spray route logic. This should serve as the top-most
+actor (or very close to top) in a Spray-based actor hierarchy, as it is the first point of entry into most services.</p></div></div>
+    </li><li name="com.paypal.cascade.http.resource.RichBooleanFutureHalt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichBooleanFutureHaltextendsAnyRef"></a>
+      <a id="RichBooleanFutureHalt:RichBooleanFutureHalt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichBooleanFutureHalt.html"><span class="name">RichBooleanFutureHalt</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichBooleanFutureHaltextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow Booleans to halt or throw</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow Booleans to halt or throw</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+<span class="kw">true</span>.orError  <span class="cmt">// Future({})</span>
+<span class="kw">false</span>.orError <span class="cmt">// Future(HaltException(HttpResponse(500, Empty, List())))</span></pre></div></div>
+    </li><li name="com.paypal.cascade.http.resource.RichBooleanTryHalt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichBooleanTryHaltextendsAnyRef"></a>
+      <a id="RichBooleanTryHalt:RichBooleanTryHalt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichBooleanTryHalt.html"><span class="name">RichBooleanTryHalt</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichBooleanTryHaltextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow Booleans to halt or throw</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow Booleans to halt or throw</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+<span class="kw">true</span>.orError  <span class="cmt">// Try({})</span>
+<span class="kw">false</span>.orError <span class="cmt">// Try(HaltException(HttpResponse(500, Empty, List())))</span></pre></div></div>
+    </li><li name="com.paypal.cascade.http.resource.RichEitherHalt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichEitherHalt[T,A]extendsAnyRef"></a>
+      <a id="RichEitherHalt[T,A]:RichEitherHalt[T,A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichEitherHalt.html"><span class="name">RichEitherHalt</span></a><span class="tparams">[<span name="T">T</span>, <span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichEitherHalt[T,A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow right-biased <code>scala.util.Either</code> values, of any left type, to halt or throw</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow right-biased <code>scala.util.Either</code> values, of any left type, to halt or throw</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+Right(<span class="lit">"hi"</span>).orError                                                             <span class="cmt">// Future("hi")</span>
+Left(CustomError(<span class="lit">"no"</span>)).orError { c <span class="kw">=&gt;</span> HttpResponse(<span class="num">500</span>, c.getMessage, <span class="std">List</span>()) } <span class="cmt">// Future(HaltException(...))</span></pre></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the left type, by convention representing a failure</p></dd><dt class="tparam">A</dt><dd class="cmt"><p>the right type, by convention representing a success
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.RichEitherThrowableHalt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichEitherThrowableHalt[A]extendsAnyRef"></a>
+      <a id="RichEitherThrowableHalt[A]:RichEitherThrowableHalt[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichEitherThrowableHalt.html"><span class="name">RichEitherThrowableHalt</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichEitherThrowableHalt[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow right-biased, left Throwable <code>scala.util.Either</code> values to halt or throw</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow right-biased, left Throwable <code>scala.util.Either</code> values to halt or throw</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+Right(<span class="lit">"hi"</span>).orErrorWithMessage                 <span class="cmt">// Future("hi")</span>
+Left(<span class="kw">new</span> Throwable(<span class="lit">"fail"</span>)).orErrorWithMessage <span class="cmt">// Future(HaltException(500, "fail", List()))</span></pre></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the right type of the either
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.RichFuture" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichFuture[T]extendsAnyRef"></a>
+      <a id="RichFuture[T]:RichFuture[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichFuture.html"><span class="name">RichFuture</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichFuture[T]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow Futures to halt</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow Futures to halt</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+Future { <span class="lit">"hi"</span> }.orHalt { <span class="kw">case</span> e: Throwable <span class="kw">=&gt;</span> HttpResponse(...) }
+  <span class="cmt">// => Future("hi")</span>
+Future { <span class="kw">throw</span> <span class="kw">new</span> Throwable(<span class="lit">"fail"</span>) }.orHalt { <span class="kw">case</span> e: Throwable <span class="kw">=&gt;</span> HttpResponse(...) }
+  <span class="cmt">// => Future(HaltException(HttpResponse(...)))</span></pre></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the success type of the future
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.RichIdentity" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichIdentity[T]extendsAnyRef"></a>
+      <a id="RichIdentity[T]:RichIdentity[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichIdentity.html"><span class="name">RichIdentity</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichIdentity[T]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow anything to continue</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow anything to continue</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+<span class="lit">"hi"</span>.continue  <span class="cmt">// Future("hi")</span></pre></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the type of this object
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.RichOptionFutureHalt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichOptionFutureHalt[A]extendsAnyRef"></a>
+      <a id="RichOptionFutureHalt[A]:RichOptionFutureHalt[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichOptionFutureHalt.html"><span class="name">RichOptionFutureHalt</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichOptionFutureHalt[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow optional values to halt or throw</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow optional values to halt or throw</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+<span class="std">Option</span>(<span class="lit">"hi"</span>).orError()  <span class="cmt">// Future("hi")</span></pre></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the type of the wrapped option
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.RichOptionTryHalt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichOptionTryHalt[A]extendsAnyRef"></a>
+      <a id="RichOptionTryHalt[A]:RichOptionTryHalt[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichOptionTryHalt.html"><span class="name">RichOptionTryHalt</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichOptionTryHalt[A]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow optional values to halt or throw</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow optional values to halt or throw</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+<span class="std">Option</span>(<span class="lit">"hi"</span>).orError()  <span class="cmt">// Future("hi")</span></pre></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the type of the wrapped option
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.http.resource.RichThrowableHalt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichThrowableHaltextendsAnyRef"></a>
+      <a id="RichThrowableHalt:RichThrowableHalt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichThrowableHalt.html"><span class="name">RichThrowableHalt</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichThrowableHaltextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow any Throwable to halt</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow any Throwable to halt</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+(<span class="kw">new</span> Throwable(<span class="lit">"no"</span>)).haltWith(InternalServiceError)()  <span class="cmt">// Future(HaltException(HttpResponse(500, "no", List())))</span></pre></div></div>
+    </li><li name="com.paypal.cascade.http.resource.RichTryHalt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RichTryHalt[A]extendspackage.RichEitherThrowableHalt[A]"></a>
+      <a id="RichTryHalt[A]:RichTryHalt[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichTryHalt.html"><span class="name">RichTryHalt</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="package$$RichEitherThrowableHalt.html" class="extype" name="com.paypal.cascade.http.resource.RichEitherThrowableHalt">RichEitherThrowableHalt</a>[<span class="extype" name="com.paypal.cascade.http.resource.RichTryHalt.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@RichTryHalt[A]extendspackage.RichEitherThrowableHalt[A]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implicit wrapper to allow <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.util.Try" class="extype" target="_top">scala.util.Try</a> values to halt or throw.</p><div class="fullcomment"><div class="comment cmt"><p>Implicit wrapper to allow <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.util.Try" class="extype" target="_top">scala.util.Try</a> values to halt or throw.
+Handled internally as a right-biased <code>scala.util.Either</code> with a Throwable left.</p><pre><span class="kw">import</span> com.paypal.cascade.http.resource._
+Try { <span class="lit">"hi"</span> }.orErrorWithMessage()                      <span class="cmt">// Future("hi")</span>
+Try { <span class="kw">throw</span> <span class="kw">new</span> Throwable(<span class="lit">"no"</span>) }.orErrorWithMessage() <span class="cmt">// Future(HaltException(HttpResponse(500, "no", List())))</span></pre></div><dl class="paramcmts block"><dt class="tparam">A</dt><dd class="cmt"><p>the success type of the try
+</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="com.paypal.cascade.http.resource.HaltException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HaltException"></a>
+      <a id="HaltException:HaltException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HaltException$.html"><span class="name">HaltException</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@HaltException" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Convenience methods
+</p>
+    </li><li name="com.paypal.cascade.http.resource.HttpResourceActor" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HttpResourceActor"></a>
+      <a id="HttpResourceActor:HttpResourceActor"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HttpResourceActor$.html"><span class="name">HttpResourceActor</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@HttpResourceActor" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="com.paypal.cascade.http.resource.ResourceDriver" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ResourceDriver"></a>
+      <a id="ResourceDriver:ResourceDriver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ResourceDriver$.html"><span class="name">ResourceDriver</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@ResourceDriver" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Implementation of a basic HTTP request handling pipeline.</p><div class="fullcomment"><div class="comment cmt"><p>Implementation of a basic HTTP request handling pipeline. Used to push along HTTP requests.
+</p></div></div>
+    </li><li name="com.paypal.cascade.http.resource#halt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="halt[T](status:spray.http.StatusCode,entity:spray.http.HttpEntity,headers:List[spray.http.HttpHeader]):scala.concurrent.Future[T]"></a>
+      <a id="halt[T](StatusCode,HttpEntity,List[HttpHeader]):Future[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">halt</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="status">status: <span class="extype" name="spray.http.StatusCode">StatusCode</span></span>, <span name="entity">entity: <span class="extype" name="spray.http.HttpEntity">HttpEntity</span> = <span class="symbol">Empty</span></span>, <span name="headers">headers: <span class="extype" name="scala.List">List</span>[<span class="extype" name="spray.http.HttpHeader">HttpHeader</span>] = <span class="symbol">Nil</span></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.concurrent.Future" class="extype" target="_top">Future</a>[<span class="extype" name="com.paypal.cascade.http.resource.halt.T">T</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.http.resource.package@halt[T](status:spray.http.StatusCode,entity:spray.http.HttpEntity,headers:List[spray.http.HttpHeader]):scala.concurrent.Future[T]" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Stop further processing, and yield an error response</p><div class="fullcomment"><div class="comment cmt"><p>Stop further processing, and yield an error response</p></div><dl class="paramcmts block"><dt class="tparam">T</dt><dd class="cmt"><p>the expected return type, if processing were to continue</p></dd><dt class="param">status</dt><dd class="cmt"><p>the response code to return</p></dd><dt class="param">entity</dt><dd class="cmt"><p>the response body to return, if any</p></dd><dt class="param">headers</dt><dd class="cmt"><p>headers to return in the response, if any</p></dd><dt>returns</dt><dd class="cmt"><p>a failed Future, containing an error response
+</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

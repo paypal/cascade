@@ -1,0 +1,167 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>mailbox - com.paypal.cascade.akka.mailbox</title>
+          <meta name="description" content="mailbox - com.paypal.cascade.akka.mailbox" />
+          <meta name="keywords" content="mailbox com.paypal.cascade.akka.mailbox" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../../index.html';
+            var hash = 'com.paypal.cascade.akka.mailbox.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../../package.html" class="extype" name="com">com</a>.<a href="../../../package.html" class="extype" name="com.paypal">paypal</a>.<a href="../../package.html" class="extype" name="com.paypal.cascade">cascade</a>.<a href="../package.html" class="extype" name="com.paypal.cascade.akka">akka</a></p>
+        <h1>mailbox</h1><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.akka.mailbox.package" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mailbox</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="com.paypal.cascade.akka.mailbox.ExpiredLetter" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ExpiredLetterextendsProductwithSerializable"></a>
+      <a id="ExpiredLetter:ExpiredLetter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ExpiredLetter.html"><span class="name">ExpiredLetter</span></a><span class="params">(<span name="message">message: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Any" class="extype" target="_top">Any</a></span>, <span name="sender">sender: <span class="extype" name="akka.actor.ActorRef">ActorRef</span></span>, <span name="recipient">recipient: <span class="extype" name="akka.actor.ActorRef">ActorRef</span></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.akka.mailbox.package@ExpiredLetterextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A wrapper for Messages that went &quot;stale&quot; by sitting in the Mailbox's queue for longer than
+<code><code>mailbox-expiration-time</code></code>ms before being dequeued.</p><div class="fullcomment"><div class="comment cmt"><p>A wrapper for Messages that went &quot;stale&quot; by sitting in the Mailbox's queue for longer than
+<code><code>mailbox-expiration-time</code></code>ms before being dequeued. <a href="ExpiredLetter.html" class="extype" name="com.paypal.cascade.akka.mailbox.ExpiredLetter">com.paypal.cascade.akka.mailbox.ExpiredLetter</a>s are still delivered
+to the original receiving Actor, as this is how akka works. In the future, it may make sense
+to have an <a href="ExpiredLetter.html" class="extype" name="com.paypal.cascade.akka.mailbox.ExpiredLetter">com.paypal.cascade.akka.mailbox.ExpiredLetter</a> event stream similar to the <span class="extype" name="akka.actor.DeadLetter">akka.actor.DeadLetter</span> stream/handler, and avoid
+delivering <a href="ExpiredLetter.html" class="extype" name="com.paypal.cascade.akka.mailbox.ExpiredLetter">com.paypal.cascade.akka.mailbox.ExpiredLetter</a>s to the original recipient.
+</p></div><dl class="paramcmts block"><dt class="param">message</dt><dd class="cmt"><p>the original message sent by sender</p></dd><dt class="param">sender</dt><dd class="cmt"><p>the sender of the expired message</p></dd><dt class="param">recipient</dt><dd class="cmt"><p>the intended recipient of the expired message
+</p></dd></dl></div>
+    </li><li name="com.paypal.cascade.akka.mailbox.ExpiringBoundedMailbox" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ExpiringBoundedMailboxextendsMailboxTypewithProducesMessageQueue[akka.dispatch.BoundedMailbox.MessageQueue]withProductwithSerializable"></a>
+      <a id="ExpiringBoundedMailbox:ExpiringBoundedMailbox"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ExpiringBoundedMailbox.html"><span class="name">ExpiringBoundedMailbox</span></a><span class="params">(<span name="capacity">capacity: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Int" class="extype" target="_top">Int</a></span>, <span name="pushTimeOut">pushTimeOut: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.concurrent.duration.FiniteDuration" class="extype" target="_top">FiniteDuration</a></span>, <span name="messageExpiration">messageExpiration: <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.concurrent.duration.FiniteDuration" class="extype" target="_top">FiniteDuration</a></span>)</span><span class="result"> extends <span class="extype" name="akka.dispatch.MailboxType">MailboxType</span> with <span class="extype" name="akka.dispatch.ProducesMessageQueue">ProducesMessageQueue</span>[<span class="extype" name="akka.dispatch.BoundedMailbox.MessageQueue">MessageQueue</span>] with <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.akka.mailbox.package@ExpiringBoundedMailboxextendsMailboxTypewithProducesMessageQueue[akka.dispatch.BoundedMailbox.MessageQueue]withProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">akka BoundedMailbox that will immediately send a Status.Failure to the sender
+if the mailbox is full and the message can't be delivered within the push timeout,
+or if the message sits in the mailbox longer than the expiration timeout.</p><div class="fullcomment"><div class="comment cmt"><p>akka BoundedMailbox that will immediately send a Status.Failure to the sender
+if the mailbox is full and the message can't be delivered within the push timeout,
+or if the message sits in the mailbox longer than the expiration timeout.</p><p>Note that this Mailbox requires an actor system on creation.
+</p></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="com.paypal.cascade.akka.mailbox.ExpiringBoundedMailbox" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExpiringBoundedMailbox"></a>
+      <a id="ExpiringBoundedMailbox:ExpiringBoundedMailbox"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ExpiringBoundedMailbox$.html"><span class="name">ExpiringBoundedMailbox</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.6/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../../index.html#com.paypal.cascade.akka.mailbox.package@ExpiringBoundedMailbox" title="Permalink" target="_top">
+        <img src="../../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
