@@ -55,6 +55,10 @@ class SprayActorSpecs
   case class Initialize() extends Context {
     import spray.can._
     def ok() = apply {
+      // Ensure there are no exceptions on startup.
+      // The Http bind makes a tell to the Tcp bind, using the
+      // server settings bind-timeout value as the receive timeout.
+      // It's overridden to avoid to allow extra time to bind during specs.
       val defaultSettings = ServerSettings(wrapper.system)
       val overriddenBindTimeoutSettings = defaultSettings.copy(timeouts = defaultSettings.timeouts.copy(bindTimeout = timeout.duration))
       val fut = SprayActor.start(wrapper, config, Option(overriddenBindTimeoutSettings))(mock[ServerSSLEngineProvider], timeout)
