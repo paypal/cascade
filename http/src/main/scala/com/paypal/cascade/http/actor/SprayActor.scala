@@ -67,7 +67,7 @@ object SprayActor {
    */
   def start(systemWrapper: ActorSystemWrapper,
             sprayConfig: SprayConfiguration,
-            serverSettings: Option[ServerSettings])
+            serverSettings: Option[ServerSettings] = None)
            (implicit sslEngineProvider: ServerSSLEngineProvider,
             timeout: Timeout): Future[Http.Event] = {
     //used for AkkaIO(...)
