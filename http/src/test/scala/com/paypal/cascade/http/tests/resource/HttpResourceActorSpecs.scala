@@ -236,10 +236,10 @@ class HttpResourceActorSpecs
     val afterLatch = new CountDownLatch(1)
 
     class WithBeforeAfter(ctx: ResourceContext) extends DummyResource(ctx) {
-      override def before(method: HttpMethod): Unit = {
+      override def before(method: HttpMethod): Try[Unit] = Try {
         beforeLatch.countDown()
       }
-      override def after(resp: HttpResponse): Unit = {
+      override def after(resp: HttpResponse): Try[Unit] = Try {
         afterLatch.countDown()
       }
     }

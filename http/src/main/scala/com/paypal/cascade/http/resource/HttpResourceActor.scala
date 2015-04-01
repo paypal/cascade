@@ -41,21 +41,23 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
   /**
    * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.
    *
-   * If the method throws, an error response will be returned. The response will be determined by
+   * If the method fails, an error response will be returned. The response will be determined by
    * [[com.paypal.cascade.http.resource.HttpResourceActor#createErrorResponse createErrorResponse]].
    * As always, personally identifiable information should never be included in exception messages.
    * @param method The Http method of the request in question
+   * @return a Try indicating how the method call went
    */
-  def before(method: HttpMethod): Unit = {}
+  def before(method: HttpMethod): Try[Unit] = Success(())
 
   /**
    * This method will always be invoked after request processing is finished.
    *
-   * If the method throws, the error will be logged and the given response will still be returned. As always, personally
+   * If the method fails, the error will be logged and the given response will still be returned. As always, personally
    * identifiable information should never be included in exception messages.
    * @param resp The response to be returned to the client
+   * @return a Try indicating how the method call went
    */
-  def after(resp: HttpResponse): Unit = {}
+  def after(resp: HttpResponse): Try[Unit] = Success(())
 
   /**
    * A list of content types that that this server can accept, by default `application/json`.
@@ -164,7 +166,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     case Start =>
       timeoutCancellable // initialize the timeout event
       val processRequest = for {
-        _ <- Try(before(request.method))
+        _ <- Try(before(request.method)).flatten
         _ <- ensureContentTypeSupportedAndAcceptable
         req <- resourceContext.reqParser(request).orHaltWithMessage(BadRequest)(parseErrorMessage).map(ProcessRequest)
       } yield req
@@ -218,7 +220,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     timeoutCancellable.cancel() // we are about to stop the actor, so cancel to avoid a dead letter
     Try {
       after(r)
-    }.recover {
+    }.flatten.recover {
       case t: Throwable => log.error(t, "An error occurred executing after()")
     }
     resourceContext.reqContext.complete(r)
