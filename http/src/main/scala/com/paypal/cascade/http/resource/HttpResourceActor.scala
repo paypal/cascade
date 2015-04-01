@@ -166,7 +166,11 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     case Start =>
       timeoutCancellable // initialize the timeout event
       val processRequest = for {
-        _ <- Try(before(request.method)).flatten
+        _ <- Try(before(request.method)).flatten.recoverWith {
+          case t =>
+            log.error(t, "An error occurred executing before()")
+            Failure(t)
+        }
         _ <- ensureContentTypeSupportedAndAcceptable
         req <- resourceContext.reqParser(request).orHaltWithMessage(BadRequest)(parseErrorMessage).map(ProcessRequest)
       } yield req
