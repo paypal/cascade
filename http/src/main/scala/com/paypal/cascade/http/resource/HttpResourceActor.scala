@@ -214,7 +214,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     val attempt = Try(fun)
     attempt match {
       case Failure(fail) =>
-        log.error(fail, s"A suspicious error occurred executing $method")
+        log.error(fail, s"An error occurred executing $method")
         attempt
       case _ => attempt
     }
