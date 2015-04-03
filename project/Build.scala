@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2014 PayPal
+ * Copyright 2013-2015 PayPal
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import Dependencies._
 object BuildSettings {
 
   val org = "com.paypal"
-  val scalaVsn = "2.11.6"
+  val scalaVsn = "2.11.6"`
 
   val defaultArgs = Seq(
     "-Xmx4096m",
