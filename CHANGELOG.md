@@ -1,4 +1,7 @@
 
+# 0.4.8 04/02/15 released by 2rs2ts
+* add logging to before()
+
 # 0.4.7 03/31/15 released by msv
 * Update spray actor start method and fix specs.
 
