@@ -9,7 +9,7 @@ jdk:
   - oraclejdk7
   - oraclejdk8
 
-script: "sbt clean test scalastyle coverageReport coverageAggregate codacyCoverage"
+script: "sbt clean coverage test scalastyle coverageReport coverageAggregate codacyCoverage"
 
 sudo: false
 
