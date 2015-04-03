@@ -164,7 +164,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     case Start =>
       timeoutCancellable // initialize the timeout event
       val processRequest = for {
-        _ <- Try(before(request.method))
+        _ <- logFailure("before()", before(request.method))
         _ <- ensureContentTypeSupportedAndAcceptable
         req <- resourceContext.reqParser(request).orHaltWithMessage(BadRequest)(parseErrorMessage).map(ProcessRequest)
       } yield req
@@ -210,17 +210,23 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
       completeRequest(createErrorResponse(HaltException(StatusCodes.ServiceUnavailable)))
   }
 
+  private[this] def logFailure[T](method: String, fun: => T): Try[T] = {
+    val attempt = Try(fun)
+    attempt match {
+      case Failure(fail) =>
+        log.error(fail, s"An error occurred executing $method")
+        attempt
+      case _ => attempt
+    }
+  }
+
   /**
    * The only proper way to finish the request and kill this actor.
    * @param r the response to send
    */
   private[resource] def completeRequest(r: HttpResponse): Unit = {
     timeoutCancellable.cancel() // we are about to stop the actor, so cancel to avoid a dead letter
-    Try {
-      after(r)
-    }.recover {
-      case t: Throwable => log.error(t, "An error occurred executing after()")
-    }
+    logFailure("after()", after(r))
     resourceContext.reqContext.complete(r)
     resourceContext.mbReturnActor.foreach { returnActor =>
       returnActor ! r
