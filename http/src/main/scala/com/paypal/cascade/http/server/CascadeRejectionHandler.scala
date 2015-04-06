@@ -8,6 +8,6 @@ object CascadeRejectionHandler {
   val handler = RejectionHandler {
     case MissingQueryParamRejection(paramName) :: _ ⇒
       // override spray default, which returns a 404
-      complete(BadRequest, "Request is missing required query parameter '" + paramName + '\'')
+      complete(BadRequest, s"Request is missing required query parameter '$paramName'")
   }
 }

@@ -25,7 +25,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import spray.can.Http
 import spray.io.ServerSSLEngineProvider
-import spray.routing.{ExceptionHandler, RoutingSettings}
+import spray.routing.{RejectionHandler, ExceptionHandler, RoutingSettings}
 import spray.util.LoggingContext
 
 import com.paypal.cascade.akka.actor.ActorSystemWrapper
@@ -41,11 +41,18 @@ class SprayActor(override val sprayConfig: SprayConfiguration,
   private val exceptionHandler = implicitly[ExceptionHandler]
   private val routingSettings = implicitly[RoutingSettings]
 
+  private val rejectionHandler = {
+    sprayConfig.customRejectionHandler match {
+      case Some(handler) => handler.orElse(CascadeRejectionHandler.handler)
+      case None => CascadeRejectionHandler.handler
+    }
+  }
+
   override val actorRefFactory = context
 
   override def receive: Actor.Receive = {
     val loggingContext: LoggingContext = implicitly[LoggingContext]
-    runRoute(fullRoute)(exceptionHandler, CascadeRejectionHandler.handler, context, routingSettings, loggingContext)
+    runRoute(fullRoute)(exceptionHandler, rejectionHandler, context, routingSettings, loggingContext)
   }
 }
 

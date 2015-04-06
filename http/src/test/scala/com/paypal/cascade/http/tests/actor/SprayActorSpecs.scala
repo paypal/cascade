@@ -48,7 +48,7 @@ class SprayActorSpecs
     val route = mock[Route]
 
     val wrapper = new ActorSystemWrapper(serviceName)
-    val config = new SprayConfiguration(serviceName, port, backlog, route)
+    val config = new SprayConfiguration(serviceName, port, backlog, route, None)
     implicit val timeout = Timeout(10, TimeUnit.SECONDS)
   }
 
