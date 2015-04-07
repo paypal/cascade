@@ -28,7 +28,7 @@ import spray.routing.RequestContext
 /**
  * SprayRoutingServer is a fake spray server. Clients can simulate requests on the server with `makeRequest`
  * TODO: use ResponseHandlerActor and DummyRequestContext here, so we can eliminate the latch
- * @param config the configuration that the fake server should run with
+ * @param sprayConfig the configuration that the fake server should run with
  * @param actorSystemWrapper the actor system information that the server should run with
  */
 class SprayRoutingServer(override val sprayConfig: SprayConfiguration,

@@ -15,8 +15,6 @@
  */
 package com.paypal.cascade.http.actor
 
-import java.util.concurrent.TimeUnit
-
 import spray.can.server.ServerSettings
 
 import scala.concurrent.Future
@@ -27,12 +25,12 @@ import akka.pattern.ask
 import akka.util.Timeout
 import spray.can.Http
 import spray.io.ServerSSLEngineProvider
-import spray.routing.{ExceptionHandler, RejectionHandler, RoutingSettings}
+import spray.routing.{RejectionHandler, ExceptionHandler, RoutingSettings}
 import spray.util.LoggingContext
 
 import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import com.paypal.cascade.http.resource.ResourceService
-import com.paypal.cascade.http.server.SprayConfiguration
+import com.paypal.cascade.http.server.{CascadeRejectionHandler, SprayConfiguration}
 
 /**
  * The root actor implementation used by spray
@@ -41,8 +39,14 @@ class SprayActor(override val sprayConfig: SprayConfiguration,
                  override val actorSystemWrapper: ActorSystemWrapper) extends Actor with ResourceService {
   //lifting implicits so we can pass them explicitly to runRoute below
   private[this] val exceptionHandler = implicitly[ExceptionHandler]
-  private[this] val rejectionHandler = implicitly[RejectionHandler]
   private[this] val routingSettings = implicitly[RoutingSettings]
+
+  private val rejectionHandler = {
+    sprayConfig.customRejectionHandler match {
+      case Some(handler) => handler.orElse(CascadeRejectionHandler.handler)
+      case None => CascadeRejectionHandler.handler
+    }
+  }
 
   override val actorRefFactory = context
 
