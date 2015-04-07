@@ -37,7 +37,6 @@ import com.paypal.cascade.http.server.{CascadeRejectionHandler, SprayConfigurati
  */
 class SprayActor(override val sprayConfig: SprayConfiguration,
                  override val actorSystemWrapper: ActorSystemWrapper) extends Actor with ResourceService {
-  
   //lifting implicits so we can pass them explicitly to runRoute below
   private[this] val exceptionHandler = implicitly[ExceptionHandler]
   private[this] val routingSettings = implicitly[RoutingSettings]
