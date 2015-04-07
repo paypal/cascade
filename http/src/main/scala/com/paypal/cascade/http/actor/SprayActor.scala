@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2014 PayPal
+ * Copyright 2013-2015 PayPal
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,10 @@ import com.paypal.cascade.http.server.{CascadeRejectionHandler, SprayConfigurati
  */
 class SprayActor(override val sprayConfig: SprayConfiguration,
                  override val actorSystemWrapper: ActorSystemWrapper) extends Actor with ResourceService {
+  
   //lifting implicits so we can pass them explicitly to runRoute below
-  private val exceptionHandler = implicitly[ExceptionHandler]
-  private val routingSettings = implicitly[RoutingSettings]
+  private[this] val exceptionHandler = implicitly[ExceptionHandler]
+  private[this] val routingSettings = implicitly[RoutingSettings]
 
   private val rejectionHandler = {
     sprayConfig.customRejectionHandler match {
