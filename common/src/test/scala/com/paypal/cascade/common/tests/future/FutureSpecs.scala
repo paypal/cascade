@@ -15,9 +15,12 @@
  */
 package com.paypal.cascade.common.tests.future
 
-import org.specs2._
-import com.paypal.cascade.common.future._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
+import org.specs2._
+
+import com.paypal.cascade.common.future._
 
 /**
  * Tests implicit classes in [[com.paypal.cascade.common.future]]
