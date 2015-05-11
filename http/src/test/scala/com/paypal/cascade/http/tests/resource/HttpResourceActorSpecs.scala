@@ -25,6 +25,8 @@ import akka.actor.ActorSystem
 import akka.testkit.{TestActorRef, TestKit}
 import spray.http._
 import org.specs2.SpecificationLike
+import org.specs2.concurrent.ExecutionEnv
+import org.specs2.specification.ExecutionEnvironment
 
 import com.paypal.cascade.akka.tests.actor.ActorSpecification
 import com.paypal.cascade.common.tests.future._
@@ -38,7 +40,8 @@ import com.paypal.cascade.http.tests.resource.DummyResource.{GetRequest, SleepRe
 class HttpResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
   with SpecificationLike
-  with ActorSpecification { override def is = s2"""
+  with ActorSpecification
+  with ExecutionEnvironment { override def is(implicit ev: ExecutionEnv)= s2"""
 
   ResourceActor is the individual actor that executes an entire request against an AbstractResource. One is created per request.
 
@@ -87,7 +90,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class Start() extends Context {
+  case class Start(implicit ev: ExecutionEnv) extends Context {
 
     def succeeds = {
       val props = HttpResourceActor.props(resourceGen, dummyReqCtx, reqParser, None)
@@ -133,7 +136,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class Succeeds() extends Context {
+  case class Succeeds(implicit ev: ExecutionEnv) extends Context {
     def writesToReturnActor = apply {
       val recvRes = returnActorFuture must beLike[HttpResponse] {
         case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.OK)
@@ -155,7 +158,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class ContentTypeWithoutCharset() extends Context {
+  case class ContentTypeWithoutCharset(implicit ev: ExecutionEnv) extends Context {
     override lazy val req = HttpRequest(entity=HttpEntity(ContentType(MediaTypes.`application/json`), "hi"))
 
     def success = apply {
@@ -169,7 +172,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class ContentTypeWithCharset() extends Context {
+  case class ContentTypeWithCharset(implicit ev: ExecutionEnv) extends Context {
     override lazy val req = HttpRequest(entity=HttpEntity(ContentTypes.`application/json`, "hi"))
 
     def success = apply {
@@ -183,7 +186,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class ContentTypeWithWrongCharset() extends Context {
+  case class ContentTypeWithWrongCharset(implicit ev: ExecutionEnv) extends Context {
     override lazy val req = HttpRequest(entity=HttpEntity(ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-16`), "hi"))
 
     def reject = apply {
@@ -197,7 +200,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class WrongContentType() extends Context {
+  case class WrongContentType(implicit ev: ExecutionEnv) extends Context {
     override lazy val req = HttpRequest(entity="hi")  // text/plain
 
     def reject = apply {
@@ -211,7 +214,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class Fails() extends Context {
+  case class Fails(implicit ev: ExecutionEnv) extends Context {
     private lazy val ex = new Exception("hello world")
     override protected lazy val reqParser: HttpResourceActor.RequestParser = { req: HttpRequest =>
       Failure(ex)

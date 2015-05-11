@@ -162,7 +162,7 @@ object Dependencies {
   val sprayVersion = "1.3.3"
   val akkaVersion = "2.3.9"
   val parboiledVersion = "1.1.7"
-  val specs2Version = "3.1"
+  val specs2Version = "3.6"
 
   lazy val logback             = "ch.qos.logback"                 %  "logback-classic"       % "1.1.2" exclude("org.slf4j", "slf4j-api")
 
@@ -183,7 +183,7 @@ object Dependencies {
   lazy val specs2Core          = "org.specs2"                     %% "specs2-core"           % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11") exclude("com.chuusai", "shapeless_2.10")
   lazy val specs2Scalacheck    = "org.specs2"                     %% "specs2-scalacheck"     % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11") exclude("com.chuusai", "shapeless_2.10")
   lazy val specs2Mockito       = "org.specs2"                     %% "specs2-mock"           % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11") exclude("com.chuusai", "shapeless_2.10")
-  lazy val scalacheck          = "org.scalacheck"                 %% "scalacheck"            % "1.12.1"          % "test"
+  lazy val scalacheck          = "org.scalacheck"                 %% "scalacheck"            % "1.12.2"          % "test"
   lazy val mockito             = "org.mockito"                    %  "mockito-all"           % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"                   %  "hamcrest-all"          % "1.3"             % "test"
   lazy val pegdown             = "org.pegdown"                    %  "pegdown"               % "1.2.1"           % "test" exclude("org.parboiled", "parboiled-core") exclude("org.parboiled", "parboiled-java")

@@ -17,17 +17,17 @@ package com.paypal.cascade.common.tests.option
 
 import java.util.NoSuchElementException
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import org.specs2.Specification
+import org.specs2.concurrent.ExecutionEnv
+import org.specs2.specification.ExecutionEnvironment
+
 import com.paypal.cascade.common.option._
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 
 /**
  * Tests for implicit [[com.paypal.cascade.common.option.RichOption]]
  */
-
-class RichOptionSpecs extends Specification { override def is = s2"""
+class RichOptionSpecs extends Specification with ExecutionEnvironment { override def is(implicit ev: ExecutionEnv) = s2"""
   RichOption is a wrapper for Option[T] types
 
   orThrow should
@@ -57,7 +57,7 @@ class RichOptionSpecs extends Specification { override def is = s2"""
     }
   }
 
-  case class ToFuture() extends Context {
+  case class ToFuture(implicit ev: ExecutionEnv) extends Context {
     def returnsValue = apply {
       val wrappedSome = Option(someValue)
       val successState = wrappedSome.toFuture(new Exception("test exception"))
