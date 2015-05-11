@@ -27,7 +27,7 @@ import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 /**
  * Tests for implicit [[com.paypal.cascade.common.option.RichOption]]
  */
-class RichOptionSpecs extends Specification with ExecutionEnvironment { override def is(implicit ev: ExecutionEnv) = s2"""
+class RichOptionSpecs extends Specification with ExecutionEnvironment { override def is(implicit ee: ExecutionEnv) = s2"""
   RichOption is a wrapper for Option[T] types
 
   orThrow should
@@ -57,7 +57,7 @@ class RichOptionSpecs extends Specification with ExecutionEnvironment { override
     }
   }
 
-  case class ToFuture(implicit ev: ExecutionEnv) extends Context {
+  case class ToFuture(implicit ee: ExecutionEnv) extends Context {
     def returnsValue = apply {
       val wrappedSome = Option(someValue)
       val successState = wrappedSome.toFuture(new Exception("test exception"))

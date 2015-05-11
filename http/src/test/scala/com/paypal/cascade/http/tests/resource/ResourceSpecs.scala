@@ -30,7 +30,7 @@ import com.paypal.cascade.http.resource._
 /**
  * Tests resource.scala in [[com.paypal.cascade.http.resource]]
  */
-class ResourceSpecs extends Specification with ExecutionEnvironment { override def is(implicit ev: ExecutionEnv) = s2"""
+class ResourceSpecs extends Specification with ExecutionEnvironment { override def is(implicit ee: ExecutionEnv) = s2"""
 
   Tests that exercise implicit classes of resource.scala
 
@@ -206,11 +206,11 @@ class ResourceSpecs extends Specification with ExecutionEnvironment { override d
 
   object RFuture {
     case class orHaltTest() {
-      def ok(implicit ev: ExecutionEnv) = {
+      def ok(implicit ee: ExecutionEnv) = {
         val successfulFuture = Future("hi").orHalt { case e: Throwable => HttpResponse(BadRequest) }
         successfulFuture.toTry must beSuccessfulTry[String].withValue("hi")
       }
-      def failure(implicit ev: ExecutionEnv) = {
+      def failure(implicit ee: ExecutionEnv) = {
         val haltedFuture = Future[Unit] { throw new Throwable("fail")}.orHalt { case e: Throwable => HttpResponse(BadRequest) }
         haltedFuture.toTry must beFailedTry[Unit].withThrowable[HaltException]
       }
