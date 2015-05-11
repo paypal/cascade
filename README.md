@@ -101,12 +101,13 @@ and [detailed documentation](doc/HTTP_RESOURCE.md) for more.
 
 ## akka
 
-- `CommonActor` and `ServiceActor` are skeletons for building Akka actors. They provide logging during an actor's
+- `CommonActor` is a skeleton for building Akka actors. It provides logging during an actor's
   lifecycle and appropriately structure unhandled messages.
-- `ActorSystemComponent` defines an implicit actor system, actor ref factory, and execution context.
+- `ActorSystemWrapper` provides a singleton interface to an `ActorSystem`, `ActorRefFactory`, and `ExecutionContext`.
+  It also adds a reasonable default shutdown hook.
 - `config` package object provides an implicit class to get configuration values. It wraps Typesafe's Config getter
     methods in Options.
-- `ConfigComponent` provides `val config` which uses Typesafe's ConfigFactory to load configuration files. Typically this
+- `ConfigWrapper` provides `val config` which uses Typesafe's ConfigFactory to load configuration files. Typically this
   will be `application.conf`.
 
 ## json
