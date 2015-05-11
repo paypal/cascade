@@ -15,17 +15,18 @@
  */
 package com.paypal.cascade.common.tests.future
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import org.specs2._
+import org.specs2.concurrent.ExecutionEnv
+import org.specs2.specification.ExecutionEnvironment
 
 import com.paypal.cascade.common.future._
 
 /**
  * Tests implicit classes in [[com.paypal.cascade.common.future]]
  */
-class FutureSpecs extends Specification with ScalaCheck { def is=s2"""
+class FutureSpecs extends Specification with ScalaCheck with ExecutionEnvironment { def is(implicit ev: ExecutionEnv)=s2"""
 
   mapFailure:
 
@@ -41,7 +42,7 @@ class FutureSpecs extends Specification with ScalaCheck { def is=s2"""
 
   case class CustomException(message: String) extends Exception(message)
 
-  case class FutureMapFailure() {
+  case class FutureMapFailure(implicit ev: ExecutionEnv) {
     def fullFuncSuccess = {
       val f = Future[Unit] { throw new Exception("fail") }
       val mapped = f.mapFailure { e =>
@@ -63,7 +64,7 @@ class FutureSpecs extends Specification with ScalaCheck { def is=s2"""
     }
   }
 
-  case class FutureToUnit() {
+  case class FutureToUnit(implicit ev: ExecutionEnv) {
     def successful = {
       val fut = Future.successful("This is a Future[String]")
       val unitFut = fut.toUnit

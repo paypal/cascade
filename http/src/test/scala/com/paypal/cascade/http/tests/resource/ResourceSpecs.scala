@@ -15,13 +15,14 @@
  */
 package com.paypal.cascade.http.tests.resource
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Try
 
 import spray.http.StatusCodes.BadRequest
 import spray.http.{ContentTypes, HttpEntity, HttpResponse}
 import org.specs2.Specification
+import org.specs2.concurrent.ExecutionEnv
+import org.specs2.specification.ExecutionEnvironment
 
 import com.paypal.cascade.common.tests.future._
 import com.paypal.cascade.http.resource._
@@ -29,7 +30,7 @@ import com.paypal.cascade.http.resource._
 /**
  * Tests resource.scala in [[com.paypal.cascade.http.resource]]
  */
-class ResourceSpecs extends Specification { override def is = s2"""
+class ResourceSpecs extends Specification with ExecutionEnvironment { override def is(implicit ev: ExecutionEnv) = s2"""
 
   Tests that exercise implicit classes of resource.scala
 
@@ -205,11 +206,11 @@ class ResourceSpecs extends Specification { override def is = s2"""
 
   object RFuture {
     case class orHaltTest() {
-      def ok = {
+      def ok(implicit ev: ExecutionEnv) = {
         val successfulFuture = Future("hi").orHalt { case e: Throwable => HttpResponse(BadRequest) }
         successfulFuture.toTry must beSuccessfulTry[String].withValue("hi")
       }
-      def failure = {
+      def failure(implicit ev: ExecutionEnv) = {
         val haltedFuture = Future[Unit] { throw new Throwable("fail")}.orHalt { case e: Throwable => HttpResponse(BadRequest) }
         haltedFuture.toTry must beFailedTry[Unit].withThrowable[HaltException]
       }
