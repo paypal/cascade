@@ -85,7 +85,7 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is = 
         new SprayRoutingServer(config, systemWrapper, devNullSel)
       )
 
-      val matcherKeys = Seq("status", "service-name", "dependencies", "git-info")
+      val matcherKeys = Seq("status", "service-name", "build-version", "dependencies", "git-info")
       val res = sprayRoutingServer.underlyingActor.makeRequest(HttpMethods.GET,
         "/status",
         List(RawHeader("x-service-status", "true")),
