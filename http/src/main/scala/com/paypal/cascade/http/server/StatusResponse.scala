@@ -67,7 +67,8 @@ object StatusResponse extends LoggingSugar {
       }
     }
     val status = StatusResponse("ok", serviceName, serviceVersion, dependencies.toList, gitInfo)
-    logger.debug(s"Status Response - status: ${status.status}, serviceVersion: $serviceVersion, dependencies: ${dependencies.mkString(",")}, git-info: ${gitInfo.mkString(",")}")
+    logger.debug(s"Status Response - status: ${status.status}, " +
+      s"serviceVersion: $serviceVersion, dependencies: ${dependencies.mkString(",")}, git-info: ${gitInfo.mkString(",")}")
     status
   }
 }

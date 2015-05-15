@@ -15,19 +15,19 @@
  */
 package com.paypal.cascade.akka.tests.actor
 
-import org.specs2._
-import org.scalacheck.Prop._
-import org.scalacheck.Arbitrary._
-import akka.pattern.{AskTimeoutException, ask}
+import java.util.concurrent.TimeUnit
+
 import akka.actor._
+import akka.pattern.{AskTimeoutException, ask}
 import akka.testkit._
 import akka.util.Timeout
-import java.util.concurrent.TimeUnit
-import com.paypal.cascade.akka.actor.{UnhandledMessageException, ServiceActor}
+import org.scalacheck.Arbitrary._
+import org.scalacheck.Prop._
+import org.specs2._
+
+import com.paypal.cascade.akka.actor.{ServiceActor, UnhandledMessageException}
 import com.paypal.cascade.common.tests.future._
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
-
-import scala.concurrent.duration.FiniteDuration
 
 /**
  * Tests [[com.paypal.cascade.akka.actor.CommonActor]]
@@ -40,7 +40,6 @@ class CommonActorSpecs
 
   Passing an unhandled exception results in an UnhandledMessageException ${Message().unhandledMessage}
   Passing an unhandled Status.Failure does not result in a response      ${Message().unhandledFailure}
-
   """
 
   trait Context
