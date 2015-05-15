@@ -17,11 +17,11 @@ package com.paypal.cascade.http.tests.server
 
 import org.specs2._
 import org.specs2.mock.Mockito
+
 import com.paypal.cascade.http.server.StatusResponse
 import com.paypal.cascade.common.properties.BuildProperties
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.cascade.json.JsonUtil
-import com.paypal.cascade.http.tests.resource.DummyResource
 
 /**
  * Tests for [[com.paypal.cascade.http.server.StatusResponse]].
@@ -31,11 +31,11 @@ class StatusResponseSpecs extends Specification with Mockito { override def is =
   getStatusResponse
     properly creates json response                      ${Response().ok}
     does not fail when some keys are missing            ${Response().okWithMissing}
-
   """
 
   trait Context extends CommonImmutableSpecificationContext {
     val bp = mock[BuildProperties]
+    bp.get("service.serviceVersion") returns Option("1.2.3")
     bp.get("service.dependencies") returns Option("dep1,dep2,dep3")
     bp.get("git.branch") returns Option("test-branch")
     bp.get("git.branch.clean") returns Option("true")
@@ -49,7 +49,7 @@ class StatusResponseSpecs extends Specification with Mockito { override def is =
 
       val resp = StatusResponse.getStatusResponse(bp, "tests")
       val jsonResp = JsonUtil.toJson(resp).getOrElse("""{"status":"error"}""")
-      jsonResp must beEqualTo("""{"status":"ok","service-name":"tests","dependencies":["dep1","dep2","dep3"],"git-info":{"branch":"test-branch","branch-is-clean":"true","commit-sha":"1234","commit-date":"today"}}""")
+      jsonResp must beEqualTo("""{"status":"ok","service-name":"tests","service-version":"1.2.3","dependencies":["dep1","dep2","dep3"],"git-info":{"branch":"test-branch","branch-is-clean":"true","commit-sha":"1234","commit-date":"today"}}""")
     }
     def okWithMissing = apply {
       bp.get("git.commit.sha") returns Option.empty[String]
@@ -57,7 +57,7 @@ class StatusResponseSpecs extends Specification with Mockito { override def is =
 
       val resp = StatusResponse.getStatusResponse(bp, "tests")
       val jsonResp = JsonUtil.toJson(resp).getOrElse("""{"status":"error"}""")
-      jsonResp must beEqualTo("""{"status":"ok","service-name":"tests","dependencies":["dep1","dep2","dep3"],"git-info":{"branch":"test-branch","branch-is-clean":"true"}}""")
+      jsonResp must beEqualTo("""{"status":"ok","service-name":"tests","service-version":"1.2.3","dependencies":["dep1","dep2","dep3"],"git-info":{"branch":"test-branch","branch-is-clean":"true"}}""")
     }
   }
 
