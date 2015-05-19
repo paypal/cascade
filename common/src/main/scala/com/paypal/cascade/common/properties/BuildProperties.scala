@@ -25,7 +25,7 @@ import com.paypal.cascade.common.logging.LoggingSugar
  *
  */
 class BuildProperties(propertiesFilePath: String = "/build.properties") extends LoggingSugar {
-  
+
   // at first use, try to retrieve a Properties object
   private lazy val props: Option[Properties] = {
     Option(getClass.getResource(propertiesFilePath)).flatMap { url =>
