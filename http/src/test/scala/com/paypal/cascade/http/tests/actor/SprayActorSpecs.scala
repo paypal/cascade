@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2014 PayPal
+ * Copyright 2013-2015 PayPal
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ class SprayActorSpecs
     val route = mock[Route]
 
     val wrapper = new ActorSystemWrapper(serviceName)
-    val config = new SprayConfiguration(serviceName, port, backlog, route)
+    val config = new SprayConfiguration(serviceName, port, backlog, route, None)
     implicit val timeout = Timeout(10, TimeUnit.SECONDS)
   }
 

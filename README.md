@@ -24,13 +24,13 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal" %% "cascade-$projectName" % "0.4.8"
+"com.paypal" %% "cascade-$projectName" % "0.4.9"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal" %% "cascade-akka" % "0.4.8"
+"com.paypal" %% "cascade-akka" % "0.4.9"
 ```
 
 If you're starting a new project, we recommend using SBT along with
@@ -52,9 +52,9 @@ depend on `common`), you can mix and match which libraries you use.
 The libraries in Cascade all follow some similar patterns.
 [PATTERNS.md](doc/PATTERNS.md) describes them in detail.
 
-Current Version: 0.4.8
+Current Version: 0.4.9
 
-[View the ScalaDocs](https://paypal.github.io/cascade/api/0.4.8/index.html#com.paypal.cascade.package)
+[View the ScalaDocs](https://paypal.github.io/cascade/api/0.4.9/index.html#com.paypal.cascade.package)
 
 # Dependencies
 
@@ -63,13 +63,13 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal" %% "cascade-$projectName" % "0.4.8"
+"com.paypal" %% "cascade-$projectName" % "0.4.9"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal" %% "cascade-akka" % "0.4.8"
+"com.paypal" %% "cascade-akka" % "0.4.9"
 ```
 
 If you're starting a new project, we recommend using SBT along with
@@ -101,12 +101,13 @@ and [detailed documentation](doc/HTTP_RESOURCE.md) for more.
 
 ## akka
 
-- `CommonActor` and `ServiceActor` are skeletons for building Akka actors. They provide logging during an actor's
+- `CommonActor` is a skeleton for building Akka actors. It provides logging during an actor's
   lifecycle and appropriately structure unhandled messages.
-- `ActorSystemComponent` defines an implicit actor system, actor ref factory, and execution context.
+- `ActorSystemWrapper` provides a singleton interface to an `ActorSystem`, `ActorRefFactory`, and `ExecutionContext`.
+  It also adds a reasonable default shutdown hook.
 - `config` package object provides an implicit class to get configuration values. It wraps Typesafe's Config getter
     methods in Options.
-- `ConfigComponent` provides `val config` which uses Typesafe's ConfigFactory to load configuration files. Typically this
+- `ConfigWrapper` provides `val config` which uses Typesafe's ConfigFactory to load configuration files. Typically this
   will be `application.conf`.
 
 ## json

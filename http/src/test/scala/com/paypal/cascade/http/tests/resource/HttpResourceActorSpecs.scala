@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2014 PayPal
+ * Copyright 2013-2015 PayPal
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package com.paypal.cascade.http.tests.resource
 
 import java.util.concurrent.{CountDownLatch, TimeUnit}
 
-import scala.concurrent.Promise
+import scala.concurrent.{ExecutionContext, Promise}
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
@@ -25,6 +25,8 @@ import akka.actor.ActorSystem
 import akka.testkit.{TestActorRef, TestKit}
 import spray.http._
 import org.specs2.SpecificationLike
+import org.specs2.concurrent.ExecutionEnv
+import org.specs2.specification.ExecutionEnvironment
 
 import com.paypal.cascade.akka.tests.actor.ActorSpecification
 import com.paypal.cascade.common.tests.future._
@@ -38,7 +40,8 @@ import com.paypal.cascade.http.tests.resource.DummyResource.{GetRequest, SleepRe
 class HttpResourceActorSpecs
   extends TestKit(ActorSystem("resource-actor-specs"))
   with SpecificationLike
-  with ActorSpecification { override def is = s2"""
+  with ActorSpecification
+  with ExecutionEnvironment { override def is(implicit ee: ExecutionEnv)= s2"""
 
   ResourceActor is the individual actor that executes an entire request against an AbstractResource. One is created per request.
 
@@ -61,6 +64,8 @@ class HttpResourceActorSpecs
     The actor calls the after() method                                                                                       ${BeforeAfter().afterCalled}
   """
   private val resourceGen = new DummyResource(_)
+
+  implicit val executionContext: ExecutionContext = system.dispatcher
 
   sealed trait Context extends CommonImmutableSpecificationContext with RefAndProbeMatchers {
 
@@ -85,7 +90,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class Start() extends Context {
+  case class Start(implicit ee: ExecutionEnv) extends Context {
 
     def succeeds = {
       val props = HttpResourceActor.props(resourceGen, dummyReqCtx, reqParser, None)
@@ -131,7 +136,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class Succeeds() extends Context {
+  case class Succeeds(implicit ee: ExecutionEnv) extends Context {
     def writesToReturnActor = apply {
       val recvRes = returnActorFuture must beLike[HttpResponse] {
         case HttpResponse(statusCode, _, _, _) => statusCode must beEqualTo(StatusCodes.OK)
@@ -153,7 +158,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class ContentTypeWithoutCharset() extends Context {
+  case class ContentTypeWithoutCharset(implicit ee: ExecutionEnv) extends Context {
     override lazy val req = HttpRequest(entity=HttpEntity(ContentType(MediaTypes.`application/json`), "hi"))
 
     def success = apply {
@@ -167,7 +172,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class ContentTypeWithCharset() extends Context {
+  case class ContentTypeWithCharset(implicit ee: ExecutionEnv) extends Context {
     override lazy val req = HttpRequest(entity=HttpEntity(ContentTypes.`application/json`, "hi"))
 
     def success = apply {
@@ -181,7 +186,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class ContentTypeWithWrongCharset() extends Context {
+  case class ContentTypeWithWrongCharset(implicit ee: ExecutionEnv) extends Context {
     override lazy val req = HttpRequest(entity=HttpEntity(ContentType(MediaTypes.`application/json`, HttpCharsets.`UTF-16`), "hi"))
 
     def reject = apply {
@@ -195,7 +200,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class WrongContentType() extends Context {
+  case class WrongContentType(implicit ee: ExecutionEnv) extends Context {
     override lazy val req = HttpRequest(entity="hi")  // text/plain
 
     def reject = apply {
@@ -209,7 +214,7 @@ class HttpResourceActorSpecs
     }
   }
 
-  case class Fails() extends Context {
+  case class Fails(implicit ee: ExecutionEnv) extends Context {
     private lazy val ex = new Exception("hello world")
     override protected lazy val reqParser: HttpResourceActor.RequestParser = { req: HttpRequest =>
       Failure(ex)

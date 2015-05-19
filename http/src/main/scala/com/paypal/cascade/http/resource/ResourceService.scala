@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2014 PayPal
+ * Copyright 2013-2015 PayPal
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,9 +95,6 @@ trait ResourceService extends HttpService {
     }
   }
 
-  /** The route before sealing into `fullRoute`. This should not be overridden. */
-  protected lazy val unsealedFullRoute: Route = statusRoute ~ statsRoute ~ route
-
-  /** The route after sealing, which will be used to handle requests. This should not be overridden. */
-  lazy val fullRoute: Route = sealRoute(unsealedFullRoute)
+  /** The route before sealing in `runRoute`. This should not be overridden. */
+  lazy val fullRoute: Route =  statusRoute ~ statsRoute ~ route
 }

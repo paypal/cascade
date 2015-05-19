@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2014 PayPal
+ * Copyright 2013-2015 PayPal
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
  */
 package com.paypal.cascade.akka.tests.actor
 
-import org.specs2.specification.{SpecificationStructure, Step, Fragments}
-import akka.testkit.{TestKitBase, TestKit}
+import akka.testkit.{TestKit, TestKitBase}
+import org.specs2.specification.core.{Fragments, SpecificationStructure}
+import org.specs2.specification.dsl.ActionDsl
 
 /**
  * Test harness trait for Specs involving Akka Actors
  */
-trait ActorSpecification extends SpecificationStructure {
+trait ActorSpecification extends SpecificationStructure with ActionDsl {
   this: TestKitBase =>
 
-  override def map(fs: => Fragments): Fragments = super.map(fs).add(Step(TestKit.shutdownActorSystem(system)))
+  override def map(fs: => Fragments): Fragments = super.map(fs).append(step(TestKit.shutdownActorSystem(system)))
 
 }

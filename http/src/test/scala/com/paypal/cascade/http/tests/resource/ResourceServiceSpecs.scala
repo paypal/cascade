@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2014 PayPal
+ * Copyright 2013-2015 PayPal
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is = 
         new SprayRoutingServer(config, systemWrapper, devNullSel)
       )
 
-      val matcherKeys = Seq("status", "service-name", "dependencies", "git-info")
+      val matcherKeys = Seq("status", "service-name", "service-version", "dependencies", "git-info")
       val res = sprayRoutingServer.underlyingActor.makeRequest(HttpMethods.GET,
         "/status",
         List(RawHeader("x-service-status", "true")),
