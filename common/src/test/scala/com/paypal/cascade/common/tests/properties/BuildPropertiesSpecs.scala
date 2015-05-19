@@ -28,7 +28,9 @@ class BuildPropertiesSpecs extends Specification { override def is = s2"""
   BuildProperties loads the build.properties files.
 
   Get should:
-    get the value when the path exists      ${GetValue().ok}
+    get the value when the it's in the file               ${GetValue().ok}
+    return None when the value isn't in the file          ${GetValue().notInFile}
+    return None when the file wasn't loaded               ${GetValue().fileNotLoaded}
 
   """
 
@@ -40,6 +42,16 @@ class BuildPropertiesSpecs extends Specification { override def is = s2"""
     def ok = apply {
       val bp = new BuildProperties("/test_build.properties")
       bp.get("test") must beSome("foo")
+    }
+
+    def notInFile = apply {
+      val bp = new BuildProperties("/test_build.properties")
+      bp.get("not.in.file") must beNone
+    }
+
+    def fileNotLoaded = apply {
+      val bp = new BuildProperties("/not.a.file")
+      bp.get("test") must beNone
     }
   }
 
