@@ -25,15 +25,10 @@ import com.paypal.cascade.common.logging.LoggingSugar
  *
  */
 class BuildProperties(propertiesFilePath: String = "/build.properties") extends LoggingSugar {
-
-  /**
-   * A new default properties file location, at `build.properties`, or None if no resource exists with that name
-   */
-  private val buildUrl = Option(getClass.getResource(propertiesFilePath))
-
+  
   // at first use, try to retrieve a Properties object
   private lazy val props: Option[Properties] = {
-    buildUrl.flatMap { url =>
+    Option(getClass.getResource(propertiesFilePath)).flatMap { url =>
       try {
         val stream = url.openStream()
         val p = new Properties
