@@ -24,12 +24,12 @@ import com.paypal.cascade.common.logging.LoggingSugar
  * Class specifically for accessing values from build.properties.
  *
  */
-class BuildProperties extends LoggingSugar {
+class BuildProperties(propertiesFilePath: String = "/build.properties") extends LoggingSugar {
 
   /**
    * A new default properties file location, at `build.properties`, or None if no resource exists with that name
    */
-  private val buildUrl = Option(getClass.getResource("/build.properties"))
+  private val buildUrl = Option(getClass.getResource(propertiesFilePath))
 
   // at first use, try to retrieve a Properties object
   private lazy val props: Option[Properties] = {
@@ -45,7 +45,7 @@ class BuildProperties extends LoggingSugar {
         }
       } catch {
         case ioe: IOException =>
-          getLogger[BuildProperties].warn("Unable to load build.properties", ioe)
+          getLogger[BuildProperties].warn(s"Unable to load $propertiesFilePath", ioe)
           None
       }
     }
