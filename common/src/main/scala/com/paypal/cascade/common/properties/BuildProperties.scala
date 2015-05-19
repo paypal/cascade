@@ -15,9 +15,10 @@
  */
 package com.paypal.cascade.common.properties
 
+import java.io.IOException
 import java.util.Properties
+
 import com.paypal.cascade.common.logging.LoggingSugar
-import scala.util.Try
 
 /**
  * Class specifically for accessing values from build.properties.
@@ -32,13 +33,21 @@ class BuildProperties extends LoggingSugar {
 
   // at first use, try to retrieve a Properties object
   private lazy val props: Option[Properties] = {
-    lazy val p = new Properties
-    for {
-      url <- buildUrl
-      stream <- Try(url.openStream()).toOption
-    } yield {
-      p.load(stream)
-      p
+    buildUrl.flatMap { url =>
+      try {
+        val stream = url.openStream()
+        val p = new Properties
+        try {
+          p.load(stream)
+          Some(p)
+        } finally {
+          stream.close()
+        }
+      } catch {
+        case ioe: IOException =>
+          getLogger[BuildProperties].warn("Unable to load build.properties", ioe)
+          None
+      }
     }
   }
 
