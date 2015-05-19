@@ -28,7 +28,7 @@ class BuildProperties extends LoggingSugar {
   /**
    * A new default properties file location, at `build.properties`, or None if no resource exists with that name
    */
-  private val buildUrl = Try(getClass.getResource("/build.properties")).toOption
+  private val buildUrl = Option(getClass.getResource("/build.properties"))
 
   // at first use, try to retrieve a Properties object
   private lazy val props: Option[Properties] = {
