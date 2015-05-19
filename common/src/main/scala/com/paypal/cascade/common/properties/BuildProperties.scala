@@ -15,35 +15,41 @@
  */
 package com.paypal.cascade.common.properties
 
+import java.io.IOException
 import java.util.Properties
+
 import com.paypal.cascade.common.logging.LoggingSugar
-import scala.util.Try
 
 /**
  * Class specifically for accessing values from build.properties.
- *
+ * @param propertiesResourcePath the path to the .properties resource file. See
+ *   <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html#getResource%28java.lang.String%29">here</a>
+ *   for more information on how to pass this argument.
  */
-class BuildProperties extends LoggingSugar {
-
-  /**
-   * A new default properties file location, at `build.properties`, or None if no resource exists with that name
-   */
-  private val buildUrl = Try(getClass.getResource("/build.properties")).toOption
+class BuildProperties(propertiesResourcePath: String = "/build.properties") extends LoggingSugar {
 
   // at first use, try to retrieve a Properties object
   private lazy val props: Option[Properties] = {
-    lazy val p = new Properties
-    for {
-      url <- buildUrl
-      stream <- Try(url.openStream()).toOption
-    } yield {
-      p.load(stream)
-      p
+    Option(getClass.getResource(propertiesResourcePath)).flatMap { url =>
+      try {
+        val stream = url.openStream()
+        val p = new Properties
+        try {
+          p.load(stream)
+          Some(p)
+        } finally {
+          stream.close()
+        }
+      } catch {
+        case ioe: IOException =>
+          getLogger[BuildProperties].warn(s"Unable to load $propertiesResourcePath", ioe)
+          None
+      }
     }
   }
 
   /**
-   * Retrieves an optional value from a `java.util.Properties` object
+   * Retrieves an optional value from a lazily-loaded `java.util.Properties` object.
    * @param key the key to retrieve
    * @return an optional String value for the given `key`
    */
