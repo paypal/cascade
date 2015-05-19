@@ -67,7 +67,6 @@ object BuildSettings {
   lazy val standardSettings = Defaults.coreDefaultSettings ++ Plugin.graphSettings ++ ScalastylePlugin.projectSettings ++ Seq(
     organization := org,
     scalaVersion := scalaVsn,
-    crossScalaVersions := Seq(scalaVsn, "2.10.4"),
     exportJars := true,
     fork := true,
     incOptions := incOptions.value.withNameHashing(nameHashing = true),
@@ -180,9 +179,9 @@ object Dependencies {
   lazy val sprayRouting        = "io.spray"                       %% "spray-routing-shapeless2" % sprayVersion
   lazy val akka                = "com.typesafe.akka"              %% "akka-actor"            % akkaVersion
 
-  lazy val specs2Core          = "org.specs2"                     %% "specs2-core"           % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11") exclude("com.chuusai", "shapeless_2.10")
-  lazy val specs2Scalacheck    = "org.specs2"                     %% "specs2-scalacheck"     % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11") exclude("com.chuusai", "shapeless_2.10")
-  lazy val specs2Mockito       = "org.specs2"                     %% "specs2-mock"           % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11") exclude("com.chuusai", "shapeless_2.10")
+  lazy val specs2Core          = "org.specs2"                     %% "specs2-core"           % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11")
+  lazy val specs2Scalacheck    = "org.specs2"                     %% "specs2-scalacheck"     % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11")
+  lazy val specs2Mockito       = "org.specs2"                     %% "specs2-mock"           % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11")
   lazy val scalacheck          = "org.scalacheck"                 %% "scalacheck"            % "1.12.2"          % "test"
   lazy val mockito             = "org.mockito"                    %  "mockito-all"           % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"                   %  "hamcrest-all"          % "1.3"             % "test"
@@ -190,7 +189,7 @@ object Dependencies {
   lazy val parboiledJava       = "org.parboiled"                  %  "parboiled-java"        % parboiledVersion  % "test"
   lazy val parboiledScala      = "org.parboiled"                  %% "parboiled-scala"       % parboiledVersion  % "test"
 
-  lazy val sprayTestKit        = "io.spray"                       %% "spray-testkit"         % sprayVersion      % "test" exclude("org.specs2", "specs2_2.11") exclude("org.specs2", "specs2_2.10") exclude("com.typesafe.akka", "akka-testkit_2.11") exclude("com.typesafe.akka", "akka-testkit_2.10")
+  lazy val sprayTestKit        = "io.spray"                       %% "spray-testkit"         % sprayVersion      % "test" exclude("org.specs2", "specs2_2.11") exclude("com.typesafe.akka", "akka-testkit_2.11")
   lazy val akkaTestKit         = "com.typesafe.akka"              %% "akka-testkit"          % akkaVersion       % "test"
 
   lazy val commonDependencies = Seq(
