@@ -1,4 +1,7 @@
 
+# 0.4.9 05/19/15 released by msv
+* SprayConfiguration now lets you override RejectionHandler, service-version added to status endpoint, specs2 upgraded to 3.6
+
 # 0.4.8 04/02/15 released by 2rs2ts
 * add logging to before()
 
