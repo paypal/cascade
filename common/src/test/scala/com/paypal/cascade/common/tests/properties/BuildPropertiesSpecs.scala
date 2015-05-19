@@ -34,11 +34,7 @@ class BuildPropertiesSpecs extends Specification { override def is = s2"""
 
   """
 
-  trait Context extends CommonImmutableSpecificationContext {
-    // Nothing for now
-  }
-
-  case class GetValue() extends Context {
+  case class GetValue() extends CommonImmutableSpecificationContext {
     def ok = apply {
       val bp = new BuildProperties("/test_build.properties")
       bp.get("test") must beSome("foo")
