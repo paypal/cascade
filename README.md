@@ -185,7 +185,7 @@ All releases must be done from a release branch that merges into master.
 3. [Open a pull request](https://github.com/paypal/cascade/compare) merging your branch from (2) into `master`
 4. Perform the release:
   - Set the CHANGELOG_MSG and CHANGELOG_AUTHOR environment variables to work around an issue with sbt 0.13.6+
-  - ```sbt "release cross with-defaults"```
+  - ```sbt "release with-defaults"```
 5. Go to http://oss.sonatype.org and login
 6. Go to “Staging Repositories” (on left side)
 7. Find your repo (at the bottom) 
