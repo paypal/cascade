@@ -12,11 +12,11 @@ trait AkkaLoggingAsSlf4j {
 
     override def warn(msg: String): Unit = akkaLogger.warning(msg)
 
-    override def warn(format: String, arg: scala.Any): Unit = akkaLogger.warning(format, arg)
+    override def warn(format: String, arg: Any): Unit = akkaLogger.warning(format, arg)
 
     override def warn(format: String, arguments: AnyRef*): Unit = akkaLogger.warning(formatArray(format, arguments))
 
-    override def warn(format: String, arg1: scala.Any, arg2: scala.Any): Unit = akkaLogger.warning(format, arg1, arg2)
+    override def warn(format: String, arg1: Any, arg2: Any): Unit = akkaLogger.warning(format, arg1, arg2)
 
     override def warn(msg: String, t: Throwable): Unit = akkaLogger.warning(s"$msg\n$t")
 
@@ -32,9 +32,9 @@ trait AkkaLoggingAsSlf4j {
 
     override def error(msg: String): Unit = akkaLogger.error(msg)
 
-    override def error(format: String, arg: scala.Any): Unit = akkaLogger.error(format, arg)
+    override def error(format: String, arg: Any): Unit = akkaLogger.error(format, arg)
 
-    override def error(format: String, arg1: scala.Any, arg2: scala.Any): Unit = akkaLogger.error(format, arg1, arg2)
+    override def error(format: String, arg1: Any, arg2: Any): Unit = akkaLogger.error(format, arg1, arg2)
 
     override def error(format: String, arguments: AnyRef*): Unit = akkaLogger.error(formatArray(format, arguments))
 
@@ -42,9 +42,9 @@ trait AkkaLoggingAsSlf4j {
 
     override def debug(msg: String): Unit = akkaLogger.debug(msg)
 
-    override def debug(format: String, arg: scala.Any): Unit = akkaLogger.debug(format, arg)
+    override def debug(format: String, arg: Any): Unit = akkaLogger.debug(format, arg)
 
-    override def debug(format: String, arg1: scala.Any, arg2: scala.Any): Unit = akkaLogger.debug(format, arg1, arg2)
+    override def debug(format: String, arg1: Any, arg2: Any): Unit = akkaLogger.debug(format, arg1, arg2)
 
     override def debug(format: String, arguments: AnyRef*): Unit = akkaLogger.debug(formatArray(format, arguments))
 
@@ -54,9 +54,9 @@ trait AkkaLoggingAsSlf4j {
 
     override def trace(msg: String): Unit = debug(msg)
 
-    override def trace(format: String, arg: scala.Any): Unit = debug(format, arg)
+    override def trace(format: String, arg: Any): Unit = debug(format, arg)
 
-    override def trace(format: String, arg1: scala.Any, arg2: scala.Any): Unit = debug(format, arg1, arg2)
+    override def trace(format: String, arg1: Any, arg2: Any): Unit = debug(format, arg1, arg2)
 
     override def trace(format: String, arguments: AnyRef*): Unit = debug(format, arguments)
 
@@ -64,9 +64,9 @@ trait AkkaLoggingAsSlf4j {
 
     override def info(msg: String): Unit = akkaLogger.info(msg)
 
-    override def info(format: String, arg: scala.Any): Unit = akkaLogger.info(format, arg)
+    override def info(format: String, arg: Any): Unit = akkaLogger.info(format, arg)
 
-    override def info(format: String, arg1: scala.Any, arg2: scala.Any): Unit = akkaLogger.info(format, arg1, arg2)
+    override def info(format: String, arg1: Any, arg2: Any): Unit = akkaLogger.info(format, arg1, arg2)
 
     override def info(format: String, arguments: AnyRef*): Unit = akkaLogger.info(formatArray(format, arguments))
 
