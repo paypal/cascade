@@ -16,31 +16,38 @@
 package com.paypal.cascade.common.tests.properties
 
 import org.specs2._
-import org.specs2.mock.Mockito
-import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
+
 import com.paypal.cascade.common.properties.BuildProperties
+import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 
 /**
  * Tests [[com.paypal.cascade.common.properties.BuildProperties]]
  */
-class BuildPropertiesSpecs extends Specification with Mockito { override def is = s2"""
+class BuildPropertiesSpecs extends Specification { override def is = s2"""
 
   BuildProperties loads the build.properties files.
 
   Get should:
-    get the value when the path exists      ${GetValue().ok}
+    get the value when the it's in the file               ${GetValue().ok}
+    return None when the value isn't in the file          ${GetValue().notInFile}
+    return None when the file wasn't loaded               ${GetValue().fileNotLoaded}
 
   """
 
-  trait Context extends CommonImmutableSpecificationContext {
-    // Nothing for now
-  }
-
-  case class GetValue() extends Context {
+  case class GetValue() extends CommonImmutableSpecificationContext {
     def ok = apply {
-      val bp = spy(new BuildProperties)
-      bp.get("some.property") returns Some("somevalue")
-      bp.get("some.property") must beSome("somevalue")
+      val bp = new BuildProperties("/test_build.properties")
+      bp.get("test") must beSome("foo")
+    }
+
+    def notInFile = apply {
+      val bp = new BuildProperties("/test_build.properties")
+      bp.get("not.in.file") must beNone
+    }
+
+    def fileNotLoaded = apply {
+      val bp = new BuildProperties("/not.a.file")
+      bp.get("test") must beNone
     }
   }
 

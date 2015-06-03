@@ -24,13 +24,13 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal" %% "cascade-$projectName" % "0.4.9"
+"com.paypal" %% "cascade-$projectName" % "0.5.0"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal" %% "cascade-akka" % "0.4.9"
+"com.paypal" %% "cascade-akka" % "0.5.0"
 ```
 
 If you're starting a new project, we recommend using SBT along with
@@ -52,9 +52,9 @@ depend on `common`), you can mix and match which libraries you use.
 The libraries in Cascade all follow some similar patterns.
 [PATTERNS.md](doc/PATTERNS.md) describes them in detail.
 
-Current Version: 0.4.9
+Current Version: 0.5.0
 
-[View the ScalaDocs](https://paypal.github.io/cascade/api/0.4.9/index.html#com.paypal.cascade.package)
+[View the ScalaDocs](https://paypal.github.io/cascade/api/0.5.0/index.html#com.paypal.cascade.package)
 
 # Dependencies
 
@@ -63,13 +63,13 @@ build system. In an SBT project, add the following to your `build.sbt` or
 `Build.scala` file:
 
 ```scala
-"com.paypal" %% "cascade-$projectName" % "0.4.9"
+"com.paypal" %% "cascade-$projectName" % "0.5.0"
 ```
 
 For example, to use the Akka library:
 
 ```scala
-"com.paypal" %% "cascade-akka" % "0.4.9"
+"com.paypal" %% "cascade-akka" % "0.5.0"
 ```
 
 If you're starting a new project, we recommend using SBT along with
@@ -185,7 +185,7 @@ All releases must be done from a release branch that merges into master.
 3. [Open a pull request](https://github.com/paypal/cascade/compare) merging your branch from (2) into `master`
 4. Perform the release:
   - Set the CHANGELOG_MSG and CHANGELOG_AUTHOR environment variables to work around an issue with sbt 0.13.6+
-  - ```sbt "release cross with-defaults"```
+  - ```sbt "release with-defaults"```
 5. Go to http://oss.sonatype.org and login
 6. Go to “Staging Repositories” (on left side)
 7. Find your repo (at the bottom) 
