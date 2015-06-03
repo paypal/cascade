@@ -4,7 +4,15 @@ import akka.event.LoggingAdapter
 import org.slf4j.helpers.{MarkerIgnoringBase, MessageFormatter}
 
 /**
- * Provides an implicit class which lets you treat an Akka [[akka.event.LoggingAdapter]] as a [[org.slf4j.Logger]].
+ * Provides an implicit class which lets you treat an Akka [[akka.event.LoggingAdapter]] as a [[org.slf4j.Logger]].<br><br>
+ *
+ * Due to the ambiguity in the method overloading in the original interface, the implicit class cannot have any methods
+ * that take a variable number of `Any`s. If you need to call such a method with `AnyVal`s, you will have to explicitly
+ * convert them to `AnyRef`s (i.e. put them in their equivalent Java classes).
+ * {{{
+ *   info("{0}, {1}, {2}", Array(10, 20, 30).asInstanceOf[Array[AnyRef]]: _*)
+ * }}}
+ * This is a non-issue if you just use Scala's string interpolation instead of formatted strings.
  */
 trait AkkaLoggingAsSlf4j {
 
