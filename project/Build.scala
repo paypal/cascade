@@ -77,7 +77,7 @@ object BuildSettings {
     javacOptions ++= Seq("-source", "1.7", "-target", "1.7"),
     javaOptions in run ++= runArgs,
     javaOptions in Test ++= testArgs,
-    testOptions in Test += Tests.Argument("html", "console"),
+    testOptions in Test += Tests.Argument("html", "!pandoc", "console"),
     apiURL := Some(url("https://paypal.github.io/cascade/api/")),
     autoAPIMappings := true,
     apiMappings ++= {
@@ -182,6 +182,7 @@ object Dependencies {
   lazy val specs2Core          = "org.specs2"                     %% "specs2-core"           % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11")
   lazy val specs2Scalacheck    = "org.specs2"                     %% "specs2-scalacheck"     % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11")
   lazy val specs2Mockito       = "org.specs2"                     %% "specs2-mock"           % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11")
+  lazy val specs2Html          = "org.specs2"                     %% "specs2-html"           % specs2Version     % "test" exclude("com.chuusai", "shapeless_2.11")
   lazy val scalacheck          = "org.scalacheck"                 %% "scalacheck"            % "1.12.2"          % "test"
   lazy val mockito             = "org.mockito"                    %  "mockito-all"           % "1.9.5"           % "test"
   lazy val hamcrest            = "org.hamcrest"                   %  "hamcrest-all"          % "1.3"             % "test"
@@ -226,6 +227,7 @@ object Dependencies {
     specs2Core,
     specs2Scalacheck,
     specs2Mockito,
+    specs2Html,
     jacksonJodaModule,
     jodaConvert
   )
