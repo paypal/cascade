@@ -31,12 +31,12 @@ import spray.routing.RequestContext
 
 import com.paypal.cascade.akka.actor._
 import com.paypal.cascade.http.resource.HttpResourceActor._
-import com.paypal.cascade.http.util.HttpUtil
+import com.paypal.cascade.http.util.{HttpErrorResponeHandler, HttpUtil}
 
 /**
  * the actor to manage the execution of an [[com.paypal.cascade.http.resource.AbstractResourceActor]]. Create one of these per request
  */
-private[http] abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor {
+private[http] abstract class HttpResourceActor(resourceContext: ResourceContext) extends ServiceActor with HttpErrorResponeHandler {
 
   /**
    * This method will always be invoked before request processing begins. It is primarily provided for metrics tracking.
@@ -97,28 +97,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
    * @return a crafted HttpResponse from the error message
    */
   protected def createErrorResponse(exception: Exception): HttpResponse = {
-    val resp = exception match {
-      case haltException: HaltException =>
-        val response = addHeaderOnCode(haltException.response, Unauthorized) {
-          `WWW-Authenticate`(HttpUtil.unauthorizedChallenge(request))
-        }
-        // If the error already has the right content type, let it through, otherwise coerce it
-        val finalResponse = response.withEntity(response.entity.flatMap {
-          entity: NonEmpty =>
-            entity.contentType match {
-              case HttpUtil.errorResponseType => entity
-              case _ => HttpUtil.toJsonBody(entity.data.asString(UTF_8))
-            }
-        })
-        if (finalResponse.status.intValue >= 500) {
-          val statusCode = finalResponse.status.intValue
-          log.warning(s"Request finished unsuccessfully with status code: $statusCode")
-        }
-        finalResponse
-      case otherException: Exception =>
-        HttpResponse(InternalServerError, HttpUtil.toJsonBody(s"Error in request execution: ${otherException.getClass.getSimpleName}"))
-    }
-    resp.withHeaders(addLanguageHeader(responseLanguage, resp.headers))
+    createErrorResponse(exception, request, responseLanguage)
   }
 
   /**
@@ -148,7 +127,7 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
   @throws[Throwable]
   private[http] final def handleRequestError(t: Throwable): Unit = {
     t match {
-      case e: Exception => completeRequest(createErrorResponse(e))
+      case e: Exception => completeRequest(createErrorResponse(e, request, responseLanguage))
       case t: Throwable => throw t
     }
   }
@@ -246,41 +225,6 @@ private[http] abstract class HttpResourceActor(resourceContext: ResourceContext)
     }
     supported.flatMap(_ =>
       request.acceptableContentType(List(responseContentType)).orHaltWithT(NotAcceptable))
-  }
-
-  /**
-   * Given a matching HTTP response code, add the given header to that response
-   * @param response the initial response
-   * @param status the response status code
-   * @param header the header to conditionally add
-   * @return a possibly modified response
-   */
-  private[this] def addHeaderOnCode(response: HttpResponse, status: StatusCode)
-                             (header: => HttpHeader): HttpResponse = {
-    if(response.status == status) {
-      response.withHeaders(header :: response.headers)
-    } else {
-      response
-    }
-  }
-
-  /**
-   * Adds a `Content-Language` header to the current header list if the given `responseLanguage` is not None, and the
-   * given `headers` list does not yet have a `Content-Language` header set
-   * @param responseLanguage the value to assign the `Content-Language` header, or None, if not required
-   * @param headers the current list of headers
-   * @return augmented list of `HttpHeader` object, or the same list as `response.headers` if no modifications needed
-   */
-  private[resource] def addLanguageHeader(responseLanguage: Option[Language], headers: List[HttpHeader]) : List[HttpHeader] = {
-    responseLanguage match {
-      case Some(lang) =>
-        if (headers.exists(_.lowercaseName == HttpUtil.CONTENT_LANGUAGE_LC)) {
-          headers
-        } else {
-          RawHeader(HttpUtil.CONTENT_LANGUAGE, lang.toString) :: headers
-        }
-      case None => headers
-    }
   }
 
 }
