@@ -30,7 +30,7 @@ import spray.util.LoggingContext
 
 import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import com.paypal.cascade.http.resource.ResourceService
-import com.paypal.cascade.http.server.{CascadeRejectionHandler, SprayConfiguration}
+import com.paypal.cascade.http.server.{CascadeExceptionHandler, CascadeRejectionHandler, SprayConfiguration}
 
 /**
  * The root actor implementation used by spray
@@ -38,8 +38,14 @@ import com.paypal.cascade.http.server.{CascadeRejectionHandler, SprayConfigurati
 class SprayActor(override val sprayConfig: SprayConfiguration,
                  override val actorSystemWrapper: ActorSystemWrapper) extends Actor with ResourceService {
   //lifting implicits so we can pass them explicitly to runRoute below
-  private[this] val exceptionHandler = implicitly[ExceptionHandler]
   private[this] val routingSettings = implicitly[RoutingSettings]
+
+  private val exceptionHandler = {
+    sprayConfig.customExceptionHandler match {
+      case Some(handler) => handler.orElse(CascadeExceptionHandler.handler)
+      case None => CascadeExceptionHandler.handler
+    }
+  }
 
   private val rejectionHandler = {
     sprayConfig.customRejectionHandler match {
