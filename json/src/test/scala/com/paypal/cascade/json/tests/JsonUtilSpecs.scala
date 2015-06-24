@@ -48,6 +48,7 @@ class JsonUtilSpecs
 
   JsonUtil should serialize and deserialize more complex types, such as
     a Map[String, String]                                                    ${Maps.StringToString().ok}
+    a Map[String, String] with case-sensitive keys                           ${Maps.CaseSensitiveStringToString().ok}
     a Map[String, Int]                                                       ${Maps.StringToInt().ok}
     a Map[String, List[String]]                                              ${Maps.StringToListString().ok}
     a Map[String, List[Int]]                                                 ${Maps.StringToListInt().ok}
@@ -59,7 +60,7 @@ class JsonUtilSpecs
     a case class containing a single data member                             ${CaseClasses.OneMember().ok}
     a case class containing a single polymorphic member                      ${CaseClasses.OneMemberAny().ok}
     a case class containing multiple members of mixed basic types            ${CaseClasses.TwoMemberMixedBasic().ok}
-    a case class containing mutliple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
+    a case class containing multiple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
     a case class containing an optional AnyVal type                          ${CaseClasses.OptionalAnyValMember().ok}
     a case class containing an optional AnyRef type                          ${CaseClasses.OptionalAnyRefMember().ok}
     a case class containing another case class                               ${CaseClasses.NestedClasses().ok}
@@ -119,18 +120,18 @@ class JsonUtilSpecs
     }
   }
 
+  private def basicMapsMatcher[T : Manifest, U : Manifest](obj: Map[T, U], expectedJson: String) = {
+    val to = obj.toJson.get
+    val from = to.fromJson[Map[T, U]].get
+    val toConvert: Any = from.asInstanceOf[Any]
+    val converted = toConvert.convertValue[Map[T, U]].get
+
+    (to must beEqualTo(expectedJson)) and
+      (from.toSeq must containTheSameElementsAs(obj.toSeq)) and
+      (converted.toSeq must containTheSameElementsAs(from.toSeq))
+  }
+
   object Maps {
-
-    private def basicMapsMatcher[T : Manifest, U : Manifest](obj: Map[T, U], expectedJson: String) = {
-      val to = obj.toJson.get
-      val from = to.fromJson[Map[T, U]].get
-      val toConvert: Any = from.asInstanceOf[Any]
-      val converted = toConvert.convertValue[Map[T, U]].get
-
-      (to must beEqualTo(expectedJson)) and
-        (from.toSeq must containTheSameElementsAs(obj.toSeq)) and
-        (converted.toSeq must containTheSameElementsAs(from.toSeq))
-    }
 
     private def listJson(lst: List[String]): String = {
       val inner = (for {
@@ -142,6 +143,25 @@ class JsonUtilSpecs
     case class StringToString() {
       def ok = forAll(genJsonString, genJsonString) { (k, v) =>
         basicMapsMatcher(Map(k -> v), """{"%s":"%s"}""".format(k, v))
+      }
+    }
+
+    case class CaseSensitiveStringToString() {
+      // only generate alpha lower char, because encountered problem where sometimes it would generate just one digit, which is case insensitive
+      private def genAlphaLowerString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaLowerChar).map(_.mkString).suchThat(_.size > 0)
+
+      def ok = forAll(genAlphaLowerString, genJsonString, genJsonString) { (k1, v, v2) =>
+        var k2 = ""
+        k2 += k1.head.toUpper
+        // capitalize first letter to ensure at least one change (1. if key is only one char, needs to be uppercased, 2. if key is 2 chars, there is still a chance that both do not get uppercased)
+        for (x <- k1.tail) if (math.random < 0.5) k2 += x.toUpper
+
+        // below is first attempt to catch if there is only one character, but then test failed because it's possible that a key of length 2 remains lowercased
+//        k.length match {
+//          case 1 => k2 = k2.toUpperCase()
+//          case _ => {for (x<- k) if (math.random < 0.5) k2 += x.toUpper}
+//        }
+        basicMapsMatcher(Map(k1 -> v, k2 -> v2), """{"%s":"%s","%s":"%s"}""".format(k1, v, k2, v2))
       }
     }
 
