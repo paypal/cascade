@@ -159,10 +159,13 @@ class JsonUtilSpecs
         def createVaryingCaseSubstring(s: String, start: Int, end: Int): String = {
           s.substring(start,end).toCharArray.map(maybeSwapCase).mkString
         }
-        for {
+        val createVaryingCaseStrings = for {
           firstString <- genAlphaLowerString
           i <- Gen.chooseNum(0, firstString.length - 1)
         } yield (firstString, s"${createVaryingCaseSubstring(firstString, 0, i)}${swapCase(firstString(i))}${createVaryingCaseSubstring(firstString, i+1, firstString.length)}")
+
+        createVaryingCaseStrings.suchThat { case (first, second) => first != second && first.nonEmpty && second.nonEmpty }
+
       }
 
       def ok = forAll(genVaryingCaseAlphaStrings, genJsonString, genJsonString) { case ((k1, k2), v1, v2) =>
