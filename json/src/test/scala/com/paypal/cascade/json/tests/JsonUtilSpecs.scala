@@ -165,8 +165,8 @@ class JsonUtilSpecs
         } yield (firstString, s"${createVaryingCaseSubstring(firstString, 0, i)}${swapCase(firstString(i))}${createVaryingCaseSubstring(firstString, i+1, firstString.length)}")
       }
 
-      def ok = forAll(genVaryingCaseAlphaStrings, genJsonString, genJsonString) { (k, v1, v2) =>
-        basicMapsMatcher(Map(k._1 -> v1, k._2 -> v2), """{"%s":"%s","%s":"%s"}""".format(k._1, v1, k._2, v2))
+      def ok = forAll(genVaryingCaseAlphaStrings, genJsonString, genJsonString) { case ((k1, k2), v1, v2) =>
+        basicMapsMatcher(Map(k1 -> v1, k2 -> v2), """{"%s":"%s","%s":"%s"}""".format(k1, v1, k2, v2))
       }
     }
 
