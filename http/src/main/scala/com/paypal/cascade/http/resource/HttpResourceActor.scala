@@ -305,7 +305,7 @@ object HttpResourceActor {
   /**
    * the function that parses an [[spray.http.HttpRequest]] into a type, or fails
    */
-  type RequestParser = HttpRequest => Try[AnyRef]
+  type RequestParser = HttpRequest => Try[Any]
 
   /**
    * Sent to AbstractResourceActor to indicate that a request should be processed
