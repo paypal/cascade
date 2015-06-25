@@ -48,6 +48,7 @@ class JsonUtilSpecs
 
   JsonUtil should serialize and deserialize more complex types, such as
     a Map[String, String]                                                    ${Maps.StringToString().ok}
+    a Map[String, String] with case-sensitive keys                           ${Maps.CaseSensitiveStringToString().ok}
     a Map[String, Int]                                                       ${Maps.StringToInt().ok}
     a Map[String, List[String]]                                              ${Maps.StringToListString().ok}
     a Map[String, List[Int]]                                                 ${Maps.StringToListInt().ok}
@@ -59,7 +60,7 @@ class JsonUtilSpecs
     a case class containing a single data member                             ${CaseClasses.OneMember().ok}
     a case class containing a single polymorphic member                      ${CaseClasses.OneMemberAny().ok}
     a case class containing multiple members of mixed basic types            ${CaseClasses.TwoMemberMixedBasic().ok}
-    a case class containing mutliple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
+    a case class containing multiple members of mixed complex types          ${CaseClasses.TwoMemberMixedComplex().ok}
     a case class containing an optional AnyVal type                          ${CaseClasses.OptionalAnyValMember().ok}
     a case class containing an optional AnyRef type                          ${CaseClasses.OptionalAnyRefMember().ok}
     a case class containing another case class                               ${CaseClasses.NestedClasses().ok}
@@ -142,6 +143,33 @@ class JsonUtilSpecs
     case class StringToString() {
       def ok = forAll(genJsonString, genJsonString) { (k, v) =>
         basicMapsMatcher(Map(k -> v), """{"%s":"%s"}""".format(k, v))
+      }
+    }
+
+    case class CaseSensitiveStringToString() {
+      private def genAlphaLowerString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaLowerChar).map(_.mkString).suchThat(_.size > 0)
+
+      private def genVaryingCaseAlphaStrings: Gen[(String, String)] = {
+        def swapCase(c: Char): Char = {
+          if (c.isUpper) c.toLower else c.toUpper
+        }
+        def maybeSwapCase(c: Char): Char = {
+          if (math.random < 0.5) swapCase(c) else c
+        }
+        def createVaryingCaseSubstring(s: String, start: Int, end: Int): String = {
+          s.substring(start,end).toCharArray.map(maybeSwapCase).mkString
+        }
+        val createVaryingCaseStrings = for {
+          firstString <- genAlphaLowerString
+          i <- Gen.chooseNum(0, firstString.length - 1)
+        } yield (firstString, s"${createVaryingCaseSubstring(firstString, 0, i)}${swapCase(firstString(i))}${createVaryingCaseSubstring(firstString, i+1, firstString.length)}")
+
+        createVaryingCaseStrings.suchThat { case (first, second) => first != second && first.nonEmpty && second.nonEmpty }
+
+      }
+
+      def ok = forAll(genVaryingCaseAlphaStrings, genJsonString, genJsonString) { case ((k1, k2), v1, v2) =>
+        basicMapsMatcher(Map(k1 -> v1, k2 -> v2), """{"%s":"%s","%s":"%s"}""".format(k1, v1, k2, v2))
       }
     }
 
