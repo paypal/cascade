@@ -147,7 +147,6 @@ class JsonUtilSpecs
     }
 
     case class CaseSensitiveStringToString() {
-      // only generate alpha lower char, because encountered problem where sometimes it would generate just one digit, which is case insensitive
       private def genAlphaLowerString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaLowerChar).map(_.mkString).suchThat(_.size > 0)
 
       private def genVaryingCaseAlphaStrings: Gen[(String, String)] = {
@@ -157,11 +156,15 @@ class JsonUtilSpecs
         def maybeSwapCase(c: Char): Char = {
           if (math.random < 0.5) swapCase(c) else c
         }
+        def createVaryingCaseSubstring(s: String, start: Int, end: Int): String = {
+          s.substring(start,end).toCharArray.map(maybeSwapCase).mkString
+        }
         for {
           firstString <- genAlphaLowerString
           i <- Gen.chooseNum(0, firstString.length - 1)
-        } yield (firstString, s"${firstString.substring(0, i).map(maybeSwapCase(_))}${swapCase(firstString(i))}${firstString.substring(i+1).map(maybeSwapCase(_))}")
-          }
+        } yield (firstString, s"${createVaryingCaseSubstring(firstString, 0, i)}${swapCase(firstString(i))}${createVaryingCaseSubstring(firstString, i+1, firstString.length)}")
+      }
+
       def ok = forAll(genVaryingCaseAlphaStrings, genJsonString, genJsonString) { (k, v1, v2) =>
         basicMapsMatcher(Map(k._1 -> v1, k._2 -> v2), """{"%s":"%s","%s":"%s"}""".format(k._1, v1, k._2, v2))
       }
