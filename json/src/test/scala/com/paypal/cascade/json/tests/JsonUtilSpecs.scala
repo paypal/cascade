@@ -120,18 +120,18 @@ class JsonUtilSpecs
     }
   }
 
-  private def basicMapsMatcher[T : Manifest, U : Manifest](obj: Map[T, U], expectedJson: String) = {
-    val to = obj.toJson.get
-    val from = to.fromJson[Map[T, U]].get
-    val toConvert: Any = from.asInstanceOf[Any]
-    val converted = toConvert.convertValue[Map[T, U]].get
-
-    (to must beEqualTo(expectedJson)) and
-      (from.toSeq must containTheSameElementsAs(obj.toSeq)) and
-      (converted.toSeq must containTheSameElementsAs(from.toSeq))
-  }
-
   object Maps {
+
+    private def basicMapsMatcher[T : Manifest, U : Manifest](obj: Map[T, U], expectedJson: String) = {
+      val to = obj.toJson.get
+      val from = to.fromJson[Map[T, U]].get
+      val toConvert: Any = from.asInstanceOf[Any]
+      val converted = toConvert.convertValue[Map[T, U]].get
+
+      (to must beEqualTo(expectedJson)) and
+        (from.toSeq must containTheSameElementsAs(obj.toSeq)) and
+        (converted.toSeq must containTheSameElementsAs(from.toSeq))
+    }
 
     private def listJson(lst: List[String]): String = {
       val inner = (for {
@@ -150,18 +150,20 @@ class JsonUtilSpecs
       // only generate alpha lower char, because encountered problem where sometimes it would generate just one digit, which is case insensitive
       private def genAlphaLowerString: Gen[String] = Gen.nonEmptyListOf(Gen.alphaLowerChar).map(_.mkString).suchThat(_.size > 0)
 
-      def ok = forAll(genAlphaLowerString, genJsonString, genJsonString) { (k1, v, v2) =>
-        var k2 = ""
-        k2 += k1.head.toUpper
-        // capitalize first letter to ensure at least one change (1. if key is only one char, needs to be uppercased, 2. if key is 2 chars, there is still a chance that both do not get uppercased)
-        for (x <- k1.tail) if (math.random < 0.5) k2 += x.toUpper
-
-        // below is first attempt to catch if there is only one character, but then test failed because it's possible that a key of length 2 remains lowercased
-//        k.length match {
-//          case 1 => k2 = k2.toUpperCase()
-//          case _ => {for (x<- k) if (math.random < 0.5) k2 += x.toUpper}
-//        }
-        basicMapsMatcher(Map(k1 -> v, k2 -> v2), """{"%s":"%s","%s":"%s"}""".format(k1, v, k2, v2))
+      private def genVaryingCaseAlphaStrings: Gen[(String, String)] = {
+        def swapCase(c: Char): Char = {
+          if (c.isUpper) c.toLower else c.toUpper
+        }
+        def maybeSwapCase(c: Char): Char = {
+          if (math.random < 0.5) swapCase(c) else c
+        }
+        for {
+          firstString <- genAlphaLowerString
+          i <- Gen.chooseNum(0, firstString.length - 1)
+        } yield (firstString, s"${firstString.substring(0, i).map(maybeSwapCase(_))}${swapCase(firstString(i))}${firstString.substring(i+1).map(maybeSwapCase(_))}")
+          }
+      def ok = forAll(genVaryingCaseAlphaStrings, genJsonString, genJsonString) { (k, v1, v2) =>
+        basicMapsMatcher(Map(k._1 -> v1, k._2 -> v2), """{"%s":"%s","%s":"%s"}""".format(k._1, v1, k._2, v2))
       }
     }
 
