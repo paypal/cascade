@@ -16,18 +16,20 @@
 package com.paypal.cascade.http.tests.actor
 
 import java.util.concurrent.TimeUnit
+
+import scala.concurrent.Await
+
 import akka.util.Timeout
-import com.paypal.cascade.akka.actor.ActorSystemWrapper
+import spray.can.server.ServerSettings
+import spray.io.ServerSSLEngineProvider
+import spray.routing._
 import org.specs2._
 import org.specs2.mock.Mockito
+
+import com.paypal.cascade.akka.actor.ActorSystemWrapper
 import com.paypal.cascade.common.tests.util.CommonImmutableSpecificationContext
 import com.paypal.cascade.http.actor._
 import com.paypal.cascade.http.server._
-import spray.can.server.ServerSettings
-import spray.routing._
-import spray.io.ServerSSLEngineProvider
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 
 /**
  * Tests for [[com.paypal.cascade.http.actor.SprayActor]]
@@ -43,12 +45,13 @@ class SprayActorSpecs
 
   trait Context extends CommonImmutableSpecificationContext {
     val backlog: Int = 0
+    val interface = "0.0.0.0"
     val port: Int = 0
     val serviceName = "http"
     val route = mock[Route]
 
     val wrapper = new ActorSystemWrapper(serviceName)
-    val config = new SprayConfiguration(serviceName, port, backlog, route, None)
+    val config = new SprayConfiguration(serviceName, interface, port, backlog, route, None)
     implicit val timeout = Timeout(10, TimeUnit.SECONDS)
   }
 

@@ -60,7 +60,7 @@ class ResourceServiceSpecs extends SpecificationLike with ScalaCheck { def is = 
 
   private lazy val systemWrapper = new ActorSystemWrapper(serviceName)
 
-  private lazy val config = SprayConfiguration(serviceName, 8080, 15) {
+  private lazy val config = SprayConfiguration(serviceName, "localhost", 8080, 15) {
     path("ping") {
       get {
         ResourceDriver.serve(createDummyResource, parseRequest)(systemWrapper.actorRefFactory)

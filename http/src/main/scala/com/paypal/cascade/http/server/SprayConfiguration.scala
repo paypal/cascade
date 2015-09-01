@@ -21,14 +21,18 @@ import spray.routing.{RejectionHandler, Route}
  * This class provides configuration information for a spray service
  */
 class SprayConfiguration(val serviceName: String,
+                         val interface: String,
                          val port: Int,
                          val backlog: Int,
                          val route: Route,
                          val customRejectionHandler: Option[RejectionHandler] = None)
 
 object SprayConfiguration {
-  def apply(serviceName: String, port: Int, backlog: Int, customRejectionHandler: Option[RejectionHandler] = None)
+  def apply(serviceName: String,
+            interface: String,
+            port: Int, backlog: Int,
+            customRejectionHandler: Option[RejectionHandler] = None)
            (route: Route): SprayConfiguration = {
-    new SprayConfiguration(serviceName, port, backlog, route, customRejectionHandler)
+    new SprayConfiguration(serviceName, interface, port, backlog, route, customRejectionHandler)
   }
 }

@@ -15,8 +15,6 @@
  */
 package com.paypal.cascade.http.actor
 
-import spray.can.server.ServerSettings
-
 import scala.concurrent.Future
 
 import akka.actor.{Actor, Props}
@@ -24,8 +22,9 @@ import akka.io.{IO => AkkaIO}
 import akka.pattern.ask
 import akka.util.Timeout
 import spray.can.Http
+import spray.can.server.ServerSettings
 import spray.io.ServerSSLEngineProvider
-import spray.routing.{RejectionHandler, ExceptionHandler, RoutingSettings}
+import spray.routing.{ExceptionHandler, RoutingSettings}
 import spray.util.LoggingContext
 
 import com.paypal.cascade.akka.actor.ActorSystemWrapper
@@ -80,7 +79,7 @@ object SprayActor {
     val sprayActorProps = Props(new SprayActor(sprayConfig, systemWrapper))
     val sprayActor = systemWrapper.system.actorOf(sprayActorProps)
     val bindMsg = Http.Bind(sprayActor,
-      interface = "0.0.0.0",
+      interface = sprayConfig.interface,
       port = sprayConfig.port,
       backlog = sprayConfig.backlog,
       settings = serverSettings)
