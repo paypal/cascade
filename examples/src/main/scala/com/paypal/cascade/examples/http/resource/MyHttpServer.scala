@@ -34,12 +34,13 @@ object MyHttpServer extends CascadeApp {
   val systemWrapper = new ActorSystemWrapper("MyHttpService")
 
   val TimeoutSecs = 10
+  val Interface = "localhost"
   val Port = 8080
   val Backlog = 5
 
   private implicit val actorRefFactory = systemWrapper.actorRefFactory
   private implicit val timeout = new Timeout(TimeoutSecs, TimeUnit.SECONDS)
-  val config  = SprayConfiguration("my-http-server", Port, Backlog) {
+  val config  = SprayConfiguration("my-http-server", Interface, Port, Backlog) {
     get {
       path("hello") {
         ResourceDriver.serve(MyHttpResource.apply, MyHttpResource.requestParser)
