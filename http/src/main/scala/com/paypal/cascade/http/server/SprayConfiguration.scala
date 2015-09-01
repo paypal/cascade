@@ -30,7 +30,8 @@ class SprayConfiguration(val serviceName: String,
 object SprayConfiguration {
   def apply(serviceName: String,
             interface: String,
-            port: Int, backlog: Int,
+            port: Int,
+            backlog: Int,
             customRejectionHandler: Option[RejectionHandler] = None)
            (route: Route): SprayConfiguration = {
     new SprayConfiguration(serviceName, interface, port, backlog, route, customRejectionHandler)
