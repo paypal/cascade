@@ -1,4 +1,8 @@
 
+# 0.5.1 09/01/15 released by 2rs2ts
+* Bind interface is now customizable via `SprayConfiguration.interface`. (#155)
+* `RequestParser` is now an alias for `HttpRequest => Try[Any]`. (#154)
+
 # 0.5.0 06/03/15 released by 2rs2ts
 * 2.10 support dropped; #134 fixed; Added AkkaLoggingAsSlf4j; etc
 

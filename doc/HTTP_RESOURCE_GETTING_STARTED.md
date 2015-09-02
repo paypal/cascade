@@ -73,7 +73,10 @@ with the different parsed bodies you send to it.
 ```scala
 object MyServer extends CascadeApp {
   val svcName = "sample-service"
-  val cfg = SprayConfiguration(serviceName = svcName, port = 8080, backlog = 5) {
+  val cfg = SprayConfiguration(serviceName = svcName,
+                               interface = "localhost",
+                               port = 8080,
+                               backlog = 5) {
     //This is where you put your routes. We recommend using spray-routing here,
     //but you can also write your own routing code that returns a
     //spray.routing.Route.
